@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "scripts": {
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "del": "5.1.0",
+    "node-fetch": "2.6.1",
     "yargs": "4.6.0"
   }
 }
