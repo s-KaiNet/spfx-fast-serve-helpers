@@ -19,9 +19,6 @@ export function addFastServe(build: Build) {
   build.rig.addPreBuildTask(build.task('delete-scss-definitions', deleteDefinitions));
 
   if (!useCustomServe) return;
-
-  build.tslintCmd.enabled = false;
-
   const ensureWorkbenchSubtask = build.subTask('ensure-workbench', function (gulp, buildOptions, done) {
     try {
       workbenchApi.default['/workbench']();
