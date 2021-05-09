@@ -14,8 +14,6 @@ const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 
 export function createBaseConfig(settings: Settings): webpack.Configuration {
-  let RestProxy: any;
-
   const port = settings.cli.isLibraryComponent ? 4320 : 4321;
   const host = 'https://localhost:' + port;
 
@@ -32,7 +30,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       rules: [
         {
           test: /\.tsx?$/,
-          loader: 'ts-loader',
+          loader: require.resolve('ts-loader'),
           options: {
             transpileOnly: true,
             compilerOptions: {
@@ -66,7 +64,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
               }
             },
             {
-              loader: 'css-loader',
+              loader: require.resolve('css-loader'),
               options: {
                 esModule: false,
                 modules: false
@@ -85,9 +83,9 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
                 async: true
               }
             },
-            'css-modules-typescript-loader',
+            require.resolve('css-modules-typescript-loader'),
             {
-              loader: 'css-loader',
+              loader: require.resolve('css-loader'),
               options: {
                 esModule: false,
                 modules: {
@@ -95,7 +93,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
                 }
               }
             }, // translates CSS into CommonJS
-            'sass-loader' // compiles Sass to CSS, using Sass by default
+            require.resolve('sass-loader') // compiles Sass to CSS, using Sass by default
           ]
         },
         {
@@ -110,13 +108,13 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
               }
             },
             {
-              loader: 'css-loader',
+              loader: require.resolve('css-loader'),
               options: {
                 esModule: false,
                 modules: false
               }
             }, // translates CSS into CommonJS
-            'sass-loader' // compiles Sass to CSS, using Sass by default
+            require.resolve('sass-loader') // compiles Sass to CSS, using Sass by default
           ]
         }
       ]
@@ -159,19 +157,6 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
         key: certificateStore.keyData
       }
     },
-  }
-
-  if (settings.cli.useRestProxy) {
-    RestProxy = require('sp-rest-proxy');
-  }
-
-  if (settings.cli.useRestProxy) {
-    baseConfig.devServer.before = function (app) {
-      new RestProxy({
-        port,
-        logLevel: 'Off'
-      }, app).serveProxy();
-    }
   }
 
   return baseConfig;
