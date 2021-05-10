@@ -6,11 +6,9 @@ const CertificateStore = CertStore.CertificateStore || CertStore.default;
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
-import { getJSONFile, getLoggingLevel } from './helpers';
+import { getLoggingLevel } from './helpers';
 import { Settings } from '../common/settings';
 
-const packageJson = getJSONFile('package.json');
-const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 
 export function createBaseConfig(settings: Settings): webpack.Configuration {
@@ -34,7 +32,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           options: {
             transpileOnly: true,
             compilerOptions: {
-              declarationMap: false
+              module: 'esnext'
             }
           },
           exclude: /node_modules/
@@ -111,9 +109,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       ]
     },
     plugins: [
-      new ForkTsCheckerWebpackPlugin({
-        eslint: hasESLint
-      }),
+      new ForkTsCheckerWebpackPlugin(),
       new ClearCssModuleDefinitionsPlugin({
         deleted: false,
         rootFolder
