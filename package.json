@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {

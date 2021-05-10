@@ -3,6 +3,16 @@ import * as fs from 'fs';
 import { Settings } from '../common/settings';
 import { EntryPoints, LocalizedResources } from '../common/types';
 
+export function getSpfxMinorVersion() {
+  const packageJson = getJSONFile('package.json');
+  const dependecyToCheck = '@microsoft/sp-build-web';
+  let version: string = packageJson.devDependencies[dependecyToCheck];
+  if (version.indexOf('~') === 0 || version.indexOf('^') === 0) {
+    version = version.substr(1);
+  }
+  return parseInt(version.split('.')[1]);
+}
+
 export function getJSONFile(relPath: string) {
   return require(path.join(process.cwd(), relPath));
 }

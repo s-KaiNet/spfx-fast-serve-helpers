@@ -6,7 +6,7 @@ const CertificateStore = CertStore.CertificateStore || CertStore.default;
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
-import { getLoggingLevel } from './helpers';
+import { getLoggingLevel, getSpfxMinorVersion } from './helpers';
 import { Settings } from '../common/settings';
 
 const rootFolder = path.resolve(process.cwd());
@@ -14,6 +14,7 @@ const rootFolder = path.resolve(process.cwd());
 export function createBaseConfig(settings: Settings): webpack.Configuration {
   const port = settings.cli.isLibraryComponent ? 4320 : 4321;
   const host = 'https://localhost:' + port;
+  const minorVersion = getSpfxMinorVersion();
 
   const baseConfig: webpack.Configuration = {
     target: 'web',
@@ -31,9 +32,9 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           loader: require.resolve('ts-loader'),
           options: {
             transpileOnly: true,
-            compilerOptions: {
+            compilerOptions: minorVersion === 4 ? {
               module: 'esnext'
-            }
+            } : undefined
           },
           exclude: /node_modules/
         },
@@ -144,7 +145,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       },
       https: {
         cert: CertificateStore.instance.certificateData,
-        key: CertificateStore.instance.keyData  
+        key: CertificateStore.instance.keyData
       }
     },
   }
