@@ -28,7 +28,7 @@ const createConfig = function () {
 
   baseConfig.entry = getEntryPoints(originalWebpackConfig.entry);
 
-  baseConfig.output.publicPath = baseConfig.devServer.host + '/dist/';
+  baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
   const manifest = getJSONFile('temp/manifests.json');
 
