@@ -1,8 +1,8 @@
 import webpack from 'webpack';
 import * as path from 'path';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const certificateManager = require('@rushstack/debug-certificate-manager');
-const certificateStore = new certificateManager.CertificateStore();
+const CertStore = require('@microsoft/gulp-core-build-serve/lib/CertificateStore');
+const CertificateStore = CertStore.CertificateStore || CertStore.default;
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
@@ -64,11 +64,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
               }
             },
             {
-              loader: require.resolve('css-loader'),
-              options: {
-                esModule: false,
-                modules: false
-              }
+              loader: require.resolve('css-loader')
             }
           ]
         },
@@ -87,7 +83,6 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
             {
               loader: require.resolve('css-loader'),
               options: {
-                esModule: false,
                 modules: {
                   localIdentName: '[local]_[hash:base64:8]'
                 }
@@ -108,11 +103,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
               }
             },
             {
-              loader: require.resolve('css-loader'),
-              options: {
-                esModule: false,
-                modules: false
-              }
+              loader: require.resolve('css-loader')
             }, // translates CSS into CommonJS
             require.resolve('sass-loader') // compiles Sass to CSS, using Sass by default
           ]
@@ -121,11 +112,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
     },
     plugins: [
       new ForkTsCheckerWebpackPlugin({
-        eslint: hasESLint ? {
-          files: './src/**/*.{ts,tsx}',
-          enabled: true
-        } : undefined,
-        async: true
+        eslint: hasESLint
       }),
       new ClearCssModuleDefinitionsPlugin({
         deleted: false,
@@ -149,12 +136,19 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       openPage: settings.serve.openUrl ? settings.serve.openUrl : host + '/temp/workbench.html',
       overlay: settings.serve.fullScreenErrors,
       stats: getLoggingLevel(settings.serve.loggingLevel),
+      proxy: { // url re-write for resources to be served directly from src folder
+        '/lib/**/loc/*.js': {
+          target: host,
+          pathRewrite: { '^/lib': '/src' },
+          secure: false
+        }
+      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       https: {
-        cert: certificateStore.certificateData,
-        key: certificateStore.keyData
+        cert: CertificateStore.instance.certificateData,
+        key: CertificateStore.instance.keyData  
       }
     },
   }

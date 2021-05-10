@@ -1,11 +1,11 @@
 import * as path from 'path';
 import webpack from 'webpack';
-import CopyPlugin from 'copy-webpack-plugin';
 import del from 'del';
-import { merge } from 'webpack-merge';
-import { LocalizedResources, ModulesMap } from '../common/types';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const webpackMerge = require('webpack-merge');
+import { ModulesMap } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
-import { addCopyLocalizedResources, getEntryPoints, getJSONFile, setDefaultServeSettings } from './helpers';
+import { getEntryPoints, getJSONFile, setDefaultServeSettings } from './helpers';
 
 import { createBaseConfig } from './baseConfig';
 
@@ -31,9 +31,7 @@ const createConfig = function () {
   baseConfig.output.publicPath = baseConfig.devServer.host + '/dist/';
 
   const manifest = getJSONFile('temp/manifests.json');
-  const config = getJSONFile('config/config.json');
 
-  const localizedResources: LocalizedResources = config.localizedResources;
   const modulesMap: ModulesMap = {};
   const originalEntries = Object.keys(originalWebpackConfig.entry);
 
@@ -50,23 +48,12 @@ const createConfig = function () {
     }
   }
 
-  baseConfig.output.filename = function (pathInfo) {
-    const entryPointName = pathInfo.chunk.name + '.js';
-    return modulesMap[entryPointName].path;
-  };
-
   baseConfig.plugins.push(new DynamicLibraryPlugin({
     modulesMap: modulesMap,
     libraryName: originalWebpackConfig.output.library
   }));
 
-  const patterns = addCopyLocalizedResources(localizedResources);
-
-  baseConfig.plugins.push(new CopyPlugin({
-    patterns
-  }));
-
   return baseConfig;
 }
 
-export const resultConfig = merge<webpack.Configuration>(transformConfig(createConfig()), webpackConfig);
+export const resultConfig: webpack.Configuration = webpackMerge(transformConfig(createConfig()), webpackConfig);
