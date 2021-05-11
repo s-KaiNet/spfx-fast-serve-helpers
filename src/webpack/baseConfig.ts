@@ -17,6 +17,8 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
   const port = settings.cli.isLibraryComponent ? 4320 : 4321;
   const host = 'https://localhost:' + port;
 
+  const themedLoader = require.resolve('@microsoft/loader-load-themed-styles');
+
   const baseConfig: webpack.Configuration = {
     target: 'web',
     mode: 'development',
@@ -41,7 +43,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
         },
         {
           use: [{
-            loader: '@microsoft/loader-cased-file',
+            loader: require.resolve('@microsoft/loader-cased-file'),
             options: {
               name: '[name:lower]_[hash].[ext]'
             }
@@ -58,7 +60,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           test: /\.css$/,
           use: [
             {
-              loader: '@microsoft/loader-load-themed-styles',
+              loader: themedLoader,
               options: {
                 async: true
               }
@@ -74,7 +76,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           },
           use: [
             {
-              loader: '@microsoft/loader-load-themed-styles',
+              loader: themedLoader,
               options: {
                 async: true
               }
@@ -97,7 +99,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           },
           use: [
             {
-              loader: '@microsoft/loader-load-themed-styles',
+              loader: themedLoader,
               options: {
                 async: true
               }
