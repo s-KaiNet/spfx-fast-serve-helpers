@@ -17,6 +17,9 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
   const port = settings.cli.isLibraryComponent ? 4320 : 4321;
   const host = 'https://localhost:' + port;
 
+  const cssLoader = require.resolve('css-loader');
+  const themedLoader = require.resolve('@microsoft/loader-load-themed-styles');
+
   const baseConfig: webpack.Configuration = {
     target: 'web',
     mode: 'development',
@@ -41,9 +44,11 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
         },
         {
           use: [{
-            loader: '@microsoft/loader-cased-file',
+            loader: require.resolve('file-loader'),
             options: {
-              name: '[name:lower]_[hash].[ext]'
+              name: '[name]_[hash].[ext]',
+              esModule: false
+
             }
           }],
           test: /\.(jpe?g|png|woff|eot|ttf|svg|gif|dds)$/i
@@ -58,13 +63,13 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           test: /\.css$/,
           use: [
             {
-              loader: '@microsoft/loader-load-themed-styles',
+              loader: themedLoader,
               options: {
                 async: true
               }
             },
             {
-              loader: require.resolve('css-loader'),
+              loader: cssLoader,
               options: {
                 esModule: false,
                 modules: false
@@ -78,14 +83,14 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           },
           use: [
             {
-              loader: '@microsoft/loader-load-themed-styles',
+              loader: themedLoader,
               options: {
                 async: true
               }
             },
             require.resolve('css-modules-typescript-loader'),
             {
-              loader: require.resolve('css-loader'),
+              loader: cssLoader,
               options: {
                 esModule: false,
                 modules: {
@@ -102,13 +107,13 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           },
           use: [
             {
-              loader: '@microsoft/loader-load-themed-styles',
+              loader: themedLoader,
               options: {
                 async: true
               }
             },
             {
-              loader: require.resolve('css-loader'),
+              loader: cssLoader,
               options: {
                 esModule: false,
                 modules: false
