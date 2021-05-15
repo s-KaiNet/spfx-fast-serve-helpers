@@ -6,11 +6,27 @@ import * as path from 'path';
 import { hostname } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
+import { Settings } from './common/settings';
+import { getJSONFile } from './webpack/helpers';
+import { startDevServer } from './webpack/devServer';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const workbenchApi = require('@microsoft/sp-webpart-workbench/lib/api');
 
 export function addFastServe(build: Build) {
-  const useCustomServe = argv['custom-serve'];
+  let useCustomServe = argv['custom-serve'];
+  const isRegularServe = argv._.indexOf('serve') !== -1;
+  const settings: Settings = getJSONFile('fast-serve/config.json');
+
+  if (settings.serve?.replaceNativeServe && isRegularServe) {
+    build.serve.enabled = false;
+
+    const fastServeTask = build.subTask('fast-serve', function () {
+      startDevServer();
+    });
+
+    build.rig.addPostBundleTask(fastServeTask);
+    useCustomServe = true;
+  }
 
   if (!useCustomServe) return;
 
@@ -18,7 +34,7 @@ export function addFastServe(build: Build) {
 
   build.tslintCmd.enabled = false;
 
-  const ensureWorkbenchSubtask = build.subTask('ensure-workbench', function (gulp, buildOptions, done) {
+  const ensureWorkbenchSubtask = build.subTask('ensure-workbench', function (gulp, config, done) {
     try {
       workbenchApi.default['/workbench']();
     } catch (e) {
