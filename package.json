@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.12.5",
+  "version": "1.12.6-beta.0",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -47,6 +47,7 @@
     "del": "6.0.0",
     "file-loader": "6.2.0",
     "fork-ts-checker-webpack-plugin": "6.2.4",
+    "globby": "11.0.3",
     "node-fetch": "2.6.1",
     "sass": "1.32.11",
     "sass-loader": "9.0.3",
