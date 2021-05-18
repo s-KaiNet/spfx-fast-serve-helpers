@@ -88,7 +88,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
                 async: true
               }
             },
-            require.resolve('css-modules-typescript-loader'),
+            require.resolve('spfx-css-modules-typescript-loader'),
             {
               loader: cssLoader,
               options: {

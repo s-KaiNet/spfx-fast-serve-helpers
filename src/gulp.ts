@@ -6,11 +6,17 @@ import * as path from 'path';
 import { hostname } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
+import del from 'del';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const workbenchApi = require('@microsoft/sp-webpart-workbench/lib/api');
 
 export function addFastServe(build: Build) {
   const useCustomServe = argv['custom-serve'];
+  const isClean = argv._.indexOf('clean') !== -1;
+
+  if (isClean) {
+    del.sync(['src/**/*.module.scss.d.ts'], { cwd: path.resolve(process.cwd()) });
+  }
 
   if (!useCustomServe) return;
 
