@@ -138,7 +138,6 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.DEBUG': JSON.stringify(true),
         'DEBUG': JSON.stringify(true)
       })],
     devServer: {
