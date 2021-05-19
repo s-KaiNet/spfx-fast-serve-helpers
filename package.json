@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -13,7 +13,8 @@
     "copy": "cpy **/*.* ../../spfx-fast-serve/samples/basic/node_modules/spfx-fast-serve-helpers/lib --parents --cwd=lib",
     "dev": "npm run copy && concurrently \"npm run watch:ts\" \"npm run watch:template\"",
     "watch:ts": "tsc -p . --watch",
-    "watch:template": "onchange \"lib/**/*.*\" -- npm run copy"
+    "watch:template": "onchange \"lib/**/*.*\" -- npm run copy",
+    "pub": "npm publish --tag sp-2019"
   },
   "repository": {
     "type": "git",
