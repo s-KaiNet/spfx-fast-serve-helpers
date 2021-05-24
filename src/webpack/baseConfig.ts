@@ -32,14 +32,18 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
-          loader: require.resolve('ts-loader'),
-          options: {
-            transpileOnly: true,
-            compilerOptions: {
-              declarationMap: false
+          use: [
+            {
+              loader: require.resolve('ts-loader'),
+              options: {
+                transpileOnly: true,
+                compilerOptions: {
+                  declarationMap: false
+                }
+              },
             }
-          },
+          ],
+          test: /\.tsx?$/,
           exclude: /node_modules/
         },
         {

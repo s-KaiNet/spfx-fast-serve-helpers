@@ -96,6 +96,7 @@ export function addCopyLocalizedResources(localizedResources: LocalizedResources
     patterns.push({
       flatten: true,
       from,
+      noErrorOnMissing: true,
       to: (data: { absoluteFilename: string }) => {
         const fileName = path.basename(data.absoluteFilename);
         return resourceKey + '_' + fileName;
