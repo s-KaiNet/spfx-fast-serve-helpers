@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.12.9",
+  "version": "1.12.10-beta.0",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -41,6 +41,7 @@
   "dependencies": {
     "@microsoft/loader-load-themed-styles": "1.9.26",
     "@types/copy-webpack-plugin": "6.4.0",
+    "@types/loader-utils": "2.0.2",
     "@types/webpack-dev-server": "3.11.4",
     "copy-webpack-plugin": "6.4.0",
     "css-loader": "5.2.4",
@@ -48,6 +49,7 @@
     "file-loader": "6.2.0",
     "fork-ts-checker-webpack-plugin": "6.2.4",
     "globby": "11.0.3",
+    "loader-utils": "1.4.0",
     "node-fetch": "2.6.1",
     "sass": "1.32.11",
     "sass-loader": "9.0.3",
@@ -57,6 +59,7 @@
     "webpack": "4.44.2",
     "webpack-cli": "4.6.0",
     "webpack-dev-server": "3.11.2",
+    "webpack-inject-plugin": "1.5.5",
     "webpack-merge": "5.7.3",
     "yargs": "4.6.0"
   }

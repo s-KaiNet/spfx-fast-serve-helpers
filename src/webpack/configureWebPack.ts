@@ -52,6 +52,9 @@ const createConfig = function () {
 
   baseConfig.output.filename = function (pathInfo) {
     const entryPointName = pathInfo.chunk.name + '.js';
+    if (!modulesMap[entryPointName]) {
+      return '[name].js';
+    }
     return modulesMap[entryPointName].path;
   };
 

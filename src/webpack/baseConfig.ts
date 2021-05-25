@@ -6,6 +6,7 @@ const certificateStore = new certificateManager.CertificateStore();
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
+import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { getJSONFile, getLoggingLevel } from './helpers';
 import { Settings } from '../common/settings';
 
@@ -136,6 +137,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
         } : undefined,
         async: true
       }),
+      new TypeScriptResourcesPlugin(),
       new ClearCssModuleDefinitionsPlugin({
         deleted: false,
         rootFolder

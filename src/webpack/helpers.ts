@@ -106,3 +106,19 @@ export function addCopyLocalizedResources(localizedResources: LocalizedResources
 
   return patterns;
 }
+
+export function trimLeft(str: string, charlist: string) {
+  return str.replace(new RegExp('^[' + charlist + ']+'), '');
+}
+
+export function trimRight(str: string, charlist: string) {
+  return str.replace(new RegExp('[' + charlist + ']+$'), '');
+}
+
+export function trim(str: string, charlist: string) {
+  return trimRight(trimLeft(str, charlist), charlist);
+}
+
+export function createKeyFromPath(path: string) {
+  return trimLeft(path, '/\\\\').replace(/\//gi, '|').replace(/\\/gi, '|');
+}
