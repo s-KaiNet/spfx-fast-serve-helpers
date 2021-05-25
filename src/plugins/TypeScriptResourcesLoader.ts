@@ -16,5 +16,7 @@ export default function loader(this: webpack.loader.LoaderContext, source: strin
     this.emitFile(options[key].fileName, source, null);
   }
 
-  return source;
+  this.callback(null, source, data as any);
+  
+  return undefined;
 }
