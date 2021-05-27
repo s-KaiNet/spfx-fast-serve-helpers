@@ -6,6 +6,7 @@ const certificateStore = new certificateManager.CertificateStore();
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
+import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { getJSONFile, getLoggingLevel } from './helpers';
 import { Settings } from '../common/settings';
 
@@ -32,14 +33,18 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
-          loader: require.resolve('ts-loader'),
-          options: {
-            transpileOnly: true,
-            compilerOptions: {
-              declarationMap: false
+          use: [
+            {
+              loader: require.resolve('ts-loader'),
+              options: {
+                transpileOnly: true,
+                compilerOptions: {
+                  declarationMap: false
+                }
+              },
             }
-          },
+          ],
+          test: /\.tsx?$/,
           exclude: /node_modules/
         },
         {
@@ -88,7 +93,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
                 async: true
               }
             },
-            require.resolve('css-modules-typescript-loader'),
+            require.resolve('spfx-css-modules-typescript-loader'),
             {
               loader: cssLoader,
               options: {
@@ -132,13 +137,13 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
         } : undefined,
         async: true
       }),
+      new TypeScriptResourcesPlugin(),
       new ClearCssModuleDefinitionsPlugin({
         deleted: false,
         rootFolder
       }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.DEBUG': JSON.stringify(true),
         'DEBUG': JSON.stringify(true)
       })],
     devServer: {

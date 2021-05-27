@@ -6,6 +6,7 @@ import * as path from 'path';
 import { hostname } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
+import del from 'del';
 import { Settings } from './common/settings';
 import { getJSONFile } from './webpack/helpers';
 import { startDevServer } from './webpack/devServer';
@@ -16,7 +17,11 @@ export function addFastServe(build: Build) {
   let useCustomServe = argv['custom-serve'];
   const isRegularServe = argv._.indexOf('serve') !== -1;
   const settings: Settings = getJSONFile('fast-serve/config.json');
+  const isClean = argv._.indexOf('clean') !== -1;
 
+  if (isClean) {
+    del.sync(['src/**/*.module.scss.d.ts'], { cwd: path.resolve(process.cwd()) });
+  }
   if (settings.serve?.replaceNativeServe && isRegularServe) {
     build.serve.enabled = false;
 

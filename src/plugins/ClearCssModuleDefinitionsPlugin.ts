@@ -1,5 +1,6 @@
 import webpack from 'webpack';
 import del from 'del';
+import globby from 'globby';
 import { ClearCssModulesPluginOptions } from '../common/types';
 
 ///
@@ -13,10 +14,11 @@ export class ClearCssModuleDefinitionsPlugin {
   apply(compiler: webpack.Compiler) {
     compiler.hooks.done.tap('FixStylesPlugin', () => {
       if (!this.options.deleted) {
-
         setTimeout(() => {
-          del.sync(['src/**/*.module.scss.ts'], { cwd: this.options.rootFolder });
-        }, 3000);
+          let files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: this.options.rootFolder });
+          files = files.map(f => f.replace('module.scss.d.ts', 'module.scss.ts'));
+          del.sync(files, { cwd: this.options.rootFolder });
+        }, 2000);
 
         this.options.deleted = true;
       }
