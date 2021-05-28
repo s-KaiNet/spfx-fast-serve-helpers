@@ -9,8 +9,9 @@ import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefini
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { getJSONFile, getLoggingLevel } from './helpers';
 import { Settings } from '../common/settings';
+import { NodePackage } from '../common/types';
 
-const packageJson = getJSONFile('package.json');
+const packageJson = getJSONFile<NodePackage>('package.json');
 const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 

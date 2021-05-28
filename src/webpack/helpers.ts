@@ -2,9 +2,11 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { Settings } from '../common/settings';
 import { EntryPoints, LocalizedResources } from '../common/types';
+import webpack from 'webpack';
 
-export function getJSONFile(relPath: string) {
-  return require(path.join(process.cwd(), relPath));
+export function getJSONFile<T = any>(relPath: string) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require(path.join(process.cwd(), relPath)) as T;
 }
 
 export function setDefaultServeSettings(settings: Settings) {
@@ -55,7 +57,7 @@ export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
   throw new Error('Unsupported log level: ' + level);
 }
 
-export function getEntryPoints(entry: EntryPoints) {
+export function getEntryPoints(entry: webpack.Entry) {
   // fix: ".js" entry needs to be ".ts"
   // also replaces the path form /lib/* to /src/*
   // spfx not always follows path.sep settings, so just replace both variants
@@ -67,7 +69,7 @@ export function getEntryPoints(entry: EntryPoints) {
   const srcPathToReplace2 = '\\src\\';
 
   for (const key in entry) {
-    let entryPath = entry[key];
+    let entryPath = entry[key] as string;
     if (entryPath.indexOf('bundle-entries') === -1) {
       entryPath = entryPath
         .replace(libSearchRegexp1, srcPathToReplace1)
