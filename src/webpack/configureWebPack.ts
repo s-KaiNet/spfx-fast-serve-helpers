@@ -15,11 +15,11 @@ const rootFolder = path.resolve(process.cwd());
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { transformConfig, webpackConfig } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
 
-const settings = getJSONFile<Settings>('fast-serve/config.json');
-
-const baseConfig = createBaseConfig(settings.cli.isLibraryComponent);
-
 const createConfig = function () {
+  const settings = getJSONFile<Settings>('fast-serve/config.json');
+
+  const baseConfig = createBaseConfig(settings.cli.isLibraryComponent);
+
   del.sync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
 
   // we need only "externals", "output" and "entry" from the original webpack config
@@ -74,4 +74,4 @@ const createConfig = function () {
   return baseConfig;
 }
 
-export const resultConfig = merge<webpack.Configuration>(transformConfig(createConfig()), webpackConfig);
+export const resultConfig = (): webpack.Configuration => merge(transformConfig(createConfig()), webpackConfig);
