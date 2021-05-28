@@ -7,16 +7,15 @@ const certificateStore = new certificateManager.CertificateStore();
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
-import { getJSONFile, getLoggingLevel } from './helpers';
-import { Settings } from '../common/settings';
+import { getJSONFile } from './helpers';
 import { NodePackage } from '../common/types';
 
 const packageJson = getJSONFile<NodePackage>('package.json');
 const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 
-export function createBaseConfig(settings: Settings): webpack.Configuration {
-  const port = settings.cli.isLibraryComponent ? 4320 : 4321;
+export function createBaseConfig(isLibraryComponent: boolean): webpack.Configuration {
+  const port = isLibraryComponent ? 4320 : 4321;
   const host = 'https://localhost:' + port;
 
   const cssLoader = require.resolve('css-loader');
@@ -155,11 +154,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       port: port,
       disableHostCheck: true,
       historyApiFallback: true,
-      open: settings.serve.open,
-      writeToDisk: settings.cli.isLibraryComponent,
-      openPage: settings.serve.openUrl ? settings.serve.openUrl : host + '/temp/workbench.html',
-      overlay: settings.serve.fullScreenErrors,
-      stats: getLoggingLevel(settings.serve.loggingLevel),
+      writeToDisk: isLibraryComponent,
       headers: {
         'Access-Control-Allow-Origin': '*',
       },

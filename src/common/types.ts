@@ -21,7 +21,7 @@ export type ClearCssModulesPluginOptions = {
   deleted: boolean;
 }
 
-export type ApplySettings = (config: webpack.Configuration, settings: Settings) => void;
+export type ApplySettings = (config: webpack.Configuration, settings: Settings['serve']) => void;
 
 export type ScriptResource = {
   type: 'path' | 'component' | 'localizedPath';

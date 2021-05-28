@@ -5,19 +5,19 @@ import del from 'del';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
-import { addCopyLocalizedResources, getEntryPoints, getJSONFile, setDefaultServeSettings } from './helpers';
+import { addCopyLocalizedResources, getEntryPoints, getJSONFile } from './helpers';
 
 import { createBaseConfig } from './baseConfig';
 import { Settings } from '../common/settings';
+import { applyServeSettings } from '../settings';
 
 const rootFolder = path.resolve(process.cwd());
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { transformConfig, webpackConfig } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
 
 const settings = getJSONFile<Settings>('fast-serve/config.json');
-setDefaultServeSettings(settings);
 
-const baseConfig = createBaseConfig(settings);
+const baseConfig = createBaseConfig(settings.cli.isLibraryComponent);
 
 const createConfig = function () {
   del.sync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
@@ -68,6 +68,8 @@ const createConfig = function () {
   baseConfig.plugins.push(new CopyPlugin({
     patterns
   }));
+
+  applyServeSettings(baseConfig);
 
   return baseConfig;
 }

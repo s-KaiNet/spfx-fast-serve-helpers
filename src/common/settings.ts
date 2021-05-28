@@ -12,5 +12,6 @@ export interface Settings {
     fullScreenErrors: boolean;
     loggingLevel: 'minimal' | 'normal' | 'detailed';
     replaceNativeServe?: boolean;
+    hotRefresh: boolean;
   }
 }

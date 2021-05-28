@@ -10,10 +10,13 @@ export function getJSONFile<T = any>(relPath: string) {
 }
 
 export function setDefaultServeSettings(settings: Settings) {
-  const defaultServeSettings = {
+  const defaultServeSettings: Settings['serve'] = {
     open: true,
     fullScreenErrors: true,
-    loggingLevel: 'normal'
+    loggingLevel: 'normal',
+    hotRefresh: false,
+    replaceNativeServe: false,
+    openUrl: undefined
   }
   settings.serve = settings.serve || {} as Settings['serve'];
 
