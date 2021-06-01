@@ -73,6 +73,7 @@ export function getEntryPoints(entry: EntryPoints) {
         .replace(libSearchRegexp1, srcPathToReplace1)
         .replace(libSearchRegexp2, srcPathToReplace2)
         .slice(0, -3) + '.ts';
+      entryPath = getEntryPath(entryPath);
     } else {
       // replace paths and extensions in bundle file
       let bundleContent = fs.readFileSync(entryPath).toString();
@@ -86,6 +87,21 @@ export function getEntryPoints(entry: EntryPoints) {
   }
 
   return newEntry;
+}
+
+function getEntryPath(tsPath: string) {
+  if (fs.existsSync(tsPath)) {
+    return tsPath;
+  }
+
+  // in case if entry is .tsx
+  tsPath = tsPath + 'x';
+
+  if (fs.existsSync(tsPath)) {
+    return tsPath;
+  }
+
+  throw new Error('Unable to resolve entry path. Path received: ' + tsPath);
 }
 
 export function addCopyLocalizedResources(localizedResources: LocalizedResources) {
