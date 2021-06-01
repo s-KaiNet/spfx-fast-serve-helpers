@@ -56,37 +56,54 @@ export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
 }
 
 export function getEntryPoints(entry: EntryPoints) {
-  // fix: ".js" entry needs to be ".ts"
+  // fix: ".js" entry needs to be ".ts[x]"
   // also replaces the path form /lib/* to /src/*
   // spfx not always follows path.sep settings, so just replace both variants
   const newEntry: EntryPoints = {};
-  const libSearchRegexp1 = /\/lib\//gi;
-  const libSearchRegexp2 = /\\lib\\/gi;
-
-  const srcPathToReplace1 = '/src/';
-  const srcPathToReplace2 = '\\src\\';
 
   for (const key in entry) {
     let entryPath = entry[key];
     if (entryPath.indexOf('bundle-entries') === -1) {
-      entryPath = entryPath
-        .replace(libSearchRegexp1, srcPathToReplace1)
-        .replace(libSearchRegexp2, srcPathToReplace2)
-        .slice(0, -3) + '.ts';
-      entryPath = getEntryPath(entryPath);
+      entryPath = createTsEntryPath(entryPath);
     } else {
       // replace paths and extensions in bundle file
       let bundleContent = fs.readFileSync(entryPath).toString();
-      bundleContent = bundleContent
-        .replace(libSearchRegexp1, srcPathToReplace1)
-        .replace(libSearchRegexp2, srcPathToReplace2)
-        .replace(/\.js/gi, '.ts');
+      bundleContent = createTsEntriesForBundledPackage(bundleContent);
       fs.writeFileSync(entryPath, bundleContent);
     }
     newEntry[key] = entryPath;
   }
 
   return newEntry;
+}
+
+function createTsEntriesForBundledPackage(content: string) {
+  const search = /require\('(?<jsPath>.*)'\)/gi;
+  let newContent = content.slice();
+  let match = search.exec(content);
+
+  do {
+    const jsPath = match.groups.jsPath;
+    const tsPath = createTsEntryPath(jsPath);
+    newContent = newContent.replace(jsPath, tsPath);
+  } while ((match = search.exec(content)) !== null)
+
+  return newContent;
+}
+
+function createTsEntryPath(jsPath: string) {
+  const libSearchRegexp1 = /\/lib\//gi;
+  const libSearchRegexp2 = /\\lib\\/gi;
+
+  const srcPathToReplace1 = '/src/';
+  const srcPathToReplace2 = '\\src\\';
+
+  const tsPath = jsPath
+    .replace(libSearchRegexp1, srcPathToReplace1)
+    .replace(libSearchRegexp2, srcPathToReplace2)
+    .slice(0, -3) + '.ts';
+
+  return getEntryPath(tsPath);
 }
 
 function getEntryPath(tsPath: string) {
