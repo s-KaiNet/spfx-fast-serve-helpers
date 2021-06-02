@@ -34,17 +34,4 @@ export class TypeScriptResourcesPlugin {
       }
     ]
   }
-
-  private createInjectFunction() {
-    const template = 'require("###");';
-    return () => {
-      let result = '';
-      for (const key in this.resourcesMap) {
-        const map = this.resourcesMap[key];
-        result += template.replace('###', './' + map.path);
-      }
-
-      return result;
-    }
-  }
 }
