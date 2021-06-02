@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { Settings } from '../common/settings';
-import { EntryPoints, LocalizedResources } from '../common/types';
+import { EntryPoints, LocalizedResources, ResourceData } from '../common/types';
+import globby from 'globby';
 
 export function getJSONFile(relPath: string) {
   return require(path.join(process.cwd(), relPath));
@@ -154,4 +155,32 @@ export function trim(str: string, charlist: string) {
 
 export function createKeyFromPath(path: string) {
   return trimLeft(path, '/\\\\').replace(/\//gi, '|').replace(/\\/gi, '|');
+}
+
+export function createResourcesMap(localizedResources: LocalizedResources) {
+  const resourcesMap: Record<string, ResourceData> = {};
+
+  for (const resourceKey in localizedResources) {
+    const resourcePath = localizedResources[resourceKey];
+    const search = resourcePath.replace(/^lib/gi, 'src').replace('{locale}.js', '*.ts');
+    const exclude = '!' + search.replace('*.ts', '*.d.ts');
+    const typescriptResources = globby.sync([search, exclude], {
+      cwd: process.cwd()
+    });
+
+    if (!typescriptResources?.length) {
+      continue;
+    }
+
+    for (const resourcePath of typescriptResources) {
+      const key = createKeyFromPath(resourcePath);
+      const fileName = `${resourceKey}_${path.basename(resourcePath).replace('.ts', '.js')}`;
+      resourcesMap[key] = {
+        path: trimLeft(resourcePath, '/\\\\'),
+        fileName
+      }
+    }
+  }
+
+  return resourcesMap;
 }

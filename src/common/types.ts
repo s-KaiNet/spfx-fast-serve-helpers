@@ -17,3 +17,8 @@ export type ClearCssModulesPluginOptions = {
   rootFolder: string;
   deleted: boolean;
 }
+
+export type ResourceData = {
+  path: string;
+  fileName: string;
+}

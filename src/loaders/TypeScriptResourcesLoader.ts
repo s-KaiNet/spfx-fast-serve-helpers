@@ -1,8 +1,8 @@
 import webpack from 'webpack';
 import * as path from 'path';
 import { getOptions } from 'loader-utils';
-import { ResourceData } from './TypeScriptResourcesPlugin';
 import { createKeyFromPath } from '../webpack/helpers';
+import { ResourceData } from '../common/types';
 
 export default function loader(this: webpack.loader.LoaderContext, source: string, data: { file: string }) {
   if (!source || !data) {
