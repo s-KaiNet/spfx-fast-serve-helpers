@@ -53,3 +53,8 @@ export type Manifest = {
 export type SPFxConfig = {
   localizedResources: LocalizedResources;
 }
+
+export type ResourceData = {
+  path: string;
+  fileName: string;
+}
