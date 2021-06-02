@@ -102,8 +102,13 @@ export function createBaseConfig(isLibraryComponent: boolean): webpack.Configura
                   localIdentName: '[local]_[hash:base64:8]'
                 }
               }
-            }, // translates CSS into CommonJS
-            require.resolve('sass-loader') // compiles Sass to CSS, using Sass by default
+            },
+            {
+              loader: require.resolve('sass-loader'),
+              options: {
+                implementation: require('node-sass')
+              }
+            }
           ]
         },
         {
@@ -123,8 +128,13 @@ export function createBaseConfig(isLibraryComponent: boolean): webpack.Configura
                 esModule: false,
                 modules: false
               }
-            }, // translates CSS into CommonJS
-            require.resolve('sass-loader') // compiles Sass to CSS, using Sass by default
+            },
+            {
+              loader: require.resolve('sass-loader'),
+              options: {
+                implementation: require('node-sass')
+              }
+            }
           ]
         }
       ]
