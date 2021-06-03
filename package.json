@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.12.15",
+  "version": "1.12.16-beta.1",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -52,8 +52,9 @@
     "globby": "11.0.3",
     "loader-utils": "1.4.0",
     "node-fetch": "2.6.1",
-    "react-refresh-typescript": "2.0.1",
     "node-sass": "4.14.1",
+    "react-refresh": "0.10.0",
+    "react-refresh-typescript": "2.0.1",
     "sass-loader": "9.0.3",
     "spfx-css-modules-typescript-loader": "4.0.1",
     "style-loader": "1.1.3",
