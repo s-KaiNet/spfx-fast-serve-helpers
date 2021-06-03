@@ -137,7 +137,12 @@ export function addCopyLocalizedResources(localizedResources: LocalizedResources
       from,
       noErrorOnMissing: true,
       to: (data: { absoluteFilename: string }) => {
-        const fileName = path.basename(data.absoluteFilename);
+        let fileName = path.basename(data.absoluteFilename);
+        // special case when locale placehoder isn't used
+        if (!resourcePath.endsWith('{locale}.js')) {
+          fileName = 'default.js';
+        }
+
         return resourceKey + '_' + fileName;
       }
     });
