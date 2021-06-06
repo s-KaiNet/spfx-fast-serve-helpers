@@ -2,6 +2,7 @@ import webpack from 'webpack';
 import del from 'del';
 import globby from 'globby';
 import { ClearCssModulesPluginOptions } from '../common/types';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 ///
 // Removes *.module.scss.ts on the first execution in order prevent conflicts with *.module.scss.d.ts
@@ -12,14 +13,13 @@ export class ClearCssModuleDefinitionsPlugin {
   }
 
   apply(compiler: webpack.Compiler) {
-    compiler.hooks.done.tap('FixStylesPlugin', () => {
-      if (!this.options.deleted) {
-        setTimeout(() => {
-          let files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: this.options.rootFolder });
-          files = files.map(f => f.replace('module.scss.d.ts', 'module.scss.ts'));
-          del.sync(files, { cwd: this.options.rootFolder });
-        }, 2000);
+    const hooks = ForkTsCheckerWebpackPlugin.getCompilerHooks(compiler);
 
+    hooks.done.tap('ClearCssModuleDefinitionsPlugin', () => {
+      if (!this.options.deleted) {
+        let files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: this.options.rootFolder });
+        files = files.map(f => f.replace('module.scss.d.ts', 'module.scss.ts'));
+        del.sync(files, { cwd: this.options.rootFolder });
         this.options.deleted = true;
       }
     });
