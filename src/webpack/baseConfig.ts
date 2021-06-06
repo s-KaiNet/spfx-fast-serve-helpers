@@ -146,6 +146,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
       ]
     },
     plugins: [
+      new webpack.WatchIgnorePlugin([path.resolve(rootFolder, 'temp')]),
       new ForkTsCheckerWebpackPlugin({
         eslint: hasESLint ? {
           files: './src/**/*.{ts,tsx}',
