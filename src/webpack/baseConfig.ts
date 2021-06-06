@@ -99,7 +99,13 @@ export function createBaseConfig(isLibraryComponent: boolean): webpack.Configura
               options: {
                 esModule: false,
                 modules: {
-                  localIdentName: '[local]_[hash:base64:8]'
+                  localIdentName: '[local]_[hash:base64:8]',
+                  mode: (resourcePath: string) => {
+                    if (resourcePath.endsWith('.css') && /node_modules/gi.test(resourcePath)) {
+                      return 'global';
+                    }
+                    return 'local';
+                  }
                 }
               }
             },
@@ -140,6 +146,7 @@ export function createBaseConfig(isLibraryComponent: boolean): webpack.Configura
       ]
     },
     plugins: [
+      new webpack.WatchIgnorePlugin([path.resolve(rootFolder, 'temp')]),
       new ForkTsCheckerWebpackPlugin({
         eslint: hasESLint ? {
           files: './src/**/*.{ts,tsx}',
