@@ -5,7 +5,7 @@ import del from 'del';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
-import { addCopyLocalizedResources, getEntryPoints, getJSONFile } from './helpers';
+import { addCopyLocalizedResources, checkVersions, getEntryPoints, getJSONFile } from './helpers';
 
 import { createBaseConfig } from './baseConfig';
 import { Settings } from '../common/settings';
@@ -16,6 +16,7 @@ const rootFolder = path.resolve(process.cwd());
 const { transformConfig, webpackConfig } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
 
 const createConfig = function () {
+  checkVersions();
   const settings = getJSONFile<Settings>('fast-serve/config.json');
 
   const baseConfig = createBaseConfig(settings.cli.isLibraryComponent);

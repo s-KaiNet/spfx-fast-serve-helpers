@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { Settings } from '../common/settings';
-import { EntryPoints, LocalizedResources, ResourceData } from '../common/types';
+import { EntryPoints, LocalizedResources, NodePackage, ResourceData } from '../common/types';
 import globby from 'globby';
 import webpack from 'webpack';
 
@@ -193,4 +193,31 @@ export function createResourcesMap(localizedResources: LocalizedResources) {
   }
 
   return resourcesMap;
+}
+
+export function checkVersions() {
+  const packageJson = getJSONFile<NodePackage>('package.json');
+  const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');
+  const fastServeVersion = getMinorVersion(packageJson, 'spfx-fast-serve-helpers');
+
+  if (spfxVersion !== fastServeVersion) {
+    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "spfx-fast-serve-helpers" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
+  }
+}
+
+function getMinorVersion(packageJson: NodePackage, dependecyToCheck: string) {
+  let version: string = packageJson.devDependencies[dependecyToCheck];
+
+  if (!version) {
+    version = packageJson.dependencies[dependecyToCheck];
+  }
+
+  if (!version) {
+    throw new Error(`SPFx Fast Serve: unable to find dependency ${dependecyToCheck}`);
+  }
+
+  if (version.indexOf('~') === 0 || version.indexOf('^') === 0) {
+    version = version.substr(1);
+  }
+  return parseInt(version.split('.')[1]);
 }
