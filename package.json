@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.12.16-beta.1",
+  "version": "1.12.19-beta.0",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@microsoft/loader-load-themed-styles": "1.9.26",
-    "@pmmmwh/react-refresh-webpack-plugin": "0.5.0-beta.8",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.5.0-rc.0",
     "@types/copy-webpack-plugin": "6.4.0",
     "@types/loader-utils": "2.0.2",
     "@types/webpack-dev-server": "3.11.4",
