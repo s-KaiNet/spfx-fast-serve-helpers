@@ -1,8 +1,13 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import globby from 'globby';
+import getPort from 'get-port';
+import colors from 'colors';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const killPort = require('kill-port')
+
 import { Settings } from '../common/settings';
 import { EntryPoints, LocalizedResources, NodePackage, ResourceData } from '../common/types';
-import globby from 'globby';
 import webpack from 'webpack';
 
 export function getJSONFile<T = any>(relPath: string) {
@@ -195,6 +200,18 @@ export function createResourcesMap(localizedResources: LocalizedResources) {
   return resourcesMap;
 }
 
+export async function freePortIfInUse(port: number) {
+  const freePort = await getPort({ port, host: 'localhost' });
+
+  // the needed port is not free
+  if (freePort !== port) {
+    // eslint-disable-next-line no-console
+    console.log(colors.yellow(`The port ${port} is in use. Trying to release...`));
+    await killPort(port);
+    // eslint-disable-next-line no-console
+    console.log(colors.yellow(`The port ${port} is successfully released.`));
+  }
+}
 export function checkVersions() {
   const packageJson = getJSONFile<NodePackage>('package.json');
   const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');

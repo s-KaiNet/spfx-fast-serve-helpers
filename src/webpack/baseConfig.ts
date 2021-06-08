@@ -7,15 +7,28 @@ const certificateStore = new certificateManager.CertificateStore();
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
-import { getJSONFile } from './helpers';
+import { freePortIfInUse, getJSONFile } from './helpers';
 import { NodePackage } from '../common/types';
+import { Settings } from '../common/settings';
 
 const packageJson = getJSONFile<NodePackage>('package.json');
 const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 
-export function createBaseConfig(isLibraryComponent: boolean): webpack.Configuration {
-  const port = isLibraryComponent ? 4320 : 4321;
+export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Configuration> {
+  let port = 0;
+  if (!cli.isLibraryComponent) {
+    port = 4321;
+  } else {
+    if (!cli.port) {
+      port = 4320
+    } else {
+      port = cli.port;
+    }
+  }
+
+  await freePortIfInUse(port);
+
   const host = 'https://localhost:' + port;
 
   const cssLoader = require.resolve('css-loader');
@@ -171,7 +184,7 @@ export function createBaseConfig(isLibraryComponent: boolean): webpack.Configura
       port: port,
       disableHostCheck: true,
       historyApiFallback: true,
-      writeToDisk: isLibraryComponent,
+      writeToDisk: cli.isLibraryComponent,
       headers: {
         'Access-Control-Allow-Origin': '*',
       },

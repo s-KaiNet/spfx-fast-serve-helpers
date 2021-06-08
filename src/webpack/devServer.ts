@@ -4,8 +4,8 @@ import { resultConfig } from './configureWebPack';
 import Webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 
-export function startDevServer() {
-  const config = resultConfig();
+export async function startDevServer() {
+  const config = await resultConfig();
   
   const compiler = Webpack(config);
   const server = new WebpackDevServer(compiler, config.devServer);
