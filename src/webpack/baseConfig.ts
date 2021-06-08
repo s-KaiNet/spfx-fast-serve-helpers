@@ -7,15 +7,27 @@ const certificateStore = new certificateManager.CertificateStore();
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
-import { getJSONFile, getLoggingLevel } from './helpers';
+import { freePortIfInUse, getJSONFile, getLoggingLevel } from './helpers';
 import { Settings } from '../common/settings';
 
 const packageJson = getJSONFile('package.json');
 const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 
-export function createBaseConfig(settings: Settings): webpack.Configuration {
-  const port = settings.cli.isLibraryComponent ? 4320 : 4321;
+export async function createBaseConfig(settings: Settings): Promise<webpack.Configuration> {
+  let port = 0;
+  if (!settings.cli.isLibraryComponent) {
+    port = 4321;
+  } else {
+    if (settings.cli.port) {
+      port = settings.cli.port;
+    } else {
+      port = 4320
+    }
+  }
+
+  await freePortIfInUse(port);
+
   const host = 'https://localhost:' + port;
 
   const cssLoader = require.resolve('css-loader');

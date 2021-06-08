@@ -1,9 +1,8 @@
 export interface Settings {
   $schema: string,
   cli: {
-    usePnpm: boolean;
     isLibraryComponent: boolean;
-    useRestProxy: boolean;
+    port?: number;
   }
 
   serve?: {
