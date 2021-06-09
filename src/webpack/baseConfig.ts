@@ -3,11 +3,12 @@ import * as path from 'path';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const certificateManager = require('@rushstack/debug-certificate-manager');
 const certificateStore = new certificateManager.CertificateStore();
+import { AsyncComponentPlugin } from '@microsoft/spfx-heft-plugins/lib/plugins/webpackConfigurationPlugin/webpackPlugins/AsyncComponentPlugin';
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
-import { freePortIfInUse, getJSONFile, getLoggingLevel } from './helpers';
+import { freePortIfInUse, getExternalComponents, getJSONFile, getLoggingLevel } from './helpers';
 import { Settings } from '../common/settings';
 
 const packageJson = getJSONFile('package.json');
@@ -32,6 +33,7 @@ export async function createBaseConfig(settings: Settings): Promise<webpack.Conf
 
   const cssLoader = require.resolve('css-loader');
   const themedLoader = require.resolve('@microsoft/loader-load-themed-styles');
+  const externalComponents = getExternalComponents();
 
   const baseConfig: webpack.Configuration = {
     target: 'web',
@@ -158,6 +160,9 @@ export async function createBaseConfig(settings: Settings): Promise<webpack.Conf
       ]
     },
     plugins: [
+      new AsyncComponentPlugin({
+        externalComponents
+      }),
       new webpack.WatchIgnorePlugin([path.resolve(rootFolder, 'temp')]),
       new ForkTsCheckerWebpackPlugin({
         eslint: hasESLint ? {

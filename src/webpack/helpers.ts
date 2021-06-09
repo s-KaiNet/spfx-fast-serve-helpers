@@ -207,3 +207,14 @@ export async function freePortIfInUse(port: number) {
     console.log(colors.yellow(`The port ${port} is successfully released.`));
   }
 }
+
+export function getExternalComponents() {
+  const originalWebpackConfig = getJSONFile('temp/_webpack_config.json');
+  for (const plugin of originalWebpackConfig.plugins) {
+    if (plugin._options && plugin._options.externalComponents) {
+      return plugin._options.externalComponents;
+    }
+  }
+
+  throw new Error('Unable to resolve AsyncComponentPlugin');
+}
