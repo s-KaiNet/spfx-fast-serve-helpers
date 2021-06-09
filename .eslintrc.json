@@ -13,6 +13,7 @@
     "*.js"
   ],
   "rules": {
+    "eol-last": "error",
     "no-console": "error",
     "eqeqeq": "error",
     "@typescript-eslint/no-explicit-any": "off",

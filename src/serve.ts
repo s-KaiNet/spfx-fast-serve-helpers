@@ -5,4 +5,3 @@ import { startDevServer } from './webpack/devServer';
 (async () => {
   await startDevServer();
 })();
-

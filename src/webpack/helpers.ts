@@ -238,3 +238,14 @@ function getMinorVersion(packageJson: NodePackage, dependecyToCheck: string) {
   }
   return parseInt(version.split('.')[1]);
 }
+
+export function getExternalComponents() {
+  const originalWebpackConfig = getJSONFile('temp/_webpack_config.json');
+  for (const plugin of originalWebpackConfig.plugins) {
+    if (plugin._options && plugin._options.externalComponents) {
+      return plugin._options.externalComponents;
+    }
+  }
+
+  throw new Error('Unable to resolve AsyncComponentPlugin');
+}
