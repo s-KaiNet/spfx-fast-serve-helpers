@@ -10,7 +10,6 @@ export interface Settings {
     openUrl?: string;
     fullScreenErrors: boolean;
     loggingLevel: 'minimal' | 'normal' | 'detailed';
-    replaceNativeServe?: boolean;
     hotRefresh: boolean;
   }
 }

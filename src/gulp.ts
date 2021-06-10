@@ -6,27 +6,14 @@ import { hostname } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import del from 'del';
-import { Settings } from './common/settings';
-import { getJSONFile } from './webpack/helpers';
-import { addFastServeTask, addWorkbenchTask, addSaveConfigTask } from './tasks';
+import { addWorkbenchTask, addSaveConfigTask } from './tasks';
 
 export function addFastServe(build: Build) {
-  let useCustomServe = argv['custom-serve'];
-  const isFast = argv['fast'];
-  const isRegularServe = argv._.indexOf('serve') !== -1;
-  const settings = getJSONFile<Settings>('fast-serve/config.json');
+  const useCustomServe = argv['custom-serve'];
   const isClean = argv._.indexOf('clean') !== -1;
 
   if (isClean) {
     del.sync(['src/**/*.module.scss.d.ts'], { cwd: path.resolve(process.cwd()) });
-  }
-
-  if ((settings.serve?.replaceNativeServe && isRegularServe) || (isRegularServe && isFast)) {
-    build.serve.enabled = false;
-
-    addFastServeTask(build);
-
-    useCustomServe = true;
   }
 
   if (!useCustomServe) return;

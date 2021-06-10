@@ -21,7 +21,6 @@ export function setDefaultServeSettings(settings: Settings) {
     fullScreenErrors: true,
     loggingLevel: 'normal',
     hotRefresh: false,
-    replaceNativeServe: false,
     openUrl: undefined
   }
   settings.serve = settings.serve || {} as Settings['serve'];
