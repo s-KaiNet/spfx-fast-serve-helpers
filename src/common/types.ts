@@ -18,7 +18,6 @@ export type DynamicLibraryPluginOptions = {
 
 export type ClearCssModulesPluginOptions = {
   rootFolder: string;
-  deleted: boolean;
 }
 
 export type ApplySettings = (config: webpack.Configuration, settings: Settings['serve']) => void;

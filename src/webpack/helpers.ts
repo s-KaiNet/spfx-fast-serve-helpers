@@ -212,6 +212,7 @@ export async function freePortIfInUse(port: number) {
     console.log(colors.yellow(`The port ${port} is successfully released.`));
   }
 }
+
 export function checkVersions() {
   const packageJson = getJSONFile<NodePackage>('package.json');
   const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');

@@ -10,7 +10,7 @@ export const applyhotRefresh: ApplySettings = (config, settings) => {
     return;
   }
 
-  const tsLoaderRule = config.module.rules[0];
+  const tsLoaderRule = getTsRule(config.module.rules);
 
   for (const useRule of (tsLoaderRule.use as webpack.RuleSetUseItem[])) {
     if ((useRule as webpack.RuleSetLoader).loader.indexOf('ts-loader') !== -1) {
@@ -27,4 +27,17 @@ export const applyhotRefresh: ApplySettings = (config, settings) => {
   (config.externals as string[]).splice(indx, 1);
   indx = (config.externals as string[]).indexOf('react-dom');
   (config.externals as string[]).splice(indx, 1);
+}
+
+function getTsRule(rules: webpack.Configuration['module']['rules']) {
+  for (const rule of rules) {
+    if (rule.test) {
+      const test = rule.test.toString();
+      if (test.indexOf('.tsx?') !== -1) {
+        return rule;
+      }
+    }
+  }
+
+  throw new Error('Unable to resolve ts-loader rule');
 }

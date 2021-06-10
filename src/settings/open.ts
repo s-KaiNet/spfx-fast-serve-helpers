@@ -1,5 +1,5 @@
 import { ApplySettings } from '../common/types';
 
 export const applyOpenSetting: ApplySettings = (config, settings) => {
-  config.devServer.overlay = settings.fullScreenErrors;
+  config.devServer.open = settings.open;
 }

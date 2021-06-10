@@ -174,7 +174,6 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
       }),
       new TypeScriptResourcesPlugin(),
       new ClearCssModuleDefinitionsPlugin({
-        deleted: false,
         rootFolder
       }),
       new webpack.DefinePlugin({
