@@ -5,7 +5,7 @@ import del from 'del';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
-import { addCopyLocalizedResources, checkVersions, getEntryPoints, getJSONFile } from './helpers';
+import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from './helpers';
 
 import { createBaseConfig } from './baseConfig';
 import { Settings } from '../common/settings';
@@ -33,7 +33,7 @@ const createConfig = async function () {
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
   const manifest = getJSONFile<Manifest[]>('temp/manifests.json');
-  const { localizedResources } = getJSONFile<SPFxConfig>('config/config.json');
+  const { localizedResources, externals } = getJSONFile<SPFxConfig>('config/config.json');
 
   const modulesMap: ModulesMap = {};
   const originalEntries = Object.keys(originalWebpackConfig.entry);
@@ -71,6 +71,15 @@ const createConfig = async function () {
   }));
 
   applyServeSettings(baseConfig);
+
+  const localExternals = createLocalExternals(externals);
+  const localExternalsPatterns = addCopyLocalExternals(localExternals, manifest, originalEntries);
+
+  if (localExternalsPatterns && localExternalsPatterns.length > 0) {
+    baseConfig.plugins.push(new CopyPlugin({
+      patterns: localExternalsPatterns
+    }));
+  }
 
   return baseConfig;
 }

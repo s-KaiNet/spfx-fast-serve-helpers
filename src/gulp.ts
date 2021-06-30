@@ -2,7 +2,7 @@ type Build = typeof import('@microsoft/sp-build-web');
 
 import { argv } from 'yargs';
 import * as path from 'path';
-import { hostname } from 'os';
+import { hostname, userInfo } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import del from 'del';
@@ -28,7 +28,16 @@ export function addFastServe(build: Build) {
 
 function trackAnalytics() {
   try {
-    const hostNameHash = createHash('md5').update(hostname()).digest('hex');
+
+    let username = 'default';
+    try {
+      username = userInfo().username;
+    }
+    catch (e) {
+      //
+    }
+    
+    const hostNameHash = createHash('md5').update(hostname() + '@' + username).digest('hex');
 
     fetch('https://fast-serve-track.azurewebsites.net/api/track', {
       method: 'post',

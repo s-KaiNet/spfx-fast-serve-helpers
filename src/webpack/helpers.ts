@@ -7,7 +7,7 @@ import colors from 'colors';
 const killPort = require('kill-port')
 
 import { Settings } from '../common/settings';
-import { EntryPoints, LocalizedResources, NodePackage, ResourceData } from '../common/types';
+import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from '../common/types';
 import webpack from 'webpack';
 
 export function getJSONFile<T = any>(relPath: string) {
@@ -248,4 +248,68 @@ export function getExternalComponents() {
   }
 
   throw new Error('Unable to resolve AsyncComponentPlugin');
+}
+
+export function createLocalExternals(externals: SPFxConfig['externals']): Record<string, ExternalsObject> {
+  if(!externals) return null;
+
+  const result: Record<string, ExternalsObject> = {};
+
+  for (const name in externals) {
+    const info = externals[name];
+    if (typeof info === 'string') {
+      // ignore cdn loaded libraries
+      if (info.startsWith('http')) {
+        continue;
+      }
+
+      result[name] = { path: info };
+    } else {
+      if (info.path.startsWith('http')) {
+        continue;
+      }
+      result[name] = { path: info.path };
+    }
+  }
+
+  return result;
+}
+
+export function addCopyLocalExternals(externals: Record<string, ExternalsObject>, manifest: Manifest[], originalEntries: string[]) {
+  if(!externals) return [];
+  
+  const patterns = [];
+  for (const jsModule of manifest) {
+    if (jsModule.loaderConfig
+      && jsModule.loaderConfig.entryModuleId
+      && originalEntries.indexOf(jsModule.loaderConfig.entryModuleId) !== -1) {
+
+      for (const resourceKey in jsModule.loaderConfig.scriptResources) {
+        const resource = jsModule.loaderConfig.scriptResources[resourceKey];
+        if (externals[resourceKey]) {
+          const from = externals[resourceKey].path;
+          const to = resource.path;
+          if (!hasPattern(patterns, to)) {
+            patterns.push({
+              flatten: true,
+              from,
+              noErrorOnMissing: true,
+              to
+            });
+          }
+        }
+      }
+    }
+  }
+  return patterns;
+}
+
+function hasPattern(patterns: { to: string }[], to: string): boolean {
+  for (const pattern of patterns) {
+    if (pattern.to === to) {
+      return true;
+    }
+  }
+
+  return false;
 }

@@ -51,6 +51,11 @@ export type Manifest = {
 
 export type SPFxConfig = {
   localizedResources: LocalizedResources;
+  externals: Record<string, string | ExternalsObject>;
+}
+
+export type ExternalsObject = {
+  path: string;
 }
 
 export type ResourceData = {
