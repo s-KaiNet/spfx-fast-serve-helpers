@@ -6,7 +6,7 @@ import { hostname, userInfo } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import del from 'del';
-import { addWorkbenchTask, addSaveConfigTask } from './tasks';
+import { addSaveConfigTask } from './tasks';
 
 export function addFastServe(build: Build) {
   const useCustomServe = argv['custom-serve'];
@@ -22,7 +22,6 @@ export function addFastServe(build: Build) {
 
   build.tslintCmd.enabled = false;
 
-  addWorkbenchTask(build);
   addSaveConfigTask(build);
 }
 
