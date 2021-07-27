@@ -13,7 +13,7 @@ export function addFastServe(build: Build) {
   const isClean = argv._.indexOf('clean') !== -1;
 
   if (isClean) {
-    del.sync(['src/**/*.module.scss.d.ts'], { cwd: path.resolve(process.cwd()) });
+    del.sync(['src/**/*.module.scss.d.ts', 'release'], { cwd: path.resolve(process.cwd()) });
   }
 
   if (!useCustomServe) return;
