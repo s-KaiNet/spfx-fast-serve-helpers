@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import globby from 'globby';
+import { globbySync } from 'globby';
 import getPort from 'get-port';
 import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -17,7 +17,6 @@ export function getJSONFile<T = any>(relPath: string) {
 
 export function setDefaultServeSettings(settings: Settings) {
   const defaultServeSettings: Settings['serve'] = {
-    open: true,
     fullScreenErrors: true,
     loggingLevel: 'normal',
     hotRefresh: false,
@@ -28,7 +27,7 @@ export function setDefaultServeSettings(settings: Settings) {
   settings.serve = Object.assign(defaultServeSettings, settings.serve);
 
   if (settings.cli.isLibraryComponent) {
-    settings.serve.open = false;
+    settings.serve.openUrl = undefined;
   }
 }
 
@@ -178,7 +177,7 @@ export function createResourcesMap(localizedResources: LocalizedResources) {
     const resourcePath = localizedResources[resourceKey];
     const search = resourcePath.replace(/^lib/gi, 'src').replace('{locale}.js', '*.ts');
     const exclude = '!' + search.replace('*.ts', '*.d.ts');
-    const typescriptResources = globby.sync([search, exclude], {
+    const typescriptResources = globbySync([search, exclude], {
       cwd: process.cwd()
     });
 
@@ -251,7 +250,7 @@ export function getExternalComponents() {
 }
 
 export function createLocalExternals(externals: SPFxConfig['externals']): Record<string, ExternalsObject> {
-  if(!externals) return null;
+  if (!externals) return null;
 
   const result: Record<string, ExternalsObject> = {};
 
@@ -276,8 +275,8 @@ export function createLocalExternals(externals: SPFxConfig['externals']): Record
 }
 
 export function addCopyLocalExternals(externals: Record<string, ExternalsObject>, manifest: Manifest[], originalEntries: string[]) {
-  if(!externals) return [];
-  
+  if (!externals) return [];
+
   const patterns = [];
   for (const jsModule of manifest) {
     if (jsModule.loaderConfig
