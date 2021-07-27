@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { globbySync } from 'globby';
+import * as globby from 'globby';
 import getPort from 'get-port';
 import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -177,7 +177,7 @@ export function createResourcesMap(localizedResources: LocalizedResources) {
     const resourcePath = localizedResources[resourceKey];
     const search = resourcePath.replace(/^lib/gi, 'src').replace('{locale}.js', '*.ts');
     const exclude = '!' + search.replace('*.ts', '*.d.ts');
-    const typescriptResources = globbySync([search, exclude], {
+    const typescriptResources = globby.sync([search, exclude], {
       cwd: process.cwd()
     });
 

@@ -1,6 +1,6 @@
 import webpack from 'webpack';
 import del from 'del';
-import { globbySync } from 'globby';
+import * as globby from 'globby';
 import { ClearCssModulesPluginOptions } from '../common/types';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
@@ -19,7 +19,7 @@ export class ClearCssModuleDefinitionsPlugin {
 
     hooks.issues.tap('ClearCssModuleDefinitionsPlugin', (issues) => {
       if (!this.deleted) {
-        let files = globbySync(['src/**/*.module.scss.d.ts'], { cwd: this.options.rootFolder });
+        let files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: this.options.rootFolder });
         files = files.map(f => f.replace('module.scss.d.ts', 'module.scss.ts'));
         del.sync(files, { cwd: this.options.rootFolder });
         this.deleted = true;
