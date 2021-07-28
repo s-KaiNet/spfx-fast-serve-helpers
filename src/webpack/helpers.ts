@@ -17,6 +17,7 @@ export function getJSONFile<T = any>(relPath: string) {
 
 export function setDefaultServeSettings(settings: Settings) {
   const defaultServeSettings: Settings['serve'] = {
+    eslint: false,
     fullScreenErrors: true,
     loggingLevel: 'normal',
     hotRefresh: false,
@@ -45,6 +46,7 @@ export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
       all: false,
       colors: true,
       errors: true,
+      warnings: true,
       timings: true,
       entrypoints: true
     }

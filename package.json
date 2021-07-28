@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.13.0-beta.4",
+  "version": "1.13.0-beta.6",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -50,6 +50,7 @@
     "copy-webpack-plugin": "6.4.0",
     "css-loader": "5.2.4",
     "del": "6.0.0",
+    "eslint-webpack-plugin": "2.5.4",
     "file-loader": "6.2.0",
     "fork-ts-checker-webpack-plugin": "6.2.13",
     "get-port": "5.1.1",

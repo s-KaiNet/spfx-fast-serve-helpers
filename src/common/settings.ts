@@ -7,6 +7,7 @@ export interface Settings {
 
   serve?: {
     openUrl?: string;
+    eslint: boolean;
     fullScreenErrors: boolean;
     loggingLevel: 'minimal' | 'normal' | 'detailed';
     hotRefresh: boolean;

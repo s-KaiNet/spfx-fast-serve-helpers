@@ -8,12 +8,9 @@ import { AsyncComponentPlugin } from '@microsoft/spfx-heft-plugins/lib/plugins/w
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
-import { freePortIfInUse, getExternalComponents, getJSONFile } from './helpers';
-import { NodePackage } from '../common/types';
+import { freePortIfInUse, getExternalComponents } from './helpers';
 import { Settings } from '../common/settings';
 
-const packageJson = getJSONFile<NodePackage>('package.json');
-const hasESLint = !!packageJson.devDependencies['@typescript-eslint/parser'];
 const rootFolder = path.resolve(process.cwd());
 
 export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Configuration> {
@@ -166,10 +163,6 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
       }),
       new webpack.WatchIgnorePlugin([path.resolve(rootFolder, 'temp')]),
       new ForkTsCheckerWebpackPlugin({
-        eslint: hasESLint ? {
-          files: './src/**/*.{ts,tsx}',
-          enabled: true
-        } : undefined,
         async: true
       }),
       new TypeScriptResourcesPlugin(),
