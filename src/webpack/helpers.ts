@@ -314,3 +314,13 @@ function hasPattern(patterns: { to: string }[], to: string): boolean {
 
   return false;
 }
+
+export function logDebugString() {
+  // eslint-disable-next-line no-console
+  console.log(`${getTimeString()} [${colors.cyan('fast-serve')}] To load your scripts, use this query string: ${colors.yellow('?debug=true&noredir=true&debugManifestsFile=https://localhost:4321/temp/manifests.js')}`);
+}
+
+function getTimeString() {
+  const now = new Date();
+  return `[${colors.gray(`${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}:${('0' + now.getSeconds()).slice(-2)}`)}]`;
+}
