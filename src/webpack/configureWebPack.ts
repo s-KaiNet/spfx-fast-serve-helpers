@@ -66,9 +66,11 @@ const createConfig = async function () {
 
   const patterns = addCopyLocalizedResources(localizedResources);
 
-  baseConfig.plugins.push(new CopyPlugin({
-    patterns
-  }));
+  if (patterns && patterns.length > 0) {
+    baseConfig.plugins.push(new CopyPlugin({
+      patterns
+    }));
+  }
 
   applyServeSettings(baseConfig);
 
