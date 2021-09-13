@@ -118,15 +118,22 @@ function createTsEntryPath(jsPath: string) {
 }
 
 function getEntryPath(tsPath: string) {
-  if (fs.existsSync(tsPath)) {
+  let pathToCheck = tsPath;
+  // if bundled entry, then the path is received in format "../../lib/webparts/contextInfo/ContextInfoWebPart.js"
+  if (!path.isAbsolute(pathToCheck)) {
+    const bundledEntriesPath = path.join(process.cwd(), 'temp/bundle-entries');
+    pathToCheck = path.join(bundledEntriesPath, pathToCheck);
+  }
+
+  if (fs.existsSync(pathToCheck)) {
     return tsPath;
   }
 
   // in case if entry is .tsx
-  tsPath = tsPath + 'x';
+  pathToCheck = pathToCheck + 'x';
 
-  if (fs.existsSync(tsPath)) {
-    return tsPath;
+  if (fs.existsSync(pathToCheck)) {
+    return tsPath + 'x';
   }
 
   throw new Error('Unable to resolve entry path. Path received: ' + tsPath);
