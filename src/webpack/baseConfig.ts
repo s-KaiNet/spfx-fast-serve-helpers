@@ -33,7 +33,25 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
   const host = 'https://localhost:' + port;
 
   const cssLoader = require.resolve('css-loader');
-  const themedLoader = require.resolve('@microsoft/loader-load-themed-styles');
+  const themedLoader = {
+    loader: require.resolve('@microsoft/loader-load-themed-styles'),
+    options: {
+      async: true
+    }
+  }
+
+  const cleanCssLoader = {
+    loader: require.resolve('clean-css-loader'),
+    options: {
+      level: {
+        1: {
+          all: false, 
+          removeQuotes: true
+        }
+      }
+    }
+  }
+
   const externalComponents = getExternalComponents();
 
   const baseConfig: webpack.Configuration = {
@@ -82,12 +100,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
         {
           test: /\.css$/,
           use: [
-            {
-              loader: themedLoader,
-              options: {
-                async: true
-              }
-            },
+            themedLoader,
             {
               loader: cssLoader,
               options: {
@@ -102,12 +115,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
             return fileName.endsWith('.module.scss');   // scss modules support
           },
           use: [
-            {
-              loader: themedLoader,
-              options: {
-                async: true
-              }
-            },
+            themedLoader,
             require.resolve('spfx-css-modules-typescript-loader'),
             {
               loader: cssLoader,
@@ -124,6 +132,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
                 }
               }
             },
+            cleanCssLoader,
             {
               loader: require.resolve('sass-loader'),
               options: {
@@ -137,12 +146,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
             return !fileName.endsWith('.module.scss') && fileName.endsWith('.scss');  // just regular .scss
           },
           use: [
-            {
-              loader: themedLoader,
-              options: {
-                async: true
-              }
-            },
+            themedLoader,
             {
               loader: cssLoader,
               options: {
@@ -150,6 +154,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
                 modules: false
               }
             },
+            cleanCssLoader,
             {
               loader: require.resolve('sass-loader'),
               options: {
