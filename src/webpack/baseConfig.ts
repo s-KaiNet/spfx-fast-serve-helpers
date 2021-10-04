@@ -15,6 +15,19 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
   const port = settings.cli.isLibraryComponent ? 4320 : 4321;
   const host = 'https://localhost:' + port;
   const minorVersion = getSpfxMinorVersion();
+  let tsCompilerOptions = undefined;
+
+  if (minorVersion === 4) {
+    tsCompilerOptions = {
+      module: 'esnext'
+    }
+  }
+
+  if (minorVersion > 7) {
+    tsCompilerOptions = {
+      declarationMap: false
+    }
+  }
 
   const baseConfig: webpack.Configuration = {
     target: 'web',
@@ -32,9 +45,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
           loader: require.resolve('ts-loader'),
           options: {
             transpileOnly: true,
-            compilerOptions: minorVersion === 4 ? {
-              module: 'esnext'
-            } : undefined
+            compilerOptions: tsCompilerOptions
           },
           exclude: /node_modules/
         },
