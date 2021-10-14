@@ -62,3 +62,7 @@ export type ResourceData = {
   path: string;
   fileName: string;
 }
+
+export type NgrokServeOptions = {
+  host: string;
+}
