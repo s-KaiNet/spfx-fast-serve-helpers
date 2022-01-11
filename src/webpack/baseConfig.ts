@@ -143,7 +143,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
         },
         {
           test: function (fileName) {
-            return !fileName.endsWith('.module.scss') && fileName.endsWith('.scss');  // just regular .scss
+            return !fileName.endsWith('.module.scss') && !fileName.endsWith('.vue.scss') && fileName.endsWith('.scss');  // just regular .scss
           },
           use: [
             themedLoader,
