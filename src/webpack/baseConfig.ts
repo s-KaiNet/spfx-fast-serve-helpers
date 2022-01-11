@@ -95,7 +95,7 @@ export function createBaseConfig(settings: Settings): webpack.Configuration {
         },
         {
           test: function (fileName) {
-            return !fileName.endsWith('.module.scss') && fileName.endsWith('.scss');  // just regular .scss
+            return !fileName.endsWith('.module.scss') && !fileName.endsWith('.vue.scss') && fileName.endsWith('.scss');  // just regular .scss
           },
           use: [
             {
