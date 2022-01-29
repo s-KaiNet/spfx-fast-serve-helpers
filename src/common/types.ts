@@ -66,3 +66,13 @@ export type ResourceData = {
 export type NgrokServeOptions = {
   host: string;
 }
+
+export type ServeConfigurations = {
+  serveConfigurations: {
+    [key: string]: {
+      pageUrl: string,
+      customActions?: any,
+      fieldCustomizers?: any
+    }
+  }
+};
