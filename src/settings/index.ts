@@ -6,6 +6,7 @@ import { applyFullScreenErrors } from './fullScreenErrors';
 import { applyhotRefresh } from './hotRefresh';
 import { applyLoggingLevel } from './loggingLevel';
 import { applyOpenUrlSetting } from './openUrl';
+import { applyReactProfilingSetting } from './reactProfiling';
 
 export function applyServeSettings(config: webpack.Configuration) {
   const settings = getJSONFile<Settings>('fast-serve/config.json');
@@ -16,4 +17,5 @@ export function applyServeSettings(config: webpack.Configuration) {
   applyLoggingLevel(config, settings.serve);
   applyhotRefresh(config, settings.serve);
   applyEslintSetting(config, settings.serve);
+  applyReactProfilingSetting(config, settings.serve);
 }

@@ -11,5 +11,6 @@ export interface Settings {
     fullScreenErrors: boolean;
     loggingLevel: 'minimal' | 'normal' | 'detailed';
     hotRefresh: boolean;
+    reactProfiling: boolean;
   }
 }
