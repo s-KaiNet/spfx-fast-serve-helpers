@@ -1,6 +1,7 @@
 import webpack from 'webpack';
 import { Settings } from '../common/settings';
 import { getJSONFile, setDefaultServeSettings } from '../webpack/helpers';
+import { applyContainersSetting } from './containers';
 import { applyEslintSetting } from './eslint';
 import { applyFullScreenErrors } from './fullScreenErrors';
 import { applyhotRefresh } from './hotRefresh';
@@ -18,4 +19,5 @@ export function applyServeSettings(config: webpack.Configuration) {
   applyhotRefresh(config, settings.serve);
   applyEslintSetting(config, settings.serve);
   applyReactProfilingSetting(config, settings.serve);
+  applyContainersSetting(config, settings.serve);
 }

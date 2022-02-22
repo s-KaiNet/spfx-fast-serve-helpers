@@ -22,7 +22,8 @@ export function setDefaultServeSettings(settings: Settings) {
     loggingLevel: 'normal',
     hotRefresh: false,
     openUrl: undefined, 
-    reactProfiling: false
+    reactProfiling: false,
+    containers: undefined
   }
   settings.serve = settings.serve || {} as Settings['serve'];
 

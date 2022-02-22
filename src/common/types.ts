@@ -68,6 +68,8 @@ export type NgrokServeOptions = {
 }
 
 export type ServeConfigurations = {
+  hostname: string;
+  ipAddress: string;
   serveConfigurations: {
     [key: string]: {
       pageUrl: string,
