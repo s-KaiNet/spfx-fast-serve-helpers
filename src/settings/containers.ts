@@ -27,7 +27,5 @@ export const applyContainersSetting: ApplySettings = (config, settings) => {
     config.devServer.watchOptions = config.devServer.watchOptions || {};
     config.devServer.watchOptions.aggregateTimeout = 500;
     config.devServer.watchOptions.poll = 1000;
-
-    config.output.publicPath = publicPath;
   }
 }
