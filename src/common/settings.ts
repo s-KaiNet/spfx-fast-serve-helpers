@@ -12,5 +12,6 @@ export interface Settings {
     loggingLevel: 'minimal' | 'normal' | 'detailed';
     hotRefresh: boolean;
     reactProfiling: boolean;
+    containers: boolean;
   }
 }
