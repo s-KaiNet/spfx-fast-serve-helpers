@@ -20,6 +20,10 @@ export function addFastServe(build: Build) {
 
   trackAnalytics();
 
+  // https://github.com/s-KaiNet/spfx-fast-serve/issues/64
+  build.addSuppression(/Error processing webpack stats: TypeError/gi);
+  build.addSuppression(/Webpack error: RangeError: Invalid string length/gi);
+
   build.tslintCmd.enabled = false;
 
   addSaveConfigTask(build);
