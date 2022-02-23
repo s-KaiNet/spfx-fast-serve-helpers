@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import colors from 'colors';
 
 import { resultConfig } from './configureWebPack';
 import Webpack from 'webpack';
@@ -11,7 +12,7 @@ export async function startDevServer() {
   const compiler = Webpack(config);
   const server = new WebpackDevServer(compiler, config.devServer);
 
-  logDebugString();
+  logDebugString(`To load your scripts, use this query string: ${colors.yellow('?debug=true&noredir=true&debugManifestsFile=https://localhost:4321/temp/manifests.js')}`);
 
   server.listen(config.devServer.port, config.devServer.host, (err) => {
     if (err) {

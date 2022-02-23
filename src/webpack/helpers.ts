@@ -324,9 +324,9 @@ function hasPattern(patterns: { to: string }[], to: string): boolean {
   return false;
 }
 
-export function logDebugString() {
+export function logDebugString(message: string) {
   // eslint-disable-next-line no-console
-  console.log(`${getTimeString()} [${colors.cyan('fast-serve')}] To load your scripts, use this query string: ${colors.yellow('?debug=true&noredir=true&debugManifestsFile=https://localhost:4321/temp/manifests.js')}`);
+  console.log(`${getTimeString()} [${colors.cyan('fast-serve')}] ${message}`);
 }
 
 function getTimeString() {
