@@ -28,7 +28,7 @@ export const applyOpenUrlSetting: ApplySettings = (config, settings) => {
 
       config.devServer.open = true;
       config.devServer.openPage = openUrl.href;
-      logDebugString(`Loading ${colors.yellow(configName)} serve configuration and opening ${colors.green(openUrl.href)}`);
+      // logDebugString(`Loading ${colors.yellow(configName)} serve configuration and opening ${colors.green(openUrl.href)}`);
     } else {
       throw new Error(`Unable to find serve configuration with name '${configName}' in serve.json`);
     }
