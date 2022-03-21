@@ -25,7 +25,7 @@ export function addFastServe(build: Build) {
   addSaveConfigTask(build);
 }
 
-function trackAnalytics() {
+async function trackAnalytics() {
   try {
 
     let username = 'default';
@@ -38,7 +38,7 @@ function trackAnalytics() {
     
     const hostNameHash = createHash('md5').update(hostname() + '@' + username).digest('hex');
 
-    fetch('https://fast-serve-track.azurewebsites.net/api/track', {
+    await fetch('https://fast-serve-track.azurewebsites.net/api/track', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
