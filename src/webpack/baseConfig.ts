@@ -10,6 +10,7 @@ import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefini
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { freePortIfInUse, getExternalComponents } from './helpers';
 import { Settings } from '../common/settings';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 
 const rootFolder = path.resolve(process.cwd());
 
@@ -57,7 +58,8 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
     devtool: 'source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
-      modules: ['node_modules']
+      modules: ['node_modules'],
+      plugins: [new TsconfigPathsPlugin({ configFile: rootFolder + '/tsconfig.json' })]
     },
     context: rootFolder,
     module: {
