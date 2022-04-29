@@ -43,7 +43,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
     options: {
       level: {
         1: {
-          all: false, 
+          all: false,
           removeQuotes: true
         }
       }
@@ -59,7 +59,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
       modules: ['node_modules'],
-      plugins: [new TsconfigPathsPlugin({ configFile: rootFolder + '/tsconfig.json' })]
+      plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(rootFolder, 'tsconfig.json') })]
     },
     context: rootFolder,
     module: {
