@@ -17,7 +17,7 @@ export class ClearCssModuleDefinitionsPlugin {
   apply(compiler: webpack.Compiler) {
     const hooks = ForkTsCheckerWebpackPlugin.getCompilerHooks(compiler);
 
-    hooks.issues.tap('ClearCssModuleDefinitionsPlugin', (issues) => {
+    hooks.issues.tap('ClearCssModuleDefinitionsPlugin', (issues: any) => {
       if (!this.deleted) {
         let files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: this.options.rootFolder });
         files = files.map(f => f.replace('module.scss.d.ts', 'module.scss.ts'));
