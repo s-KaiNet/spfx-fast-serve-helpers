@@ -11,6 +11,7 @@ import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin'
 import { freePortIfInUse, getExternalComponents } from './helpers';
 import { Settings } from '../common/settings';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import { readFile } from 'tsconfig';
 
 const rootFolder = path.resolve(process.cwd());
 
@@ -58,8 +59,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
     devtool: 'source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
-      modules: ['node_modules'],
-      plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(rootFolder, 'tsconfig.json') })]
+      modules: ['node_modules']
     },
     context: rootFolder,
     module: {
@@ -197,6 +197,15 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
         key: certificateStore.keyData
       }
     },
+  }
+
+  const tsConfigPath = path.resolve(rootFolder, 'tsconfig.json');
+  const tsconfig = await readFile(tsConfigPath);
+
+  if (tsconfig.baseUrl) {
+    baseConfig.resolve.plugins = [
+      new TsconfigPathsPlugin({ configFile: tsConfigPath })
+    ]
   }
 
   return baseConfig;
