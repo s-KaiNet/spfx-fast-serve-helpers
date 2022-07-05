@@ -135,7 +135,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
             {
               loader: require.resolve('sass-loader'),
               options: {
-                implementation: require('node-sass')
+                implementation: require('sass')
               }
             }
           ]
@@ -157,7 +157,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
             {
               loader: require.resolve('sass-loader'),
               options: {
-                implementation: require('node-sass')
+                implementation: require('sass')
               }
             }
           ]
