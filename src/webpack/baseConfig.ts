@@ -10,6 +10,8 @@ import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefini
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { freePortIfInUse, getExternalComponents } from './helpers';
 import { Settings } from '../common/settings';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import { readFile } from 'tsconfig';
 
 const rootFolder = path.resolve(process.cwd());
 
@@ -42,7 +44,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
     options: {
       level: {
         1: {
-          all: false, 
+          all: false,
           removeQuotes: true
         }
       }
@@ -133,7 +135,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
             {
               loader: require.resolve('sass-loader'),
               options: {
-                implementation: require('node-sass')
+                implementation: require('sass')
               }
             }
           ]
@@ -155,7 +157,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
             {
               loader: require.resolve('sass-loader'),
               options: {
-                implementation: require('node-sass')
+                implementation: require('sass')
               }
             }
           ]
@@ -195,6 +197,15 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
         key: certificateStore.keyData
       }
     },
+  }
+
+  const tsConfigPath = path.resolve(rootFolder, 'tsconfig.json');
+  const tsconfig = await readFile(tsConfigPath);
+
+  if (tsconfig.baseUrl) {
+    baseConfig.resolve.plugins = [
+      new TsconfigPathsPlugin({ configFile: tsConfigPath })
+    ]
   }
 
   return baseConfig;

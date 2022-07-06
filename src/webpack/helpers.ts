@@ -17,7 +17,7 @@ export function getJSONFile<T = any>(relPath: string) {
 
 export function setDefaultServeSettings(settings: Settings) {
   const defaultServeSettings: Settings['serve'] = {
-    eslint: false,
+    eslint: true,
     fullScreenErrors: true,
     loggingLevel: 'normal',
     hotRefresh: false,

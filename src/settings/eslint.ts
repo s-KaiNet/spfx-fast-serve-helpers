@@ -5,7 +5,13 @@ export const applyEslintSetting: ApplySettings = (config, settings) => {
   if (settings.eslint) {
     config.plugins.push(new ESLintWebpackPlugin({
       files: './src/**/*.{ts,tsx}',
-      lintDirtyModulesOnly: true
+      lintDirtyModulesOnly: true,
+      overrideConfig: {
+        ignorePatterns: ['*.js', '*.scss.ts', '*.d.ts'],
+        parserOptions: {
+          warnOnUnsupportedTypeScriptVersion: false
+        }
+      }
     }));
   }
 }
