@@ -131,6 +131,16 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
                 }
               }
             },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: {
+                postcssOptions: {
+                  plugins: [[require.resolve('autoprefixer'), {
+                    overrideBrowserslist: ['> 1%', 'last 2 versions', 'ie >= 10']
+                  }]]
+                }
+              }
+            },
             cleanCssLoader,
             {
               loader: require.resolve('sass-loader'),
@@ -151,6 +161,16 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
               options: {
                 esModule: false,
                 modules: false
+              }
+            },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: {
+                postcssOptions: {
+                  plugins: [[require.resolve('autoprefixer'), {
+                    overrideBrowserslist: ['> 1%', 'last 2 versions', 'ie >= 10']
+                  }]]
+                }
               }
             },
             cleanCssLoader,

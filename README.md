@@ -2,6 +2,12 @@
 
 Contains helper classes and functions for [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve) tool.
 
+-----
+
+## For issues please use [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve/issues) repository
+
+----
+
 ## Development
 
 1. `npm i`

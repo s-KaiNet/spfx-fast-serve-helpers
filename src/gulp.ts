@@ -1,5 +1,3 @@
-type Build = typeof import('@microsoft/sp-build-web');
-
 import { argv } from 'yargs';
 import * as path from 'path';
 import { hostname, userInfo } from 'os';
@@ -8,7 +6,7 @@ import fetch from 'node-fetch';
 import del from 'del';
 import { addSaveConfigTask } from './tasks';
 
-export function addFastServe(build: Build) {
+export function addFastServe(build: any) {
   const useCustomServe = argv['custom-serve'];
   const isClean = argv._.indexOf('clean') !== -1;
 

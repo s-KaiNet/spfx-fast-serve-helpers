@@ -19,3 +19,5 @@ SPFx 1.13 is based on webpack 4.x, which prevents some packages to be updated to
 - `globby` - 11.x, because [12.x is based](https://github.com/sindresorhus/globby/releases/tag/v12.0.0) on pure [ES modules](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c). Currently it's not a goal for `fast-serve` to move to pure ES modules, because it requires additional extensive testing.
 
 - `eslint-webpack-plugin` - 2.x is the last version, which [supports webpack 4.x](https://github.com/webpack-contrib/eslint-webpack-plugin/blob/master/CHANGELOG.md#300-2021-07-19)
+
+- `postcss-loader` - 4.x is the latest version, which supports webpack 4.x
