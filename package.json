@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/s-KaiNet/spfx-fast-serve-helpers#readme",
   "devDependencies": {
-    "@microsoft/sp-build-web": "1.15.0",
     "@types/node": "15.0.2",
     "@types/webpack": "4.41.30",
     "@typescript-eslint/eslint-plugin": "4.28.5",
@@ -43,6 +42,8 @@
     "@types/copy-webpack-plugin": "6.4.3",
     "@types/loader-utils": "2.0.2",
     "@types/webpack-dev-server": "3.11.4",
+    "@types/yargs": "6.6.0",
+    "autoprefixer": "9.8.8",
     "clean-css-loader": "3.0.0",
     "colors": "1.4.0",
     "copy-webpack-plugin": "6.4.0",
@@ -56,6 +57,8 @@
     "kill-port": "1.6.1",
     "loader-utils": "2.0.0",
     "node-fetch": "2.6.1",
+    "postcss": "7.0.38",
+    "postcss-loader": "4.2.0",
     "react-refresh": "0.14.0",
     "react-refresh-typescript": "2.0.6",
     "sass": "1.44.0",
