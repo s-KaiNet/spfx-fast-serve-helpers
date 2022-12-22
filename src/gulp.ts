@@ -64,11 +64,11 @@ export function addFastServe(build: Build) {
   build.rig.addPostBuildTask(ensureWorkbenchSubtask);
 }
 
-function trackAnalytics() {
+async function trackAnalytics() {
   try {
     const hostNameHash = createHash('md5').update(hostname()).digest('hex');
 
-    fetch('https://fast-serve-track.azurewebsites.net/api/track', {
+    await fetch('https://fast-serve-track.azurewebsites.net/api/track', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
