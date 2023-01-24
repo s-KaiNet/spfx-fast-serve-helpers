@@ -13,7 +13,7 @@ import { applyServeSettings } from '../settings';
 
 const rootFolder = path.resolve(process.cwd());
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
+const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
 
 const createConfig = async function () {
   checkVersions();
@@ -86,4 +86,4 @@ const createConfig = async function () {
   return baseConfig;
 }
 
-export const resultConfig = async (): Promise<webpack.Configuration> => merge(transformConfig(await createConfig()), webpackConfig);
+export const resultConfig = async (): Promise<webpack.Configuration> => merge(transformConfig(await createConfig(), webpack), webpackConfig);
