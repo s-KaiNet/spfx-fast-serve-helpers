@@ -1,12 +1,13 @@
 import webpack from 'webpack';
 import * as path from 'path';
+import del from 'del';
+import * as globby from 'globby';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const certificateManager = require('@rushstack/debug-certificate-manager');
 const certificateStore = new certificateManager.CertificateStore();
 import { AsyncComponentPlugin } from '@microsoft/spfx-heft-plugins/lib/plugins/webpackConfigurationPlugin/webpackPlugins/AsyncComponentPlugin';
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import { ClearCssModuleDefinitionsPlugin } from '../plugins/ClearCssModuleDefinitionsPlugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { freePortIfInUse, getExternalComponents } from './helpers';
 import { Settings } from '../common/settings';
@@ -193,9 +194,6 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
         async: true
       }),
       new TypeScriptResourcesPlugin(),
-      new ClearCssModuleDefinitionsPlugin({
-        rootFolder
-      }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'DEBUG': JSON.stringify(true)
@@ -227,6 +225,9 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
       new TsconfigPathsPlugin({ configFile: tsConfigPath })
     ]
   }
+
+  const files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: rootFolder });
+  del.sync(files, { cwd: rootFolder });
 
   return baseConfig;
 }
