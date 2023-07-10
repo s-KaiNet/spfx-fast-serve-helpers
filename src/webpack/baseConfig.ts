@@ -57,7 +57,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
   const baseConfig: webpack.Configuration = {
     target: 'web',
     mode: 'development',
-    devtool: 'source-map',
+    devtool: 'eval-source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
       modules: ['node_modules']
