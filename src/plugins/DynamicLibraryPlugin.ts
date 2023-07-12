@@ -10,6 +10,7 @@ export class DynamicLibraryPlugin {
   }
 
   apply(compiler: webpack.Compiler) {
+    (compiler as any).webpack = webpack;
     compiler.hooks.emit.tap('DynamicLibraryPlugin', compilation => {
       for (const assetId in this.options.modulesMap) {
         const moduleMap = this.options.modulesMap[assetId];
