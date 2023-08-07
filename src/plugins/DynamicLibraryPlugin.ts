@@ -16,8 +16,15 @@ export class DynamicLibraryPlugin {
         const moduleMap = this.options.modulesMap[assetId];
 
         if (compilation.assets[assetId]) {
-          const rawValue = compilation.assets[assetId].children[0]._value;
-          compilation.assets[assetId].children[0]._value = rawValue.replace(this.options.libraryName, moduleMap.id + '_' + moduleMap.version);
+          if (compilation.assets[assetId].children) {
+            const rawValue = compilation.assets[assetId].children[0]._value;
+            compilation.assets[assetId].children[0]._value = rawValue.replace(this.options.libraryName, moduleMap.id + '_' + moduleMap.version);
+          }
+
+          if (compilation.assets[assetId]._source) {
+            const rawValue = compilation.assets[assetId]._source.children[0];
+            compilation.assets[assetId]._source.children[0] = rawValue.replace(this.options.libraryName, moduleMap.id + '_' + moduleMap.version);
+          }
         }
       }
     });
