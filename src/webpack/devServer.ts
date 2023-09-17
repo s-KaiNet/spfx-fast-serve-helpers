@@ -6,7 +6,7 @@ import Webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import { logDebugString } from './helpers';
 
-export async function startDevServer() {
+async function startDevServer() {
   const config = await resultConfig();
   
   const compiler = Webpack(config);
@@ -21,3 +21,5 @@ export async function startDevServer() {
     }
   });
 }
+
+startDevServer();
