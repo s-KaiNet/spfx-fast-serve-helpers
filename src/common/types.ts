@@ -75,7 +75,8 @@ export type ServeConfigurations = {
     [key: string]: {
       pageUrl: string,
       customActions?: any,
-      fieldCustomizers?: any
+      fieldCustomizers?: any;
+      formCustomizer?: any;
     }
   }
 };
