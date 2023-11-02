@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.18.2",
+  "version": "1.18.3",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -11,7 +11,9 @@
     "lint": "eslint -c .eslintrc.json --ext .ts src",
     "prepublishOnly": "rimraf -- lib && npm run build",
     "dev": "tsc -p . --watch",
-    "pub:beta": "npm publish --tag beta"
+    "pub:beta": "pnpm publish --tag beta",
+    "pub:prev": "pnpm publish --tag previous",
+    "pub:next": "pnpm publish --tag next"
   },
   "repository": {
     "type": "git",
