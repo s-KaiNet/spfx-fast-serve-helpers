@@ -9,6 +9,7 @@ export type ModulesMap = Record<string, {
   id: string;
   version: string;
   path: string;
+  isBundle: boolean;
 }>;
 
 export type DynamicLibraryPluginOptions = {
