@@ -9,6 +9,7 @@ export type ModulesMap = Record<string, {
   id: string;
   version: string;
   path: string;
+  isBundle: boolean;
 }>;
 
 export type DynamicLibraryPluginOptions = {
@@ -74,7 +75,8 @@ export type ServeConfigurations = {
     [key: string]: {
       pageUrl: string,
       customActions?: any,
-      fieldCustomizers?: any
+      fieldCustomizers?: any;
+      formCustomizer?: any;
     }
   }
 };

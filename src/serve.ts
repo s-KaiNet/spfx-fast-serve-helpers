@@ -17,10 +17,13 @@ function spawnDevServer() {
   const nodeMajorVersion = parseInt(process.version.split('.')[0].substring(1), 10);
 
   if (nodeMajorVersion >= 17) {
-    env['NODE_OPTIONS'] = '--openssl-legacy-provider';
+    if (!env['NODE_OPTIONS']) {
+      env['NODE_OPTIONS'] = '';
+    }
+    env['NODE_OPTIONS'] += ' --openssl-legacy-provider';
   }
 
-  const proc = spawn('node', [path.resolve(__dirname, 'webpack/devServer.js')], {
+  const proc = spawn('node', [path.resolve(__dirname, 'webpack/devServer.js'), ...process.argv.slice(2)], {
     stdio: 'inherit',
     env
   })
