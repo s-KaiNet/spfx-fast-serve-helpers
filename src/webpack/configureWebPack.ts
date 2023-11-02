@@ -46,7 +46,8 @@ const createConfig = async function () {
       modulesMap[entryModuleId + '.js'] = {
         id: jsModule.id,
         version: jsModule.version,
-        path: jsModule.loaderConfig.scriptResources[entryModuleId].path
+        path: jsModule.loaderConfig.scriptResources[entryModuleId].path,
+        isBundle: (originalWebpackConfig.entry as Record<string, string>)[jsModule.loaderConfig.entryModuleId].indexOf('bundle-entries') !== -1
       }
     }
   }
