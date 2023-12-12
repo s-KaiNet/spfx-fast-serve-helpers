@@ -18,12 +18,14 @@ const rootFolder = path.resolve(process.cwd());
 
 export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Configuration> {
   let port = 0;
-  if (cli.port) {
-    port = cli.port;
-  } else if (!cli.isLibraryComponent) {
+  if (!cli.isLibraryComponent) {
     port = 4321;
   } else {
-    port = 4320
+    if (!cli.port) {
+      port = 4320
+    } else {
+      port = cli.port;
+    }
   }
 
   await freePortIfInUse(port);
