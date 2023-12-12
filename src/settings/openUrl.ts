@@ -2,7 +2,8 @@ import { ApplySettings, ServeConfigurations } from '../common/types';
 import colors from 'colors';
 import { argv } from 'yargs';
 import { URL } from 'url';
-import { getJSONFile, logDebugString } from '../webpack/helpers';
+import { getJSONFile } from '../webpack/helpers';
+import { Logger } from '../common/logger';
 
 const SERVE_SPFX_KEY = 'SPFX_SERVE_TENANT_DOMAIN';
 const SERVE_SPFX_PLACEHOLDER = '{tenantDomain}';
@@ -50,7 +51,7 @@ export const applyOpenUrlSetting: ApplySettings = (config, settings) => {
       config.devServer.open = true;
       config.devServer.openPage = openUrl.href;
 
-      logDebugString(`Loading ${colors.yellow(configName)} serve configuration and opening ${colors.green(openUrl.href)}`);
+      Logger.log(`Loading ${colors.yellow(configName)} serve configuration and opening ${colors.green(openUrl.href)}`);
     } else {
       throw new Error(`Unable to find serve configuration with name '${configName}' in serve.json`);
     }

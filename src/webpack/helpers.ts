@@ -21,7 +21,7 @@ export function setDefaultServeSettings(settings: Settings) {
     fullScreenErrors: true,
     loggingLevel: 'normal',
     hotRefresh: false,
-    openUrl: undefined, 
+    openUrl: undefined,
     reactProfiling: false,
     containers: undefined
   }
@@ -224,6 +224,12 @@ export async function freePortIfInUse(port: number) {
 
 export function checkVersions() {
   const packageJson = getJSONFile<NodePackage>('package.json');
+
+  // special case for development, when dependecy is 'file:...' or 'link:...'
+  if (packageJson.devDependencies['spfx-fast-serve-helpers']?.indexOf(':') !== -1) {
+    return;
+  }
+
   const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');
   const fastServeVersion = getMinorVersion(packageJson, 'spfx-fast-serve-helpers');
 
@@ -322,14 +328,4 @@ function hasPattern(patterns: { to: string }[], to: string): boolean {
   }
 
   return false;
-}
-
-export function logDebugString(message: string) {
-  // eslint-disable-next-line no-console
-  console.log(`${getTimeString()} [${colors.cyan('fast-serve')}] ${message}`);
-}
-
-function getTimeString() {
-  const now = new Date();
-  return `[${colors.gray(`${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}:${('0' + now.getSeconds()).slice(-2)}`)}]`;
 }

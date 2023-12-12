@@ -5,17 +5,23 @@ import { spawn } from 'cross-spawn';
 import * as path from 'path';
 
 (async () => {
-  // eslint-disable-next-line no-console
-  console.log(process.cwd());
-  await runGulp();
-  spawnDevServer();
+  try {
+
+
+    console.log(process.cwd());
+    await runGulp();
+    spawnDevServer();
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 })();
 
 function spawnDevServer() {
   const env = { ...process.env };
 
+  // https://stackoverflow.com/a/69699772/434967
   const nodeMajorVersion = parseInt(process.version.split('.')[0].substring(1), 10);
-
   if (nodeMajorVersion >= 17) {
     if (!env['NODE_OPTIONS']) {
       env['NODE_OPTIONS'] = '';
@@ -40,11 +46,10 @@ function spawnDevServer() {
     }
     process.exit(crossEnvExitCode)
   });
-
 }
 
 async function runGulp(): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const proc = spawn('gulp', ['bundle', '--custom-serve', '--max-old-space-size=8192'], {
       stdio: 'inherit',
       env: process.env
@@ -63,8 +68,14 @@ async function runGulp(): Promise<void> {
 
       console.log(`exit code: ${crossEnvExitCode}`);
       console.log(`signal: ${signal}`);
-      resolve();
-      //process.exit(crossEnvExitCode);
+
+      if (crossEnvExitCode == 1) {
+        reject("The gulp task failed.");
+      } else if (crossEnvExitCode == 0) {
+        resolve();
+      } else {
+        throw new Error(`gulp exited with unexpected code: ${crossEnvExitCode}`);
+      }
     });
 
   });
