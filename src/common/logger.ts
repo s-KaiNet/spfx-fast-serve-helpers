@@ -6,6 +6,9 @@ export class Logger {
   }
 
   static error(message: string) {
+    if (!message) {
+      message = 'An unexpected error occurred';
+    }
     console.log(`${this.baseMessage()} ${colors.red(message)}`);
   }
 

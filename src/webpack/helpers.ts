@@ -9,6 +9,8 @@ const killPort = require('kill-port')
 import { Settings } from '../common/settings';
 import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from '../common/types';
 import webpack from 'webpack';
+import { Logger } from '../common/logger';
+import { moduleName } from '../common/consts';
 
 export function getJSONFile<T = any>(relPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -214,11 +216,12 @@ export async function freePortIfInUse(port: number) {
 
   // the needed port is not free
   if (freePort !== port) {
-    // eslint-disable-next-line no-console
-    console.log(colors.yellow(`The port ${port} is in use. Trying to release...`));
+
+    Logger.log(colors.yellow(`The port ${port} is in use. Trying to release...`));
+
     await killPort(port);
-    // eslint-disable-next-line no-console
-    console.log(colors.yellow(`The port ${port} is successfully released.`));
+
+    Logger.log(colors.yellow(`The port ${port} is successfully released.`));
   }
 }
 
@@ -226,15 +229,15 @@ export function checkVersions() {
   const packageJson = getJSONFile<NodePackage>('package.json');
 
   // special case for development, when dependecy is 'file:...' or 'link:...'
-  if (packageJson.devDependencies['spfx-fast-serve-helpers']?.indexOf(':') !== -1) {
+  if (packageJson.devDependencies[moduleName]?.indexOf(':') !== -1) {
     return;
   }
 
   const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');
-  const fastServeVersion = getMinorVersion(packageJson, 'spfx-fast-serve-helpers');
+  const fastServeVersion = getMinorVersion(packageJson, moduleName);
 
   if (spfxVersion !== fastServeVersion) {
-    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "spfx-fast-serve-helpers" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
+    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "${moduleName}" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
   }
 }
 
@@ -318,6 +321,24 @@ export function addCopyLocalExternals(externals: Record<string, ExternalsObject>
     }
   }
   return patterns;
+}
+
+export function needToRunBundle() {
+  const npmScript = process.env.npm_lifecycle_event;
+
+  if (!npmScript || npmScript === 'npx') return false;
+
+  const packageJson = getJSONFile<NodePackage>('package.json');
+  const script = packageJson.scripts[npmScript];
+
+  if (script.indexOf('--custom-serve') !== -1) {
+
+    Logger.log(colors.yellow('We detected the old-styled "serve" command. Consider to use just "fast-serve" instead. More info: https://github.com/s-KaiNet/spfx-fast-serve'));
+
+    return false;
+  }
+
+  return true;
 }
 
 function hasPattern(patterns: { to: string }[], to: string): boolean {

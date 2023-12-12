@@ -33,7 +33,8 @@ export type ScriptResources = Record<string, ScriptResource>;
 
 export type NodePackage = {
   devDependencies: Record<string, string>;
-  dependencies: Record<string, string>
+  dependencies: Record<string, string>;
+  scripts: Record<string, string>;
 }
 export type LoaderConfig = {
   internalModuleBaseUrls: string[];
