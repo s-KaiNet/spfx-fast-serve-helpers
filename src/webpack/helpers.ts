@@ -13,8 +13,12 @@ import { Logger } from '../common/logger';
 import { moduleName } from '../common/consts';
 
 export function getJSONFile<T = any>(relPath: string) {
+  const filePath = path.join(process.cwd(), relPath);
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require(path.join(process.cwd(), relPath)) as T;
+  return require(filePath) as T;
 }
 
 export function setDefaultServeSettings(settings: Settings) {
@@ -326,7 +330,7 @@ export function addCopyLocalExternals(externals: Record<string, ExternalsObject>
 export function needToRunBundle() {
   const npmScript = process.env.npm_lifecycle_event;
 
-  if (!npmScript || npmScript === 'npx') return false;
+  if (!npmScript || npmScript === 'npx') return true;
 
   const packageJson = getJSONFile<NodePackage>('package.json');
   const script = packageJson.scripts[npmScript];

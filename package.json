@@ -50,6 +50,7 @@
     "autoprefixer": "9.8.8",
     "clean-css-loader": "3.0.0",
     "colors": "1.4.0",
+    "commander": "11.1.0",
     "copy-webpack-plugin": "6.4.0",
     "cross-spawn": "7.0.3",
     "css-loader": "5.2.4",

@@ -35,6 +35,7 @@ export type NodePackage = {
   devDependencies: Record<string, string>;
   dependencies: Record<string, string>;
   scripts: Record<string, string>;
+  version: string;
 }
 export type LoaderConfig = {
   internalModuleBaseUrls: string[];
