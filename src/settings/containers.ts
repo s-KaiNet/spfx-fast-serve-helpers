@@ -1,5 +1,5 @@
 import { ApplySettings, ServeConfigurations } from '../common/types';
-import { getJSONFile } from '../webpack/helpers';
+import { getJSONFile } from '../common/helpers';
 
 
 export const applyContainersSetting: ApplySettings = (config, settings) => {

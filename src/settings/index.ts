@@ -1,6 +1,6 @@
 import webpack from 'webpack';
 import { Settings } from '../common/settings';
-import { getJSONFile, setDefaultServeSettings } from '../webpack/helpers';
+import { getJSONFile, setDefaultServeSettings } from '../common/helpers';
 import { applyContainersSetting } from './containers';
 import { applyEslintSetting } from './eslint';
 import { applyFullScreenErrors } from './fullScreenErrors';

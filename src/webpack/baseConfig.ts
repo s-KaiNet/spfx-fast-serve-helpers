@@ -9,7 +9,7 @@ import { AsyncComponentPlugin } from '@microsoft/spfx-heft-plugins/lib/plugins/w
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
-import { freePortIfInUse, getExternalComponents } from './helpers';
+import { freePortIfInUse, getExternalComponents } from '../common/helpers';
 import { Settings } from '../common/settings';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { readFile } from 'tsconfig';

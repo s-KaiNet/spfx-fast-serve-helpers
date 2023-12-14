@@ -18,7 +18,7 @@ export async function spawnProcess(program: string, args: string[], env?: typeof
         crossEnvExitCode = signal === 'SIGINT' ? 0 : 1
       }
 
-      if (crossEnvExitCode == 1) {
+      if (crossEnvExitCode === 1) {
         reject();
       } else {
         resolve();

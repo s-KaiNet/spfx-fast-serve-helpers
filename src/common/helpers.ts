@@ -6,11 +6,12 @@ import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { Settings } from '../common/settings';
-import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from '../common/types';
+import { Settings } from './settings';
+import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
 import webpack from 'webpack';
-import { Logger } from '../common/logger';
-import { moduleName } from '../common/consts';
+import { Logger } from './logger';
+import { moduleName } from './consts';
+import { InvalidArgumentError } from 'commander';
 
 export function getJSONFile<T = any>(relPath: string) {
   const filePath = path.join(process.cwd(), relPath);
@@ -343,6 +344,14 @@ export function needToRunBundle() {
   }
 
   return true;
+}
+
+export function customParseInt(value: string): number {
+  const parsedValue = parseInt(value, 10);
+  if (isNaN(parsedValue)) {
+    throw new InvalidArgumentError('Not a number');
+  }
+  return parsedValue;
 }
 
 function hasPattern(patterns: { to: string }[], to: string): boolean {

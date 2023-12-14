@@ -2,7 +2,7 @@ import { ApplySettings, ServeConfigurations } from '../common/types';
 import colors from 'colors';
 import { argv } from 'yargs';
 import { URL } from 'url';
-import { getJSONFile } from '../webpack/helpers';
+import { getJSONFile } from '../common/helpers';
 import { Logger } from '../common/logger';
 
 const SERVE_SPFX_KEY = 'SPFX_SERVE_TENANT_DOMAIN';

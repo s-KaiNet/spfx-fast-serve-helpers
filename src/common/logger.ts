@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import colors from 'colors';
 
 export class Logger {
