@@ -1,17 +1,18 @@
 import { Logger } from '../common/logger';
 import { Settings } from '../common/settings';
 import { spawnProcess } from '../common/spawnProcess';
-import { getTemplatesPath, needToRunBundle } from '../common/helpers';
+import { hrtime } from 'process';
+import { getTemplatesPath, nanoToSeconds, needToRunBundle } from '../common/helpers';
 import * as path from 'path';
 import { replaceInFile, ReplaceInFileConfig } from 'replace-in-file';
 import { copyFile, readFile } from 'fs/promises';
-import { initSettings, serveSettings } from '../common/settingsManager';
+import { initSettingsFromCli, serveSettings } from '../common/settingsManager';
 import { program } from 'commander';
 
 export async function startDevServer(settings: Settings['serve']) {
   try {
 
-    initSettings(settings);
+    initSettingsFromCli(settings);
 
     Logger.debug('Running fast-serve in debug mode');
     Logger.debug(`fast-serve: ${program.version()}`, `node: ${process.version}`, `platform: ${process.platform}`);
@@ -40,6 +41,7 @@ async function spawnSpfxBundle(): Promise<void> {
 
   Logger.debug('Running SPFx bundle');
 
+  const startTime = hrtime.bigint();
   const workDir = process.cwd();
   const gulpfile = path.resolve(workDir, 'gulpfile.js');
   const gulpfileTemp = path.resolve(workDir, 'temp/gulpfile.js');
@@ -50,7 +52,7 @@ async function spawnSpfxBundle(): Promise<void> {
 
   if (!hasFastServe) {
     const replaceOpts: ReplaceInFileConfig = {
-      files: path.join(workDir, 'gulpfile.js'),
+      files: gulpfileTemp,
       from: /build\.initialize.*;/g,
       to: replaceContent,
       glob: {
@@ -65,7 +67,9 @@ async function spawnSpfxBundle(): Promise<void> {
 
   await spawnProcess('gulp', ['--gulpfile', `${path.resolve(workDir, 'temp/gulpfile.js')}`, '--cwd', workDir, 'bundle', '--custom-serve']);
 
-  Logger.debug('Finished SPFx bundle');
+  const endTime = hrtime.bigint();
+
+  Logger.debug(`Finished SPFx bundle in ${nanoToSeconds(endTime - startTime)}s`);
 }
 
 async function spawnDevServer(): Promise<void> {
@@ -80,5 +84,5 @@ async function spawnDevServer(): Promise<void> {
     env['NODE_OPTIONS'] += ' --openssl-legacy-provider';
   }
 
-  return await spawnProcess('node', [path.resolve(__dirname, '../webpack/devServer.js'), ...process.argv.slice(2)], env);
+  return await spawnProcess('node', [path.resolve(__dirname, '../webpack/devServer.js'), '--config', JSON.stringify(serveSettings)], env);
 }

@@ -1,6 +1,5 @@
 import { ApplySettings, ServeConfigurations } from '../common/types';
 import colors from 'colors';
-import { argv } from 'yargs';
 import { URL } from 'url';
 import { getJSONFile } from '../common/helpers';
 import { Logger } from '../common/logger';
@@ -10,13 +9,13 @@ const SERVE_SPFX_KEY = 'SPFX_SERVE_TENANT_DOMAIN';
 const SERVE_SPFX_PLACEHOLDER = '{tenantDomain}';
 
 export const applyOpenUrlSetting: ApplySettings = (config) => {
-  const configName = argv['config'];
+  const configName = serveSettings.config;
 
   // SPFx serveConfigurations support
   if (configName) {
 
     const serveConfig = getJSONFile<ServeConfigurations>('config/serve.json');
-    if (serveConfig.serveConfigurations[configName]) {
+    if (serveConfig.serveConfigurations?.[configName]) {
       const configValue = serveConfig.serveConfigurations[configName];
       let openUrl = new URL(configValue.pageUrl);
 

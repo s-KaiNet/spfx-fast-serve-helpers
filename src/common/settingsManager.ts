@@ -4,7 +4,7 @@ import { Settings } from './settings';
 
 export let serveSettings: Settings['serve'];
 
-export function initSettings(cliSettings: Settings['serve']) {
+export function initSettingsFromCli(cliSettings: Settings['serve']) {
 
   const defaultServeSettings: Record<string, any> = {};
   const explicitServeSettings: Record<string, any> = {};
@@ -36,5 +36,11 @@ export function initSettings(cliSettings: Settings['serve']) {
     ...defaultServeSettings,
     ...fileBasedSettings.serve,
     ...explicitServeSettings,
+  }
+}
+
+export function applySettings(externalSettings: Settings['serve']) {
+  serveSettings = {
+    ...externalSettings
   }
 }

@@ -341,6 +341,10 @@ export function getTemplatesPath(fileName: string) {
   return path.join(__dirname, '..', basePath + fileName);
 }
 
+export function nanoToSeconds(nano: bigint): string {
+  return (Number(nano) / 1000000000).toFixed(2);
+}
+
 function hasPattern(patterns: { to: string }[], to: string): boolean {
   for (const pattern of patterns) {
     if (pattern.to === to) {
