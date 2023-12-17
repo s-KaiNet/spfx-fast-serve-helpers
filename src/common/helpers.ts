@@ -354,6 +354,12 @@ export function customParseInt(value: string): number {
   return parsedValue;
 }
 
+export function getTemplatesPath(fileName: string) {
+  const basePath = 'templates/';
+
+  return path.join(__dirname, '..', basePath + fileName);
+}
+
 function hasPattern(patterns: { to: string }[], to: string): boolean {
   for (const pattern of patterns) {
     if (pattern.to === to) {

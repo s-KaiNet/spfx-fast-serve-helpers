@@ -31,5 +31,6 @@ export interface Settings2 {
     reactProfiling: boolean;
     containers: boolean;
     port: number;
+    debug: boolean;
   }
 }

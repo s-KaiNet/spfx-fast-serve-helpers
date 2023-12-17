@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import colors from 'colors';
+import { serveSettings } from './settingsManager';
 
 export class Logger {
   static log(message: string) {
@@ -11,6 +12,18 @@ export class Logger {
       message = 'An unexpected error occurred';
     }
     console.log(`${this.baseMessage()} ${colors.red(message)}`);
+  }
+
+  static debug(...messages: any[]) {
+    if (!serveSettings.debug) return;
+
+    for (const message of messages) {
+      if (typeof message === 'string') {
+        console.log(`${this.baseMessage()} ${colors.yellow(message)}`);
+      } else {
+        console.log(message);
+      }
+    }
   }
 
   private static baseMessage() {

@@ -7,11 +7,11 @@
     "fast-serve": "lib/serve.js"
   },
   "scripts": {
-    "build": "npm run lint && tsc -p .",
+    "build": "npm run lint && tsc -p . && npm run copy",
     "lint": "eslint -c .eslintrc.json --ext .ts src",
     "copy": "cpy **/*.* ../../lib/templates --parents --cwd=src/templates",
     "prepublishOnly": "rimraf -- lib && npm run build",
-    "dev": "tsc -p . --watch",
+    "dev": "npm run copy && tsc -p . --watch",
     "pub:beta": "pnpm publish --tag beta",
     "pub:prev": "pnpm publish --tag previous",
     "pub:next": "pnpm publish --tag next"
@@ -68,6 +68,7 @@
     "postcss-loader": "4.2.0",
     "react-refresh": "0.14.0",
     "react-refresh-typescript": "2.0.6",
+    "replace-in-file": "7.0.2",
     "sass": "1.44.0",
     "sass-loader": "9.0.3",
     "spfx-css-modules-typescript-loader": "4.0.6",

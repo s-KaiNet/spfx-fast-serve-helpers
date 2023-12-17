@@ -13,6 +13,7 @@ const packageJson = getJSONFile<NodePackage>(`node_modules/${moduleName}/package
 program
   .name('fast-serve')
   .description('SPFx Fast Serve Tool')
+  .option('-p, --port <port>', 'HTTP port to use to serve the bundles', customParseInt, 4321)
   .option('-m, --memory <memory>', 'Memory limit for the dev server in MB', customParseInt, 8192)
   .option('-l, --isLibraryComponent', 'Should be true, when running inside library component project type', false)
   .option('-i, --locale <locale-code>', 'Local code when running in a multi-language scenario', undefined)
@@ -24,7 +25,7 @@ program
   .option('-h, --hotRefresh', 'When true, enables webpack\'s Hot Module Replacement (HMR) feature', false)
   .option('-r, --reactProfiling', 'When true, enables react profiling mode through React Chrome extension', false)
   .option('-t, --containers', 'Explicitly enables containerized environment support', false)
-  .option('-p, --port <port>', 'HTTP port to use to serve the bundles', customParseInt, 4321)
+  .option('-d, --debug', 'Enables debug logging for fast-serve. In debug mode it prints more information about execution context', false)
   .version(packageJson.version, '-v, --version', 'Output the fast-serve version')
   .action(startDevServer);
 

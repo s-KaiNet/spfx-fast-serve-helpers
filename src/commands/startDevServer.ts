@@ -1,21 +1,24 @@
 import { Logger } from '../common/logger';
 import { Settings2 } from '../common/settings';
 import { spawnProcess } from '../common/spawnProcess';
-import { needToRunBundle } from '../common/helpers';
+import { getTemplatesPath, needToRunBundle } from '../common/helpers';
 import * as path from 'path';
+import { replaceInFile, ReplaceInFileConfig } from 'replace-in-file';
+import { copyFile, readFile } from 'fs/promises';
 import { initSettings, serveSettings } from '../common/settingsManager';
+import { program } from 'commander';
 
 export async function startDevServer(settings: Settings2['serve']) {
-
   try {
 
     initSettings(settings);
 
-    console.log(serveSettings);
+    Logger.debug('Running fast-serve in debug mode');
+    Logger.debug(`fast-serve: ${program.version()}`, `node: ${process.version}`, `platform: ${process.platform}`);
 
-    if (needToRunBundle()) {
-      await spawnProcess('gulp', [`--gulpfile ${path.resolve(__dirname, 'templates/gulpfile.js')}`, `--cwd ${process.cwd()}`,'bundle', '--custom-serve', `--max-old-space-size=${serveSettings.memory}`]);
-    }
+    Logger.debug('Settings:', serveSettings);
+
+    await spawnSpfxBundle();
     await spawnDevServer();
 
   } catch (error) {
@@ -27,6 +30,42 @@ export async function startDevServer(settings: Settings2['serve']) {
       process.exit(1);
     }
   }
+}
+
+async function spawnSpfxBundle(): Promise<void> {
+  if (!needToRunBundle()) {
+    Logger.debug('Skipping bundle');
+    return;
+  }
+
+  Logger.debug('Running SPFx bundle');
+
+  const workDir = process.cwd();
+  const gulpfile = path.resolve(workDir, 'gulpfile.js');
+  const gulpfileTemp = path.resolve(workDir, 'temp/gulpfile.js');
+  await copyFile(gulpfile, gulpfileTemp);
+
+  const replaceContent = (await readFile(getTemplatesPath('gulpfile.js'))).toString();
+  const hasFastServe = (await readFile(gulpfileTemp)).toString().includes('addFastServe(build)');
+
+  if (!hasFastServe) {
+    const replaceOpts: ReplaceInFileConfig = {
+      files: path.join(workDir, 'gulpfile.js'),
+      from: /build\.initialize.*;/g,
+      to: replaceContent,
+      glob: {
+        windowsPathsNoEscape: true
+      }
+    };
+
+    await replaceInFile(replaceOpts);
+
+    Logger.debug('Added fast-serve to temp/gulpfile.js');
+  }
+
+  await spawnProcess('gulp', ['--gulpfile', `${path.resolve(workDir, 'temp/gulpfile.js')}`, '--cwd', workDir, 'bundle', '--custom-serve']);
+
+  Logger.debug('Finished SPFx bundle');
 }
 
 async function spawnDevServer(): Promise<void> {
