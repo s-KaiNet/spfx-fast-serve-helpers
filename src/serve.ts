@@ -3,12 +3,12 @@
 import { program, Option } from 'commander';
 import { customParseInt, getJSONFile } from './common/helpers';
 import { NodePackage } from './common/types';
-import { moduleName } from './common/consts';
+import { fastServemoduleName } from './common/consts';
 import { startDevServer } from './commands/startDevServer';
 import { createWebpackExtend } from './commands/createWebpackExtend';
 import { createConfigFile } from './commands/createConfigFile';
 
-const packageJson = getJSONFile<NodePackage>(`node_modules/${moduleName}/package.json`);
+const packageJson = getJSONFile<NodePackage>(`node_modules/${fastServemoduleName}/package.json`);
 
 program
   .name('fast-serve')
@@ -22,11 +22,12 @@ program
   .addOption(new Option('-l, --loggingLevel <level>', 'Logging level, minimal notifies about errors and new builds only, normal adds bundle information, detailed adds details about each bundle').choices(['minimal', 'normal', 'detailed']).default('normal'))
   .option('-f, --fullScreenErrors', 'Whether to show full-screen (overlay) errors', true)
   .option('-e, --eslint', 'ESLint support', true)
-  .option('-h, --hotRefresh', 'When true, enables webpack\'s Hot Module Replacement (HMR) feature', false)
+  .option('-r, --hotRefresh', 'When true, enables webpack\'s Hot Module Replacement (HMR) feature', false)
   .option('-r, --reactProfiling', 'When true, enables react profiling mode through React Chrome extension', false)
   .option('-t, --containers', 'Explicitly enables containerized environment support', false)
   .option('-d, --debug', 'Enables debug logging for fast-serve. In debug mode it prints more information about execution context', false)
   .version(packageJson.version, '-v, --version', 'Output the fast-serve version')
+  .helpOption('-h, --help', 'Display help for command')
   .action(startDevServer);
 
 const webpackCommand = program.command('webpack')
@@ -34,6 +35,7 @@ const webpackCommand = program.command('webpack')
 
 webpackCommand.command('extend')
   .description('Adds fast-serve webpack extensibility file to the project')
+  .option('-f, --force', 'Forces to overwrite existing file', false)
   .action(createWebpackExtend);
 
 const configCommand = program.command('config')
@@ -41,6 +43,7 @@ const configCommand = program.command('config')
 
 configCommand.command('add')
   .description('Adds fast-serve configuration file to the project')
+  .option('-f, --force', 'Forces to overwrite existing file', false)
   .action(createConfigFile);
 
 program.parse(process.argv);

@@ -9,7 +9,7 @@ const killPort = require('kill-port')
 import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
 import webpack from 'webpack';
 import { Logger } from './logger';
-import { moduleName } from './consts';
+import { fastFolderName, fastServemoduleName } from './consts';
 import { InvalidArgumentError } from 'commander';
 import { Settings } from './settings';
 
@@ -215,15 +215,15 @@ export function checkVersions() {
   const packageJson = getJSONFile<NodePackage>('package.json');
 
   // special case for development, when dependecy is 'file:...' or 'link:...'
-  if (packageJson.devDependencies[moduleName]?.indexOf(':') !== -1) {
+  if (packageJson.devDependencies[fastServemoduleName]?.indexOf(':') !== -1) {
     return;
   }
 
   const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');
-  const fastServeVersion = getMinorVersion(packageJson, moduleName);
+  const fastServeVersion = getMinorVersion(packageJson, fastServemoduleName);
 
   if (spfxVersion !== fastServeVersion) {
-    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "${moduleName}" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
+    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "${fastServemoduleName}" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
   }
 }
 
@@ -352,6 +352,13 @@ export function getTemplatesPath(fileName: string) {
 
 export function nanoToSeconds(nano: bigint): string {
   return (Number(nano) / 1000000000).toFixed(2);
+}
+
+export function ensureFastServeFolder() {
+  const fastServeFolder = path.join(process.cwd(), fastFolderName);
+  if (!fs.existsSync(fastServeFolder)) {
+    fs.mkdirSync(fastServeFolder);
+  }
 }
 
 function hasPattern(patterns: { to: string }[], to: string): boolean {
