@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import colors from 'colors';
 import { serveSettings } from './settingsManager';
+import { program } from 'commander';
+import { getNpmScriptValue } from './helpers';
 
 export class Logger {
   static log(message: string) {
@@ -24,6 +26,15 @@ export class Logger {
         console.log(message);
       }
     }
+  }
+
+  static debugEnvironmentInfo() {
+    const command = getNpmScriptValue();
+    const npmCommand = process.env.npm_lifecycle_event;
+
+    Logger.debug(`fast-serve: ${program.version()}`, `node: ${process.version}`, `platform: ${process.platform}`, `command: ${command == null ? 'npx' : `npm[${npmCommand}]="${command}"`}`);
+
+    Logger.debug('Settings:', serveSettings);
   }
 
   private static baseMessage() {

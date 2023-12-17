@@ -7,7 +7,6 @@ import * as path from 'path';
 import { replaceInFile, ReplaceInFileConfig } from 'replace-in-file';
 import { copyFile, readFile } from 'fs/promises';
 import { initSettingsFromCli, serveSettings } from '../common/settingsManager';
-import { program } from 'commander';
 
 export async function startDevServer(settings: Settings['serve']) {
   try {
@@ -15,9 +14,7 @@ export async function startDevServer(settings: Settings['serve']) {
     initSettingsFromCli(settings);
 
     Logger.debug('Running fast-serve in debug mode');
-    Logger.debug(`fast-serve: ${program.version()}`, `node: ${process.version}`, `platform: ${process.platform}`);
-
-    Logger.debug('Settings:', serveSettings);
+    Logger.debugEnvironmentInfo();
 
     await spawnSpfxBundle();
     await spawnDevServer();

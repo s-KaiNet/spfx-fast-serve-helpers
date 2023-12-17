@@ -327,6 +327,15 @@ export function needToRunBundle() {
   return true;
 }
 
+export function getNpmScriptValue() {
+  const npmScript = process.env.npm_lifecycle_event;
+
+  if (!npmScript || npmScript === 'npx') return null;
+
+  const packageJson = getJSONFile<NodePackage>('package.json');
+  return packageJson.scripts[npmScript];
+}
+
 export function customParseInt(value: string): number {
   const parsedValue = parseInt(value, 10);
   if (isNaN(parsedValue)) {
