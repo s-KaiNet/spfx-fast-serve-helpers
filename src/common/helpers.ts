@@ -11,7 +11,7 @@ import webpack from 'webpack';
 import { Logger } from './logger';
 import { moduleName } from './consts';
 import { InvalidArgumentError } from 'commander';
-import { Settings2 } from './settings';
+import { Settings } from './settings';
 
 export function getJSONFile<T = any>(relPath: string) {
   const filePath = path.join(process.cwd(), relPath);
@@ -22,7 +22,7 @@ export function getJSONFile<T = any>(relPath: string) {
   return require(filePath) as T;
 }
 
-export function getLoggingLevel(level: Settings2['serve']['loggingLevel']) {
+export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
   if (level === 'minimal') {
     return {
       all: false,

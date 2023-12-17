@@ -1,4 +1,4 @@
-export interface Settings2 {
+export interface Settings {
   serve?: {
     memory: number;
     isLibraryComponent: boolean;

@@ -1,10 +1,10 @@
 import { program } from 'commander';
 import { getJSONFile } from './helpers';
-import { Settings2 } from './settings';
+import { Settings } from './settings';
 
-export let serveSettings: Settings2['serve'];
+export let serveSettings: Settings['serve'];
 
-export function initSettings(cliSettings: Settings2['serve']) {
+export function initSettings(cliSettings: Settings['serve']) {
 
   const defaultServeSettings: Record<string, any> = {};
   const explicitServeSettings: Record<string, any> = {};
@@ -12,16 +12,16 @@ export function initSettings(cliSettings: Settings2['serve']) {
   for (const key in cliSettings) {
     if (Object.prototype.hasOwnProperty.call(cliSettings, key)) {
       if (program.getOptionValueSource(key) === 'default') {
-        defaultServeSettings[key] = cliSettings[key as keyof Settings2['serve']];
+        defaultServeSettings[key] = cliSettings[key as keyof Settings['serve']];
       }
 
       if (program.getOptionValueSource(key) === 'cli') {
-        explicitServeSettings[key] = cliSettings[key as keyof Settings2['serve']];
+        explicitServeSettings[key] = cliSettings[key as keyof Settings['serve']];
       }
     }
   }
 
-  const fileBasedSettings = getJSONFile<Settings2>('fast-serve/config.json') ?? {};
+  const fileBasedSettings = getJSONFile<Settings>('fast-serve/config.json') ?? {};
   fileBasedSettings.serve = fileBasedSettings.serve ?? {} as any;
 
   if ((fileBasedSettings as any).cli?.isLibraryComponent != null) {

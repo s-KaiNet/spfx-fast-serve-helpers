@@ -1,5 +1,5 @@
 import { Logger } from '../common/logger';
-import { Settings2 } from '../common/settings';
+import { Settings } from '../common/settings';
 import { spawnProcess } from '../common/spawnProcess';
 import { getTemplatesPath, needToRunBundle } from '../common/helpers';
 import * as path from 'path';
@@ -8,7 +8,7 @@ import { copyFile, readFile } from 'fs/promises';
 import { initSettings, serveSettings } from '../common/settingsManager';
 import { program } from 'commander';
 
-export async function startDevServer(settings: Settings2['serve']) {
+export async function startDevServer(settings: Settings['serve']) {
   try {
 
     initSettings(settings);
