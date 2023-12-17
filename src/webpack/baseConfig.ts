@@ -10,21 +10,14 @@ import { AsyncComponentPlugin } from '@microsoft/spfx-heft-plugins/lib/plugins/w
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { freePortIfInUse, getExternalComponents } from '../common/helpers';
-import { Settings } from '../common/settings';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { readFile } from 'tsconfig';
+import { serveSettings } from '../common/settingsManager';
 
 const rootFolder = path.resolve(process.cwd());
 
-export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Configuration> {
-  let port = 0;
-  if (cli.port) {
-    port = cli.port;
-  } else if (!cli.isLibraryComponent) {
-    port = 4321;
-  } else {
-    port = 4320
-  }
+export async function createBaseConfig(): Promise<webpack.Configuration> {
+  const port = serveSettings.port;
 
   await freePortIfInUse(port);
 
@@ -204,7 +197,7 @@ export async function createBaseConfig(cli: Settings['cli']): Promise<webpack.Co
       port: port,
       disableHostCheck: true,
       historyApiFallback: true,
-      writeToDisk: cli.isLibraryComponent,
+      writeToDisk: serveSettings.isLibraryComponent,
       headers: {
         'Access-Control-Allow-Origin': '*',
       },

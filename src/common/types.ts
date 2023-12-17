@@ -1,5 +1,4 @@
 import webpack from 'webpack';
-import { Settings } from './settings';
 
 export type EntryPoints = Record<string, string>;
 
@@ -21,7 +20,7 @@ export type ClearCssModulesPluginOptions = {
   rootFolder: string;
 }
 
-export type ApplySettings = (config: webpack.Configuration, settings: Settings['serve']) => void;
+export type ApplySettings = (config: webpack.Configuration) => void;
 
 export type ScriptResource = {
   type: 'path' | 'component' | 'localizedPath';

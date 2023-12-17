@@ -4,11 +4,12 @@ import { argv } from 'yargs';
 import { URL } from 'url';
 import { getJSONFile } from '../common/helpers';
 import { Logger } from '../common/logger';
+import { serveSettings } from '../common/settingsManager';
 
 const SERVE_SPFX_KEY = 'SPFX_SERVE_TENANT_DOMAIN';
 const SERVE_SPFX_PLACEHOLDER = '{tenantDomain}';
 
-export const applyOpenUrlSetting: ApplySettings = (config, settings) => {
+export const applyOpenUrlSetting: ApplySettings = (config) => {
   const configName = argv['config'];
 
   // SPFx serveConfigurations support
@@ -58,10 +59,10 @@ export const applyOpenUrlSetting: ApplySettings = (config, settings) => {
     return;
   }
 
-  if (!settings.openUrl) {
+  if (!serveSettings.openUrl) {
     config.devServer.open = false;
   } else {
     config.devServer.open = true;
-    config.devServer.openPage = settings.openUrl;
+    config.devServer.openPage = serveSettings.openUrl;
   }
 }

@@ -4,9 +4,10 @@ import ReactRefreshTypeScript from 'react-refresh-typescript';
 import webpack from 'webpack';
 
 import { ApplySettings } from '../common/types';
+import { serveSettings } from '../common/settingsManager';
 
-export const applyhotRefresh: ApplySettings = (config, settings) => {
-  if (!settings.hotRefresh) {
+export const applyhotRefresh: ApplySettings = (config) => {
+  if (!serveSettings.hotRefresh) {
     return;
   }
 

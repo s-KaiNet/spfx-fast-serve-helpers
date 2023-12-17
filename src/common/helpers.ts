@@ -6,12 +6,12 @@ import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { Settings } from './settings';
 import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
 import webpack from 'webpack';
 import { Logger } from './logger';
 import { moduleName } from './consts';
 import { InvalidArgumentError } from 'commander';
+import { Settings2 } from './settings';
 
 export function getJSONFile<T = any>(relPath: string) {
   const filePath = path.join(process.cwd(), relPath);
@@ -22,26 +22,7 @@ export function getJSONFile<T = any>(relPath: string) {
   return require(filePath) as T;
 }
 
-export function setDefaultServeSettings(settings: Settings) {
-  const defaultServeSettings: Settings['serve'] = {
-    eslint: true,
-    fullScreenErrors: true,
-    loggingLevel: 'normal',
-    hotRefresh: false,
-    openUrl: undefined,
-    reactProfiling: false,
-    containers: undefined
-  }
-  settings.serve = settings.serve || {} as Settings['serve'];
-
-  settings.serve = Object.assign(defaultServeSettings, settings.serve);
-
-  if (settings.cli.isLibraryComponent) {
-    settings.serve.openUrl = undefined;
-  }
-}
-
-export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
+export function getLoggingLevel(level: Settings2['serve']['loggingLevel']) {
   if (level === 'minimal') {
     return {
       all: false,

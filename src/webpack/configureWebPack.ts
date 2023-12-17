@@ -8,7 +8,6 @@ import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
 import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from '../common/helpers';
 
 import { createBaseConfig } from './baseConfig';
-import { Settings } from '../common/settings';
 import { applyServeSettings } from '../settings';
 
 const rootFolder = path.resolve(process.cwd());
@@ -18,8 +17,7 @@ const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Co
 const createConfig = async function () {
   checkVersions();
 
-  const settings = getJSONFile<Settings>('fast-serve/config.json');
-  const baseConfig = await createBaseConfig(settings.cli);
+  const baseConfig = await createBaseConfig();
 
   del.sync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
 
