@@ -21,7 +21,7 @@ export function initSettings(cliSettings: Settings['serve']) {
     }
   }
 
-  const fileBasedSettings = getJSONFile<Settings>('fast-serve/config.json') ?? {};
+  const fileBasedSettings = getJSONFile<Settings>('fast-serve/config.json') ?? {} as any;
   fileBasedSettings.serve = fileBasedSettings.serve ?? {} as any;
 
   if ((fileBasedSettings as any).cli?.isLibraryComponent != null) {

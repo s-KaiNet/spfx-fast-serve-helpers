@@ -2,6 +2,7 @@ import * as path from 'path';
 import webpack from 'webpack';
 import CopyPlugin from 'copy-webpack-plugin';
 import del from 'del';
+import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
@@ -11,8 +12,6 @@ import { createBaseConfig } from './baseConfig';
 import { applyServeSettings } from '../settings';
 
 const rootFolder = path.resolve(process.cwd());
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
 
 const createConfig = async function () {
   checkVersions();
@@ -85,4 +84,17 @@ const createConfig = async function () {
   return baseConfig;
 }
 
-export const resultConfig = async (): Promise<webpack.Configuration> => merge(transformConfig(await createConfig(), webpack), webpackConfig);
+export const resultConfig = async (): Promise<webpack.Configuration> => {
+  const originalConfig = await createConfig();
+  const extendPath = path.join(rootFolder, 'fast-serve/webpack.extend');
+
+  if (existsSync(extendPath)) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
+
+    return merge(transformConfig(originalConfig, webpack), webpackConfig);
+  }
+
+
+  return originalConfig;
+};

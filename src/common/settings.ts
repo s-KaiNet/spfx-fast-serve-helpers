@@ -1,5 +1,5 @@
 export interface Settings {
-  serve?: {
+  serve: {
     memory: number;
     isLibraryComponent: boolean;
     locale: string;
