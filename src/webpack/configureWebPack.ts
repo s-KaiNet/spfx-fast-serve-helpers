@@ -10,6 +10,7 @@ import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, create
 
 import { createBaseConfig } from './baseConfig';
 import { applyServeSettings } from '../settings';
+import { fastFolderName } from '../common/consts';
 
 const rootFolder = path.resolve(process.cwd());
 
@@ -86,15 +87,14 @@ const createConfig = async function () {
 
 export const resultConfig = async (): Promise<webpack.Configuration> => {
   const originalConfig = await createConfig();
-  const extendPath = path.join(rootFolder, 'fast-serve/webpack.extend');
+  const extendPath = path.join(rootFolder, `${fastFolderName}/webpack.extend`);
 
-  if (existsSync(extendPath)) {
+  if (existsSync(`${extendPath}.js`)) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
+    const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(extendPath);
 
     return merge(transformConfig(originalConfig, webpack), webpackConfig);
   }
-
 
   return originalConfig;
 };
