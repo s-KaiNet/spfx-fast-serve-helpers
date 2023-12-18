@@ -44,14 +44,14 @@ async function spawnSpfxBundle(): Promise<void> {
   const gulpfileTemp = path.resolve(workDir, 'temp/gulpfile.js');
   await copyFile(gulpfile, gulpfileTemp);
 
-  const replaceContent = (await readFile(getTemplatesPath('gulpfile.js'))).toString();
+  const contentToAdd = (await readFile(getTemplatesPath('gulpfile.js'))).toString();
   const hasFastServe = (await readFile(gulpfileTemp)).toString().includes('addFastServe(build)');
 
   if (!hasFastServe) {
     const replaceOpts: ReplaceInFileConfig = {
       files: gulpfileTemp,
       from: /build\.initialize.*;/g,
-      to: replaceContent,
+      to: contentToAdd,
       glob: {
         windowsPathsNoEscape: true
       }
@@ -62,7 +62,7 @@ async function spawnSpfxBundle(): Promise<void> {
     Logger.debug('Added fast-serve to temp/gulpfile.js');
   }
 
-  await spawnProcess('gulp', ['--gulpfile', `${path.resolve(workDir, 'temp/gulpfile.js')}`, '--cwd', workDir, 'bundle', '--custom-serve']);
+  await spawnProcess('gulp', ['--gulpfile', `${path.resolve(workDir, 'temp/gulpfile.js')}`, '--cwd', workDir, 'bundle', '--custom-serve', `--max-old-space-size=${serveSettings.memory}`]);
 
   const endTime = hrtime.bigint();
 
@@ -72,12 +72,14 @@ async function spawnSpfxBundle(): Promise<void> {
 async function spawnDevServer(): Promise<void> {
   const env = { ...process.env };
 
+  if (!env['NODE_OPTIONS']) {
+    env['NODE_OPTIONS'] = '';
+  }
+  env['NODE_OPTIONS'] += ` --max-old-space-size=${serveSettings.memory}`;
+
   // https://stackoverflow.com/a/69699772/434967
   const nodeMajorVersion = parseInt(process.version.split('.')[0].substring(1), 10);
   if (nodeMajorVersion >= 17) {
-    if (!env['NODE_OPTIONS']) {
-      env['NODE_OPTIONS'] = '';
-    }
     env['NODE_OPTIONS'] += ' --openssl-legacy-provider';
   }
 

@@ -32,6 +32,10 @@ export function initSettingsFromCli(cliSettings: Settings['serve']) {
     fileBasedSettings.serve.port = (fileBasedSettings as any).cli.port;
   }
 
+  if (cliSettings.isLibraryComponent || fileBasedSettings.serve.isLibraryComponent) {
+    defaultServeSettings.port = 4320;
+  }
+
   serveSettings = {
     ...defaultServeSettings,
     ...fileBasedSettings.serve,
