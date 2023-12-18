@@ -2,10 +2,8 @@ import { Logger } from '../common/logger';
 import { Settings } from '../common/settings';
 import { spawnProcess } from '../common/spawnProcess';
 import { hrtime } from 'process';
-import { getTemplatesPath, nanoToSeconds, needToRunBundle } from '../common/helpers';
+import { nanoToSeconds, needToRunBundle } from '../common/helpers';
 import * as path from 'path';
-import { replaceInFile, ReplaceInFileConfig } from 'replace-in-file';
-import { copyFile, readFile } from 'fs/promises';
 import { initSettingsFromCli, serveSettings } from '../common/settingsManager';
 
 export async function startDevServer(settings: Settings['serve']) {
@@ -39,30 +37,8 @@ async function spawnSpfxBundle(): Promise<void> {
   Logger.debug('Running SPFx bundle');
 
   const startTime = hrtime.bigint();
-  const workDir = process.cwd();
-  const gulpfile = path.resolve(workDir, 'gulpfile.js');
-  const gulpfileTemp = path.resolve(workDir, 'temp/gulpfile.js');
-  await copyFile(gulpfile, gulpfileTemp);
 
-  const contentToAdd = (await readFile(getTemplatesPath('gulpfile.js'))).toString();
-  const hasFastServe = (await readFile(gulpfileTemp)).toString().includes('addFastServe(build)');
-
-  if (!hasFastServe) {
-    const replaceOpts: ReplaceInFileConfig = {
-      files: gulpfileTemp,
-      from: /build\.initialize.*;/g,
-      to: contentToAdd,
-      glob: {
-        windowsPathsNoEscape: true
-      }
-    };
-
-    await replaceInFile(replaceOpts);
-
-    Logger.debug('Added fast-serve to temp/gulpfile.js');
-  }
-
-  await spawnProcess('gulp', ['--gulpfile', `${path.resolve(workDir, 'temp/gulpfile.js')}`, '--cwd', workDir, 'bundle', '--custom-serve', `--max-old-space-size=${serveSettings.memory}`]);
+  await spawnProcess('gulp', ['bundle', '--custom-serve', `--max-old-space-size=${serveSettings.memory}`]);
 
   const endTime = hrtime.bigint();
 
