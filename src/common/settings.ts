@@ -1,17 +1,17 @@
 export interface Settings {
-  $schema: string,
-  cli: {
+  serve: {
+    memory: number;
     isLibraryComponent: boolean;
-    port?: number;
-  }
-
-  serve?: {
+    locale: string;
+    config: string;
     openUrl?: string;
-    eslint: boolean;
-    fullScreenErrors: boolean;
     loggingLevel: 'minimal' | 'normal' | 'detailed';
+    fullScreenErrors: boolean;
+    eslint: boolean;
     hotRefresh: boolean;
     reactProfiling: boolean;
     containers: boolean;
+    port: number;
+    debug: boolean;
   }
 }

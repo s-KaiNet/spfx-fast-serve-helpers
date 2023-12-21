@@ -1,5 +1,6 @@
+import { serveSettings } from '../common/settingsManager';
 import { ApplySettings } from '../common/types';
 
-export const applyFullScreenErrors: ApplySettings = (config, settings) => {
-  config.devServer.overlay = settings.fullScreenErrors;
+export const applyFullScreenErrors: ApplySettings = (config) => {
+  config.devServer.overlay = serveSettings.fullScreenErrors;
 }

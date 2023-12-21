@@ -1,7 +1,7 @@
 import webpack from 'webpack';
 import * as path from 'path';
 import { getOptions } from 'loader-utils';
-import { createKeyFromPath } from '../webpack/helpers';
+import { createKeyFromPath } from '../common/helpers';
 import { ResourceData } from '../common/types';
 
 export default function loader(this: webpack.loader.LoaderContext, source: string, data: { file: string }) {
