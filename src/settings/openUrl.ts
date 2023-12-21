@@ -62,6 +62,11 @@ export const applyOpenUrlSetting: ApplySettings = (config) => {
     config.devServer.open = false;
   } else {
     config.devServer.open = true;
-    config.devServer.openPage = serveSettings.openUrl;
+    
+    if (process.env[SERVE_SPFX_KEY] != null) {
+      config.devServer.openPage = new URL(serveSettings.openUrl.replace(SERVE_SPFX_PLACEHOLDER, process.env[SERVE_SPFX_KEY])).href;
+    } else {
+      config.devServer.openPage = serveSettings.openUrl;
+    }
   }
 }

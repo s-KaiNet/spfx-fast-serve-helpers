@@ -22,7 +22,7 @@ export async function startDevServer(settings: Settings['serve']) {
       Logger.error(error?.message || error.toString());
       throw error;
     } else {
-      Logger.error('The process exited with an error');
+      Logger.error('The process terminated unexpectedly');
       process.exit(1);
     }
   }
@@ -38,7 +38,15 @@ async function spawnSpfxBundle(): Promise<void> {
 
   const startTime = hrtime.bigint();
 
-  await spawnProcess('gulp', ['bundle', '--custom-serve', `--max-old-space-size=${serveSettings.memory}`]);
+  const bundleArgs = ['bundle', '--custom-serve'];
+
+  if (serveSettings.locale) {
+    bundleArgs.push(`--locale=${serveSettings.locale}`);
+  }
+
+  bundleArgs.push(`--max-old-space-size=${serveSettings.memory}`);
+
+  await spawnProcess('gulp', bundleArgs);
 
   const endTime = hrtime.bigint();
 

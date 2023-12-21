@@ -11,6 +11,7 @@ export async function spawnProcess(program: string, args: string[], env?: typeof
     process.on('SIGINT', () => proc.kill('SIGINT'))
     process.on('SIGBREAK', () => proc.kill('SIGBREAK'))
     process.on('SIGHUP', () => proc.kill('SIGHUP'))
+    process.title = 'fast-serve';
 
     proc.on('exit', (code, signal) => {
       let crossEnvExitCode = code
@@ -18,7 +19,7 @@ export async function spawnProcess(program: string, args: string[], env?: typeof
         crossEnvExitCode = signal === 'SIGINT' ? 0 : 1
       }
 
-      if (crossEnvExitCode === 1) {
+      if (crossEnvExitCode === 1 || signal === 'SIGINT') {
         reject();
       } else {
         resolve();

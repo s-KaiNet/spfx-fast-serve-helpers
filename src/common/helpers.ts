@@ -345,6 +345,12 @@ export function customParseInt(value: string): number {
   return parsedValue;
 }
 
+export function customParseBoolean(value: string): boolean {
+  if(!value) return false;
+
+  return value.toLowerCase() === 'true';
+}
+
 export function getTemplatesPath(fileName: string) {
   const basePath = 'templates/';
 

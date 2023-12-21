@@ -20,8 +20,8 @@ export class Logger {
     if (!serveSettings.debug) return;
 
     for (const message of messages) {
-      if (typeof message === 'string') {
-        console.log(`${this.baseMessage()} ${colors.yellow(message)}`);
+      if (typeof message !== 'object') {
+        console.log(`${this.baseMessage()} ${colors.yellow(message.toString())}`);
       } else {
         console.log(message);
       }
@@ -32,7 +32,7 @@ export class Logger {
     const command = getNpmScriptValue();
     const npmCommand = process.env.npm_lifecycle_event;
 
-    Logger.debug(`fast-serve: ${program.version()}`, `node: ${process.version}`, `platform: ${process.platform}`, `command: ${command == null ? 'npx' : `npm[${npmCommand}]="${command}"`}`);
+    Logger.debug(`fast-serve: ${program.version()}`, `node: ${process.version}`, `platform: ${process.platform}`, `command: ${command == null ? 'CLI' : `npm[${npmCommand}]="${command}"`}`);
 
     Logger.debug('Settings:', serveSettings);
   }
