@@ -22,7 +22,7 @@ program
   .addOption(new Option('-l, --loggingLevel <level>', 'Logging level, "minimal" notifies about errors and new builds only, "normal" adds bundle information, "detailed" displays maximum information about each bundle').choices(['minimal', 'normal', 'detailed']).default('normal'))
   .option('-f, --fullScreenErrors [value]', 'Whether to show full-screen (overlay) errors', customParseBoolean, true)
   .option('-e, --eslint [value]', 'ESLint support', customParseBoolean, true)
-  .option('-r, --hotRefresh  [value]', 'When true, enables webpack\'s Hot Module Replacement (HMR) feature, more info - TODO', customParseBoolean, false)
+  .option('-r, --hotRefresh  [value]', 'When true, enables webpack\'s Hot Module Replacement (HMR) feature, more info - https://github.com/s-KaiNet/spfx-fast-serve/blob/master/docs/HMR.md', customParseBoolean, false)
   .option('-r, --reactProfiling  [value]', 'When true, enables react profiling mode through React Chrome extension', customParseBoolean, false)
   .option('-t, --containers [value]', 'Explicitly enables containerized environment support', customParseBoolean, false)
   .option('-d, --debug [value]', 'Enables debug logging for fast-serve. In debug mode it prints more information about execution context', customParseBoolean, false)
