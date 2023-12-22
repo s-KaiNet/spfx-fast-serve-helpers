@@ -318,7 +318,7 @@ export function needToRunBundle() {
   const script = packageJson.scripts[npmScript];
 
   if (script.indexOf('--custom-serve') !== -1) {
-    Logger.log(colors.yellow('We detected the old-styled "serve" command. Consider using just "fast-serve" instead. More info: https://github.com/s-KaiNet/spfx-fast-serve/blob/master/docs/Migrate from 3 to 4.md'));
+    Logger.log(colors.yellow('We detected the old-styled "serve" command. Consider using just "fast-serve" instead. More info: https://github.com/s-KaiNet/spfx-fast-serve/blob/master/docs/Migrate-from-3-to-4.md'));
 
     return false;
   }
