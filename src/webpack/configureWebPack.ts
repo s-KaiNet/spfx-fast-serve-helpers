@@ -2,24 +2,22 @@ import * as path from 'path';
 import webpack from 'webpack';
 import CopyPlugin from 'copy-webpack-plugin';
 import del from 'del';
+import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
-import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from './helpers';
+import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from '../common/helpers';
 
 import { createBaseConfig } from './baseConfig';
-import { Settings } from '../common/settings';
 import { applyServeSettings } from '../settings';
+import { fastFolderName } from '../common/consts';
 
 const rootFolder = path.resolve(process.cwd());
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(path.join(rootFolder, 'fast-serve/webpack.extend'));
 
 const createConfig = async function () {
   checkVersions();
 
-  const settings = getJSONFile<Settings>('fast-serve/config.json');
-  const baseConfig = await createBaseConfig(settings.cli);
+  const baseConfig = await createBaseConfig();
 
   del.sync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
 
@@ -87,4 +85,16 @@ const createConfig = async function () {
   return baseConfig;
 }
 
-export const resultConfig = async (): Promise<webpack.Configuration> => merge(transformConfig(await createConfig(), webpack), webpackConfig);
+export const resultConfig = async (): Promise<webpack.Configuration> => {
+  const originalConfig = await createConfig();
+  const extendPath = path.join(rootFolder, `${fastFolderName}/webpack.extend`);
+
+  if (existsSync(`${extendPath}.js`)) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { transformConfig, webpackConfig }: { transformConfig: (config: webpack.Configuration, webpack: any) => webpack.Configuration; webpackConfig: webpack.Configuration } = require(extendPath);
+
+    return merge(transformConfig(originalConfig, webpack), webpackConfig);
+  }
+
+  return originalConfig;
+};

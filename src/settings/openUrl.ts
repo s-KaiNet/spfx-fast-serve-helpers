@@ -1,20 +1,21 @@
 import { ApplySettings, ServeConfigurations } from '../common/types';
 import colors from 'colors';
-import { argv } from 'yargs';
 import { URL } from 'url';
-import { getJSONFile, logDebugString } from '../webpack/helpers';
+import { getJSONFile } from '../common/helpers';
+import { Logger } from '../common/logger';
+import { serveSettings } from '../common/settingsManager';
 
 const SERVE_SPFX_KEY = 'SPFX_SERVE_TENANT_DOMAIN';
 const SERVE_SPFX_PLACEHOLDER = '{tenantDomain}';
 
-export const applyOpenUrlSetting: ApplySettings = (config, settings) => {
-  const configName = argv['config'];
+export const applyOpenUrlSetting: ApplySettings = (config) => {
+  const configName = serveSettings.config;
 
   // SPFx serveConfigurations support
   if (configName) {
 
     const serveConfig = getJSONFile<ServeConfigurations>('config/serve.json');
-    if (serveConfig.serveConfigurations[configName]) {
+    if (serveConfig.serveConfigurations?.[configName]) {
       const configValue = serveConfig.serveConfigurations[configName];
       let openUrl = new URL(configValue.pageUrl);
 
@@ -50,17 +51,22 @@ export const applyOpenUrlSetting: ApplySettings = (config, settings) => {
       config.devServer.open = true;
       config.devServer.openPage = openUrl.href;
 
-      logDebugString(`Loading ${colors.yellow(configName)} serve configuration and opening ${colors.green(openUrl.href)}`);
+      Logger.log(`Loading ${colors.yellow(configName)} serve configuration and opening ${colors.green(openUrl.href)}`);
     } else {
       throw new Error(`Unable to find serve configuration with name '${configName}' in serve.json`);
     }
     return;
   }
 
-  if (!settings.openUrl) {
+  if (!serveSettings.openUrl) {
     config.devServer.open = false;
   } else {
     config.devServer.open = true;
-    config.devServer.openPage = settings.openUrl;
+    
+    if (process.env[SERVE_SPFX_KEY] != null) {
+      config.devServer.openPage = new URL(serveSettings.openUrl.replace(SERVE_SPFX_PLACEHOLDER, process.env[SERVE_SPFX_KEY])).href;
+    } else {
+      config.devServer.openPage = serveSettings.openUrl;
+    }
   }
 }

@@ -1,6 +1,6 @@
 import webpack from 'webpack';
 import { ResourceData, SPFxConfig } from '../common/types';
-import { createResourcesMap, getJSONFile } from '../webpack/helpers';
+import { createResourcesMap, getJSONFile } from '../common/helpers';
 
 export default function loader(this: webpack.loader.LoaderContext) {
   const config = getJSONFile<SPFxConfig>('config/config.json');
