@@ -6,7 +6,7 @@ SPFx 1.13 is based on webpack 4.x, which prevents some packages to be updated to
 
 - `css-loader` - 5.x is the last version, which [supports webpack 4.x](https://github.com/webpack-contrib/css-loader/blob/master/CHANGELOG.md#600-2021-07-14)
 
-- `node-sass` - should be the same as the version, used inside SPFx build pipeline
+- `sass` - should be the same as the version, used inside SPFx build pipeline
 
 - `sass-loader` - 10.x is the last version, which [supports webpack 4.x](https://github.com/webpack-contrib/sass-loader/blob/master/CHANGELOG.md#1100-2021-02-05). 9.x seems the most stable with SPFx
 

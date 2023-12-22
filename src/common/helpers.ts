@@ -6,32 +6,20 @@ import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { Settings } from '../common/settings';
-import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from '../common/types';
+import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
 import webpack from 'webpack';
+import { Logger } from './logger';
+import { fastFolderName, fastServemoduleName } from './consts';
+import { InvalidArgumentError } from 'commander';
+import { Settings } from './settings';
 
 export function getJSONFile<T = any>(relPath: string) {
+  const filePath = path.join(process.cwd(), relPath);
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require(path.join(process.cwd(), relPath)) as T;
-}
-
-export function setDefaultServeSettings(settings: Settings) {
-  const defaultServeSettings: Settings['serve'] = {
-    eslint: true,
-    fullScreenErrors: true,
-    loggingLevel: 'normal',
-    hotRefresh: false,
-    openUrl: undefined, 
-    reactProfiling: false,
-    containers: undefined
-  }
-  settings.serve = settings.serve || {} as Settings['serve'];
-
-  settings.serve = Object.assign(defaultServeSettings, settings.serve);
-
-  if (settings.cli.isLibraryComponent) {
-    settings.serve.openUrl = undefined;
-  }
+  return require(filePath) as T;
 }
 
 export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
@@ -214,21 +202,28 @@ export async function freePortIfInUse(port: number) {
 
   // the needed port is not free
   if (freePort !== port) {
-    // eslint-disable-next-line no-console
-    console.log(colors.yellow(`The port ${port} is in use. Trying to release...`));
+
+    Logger.log(colors.yellow(`The port ${port} is in use. Trying to release...`));
+
     await killPort(port);
-    // eslint-disable-next-line no-console
-    console.log(colors.yellow(`The port ${port} is successfully released.`));
+
+    Logger.log(colors.yellow(`The port ${port} is successfully released.`));
   }
 }
 
 export function checkVersions() {
   const packageJson = getJSONFile<NodePackage>('package.json');
+
+  // special case for development, when dependecy is 'file:...' or 'link:...'
+  if (packageJson.devDependencies[fastServemoduleName]?.indexOf(':') !== -1) {
+    return;
+  }
+
   const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');
-  const fastServeVersion = getMinorVersion(packageJson, 'spfx-fast-serve-helpers');
+  const fastServeVersion = getMinorVersion(packageJson, fastServemoduleName);
 
   if (spfxVersion !== fastServeVersion) {
-    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "spfx-fast-serve-helpers" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
+    throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "${fastServemoduleName}" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
   }
 }
 
@@ -314,6 +309,63 @@ export function addCopyLocalExternals(externals: Record<string, ExternalsObject>
   return patterns;
 }
 
+export function needToRunBundle() {
+  const npmScript = process.env.npm_lifecycle_event;
+
+  if (!npmScript || npmScript === 'npx') return true;
+
+  const packageJson = getJSONFile<NodePackage>('package.json');
+  const script = packageJson.scripts[npmScript];
+
+  if (script.indexOf('--custom-serve') !== -1) {
+    Logger.log(colors.yellow('We detected the old-styled "serve" command. Consider using just "fast-serve" instead. More info: https://github.com/s-KaiNet/spfx-fast-serve/blob/master/docs/Migrate-from-3-to-4.md'));
+
+    return false;
+  }
+
+  return true;
+}
+
+export function getNpmScriptValue() {
+  const npmScript = process.env.npm_lifecycle_event;
+
+  if (!npmScript || npmScript === 'npx') return null;
+
+  const packageJson = getJSONFile<NodePackage>('package.json');
+  return packageJson.scripts[npmScript];
+}
+
+export function customParseInt(value: string): number {
+  const parsedValue = parseInt(value, 10);
+  if (isNaN(parsedValue)) {
+    throw new InvalidArgumentError('Not a number');
+  }
+  return parsedValue;
+}
+
+export function customParseBoolean(value: string): boolean {
+  if(!value) return false;
+
+  return value.toLowerCase() === 'true';
+}
+
+export function getTemplatesPath(fileName: string) {
+  const basePath = 'templates/';
+
+  return path.join(__dirname, '..', basePath + fileName);
+}
+
+export function nanoToSeconds(nano: bigint): string {
+  return (Number(nano) / 1000000000).toFixed(2);
+}
+
+export function ensureFastServeFolder() {
+  const fastServeFolder = path.join(process.cwd(), fastFolderName);
+  if (!fs.existsSync(fastServeFolder)) {
+    fs.mkdirSync(fastServeFolder);
+  }
+}
+
 function hasPattern(patterns: { to: string }[], to: string): boolean {
   for (const pattern of patterns) {
     if (pattern.to === to) {
@@ -322,14 +374,4 @@ function hasPattern(patterns: { to: string }[], to: string): boolean {
   }
 
   return false;
-}
-
-export function logDebugString(message: string) {
-  // eslint-disable-next-line no-console
-  console.log(`${getTimeString()} [${colors.cyan('fast-serve')}] ${message}`);
-}
-
-function getTimeString() {
-  const now = new Date();
-  return `[${colors.gray(`${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}:${('0' + now.getSeconds()).slice(-2)}`)}]`;
 }
