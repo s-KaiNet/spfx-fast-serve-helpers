@@ -14,7 +14,7 @@
   ],
   "rules": {
     "eol-last": "error",
-    "no-console": "error",
+    "no-console": "warn",
     "eqeqeq": ["error", "always", {"null": "ignore"}],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/interface-name-prefix": "off",

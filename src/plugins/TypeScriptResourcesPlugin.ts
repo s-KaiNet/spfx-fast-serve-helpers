@@ -2,7 +2,7 @@ import * as path from 'path';
 import webpack, { Entry } from 'webpack';
 
 import { ResourceData, SPFxConfig } from '../common/types';
-import { createResourcesMap, getJSONFile } from '../webpack/helpers';
+import { createResourcesMap, getJSONFile } from '../common/helpers';
 
 export class TypeScriptResourcesPlugin {
   private resourcesMap: Record<string, ResourceData>;

@@ -1,6 +1,7 @@
 import { ApplySettings } from '../common/types';
-import { getLoggingLevel } from '../webpack/helpers';
+import { getLoggingLevel } from '../common/helpers';
+import { serveSettings } from '../common/settingsManager';
 
-export const applyLoggingLevel: ApplySettings = (config, settings) => {
-  config.devServer.stats = getLoggingLevel(settings.loggingLevel);
+export const applyLoggingLevel: ApplySettings = (config) => {
+  config.devServer.stats = getLoggingLevel(serveSettings.loggingLevel);
 }
