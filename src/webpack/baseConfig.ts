@@ -211,7 +211,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
   const tsConfigPath = path.resolve(rootFolder, 'tsconfig.json');
   const tsconfig = await readFile(tsConfigPath);
 
-  if (tsconfig.baseUrl) {
+  if (tsconfig.compilerOptions.baseUrl) {
     baseConfig.resolve.plugins = [
       new TsconfigPathsPlugin({ configFile: tsConfigPath })
     ]
