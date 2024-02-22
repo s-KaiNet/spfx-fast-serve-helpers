@@ -48,7 +48,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
   const baseConfig: webpack.Configuration = {
     target: 'web',
     mode: 'development',
-    devtool: 'eval-source-map',
+    devtool: false,
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
       modules: ['node_modules']
@@ -184,6 +184,9 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
       new ForkTsCheckerWebpackPlugin({
         async: true
       }),
+      new webpack.EvalSourceMapDevToolPlugin({
+        exclude: /node_modules/
+      } as any),
       new TypeScriptResourcesPlugin(),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
