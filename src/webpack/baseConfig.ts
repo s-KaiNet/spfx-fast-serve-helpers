@@ -185,7 +185,9 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
         async: true
       }),
       new webpack.EvalSourceMapDevToolPlugin({
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        moduleFilenameTemplate: 'webpack:///../[resource-path]',
+        fallbackModuleFilenameTemplate: 'webpack:///../[resource-path]?[hash]'
       } as any),
       new TypeScriptResourcesPlugin(),
       new webpack.DefinePlugin({
