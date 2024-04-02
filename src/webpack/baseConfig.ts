@@ -179,7 +179,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
     plugins: [
       new AsyncComponentPlugin({
         externalComponents
-      }),
+      }) as any,
       new webpack.WatchIgnorePlugin([path.resolve(rootFolder, 'temp')]),
       new ForkTsCheckerWebpackPlugin({
         async: true
