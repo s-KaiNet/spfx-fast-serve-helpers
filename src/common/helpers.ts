@@ -9,7 +9,7 @@ const killPort = require('kill-port')
 import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
 import webpack from 'webpack';
 import { Logger } from './logger';
-import { fastFolderName, fastServemoduleName } from './consts';
+import { fastFolderName, fastServemoduleName, spfxDependecyToCheck } from './consts';
 import { InvalidArgumentError } from 'commander';
 import { Settings } from './settings';
 
@@ -219,12 +219,32 @@ export function checkVersions() {
     return;
   }
 
-  const spfxVersion = getMinorVersion(packageJson, '@microsoft/sp-build-web');
+  const spfxVersion = getSpfxMinorVersion(packageJson);
   const fastServeVersion = getMinorVersion(packageJson, fastServemoduleName);
 
   if (spfxVersion !== fastServeVersion) {
     throw new Error(`SPFx Fast Serve: version mismatch. We detected the usage of SPFx 1.${spfxVersion}, but "${fastServemoduleName}" version is 1.${fastServeVersion}. Please change "spfx-fast-serve-helpers" version to ~1.${spfxVersion}.0, delete node_modules, package-lock.json and reinstall dependencies.`);
   }
+}
+
+function getSpfxMinorVersion(packageJson: NodePackage) {
+  let version: string = packageJson.dependencies[spfxDependecyToCheck];
+
+  if (!version) { // try version from yo-rc.json
+    const yoPath = path.join(process.cwd(), '.yo-rc.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const yoJson = require(yoPath);
+    version = yoJson['@microsoft/generator-sharepoint']?.version;
+
+    if (!version) {
+      throw new Error('Cannot find SPFx version in package.json or .yo-rc.json');
+    }
+  }
+
+  if (version.indexOf('~') === 0 || version.indexOf('^') === 0) {
+    version = version.substr(1);
+  }
+  return parseInt(version.split('.')[1]);
 }
 
 function getMinorVersion(packageJson: NodePackage, dependecyToCheck: string) {
@@ -344,7 +364,7 @@ export function customParseInt(value: string): number {
 }
 
 export function customParseBoolean(value: string): boolean {
-  if(!value) return false;
+  if (!value) return false;
 
   return value.toLowerCase() === 'true';
 }
