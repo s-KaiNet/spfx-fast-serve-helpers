@@ -13,9 +13,15 @@ export class DynamicLibraryPlugin {
     (compiler as any).webpack = webpack;
     compiler.hooks.emit.tap('DynamicLibraryPlugin', compilation => {
       for (const assetId in this.options.modulesMap) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const moduleMap = this.options.modulesMap[assetId];
 
+        // TODO total mess here, needs to be verified, also do we need it in SPFx 19? what SPFx 1.19 produces as output?
+        // TODO check in case of different source maps formats - eval, eval-source-map, source-map, inline-source-map
         if (compilation.assets[assetId]) {
+
+          //TODO - children is not available in webpack 5, remove or find a way to replace it?
+          /*
           if (compilation.assets[assetId].children) {
             const rawValue = compilation.assets[assetId].children[0]._value;
 
@@ -25,15 +31,17 @@ export class DynamicLibraryPlugin {
               compilation.assets[assetId].children[0]._value = rawValue.replace(this.options.libraryName, moduleMap.id + '_' + moduleMap.version);
             }
           }
-
-          if (compilation.assets[assetId]._source) {
-            const rawValue = compilation.assets[assetId]._source.children[0];
+          */
+          /*
+          if (compilation.assets[assetId].source()) {
+            const rawValue = compilation.assets[assetId].source().toString();
             if (moduleMap.isBundle) {
-              compilation.assets[assetId]._source.children[0] = rawValue.replace(`"${this.options.libraryName}",`, '');
+              compilation.assets[assetId].source = rawValue.replace(`"${this.options.libraryName}",`, '');
             } else {
-              compilation.assets[assetId]._source.children[0] = rawValue.replace(this.options.libraryName, moduleMap.id + '_' + moduleMap.version);
+              compilation.assets[assetId].source = rawValue.replace(this.options.libraryName, moduleMap.id + '_' + moduleMap.version);
             }
           }
+          */
         }
       }
     });

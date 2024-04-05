@@ -1,17 +1,21 @@
-import { argv } from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs';
 import * as path from 'path';
 import { hostname, userInfo } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
-import del from 'del';
+import { deleteSync } from 'del';
 import { addSaveConfigTask } from './tasks';
 
 export function addFastServe(build: any) {
+  
+  // TODO chech if yargs works properly here
+  const argv = yargs(hideBin(process.argv)).parseSync()
   const useCustomServe = argv['custom-serve'];
   const isClean = argv._.indexOf('clean') !== -1;
 
   if (isClean) {
-    del.sync(['src/**/*.module.scss.d.ts', 'release'], { cwd: path.resolve(process.cwd()) });
+    deleteSync(['src/**/*.module.scss.d.ts', 'release'], { cwd: path.resolve(process.cwd()) });
   }
 
   if (!useCustomServe) return;
@@ -37,7 +41,7 @@ async function trackAnalytics() {
     catch (e) {
       //
     }
-    
+
     const hostNameHash = createHash('md5').update(hostname() + '@' + username).digest('hex');
 
     await fetch('https://fast-serve-track.azurewebsites.net/api/track', {

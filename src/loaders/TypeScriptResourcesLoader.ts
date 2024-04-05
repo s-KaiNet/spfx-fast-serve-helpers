@@ -1,15 +1,14 @@
-import webpack from 'webpack';
+import { LoaderContext } from 'webpack';
 import * as path from 'path';
-import { getOptions } from 'loader-utils';
 import { createKeyFromPath } from '../common/helpers';
 import { ResourceData } from '../common/types';
 
-export default function loader(this: webpack.loader.LoaderContext, source: string, data: { file: string }) {
+export default function loader(this: LoaderContext<any>, source: string, data: { file: string }) {
   if (!source || !data) {
     return source;
   }
 
-  const options: Record<string, ResourceData> = getOptions(this) as any;
+  const options: Record<string, ResourceData> = this.getOptions(this);
   const filePath = path.relative(this._compiler.options.context, data.file);
   const key = createKeyFromPath(filePath);
   if (options[key]) {
@@ -17,6 +16,6 @@ export default function loader(this: webpack.loader.LoaderContext, source: strin
   }
 
   this.callback(null, source, data as any);
-  
+
   return undefined;
 }

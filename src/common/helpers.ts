@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import * as globby from 'globby';
+import { globbySync } from 'globby';
 import getPort from 'get-port';
 import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -12,6 +12,7 @@ import { Logger } from './logger';
 import { fastFolderName, fastServemoduleName, spfxDependecyToCheck } from './consts';
 import { InvalidArgumentError } from 'commander';
 import { Settings } from './settings';
+import { ObjectPattern } from 'copy-webpack-plugin';
 
 export function getJSONFile<T = any>(relPath: string) {
   const filePath = path.join(process.cwd(), relPath);
@@ -56,7 +57,8 @@ export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
   throw new Error('Unsupported log level: ' + level);
 }
 
-export function getEntryPoints(entry: webpack.Entry) {
+// TODO - entry points is different for SPFx 1.19 - an object instead of key-value
+export function getEntryPoints(entry: webpack.EntryObject) {
   // fix: ".js" entry needs to be ".ts[x]"
   // also replaces the path form /lib/* to /src/*
   // spfx not always follows path.sep settings, so just replace both variants
@@ -130,15 +132,14 @@ function getEntryPath(tsPath: string) {
 }
 
 export function addCopyLocalizedResources(localizedResources: LocalizedResources) {
-  const patterns = [];
+  const patterns: ObjectPattern[] = [];
   for (const resourceKey in localizedResources) {
     const resourcePath = localizedResources[resourceKey];
     const from = resourcePath.replace(/^lib/gi, 'src').replace('{locale}', '*');
-    patterns.push({
-      flatten: true,
+    patterns.push({ // TODO flatten: true was removed, will the content be flattened then?
       from,
       noErrorOnMissing: true,
-      to: (data: { absoluteFilename: string }) => {
+      to: (data: { absoluteFilename?: string }) => {
         let fileName = path.basename(data.absoluteFilename);
         // special case when locale placehoder isn't used
         if (!resourcePath.endsWith('{locale}.js')) {
@@ -176,7 +177,7 @@ export function createResourcesMap(localizedResources: LocalizedResources) {
     const resourcePath = localizedResources[resourceKey];
     const search = resourcePath.replace(/^lib/gi, 'src').replace('{locale}.js', '*.ts');
     const exclude = '!' + search.replace('*.ts', '*.d.ts');
-    const typescriptResources = globby.sync([search, exclude], {
+    const typescriptResources = globbySync([search, exclude], {
       cwd: process.cwd()
     });
 
@@ -303,7 +304,7 @@ export function createLocalExternals(externals: SPFxConfig['externals']): Record
 export function addCopyLocalExternals(externals: Record<string, ExternalsObject>, manifest: Manifest[], originalEntries: string[]) {
   if (!externals) return [];
 
-  const patterns = [];
+  const patterns: ObjectPattern[] = [];
   for (const jsModule of manifest) {
     if (jsModule.loaderConfig
       && jsModule.loaderConfig.entryModuleId
@@ -315,8 +316,7 @@ export function addCopyLocalExternals(externals: Record<string, ExternalsObject>
           const from = externals[resourceKey].path;
           const to = resource.path;
           if (!hasPattern(patterns, to)) {
-            patterns.push({
-              flatten: true,
+            patterns.push({ // TODO flatten: true was removed, will the content be flattened then?
               from,
               noErrorOnMissing: true,
               to
@@ -386,7 +386,7 @@ export function ensureFastServeFolder() {
   }
 }
 
-function hasPattern(patterns: { to: string }[], to: string): boolean {
+function hasPattern(patterns: ObjectPattern[], to: string): boolean {
   for (const pattern of patterns) {
     if (pattern.to === to) {
       return true;

@@ -1,10 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 import ReactRefreshTypeScript from 'react-refresh-typescript';
-import webpack from 'webpack';
+import webpack, { RuleSetRule } from 'webpack';
 
 import { ApplySettings } from '../common/types';
 import { serveSettings } from '../common/settingsManager';
+
+// TODO the whole hot refresh feature is not working as expected, needs to be verified separately
 
 export const applyhotRefresh: ApplySettings = (config) => {
   if (!serveSettings.hotRefresh) {
@@ -13,9 +15,11 @@ export const applyhotRefresh: ApplySettings = (config) => {
 
   const tsLoaderRule = getTsRule(config.module.rules);
 
+  type RuleItem = Extract<webpack.RuleSetUseItem, { loader?: string }>;
+
   for (const useRule of (tsLoaderRule.use as webpack.RuleSetUseItem[])) {
-    if ((useRule as webpack.RuleSetLoader).loader.indexOf('ts-loader') !== -1) {
-      ((useRule as webpack.RuleSetLoader).options as any).getCustomTransformers = () => ({
+    if ((useRule as RuleItem).loader.indexOf('ts-loader') !== -1) {
+      ((useRule as RuleItem).options as any).getCustomTransformers = () => ({
         before: [ReactRefreshTypeScript()],
       })
     }
@@ -31,7 +35,7 @@ export const applyhotRefresh: ApplySettings = (config) => {
 }
 
 function getTsRule(rules: webpack.Configuration['module']['rules']) {
-  for (const rule of rules) {
+  for (const rule of rules as RuleSetRule[]) {
     if (rule.test) {
       const test = rule.test.toString();
       if (test.indexOf('.tsx?') !== -1) {

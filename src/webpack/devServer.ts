@@ -22,12 +22,7 @@ export async function startDevServer() {
 
     Logger.log(`To load your scripts, use this query string: ${colors.yellow(`?debug=true&noredir=true&debugManifestsFile=https://${config.devServer.host}:${config.devServer.port}/temp/manifests.js`)}`);
 
-    server.listen(config.devServer.port, config.devServer.host, (err) => {
-      if (err) {
-        console.log('An error occured while running web pack dev server. Details:');
-        console.log(err);
-      }
-    });
+    await server.start();
 
   } catch (error) {
     if (error) {

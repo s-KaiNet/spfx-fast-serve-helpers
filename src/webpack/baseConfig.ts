@@ -1,7 +1,7 @@
 import webpack from 'webpack';
 import * as path from 'path';
-import del from 'del';
-import * as globby from 'globby';
+import { deleteSync } from 'del';
+import { globbySync } from 'globby';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const certificateManager = require('@rushstack/debug-certificate-manager');
 const certificateStore = new certificateManager.CertificateStore();
@@ -180,7 +180,9 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
       new AsyncComponentPlugin({
         externalComponents
       }) as any,
-      new webpack.WatchIgnorePlugin([path.resolve(rootFolder, 'temp')]),
+      new webpack.WatchIgnorePlugin({
+        paths: [path.resolve(rootFolder, 'temp')]
+      }),
       new ForkTsCheckerWebpackPlugin({
         async: true
       }),
@@ -196,19 +198,27 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
       })],
     devServer: {
       hot: false,
-      contentBase: rootFolder,
-      publicPath: host + '/dist/',
+      static: {                       // TODO what else do we need to configure for new static option?
+        directory: rootFolder,
+        //publicPath: host + '/dist/',    // TODO - which publicPath should we use??? 
+      },
       host: 'localhost',
       port: port,
-      disableHostCheck: true,
+      allowedHosts: 'all',
       historyApiFallback: true,
-      writeToDisk: serveSettings.isLibraryComponent,
+      devMiddleware: {
+        writeToDisk: serveSettings.isLibraryComponent,
+        publicPath: host + '/dist/',                     // TODO - which publicPath should we use??? 
+      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      https: {
-        cert: certificateStore.certificateData,
-        key: certificateStore.keyData
+      server: {
+        type: 'https',
+        options: {
+          cert: certificateStore.certificateData,
+          key: certificateStore.keyData
+        }
       }
     },
   }
@@ -222,8 +232,8 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
     ]
   }
 
-  const files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: rootFolder });
-  del.sync(files, { cwd: rootFolder });
+  const files = globbySync(['src/**/*.module.scss.d.ts'], { cwd: rootFolder });
+  deleteSync(files, { cwd: rootFolder });
 
   return baseConfig;
 }

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import webpack from 'webpack';
 import CopyPlugin from 'copy-webpack-plugin';
-import del from 'del';
+import { deleteSync } from 'del';
 import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
@@ -19,14 +19,15 @@ const createConfig = async function () {
 
   const baseConfig = await createBaseConfig();
 
-  del.sync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
+  deleteSync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
 
   // we need only "externals", "output" and "entry" from the original webpack config
   const originalWebpackConfig = getJSONFile<webpack.Configuration>('temp/_webpack_config.json');
   baseConfig.externals = originalWebpackConfig.externals;
   baseConfig.output = originalWebpackConfig.output;
 
-  baseConfig.entry = getEntryPoints(originalWebpackConfig.entry as webpack.Entry);
+  // TODO looks like entry is an object in SPFx 1.19
+  baseConfig.entry = getEntryPoints(originalWebpackConfig.entry as webpack.EntryObject);
 
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
