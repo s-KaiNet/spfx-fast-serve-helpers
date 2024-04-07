@@ -3,5 +3,8 @@ import { serveSettings } from '../common/settingsManager';
 import { ApplySettings } from '../common/types';
 
 export const applyFullScreenErrors: ApplySettings = (config) => {
-  (config.devServer.client as ClientConfiguration).overlay = serveSettings.fullScreenErrors;
+  let client = config.devServer.client as ClientConfiguration;
+  client = client || {};
+
+  client.overlay = serveSettings.fullScreenErrors;
 }

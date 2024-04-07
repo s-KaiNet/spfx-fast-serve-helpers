@@ -1,4 +1,5 @@
-import webpack from 'webpack';
+import webpack, { EntryObject } from 'webpack';
+import { Static } from 'webpack-dev-server';
 
 export type EntryPoints = Record<string, string>;
 
@@ -81,3 +82,9 @@ export type ServeConfigurations = {
     }
   }
 };
+
+export type EntryDescription = Extract<EntryObject[string], { baseUri?: string }>;
+
+export type RuleItem = Extract<webpack.RuleSetUseItem, { loader?: string }>;
+
+export type WatchOptions = Extract<Static['watch'], { aggregateTimeout?: number | undefined }>;

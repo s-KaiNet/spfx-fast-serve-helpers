@@ -4,7 +4,7 @@ import * as path from 'path';
 import { hostname, userInfo } from 'os';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
-import { deleteSync } from 'del';
+import del from 'del';
 import { addSaveConfigTask } from './tasks';
 
 export function addFastServe(build: any) {
@@ -15,7 +15,7 @@ export function addFastServe(build: any) {
   const isClean = argv._.indexOf('clean') !== -1;
 
   if (isClean) {
-    deleteSync(['src/**/*.module.scss.d.ts', 'release'], { cwd: path.resolve(process.cwd()) });
+    del.sync(['src/**/*.module.scss.d.ts', 'release'], { cwd: path.resolve(process.cwd()) });
   }
 
   if (!useCustomServe) return;

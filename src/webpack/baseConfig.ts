@@ -1,7 +1,7 @@
 import webpack from 'webpack';
 import * as path from 'path';
-import { deleteSync } from 'del';
-import { globbySync } from 'globby';
+import del from 'del';
+import globby from 'globby';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const certificateManager = require('@rushstack/debug-certificate-manager');
 const certificateStore = new certificateManager.CertificateStore();
@@ -179,7 +179,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
     plugins: [
       new AsyncComponentPlugin({
         externalComponents
-      }) as any,
+      }),
       new webpack.WatchIgnorePlugin({
         paths: [path.resolve(rootFolder, 'temp')]
       }),
@@ -220,7 +220,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
           key: certificateStore.keyData
         }
       }
-    },
+    }
   }
 
   const tsConfigPath = path.resolve(rootFolder, 'tsconfig.json');
@@ -232,8 +232,8 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
     ]
   }
 
-  const files = globbySync(['src/**/*.module.scss.d.ts'], { cwd: rootFolder });
-  deleteSync(files, { cwd: rootFolder });
+  const files = globby.sync(['src/**/*.module.scss.d.ts'], { cwd: rootFolder });
+  del.sync(files, { cwd: rootFolder });
 
   return baseConfig;
 }

@@ -1,10 +1,10 @@
 import * as path from 'path';
 import webpack from 'webpack';
 import CopyPlugin from 'copy-webpack-plugin';
-import { deleteSync } from 'del';
+import del from 'del';
 import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
-import { Manifest, ModulesMap, SPFxConfig } from '../common/types';
+import { EntryDescription, Manifest, ModulesMap, SPFxConfig } from '../common/types';
 import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
 import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from '../common/helpers';
 
@@ -19,7 +19,7 @@ const createConfig = async function () {
 
   const baseConfig = await createBaseConfig();
 
-  deleteSync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
+  del.sync(['dist/*.js', 'dist/*.map'], { cwd: rootFolder });
 
   // we need only "externals", "output" and "entry" from the original webpack config
   const originalWebpackConfig = getJSONFile<webpack.Configuration>('temp/_webpack_config.json');
@@ -27,15 +27,16 @@ const createConfig = async function () {
   baseConfig.output = originalWebpackConfig.output;
 
   // TODO looks like entry is an object in SPFx 1.19
-  baseConfig.entry = getEntryPoints(originalWebpackConfig.entry as webpack.EntryObject);
+  baseConfig.entry = getEntryPoints(originalWebpackConfig.entry as Record<string, EntryDescription>);
 
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
   const manifest = getJSONFile<Manifest[]>('temp/manifests.json');
   const { localizedResources, externals } = getJSONFile<SPFxConfig>('config/config.json');
 
+
   const modulesMap: ModulesMap = {};
-  const originalEntries = Object.keys(originalWebpackConfig.entry);
+  const originalEntries = Object.keys(originalWebpackConfig.entry); // TODO entry is now object
 
   for (const jsModule of manifest) {
     if (jsModule.loaderConfig

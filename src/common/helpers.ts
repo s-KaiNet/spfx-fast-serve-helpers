@@ -1,13 +1,12 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { globbySync } from 'globby';
+import globby from 'globby';
 import getPort from 'get-port';
 import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { EntryPoints, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
-import webpack from 'webpack';
+import { EntryDescription, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
 import { Logger } from './logger';
 import { fastFolderName, fastServemoduleName, spfxDependecyToCheck } from './consts';
 import { InvalidArgumentError } from 'commander';
@@ -58,23 +57,24 @@ export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
 }
 
 // TODO - entry points is different for SPFx 1.19 - an object instead of key-value
-export function getEntryPoints(entry: webpack.EntryObject) {
+export function getEntryPoints(entry: Record<string, EntryDescription>) {
   // fix: ".js" entry needs to be ".ts[x]"
   // also replaces the path form /lib/* to /src/*
   // spfx not always follows path.sep settings, so just replace both variants
-  const newEntry: EntryPoints = {};
+  const newEntry: Record<string, EntryDescription> = {};
 
   for (const key in entry) {
-    let entryPath = entry[key] as string;
+    let entryPath = entry[key].import as string;
     if (entryPath.indexOf('bundle-entries') === -1) {
       entryPath = createTsEntryPath(entryPath);
-    } else {
+    } else { // TODO special case for bundled entries
       // replace paths and extensions in bundle file
       let bundleContent = fs.readFileSync(entryPath).toString();
       bundleContent = createTsEntriesForBundledPackage(bundleContent);
       fs.writeFileSync(entryPath, bundleContent);
     }
-    newEntry[key] = entryPath;
+    newEntry[key] = entry[key];
+    newEntry[key].import = entryPath;
   }
 
   return newEntry;
@@ -177,7 +177,7 @@ export function createResourcesMap(localizedResources: LocalizedResources) {
     const resourcePath = localizedResources[resourceKey];
     const search = resourcePath.replace(/^lib/gi, 'src').replace('{locale}.js', '*.ts');
     const exclude = '!' + search.replace('*.ts', '*.d.ts');
-    const typescriptResources = globbySync([search, exclude], {
+    const typescriptResources = globby.sync([search, exclude], {
       cwd: process.cwd()
     });
 

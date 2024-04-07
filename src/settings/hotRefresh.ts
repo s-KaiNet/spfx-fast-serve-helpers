@@ -3,7 +3,7 @@ const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 import ReactRefreshTypeScript from 'react-refresh-typescript';
 import webpack, { RuleSetRule } from 'webpack';
 
-import { ApplySettings } from '../common/types';
+import { ApplySettings, RuleItem } from '../common/types';
 import { serveSettings } from '../common/settingsManager';
 
 // TODO the whole hot refresh feature is not working as expected, needs to be verified separately
@@ -14,8 +14,6 @@ export const applyhotRefresh: ApplySettings = (config) => {
   }
 
   const tsLoaderRule = getTsRule(config.module.rules);
-
-  type RuleItem = Extract<webpack.RuleSetUseItem, { loader?: string }>;
 
   for (const useRule of (tsLoaderRule.use as webpack.RuleSetUseItem[])) {
     if ((useRule as RuleItem).loader.indexOf('ts-loader') !== -1) {
