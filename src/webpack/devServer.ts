@@ -18,7 +18,7 @@ export async function startDevServer() {
     const config = await resultConfig();
 
     const compiler = Webpack(config);
-    const server = new WebpackDevServer(compiler, config.devServer);
+    const server = new WebpackDevServer(config.devServer, compiler);
 
     Logger.log(`To load your scripts, use this query string: ${colors.yellow(`?debug=true&noredir=true&debugManifestsFile=https://${config.devServer.host}:${config.devServer.port}/temp/manifests.js`)}`);
 

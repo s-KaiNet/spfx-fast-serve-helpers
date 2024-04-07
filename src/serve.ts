@@ -10,6 +10,8 @@ import { createConfigFile } from './commands/createConfigFile';
 
 const packageJson = getJSONFile<NodePackage>(`node_modules/${fastServemoduleName}/package.json`);
 
+// TODO in 1.17 and 1.18 there is a options conflicts
+
 program
   .name('fast-serve')
   .description('SPFx Fast Serve Tool')

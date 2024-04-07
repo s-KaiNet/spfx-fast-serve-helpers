@@ -190,10 +190,9 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
         exclude: /node_modules/,
         moduleFilenameTemplate: 'webpack:///../[resource-path]',
         fallbackModuleFilenameTemplate: 'webpack:///../[resource-path]?[hash]'
-      } as any),
+      }),
       new TypeScriptResourcesPlugin(),
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'DEBUG': JSON.stringify(true)
       })],
     devServer: {
