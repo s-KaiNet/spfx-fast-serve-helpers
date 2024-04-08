@@ -22,15 +22,15 @@ export const applyContainersSetting: ApplySettings = (config) => {
     const publicPath = `https://${containersHost}:${config.devServer.port}/dist/`;
 
     config.devServer.host = containersHost;
+    const devStatic = config.devServer.static as Static[];
 
-    let devStatic = config.devServer.static as Static;
-    devStatic = devStatic || {};
+    for (const staticItem of devStatic) {
+      staticItem.publicPath = publicPath;
+      ((config.devServer.client as ClientConfiguration).webSocketURL as WebSocketURL).hostname = 'localhost';
 
-    devStatic.publicPath = publicPath;
-    ((config.devServer.client as ClientConfiguration).webSocketURL as WebSocketURL).hostname = 'localhost';
-
-    devStatic.watch = devStatic.watch || {};
-    (devStatic.watch as WatchOptions).poll = 1000;
-    (devStatic.watch as WatchOptions).aggregateTimeout = 500;
+      staticItem.watch = staticItem.watch || {};
+      (staticItem.watch as WatchOptions).poll = 1000;
+      (staticItem.watch as WatchOptions).aggregateTimeout = 500;
+    }
   }
 }

@@ -176,6 +176,16 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
         }
       ]
     },
+    optimization: {
+      moduleIds: 'deterministic',
+      usedExports: true,
+      sideEffects: true,
+      removeEmptyChunks: true,
+      realContentHash: false
+    },
+    performance: {
+      hints: false
+    },
     plugins: [
       new AsyncComponentPlugin({
         externalComponents
@@ -196,11 +206,12 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
         'DEBUG': JSON.stringify(true)
       })],
     devServer: {
-      hot: false,
-      static: {                       // TODO what else do we need to configure for new static option?
-        directory: rootFolder,
-        //publicPath: host + '/dist/',    // TODO - which publicPath should we use??? 
-      },
+      hot: false, // TODO what else do we need to configure for new static option?
+      static: [
+        {
+          directory: path.resolve(rootFolder, 'temp'),
+          publicPath: '/temp'
+        }],
       host: 'localhost',
       port: port,
       allowedHosts: 'all',

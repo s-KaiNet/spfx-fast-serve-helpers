@@ -3,8 +3,12 @@ import { serveSettings } from '../common/settingsManager';
 import { ApplySettings } from '../common/types';
 
 export const applyFullScreenErrors: ApplySettings = (config) => {
-  let client = config.devServer.client as ClientConfiguration;
-  client = client || {};
+  config.devServer.client = config.devServer.client || {};
+  const client = config.devServer.client as ClientConfiguration;
 
-  client.overlay = serveSettings.fullScreenErrors;
+  client.overlay = {
+    errors: serveSettings.fullScreenErrors,
+    warnings: false,
+    runtimeErrors: false
+  };
 }

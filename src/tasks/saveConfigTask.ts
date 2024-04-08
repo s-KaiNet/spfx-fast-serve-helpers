@@ -1,6 +1,7 @@
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import webpack from 'webpack';
+import { ManifestPlugin } from '@microsoft/spfx-heft-plugins/lib/spfxManifests/webpack/ManifestPlugin';
 
 export function addSaveConfigTask(build: any): void {
   const saveConfigTask = build.subTask('save-webpack-config', (gulp: any, config: any, done: () => void) => {
@@ -11,11 +12,21 @@ export function addSaveConfigTask(build: any): void {
         mkdirSync(saveDir);
       }
 
+      let pluginOptions = null;
       for (const plugin of generatedConfiguration.plugins) {
         if (typeof plugin === 'object' && plugin.constructor && plugin.constructor.name === 'ManifestPlugin') {
-          plugin._options.useManifestsJsonForComponentDependencies = true;
+          pluginOptions = plugin._options;
+          break;
         }
       }
+
+      if (pluginOptions == null) throw new Error('ManifestPlugin not found in webpack plugins');
+
+      generatedConfiguration.plugins.push(new ManifestPlugin({
+        ...pluginOptions,
+        useManifestsJsonForComponentDependencies: true
+      }));
+
       writeFileSync(saveTo, JSON.stringify(generatedConfiguration, null, 2));
 
       return generatedConfiguration;

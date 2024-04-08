@@ -5,7 +5,6 @@ import del from 'del';
 import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
 import { EntryDescription, Manifest, ModulesMap, SPFxConfig } from '../common/types';
-import { DynamicLibraryPlugin } from '../plugins/DynamicLibraryPlugin';
 import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from '../common/helpers';
 
 import { createBaseConfig } from './baseConfig';
@@ -34,7 +33,6 @@ const createConfig = async function () {
   const manifest = getJSONFile<Manifest[]>('temp/manifests.json');
   const { localizedResources, externals } = getJSONFile<SPFxConfig>('config/config.json');
 
-
   const modulesMap: ModulesMap = {};
   const originalEntries = Object.keys(originalWebpackConfig.entry); // TODO entry is now object
 
@@ -59,11 +57,6 @@ const createConfig = async function () {
     }
     return modulesMap[entryPointName].path;
   };
-
-  baseConfig.plugins.push(new DynamicLibraryPlugin({
-    modulesMap: modulesMap,
-    libraryName: originalWebpackConfig.output.library as string
-  }));
 
   const patterns = addCopyLocalizedResources(localizedResources);
 

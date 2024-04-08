@@ -81,7 +81,7 @@ export function getEntryPoints(entry: Record<string, EntryDescription>) {
 }
 
 function createTsEntriesForBundledPackage(content: string) {
-  const search = /require\('(?<jsPath>.*)'\)/gi;
+  const search = /from '(?<jsPath>.*)'/gi;
   let newContent = content.slice();
   let match = search.exec(content);
 
