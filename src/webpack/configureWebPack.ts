@@ -26,7 +26,8 @@ const createConfig = async function () {
   baseConfig.output = originalWebpackConfig.output;
 
   // TODO looks like entry is an object in SPFx 1.19
-  baseConfig.entry = getEntryPoints(originalWebpackConfig.entry as Record<string, EntryDescription>);
+  const entry = originalWebpackConfig.entry as Record<string, EntryDescription>;
+  baseConfig.entry = getEntryPoints(entry);
 
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
@@ -34,9 +35,9 @@ const createConfig = async function () {
   const { localizedResources, externals } = getJSONFile<SPFxConfig>('config/config.json');
 
   const modulesMap: ModulesMap = {};
-  const originalEntries = Object.keys(originalWebpackConfig.entry); // TODO entry is now object
+  const originalEntries = Object.keys(entry); // TODO entry is now object
 
-  for (const jsModule of manifest) {
+  for (const { manifestData: jsModule } of manifest) {
     if (jsModule.loaderConfig
       && jsModule.loaderConfig.entryModuleId
       && originalEntries.indexOf(jsModule.loaderConfig.entryModuleId) !== -1) {
@@ -45,7 +46,7 @@ const createConfig = async function () {
         id: jsModule.id,
         version: jsModule.version,
         path: jsModule.loaderConfig.scriptResources[entryModuleId].path,
-        isBundle: (originalWebpackConfig.entry as Record<string, string>)[jsModule.loaderConfig.entryModuleId].indexOf('bundle-entries') !== -1
+        isBundle: entry[jsModule.loaderConfig.entryModuleId].import.indexOf('bundle-entries') !== -1
       }
     }
   }

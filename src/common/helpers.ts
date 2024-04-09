@@ -305,7 +305,7 @@ export function addCopyLocalExternals(externals: Record<string, ExternalsObject>
   if (!externals) return [];
 
   const patterns: ObjectPattern[] = [];
-  for (const jsModule of manifest) {
+  for (const { manifestData: jsModule } of manifest) {
     if (jsModule.loaderConfig
       && jsModule.loaderConfig.entryModuleId
       && originalEntries.indexOf(jsModule.loaderConfig.entryModuleId) !== -1) {

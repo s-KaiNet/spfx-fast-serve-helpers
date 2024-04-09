@@ -44,6 +44,11 @@ export type LoaderConfig = {
 }
 
 export type Manifest = {
+  manifestCreationTime: number;
+  manifestData: ManifestData;
+}
+
+export type ManifestData = {
   id: string;
   alias: string;
   componentType: string;
