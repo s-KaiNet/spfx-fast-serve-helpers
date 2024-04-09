@@ -1,5 +1,5 @@
 import * as path from 'path';
-import webpack, { EntryObject, RuleSetRule } from 'webpack';
+import webpack, { RuleSetRule } from 'webpack';
 
 import { ResourceData, SPFxConfig } from '../common/types';
 import { createResourcesMap, getJSONFile } from '../common/helpers';
@@ -20,8 +20,7 @@ export class TypeScriptResourcesPlugin {
       return;
     }
 
-    // TODO - should it be EntryObject as key value or another object?
-    (compiler.options.entry as EntryObject)[this.entryName] = path.resolve(__dirname, '../loaders', 'TypeScriptResourcesEntryLoader!');
+    (compiler.options.entry as any)[this.entryName] = path.resolve(__dirname, '../loaders', 'TypeScriptResourcesEntryLoader!');
 
     const tsLoader = (compiler.options.module as any).rules[0].use[0];
 

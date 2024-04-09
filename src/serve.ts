@@ -10,12 +10,6 @@ import { createConfigFile } from './commands/createConfigFile';
 
 const packageJson = getJSONFile<NodePackage>(`node_modules/${fastServemoduleName}/package.json`);
 
-//TODO - save localization file doesn't trigger reload
-
-// TODO - dev server progress option? 
-
-// TODO - webpack dashboard? 
-
 program
   .name('fast-serve')
   .description('SPFx Fast Serve Tool')

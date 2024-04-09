@@ -4,7 +4,7 @@ import CopyPlugin from 'copy-webpack-plugin';
 import del from 'del';
 import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
-import { EntryDescription, Manifest, ModulesMap, SPFxConfig } from '../common/types';
+import { Manifest, ModulesMap, SPFxConfig, SpfxEntry } from '../common/types';
 import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from '../common/helpers';
 
 import { createBaseConfig } from './baseConfig';
@@ -25,8 +25,7 @@ const createConfig = async function () {
   baseConfig.externals = originalWebpackConfig.externals;
   baseConfig.output = originalWebpackConfig.output;
 
-  // TODO looks like entry is an object in SPFx 1.19
-  const entry = originalWebpackConfig.entry as Record<string, EntryDescription>;
+  const entry = originalWebpackConfig.entry as SpfxEntry;
   baseConfig.entry = getEntryPoints(entry);
 
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
@@ -35,7 +34,7 @@ const createConfig = async function () {
   const { localizedResources, externals } = getJSONFile<SPFxConfig>('config/config.json');
 
   const modulesMap: ModulesMap = {};
-  const originalEntries = Object.keys(entry); // TODO entry is now object
+  const originalEntries = Object.keys(entry);
 
   for (const { manifestData: jsModule } of manifest) {
     if (jsModule.loaderConfig

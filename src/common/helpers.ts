@@ -6,7 +6,7 @@ import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { EntryDescription, ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig } from './types';
+import { ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig, SpfxEntry } from './types';
 import { Logger } from './logger';
 import { fastFolderName, fastServemoduleName, spfxDependecyToCheck } from './consts';
 import { InvalidArgumentError } from 'commander';
@@ -56,18 +56,17 @@ export function getLoggingLevel(level: Settings['serve']['loggingLevel']) {
   throw new Error('Unsupported log level: ' + level);
 }
 
-// TODO - entry points is different for SPFx 1.19 - an object instead of key-value
-export function getEntryPoints(entry: Record<string, EntryDescription>) {
+export function getEntryPoints(entry: SpfxEntry) {
   // fix: ".js" entry needs to be ".ts[x]"
   // also replaces the path form /lib/* to /src/*
   // spfx not always follows path.sep settings, so just replace both variants
-  const newEntry: Record<string, EntryDescription> = {};
+  const newEntry: SpfxEntry = {};
 
   for (const key in entry) {
     let entryPath = entry[key].import as string;
     if (entryPath.indexOf('bundle-entries') === -1) {
       entryPath = createTsEntryPath(entryPath);
-    } else { // TODO special case for bundled entries
+    } else {
       // replace paths and extensions in bundle file
       let bundleContent = fs.readFileSync(entryPath).toString();
       bundleContent = createTsEntriesForBundledPackage(bundleContent);
@@ -136,7 +135,7 @@ export function addCopyLocalizedResources(localizedResources: LocalizedResources
   for (const resourceKey in localizedResources) {
     const resourcePath = localizedResources[resourceKey];
     const from = resourcePath.replace(/^lib/gi, 'src').replace('{locale}', '*');
-    patterns.push({ // TODO flatten: true was removed, will the content be flattened then?
+    patterns.push({
       from,
       noErrorOnMissing: true,
       to: (data: { absoluteFilename?: string }) => {
@@ -316,7 +315,7 @@ export function addCopyLocalExternals(externals: Record<string, ExternalsObject>
           const from = externals[resourceKey].path;
           const to = resource.path;
           if (!hasPattern(patterns, to)) {
-            patterns.push({ // TODO flatten: true was removed, will the content be flattened then?
+            patterns.push({
               from,
               noErrorOnMissing: true,
               to

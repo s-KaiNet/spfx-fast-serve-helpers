@@ -1,5 +1,5 @@
 import webpack from 'webpack';
-import { EntryDescription, NgrokServeOptions } from '../common/types';
+import { NgrokServeOptions, SpfxEntry } from '../common/types';
 
 export class NgrokServePlugin {
   constructor(private options: NgrokServeOptions) { }
@@ -9,7 +9,7 @@ export class NgrokServePlugin {
     compiler.options.output.publicPath = `https://${this.options.host}/dist/`;
 
     const clearCacheScript = require.resolve('./common/ClearCache');
-    const entries = compiler.options.entry as Record<string, EntryDescription>; // TODO entry is now object
+    const entries = compiler.options.entry as SpfxEntry;
     for (const key in entries) {
       const entry = entries[key];
       entries[key].import = [clearCacheScript, entry.import as string];

@@ -89,6 +89,8 @@ export type ServeConfigurations = {
 };
 
 export type EntryDescription = Extract<EntryObject[string], { baseUri?: string }>;
+export type SpfxEntry = Record<string, EntryDescription>;
+
 
 export type RuleItem = Extract<webpack.RuleSetUseItem, { loader?: string }>;
 

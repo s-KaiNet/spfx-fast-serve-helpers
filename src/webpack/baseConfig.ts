@@ -206,7 +206,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
         'DEBUG': JSON.stringify(true)
       })],
     devServer: {
-      hot: false, // TODO what else do we need to configure for new static option?
+      hot: false,
       static: [
         {
           directory: path.resolve(rootFolder, 'temp'),
@@ -218,7 +218,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
       historyApiFallback: true,
       devMiddleware: {
         writeToDisk: serveSettings.isLibraryComponent,
-        publicPath: host + '/dist/',                     // TODO - which publicPath should we use??? 
+        publicPath: host + '/dist/',
       },
       headers: {
         'Access-Control-Allow-Origin': '*',

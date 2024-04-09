@@ -5,6 +5,10 @@ import { DynamicLibraryPluginOptions } from '../common/types';
 // Transforms define("<guid>", ...) to web part specific define("<web part id_version", ...)
 // the same approach is used inside copyAssets SPFx build step
 ///
+
+/**
+ * @deprecated Since SPFx 1.19
+ */
 export class DynamicLibraryPlugin {
   constructor(private options: DynamicLibraryPluginOptions) {
   }
@@ -15,12 +19,8 @@ export class DynamicLibraryPlugin {
       for (const assetId in this.options.modulesMap) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const moduleMap = this.options.modulesMap[assetId];
-
-        // TODO total mess here, needs to be verified, also do we need it in SPFx 19? what SPFx 1.19 produces as output?
-        // TODO check in case of different source maps formats - eval, eval-source-map, source-map, inline-source-map
         if (compilation.assets[assetId]) {
 
-          //TODO - children is not available in webpack 5, remove or find a way to replace it?
           /*
           if (compilation.assets[assetId].children) {
             const rawValue = compilation.assets[assetId].children[0]._value;

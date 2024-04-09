@@ -6,8 +6,6 @@ import webpack, { RuleSetRule } from 'webpack';
 import { ApplySettings, RuleItem } from '../common/types';
 import { serveSettings } from '../common/settingsManager';
 
-// TODO the whole hot refresh feature is not working as expected, needs to be verified separately
-
 export const applyhotRefresh: ApplySettings = (config) => {
   if (!serveSettings.hotRefresh) {
     return;

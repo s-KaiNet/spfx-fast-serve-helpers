@@ -9,8 +9,7 @@ import { addSaveConfigTask } from './tasks';
 
 export function addFastServe(build: any) {
   
-  // TODO chech if yargs works properly here
-  const argv = yargs(hideBin(process.argv)).parseSync()
+  const argv = yargs(hideBin(process.argv)).parseSync();
   const useCustomServe = argv['custom-serve'];
   const isClean = argv._.indexOf('clean') !== -1;
 
