@@ -20,7 +20,9 @@ export class TypeScriptResourcesPlugin {
       return;
     }
 
-    (compiler.options.entry as any)[this.entryName] = path.resolve(__dirname, '../loaders', 'TypeScriptResourcesEntryLoader!');
+    (compiler.options.entry as any)[this.entryName] = {
+      import: [path.resolve(__dirname, '../loaders', 'TypeScriptResourcesEntryLoader!')]
+    }
 
     const tsLoader = (compiler.options.module as any).rules[0].use[0];
 

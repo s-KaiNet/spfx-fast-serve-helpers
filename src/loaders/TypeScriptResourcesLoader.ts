@@ -8,9 +8,10 @@ export default function loader(this: LoaderContext<any>, source: string, data: {
     return source;
   }
 
-  const options: Record<string, ResourceData> = this.getOptions(this);
+  const options: Record<string, ResourceData> = this.getOptions();
   const filePath = path.relative(this._compiler.options.context, data.file);
   const key = createKeyFromPath(filePath);
+  
   if (options[key]) {
     this.emitFile(options[key].fileName, source, null);
   }
