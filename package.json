@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.19.0-beta.10",
+  "version": "1.19.0-beta.11",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -82,5 +82,10 @@
     "webpack-dev-server": "5.0.4",
     "webpack-merge": "5.10.0",
     "yargs": "17.7.2"
+  },
+  "overrides": {
+    "@pmmmwh/react-refresh-webpack-plugin": {
+      "webpack-dev-server": "^5.0.2"
+    }
   }
 }

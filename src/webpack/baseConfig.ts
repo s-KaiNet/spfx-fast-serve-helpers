@@ -213,6 +213,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
           publicPath: '/temp'
         }],
       host: 'localhost',
+      watchFiles: ['src/**/loc/**/*.js'],
       port: port,
       allowedHosts: 'all',
       historyApiFallback: true,
