@@ -68,6 +68,9 @@ dependencies:
   globby:
     specifier: 11.0.3
     version: 11.0.3
+  json5:
+    specifier: 2.2.3
+    version: 2.2.3
   kill-port:
     specifier: 1.6.1
     version: 1.6.1
@@ -104,9 +107,6 @@ dependencies:
   ts-loader:
     specifier: 8.1.0
     version: 8.1.0(typescript@4.7.4)(webpack@4.47.0)
-  tsconfig:
-    specifier: 7.0.0
-    version: 7.0.0
   tsconfig-paths-webpack-plugin:
     specifier: 3.5.2
     version: 3.5.2
@@ -1491,14 +1491,6 @@ packages:
 
   /@types/source-list-map@0.1.6:
     resolution: {integrity: sha512-5JcVt1u5HDmlXkwOD2nslZVllBBc7HDuOICfiZah2Z0is8M8g+ddAEawbmd3VjedfDHBzxCaXLs07QEmb7y54g==}
-
-  /@types/strip-bom@3.0.0:
-    resolution: {integrity: sha512-xevGOReSYGM7g/kUBZzPqCrR/KYAo+F0yiPc85WFTJa0MSLtyFTVTU6cJu/aV4mid7IffDIWqo69THF2o4JiEQ==}
-    dev: false
-
-  /@types/strip-json-comments@0.0.30:
-    resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
-    dev: false
 
   /@types/tapable@1.0.12:
     resolution: {integrity: sha512-bTHG8fcxEqv1M9+TD14P8ok8hjxoOCkfKc8XXLaaD05kI7ohpeI956jtDOD3XHKBQrlyPughUtzm1jtVhHpA5Q==}
@@ -9321,15 +9313,6 @@ packages:
       json5: 1.0.2
       minimist: 1.2.8
       strip-bom: 3.0.0
-    dev: false
-
-  /tsconfig@7.0.0:
-    resolution: {integrity: sha512-vZXmzPrL+EmC4T/4rVlT2jNVMWCi/O4DIiSj3UHg1OE5kCKbk4mfrXc6dZksLgRM/TZlKnousKH9bbTazUWRRw==}
-    dependencies:
-      '@types/strip-bom': 3.0.0
-      '@types/strip-json-comments': 0.0.30
-      strip-bom: 3.0.0
-      strip-json-comments: 2.0.1
     dev: false
 
   /tslib@1.14.1:
