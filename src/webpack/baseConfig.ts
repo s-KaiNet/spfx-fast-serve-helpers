@@ -1,7 +1,9 @@
 import webpack from 'webpack';
 import * as path from 'path';
+import { readFile } from 'fs/promises';
 import del from 'del';
 import globby from 'globby';
+import { parse } from 'json5';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const certificateManager = require('@rushstack/debug-certificate-manager');
 const certificateStore = new certificateManager.CertificateStore();
@@ -11,7 +13,6 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { TypeScriptResourcesPlugin } from '../plugins/TypeScriptResourcesPlugin';
 import { freePortIfInUse, getExternalComponents } from '../common/helpers';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
-import { readFile } from 'tsconfig';
 import { serveSettings } from '../common/settingsManager';
 
 const rootFolder = path.resolve(process.cwd());
@@ -235,7 +236,8 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
   }
 
   const tsConfigPath = path.resolve(rootFolder, 'tsconfig.json');
-  const tsconfig = await readFile(tsConfigPath);
+  const tsConfigContent = (await readFile(tsConfigPath)).toString();
+  const tsconfig = parse(tsConfigContent);
 
   if (tsconfig.compilerOptions.baseUrl) {
     baseConfig.resolve.plugins = [
