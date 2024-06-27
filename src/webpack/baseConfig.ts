@@ -115,6 +115,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 esModule: false,
                 modules: {
                   localIdentName: '[local]_[hash:base64:8]',
+                  exportLocalsConvention: 'as-is',
                   mode: (resourcePath: string) => {
                     if (resourcePath.endsWith('.css') && /node_modules/gi.test(resourcePath)) {
                       return 'global';
@@ -124,6 +125,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 }
               }
             },
+            cleanCssLoader,
             {
               loader: require.resolve('postcss-loader'),
               options: {
@@ -134,7 +136,6 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 }
               }
             },
-            cleanCssLoader,
             {
               loader: require.resolve('sass-loader'),
               options: {
@@ -156,6 +157,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 modules: false
               }
             },
+            cleanCssLoader,
             {
               loader: require.resolve('postcss-loader'),
               options: {
@@ -166,7 +168,6 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 }
               }
             },
-            cleanCssLoader,
             {
               loader: require.resolve('sass-loader'),
               options: {
