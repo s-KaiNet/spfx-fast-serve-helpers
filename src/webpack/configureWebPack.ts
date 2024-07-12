@@ -5,11 +5,12 @@ import del from 'del';
 import { existsSync } from 'fs';
 import { merge } from 'webpack-merge';
 import { Manifest, ModulesMap, SPFxConfig, SpfxEntry } from '../common/types';
-import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, getEntryPoints, getJSONFile } from '../common/helpers';
+import { addCopyLocalExternals, addCopyLocalizedResources, checkVersions, createLocalExternals, extractLibraryComponents, getEntryPoints, getJSONFile } from '../common/helpers';
 
 import { createBaseConfig } from './baseConfig';
 import { applyServeSettings } from '../settings';
 import { fastFolderName } from '../common/consts';
+import { Static } from 'webpack-dev-server';
 
 const rootFolder = path.resolve(process.cwd());
 
@@ -31,6 +32,9 @@ const createConfig = async function () {
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
   const manifest = getJSONFile<Manifest[]>('temp/manifests.json');
+
+  baseConfig.devServer.static = [...baseConfig.devServer.static as Static[], ...extractLibraryComponents(manifest)];
+
   const { localizedResources, externals } = getJSONFile<SPFxConfig>('config/config.json');
 
   const modulesMap: ModulesMap = {};

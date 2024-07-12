@@ -6,12 +6,13 @@ import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig, SpfxEntry } from './types';
+import { ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, ScriptResource, SPFxConfig, SpfxEntry } from './types';
 import { Logger } from './logger';
 import { fastFolderName, fastServemoduleName, spfxDependecyToCheck } from './consts';
 import { InvalidArgumentError } from 'commander';
 import { Settings } from './settings';
 import { ObjectPattern } from 'copy-webpack-plugin';
+import { Static } from 'webpack-dev-server';
 
 export function getJSONFile<T = any>(relPath: string) {
   const filePath = path.join(process.cwd(), relPath);
@@ -383,6 +384,34 @@ export function ensureFastServeFolder() {
   if (!fs.existsSync(fastServeFolder)) {
     fs.mkdirSync(fastServeFolder);
   }
+}
+
+export function extractLibraryComponents(manifests: Manifest[]) {
+  const results: Static[] = [];
+  const rootFolder = path.resolve(process.cwd());
+
+  for (const manifest of manifests) {
+    for (const resourceKey in manifest.manifestData.loaderConfig.scriptResources) {
+      const resource = manifest.manifestData.loaderConfig.scriptResources[resourceKey];
+
+      if (!isLibraryComponentResource(resource, resourceKey)) continue;
+
+      results.push({
+        directory: path.resolve(rootFolder, `node_modules/${resourceKey}/dist`),
+        publicPath: `/node_modules/${resourceKey}/dist`
+      });
+    }
+  }
+
+  return results;
+}
+
+function isLibraryComponentResource(resource: ScriptResource, name: string) {
+  if (resource.type !== 'component') return false;
+  const rootFolder = path.resolve(process.cwd());
+
+  const pathToTest = path.resolve(rootFolder, `node_modules/${name}/config/package-solution.json`);
+  return fs.existsSync(pathToTest);
 }
 
 function hasPattern(patterns: ObjectPattern[], to: string): boolean {
