@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.18.13",
+  "version": "1.18.14",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -63,7 +63,7 @@
     "globby": "11.0.3",
     "json5": "2.2.3",
     "kill-port": "1.6.1",
-    "loader-utils": "2.0.0",
+    "loader-utils": "2.0.4",
     "node-fetch": "2.6.1",
     "postcss": "8.4.33",
     "postcss-loader": "4.3.0",
