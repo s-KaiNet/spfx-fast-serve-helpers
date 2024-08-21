@@ -73,6 +73,11 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
           exclude: /node_modules/
         },
         {
+          dependency: { not: ['url'] },
+          test: /\.js$/,
+          resolve: { fullySpecified: false }
+        },
+        {
           use: [{
             loader: require.resolve('file-loader'),
             options: {
