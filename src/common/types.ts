@@ -46,6 +46,8 @@ export type LoaderConfig = {
 export type Manifest = {
   manifestCreationTime: number;
   manifestData: ManifestData;
+  packageName: string;
+  relativeManifestPath: string;
 }
 
 export type ManifestData = {

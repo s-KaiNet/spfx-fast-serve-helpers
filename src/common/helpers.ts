@@ -6,7 +6,7 @@ import colors from 'colors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const killPort = require('kill-port')
 
-import { ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, ScriptResource, SPFxConfig, SpfxEntry } from './types';
+import { ExternalsObject, LocalizedResources, Manifest, NodePackage, ResourceData, SPFxConfig, SpfxEntry } from './types';
 import { Logger } from './logger';
 import { fastFolderName, fastServemoduleName, spfxDependecyToCheck } from './consts';
 import { InvalidArgumentError } from 'commander';
@@ -394,11 +394,19 @@ export function extractLibraryComponents(manifests: Manifest[]) {
     for (const resourceKey in manifest.manifestData.loaderConfig.scriptResources) {
       const resource = manifest.manifestData.loaderConfig.scriptResources[resourceKey];
 
-      if (!isLibraryComponentResource(resource, resourceKey)) continue;
+      if (resource.type !== 'component' || resourceKey.indexOf('@microsoft/') === 0 || resourceKey.indexOf('@ms/') === 0) continue;
+
+      const manifestPackage = findPackage(manifests, resourceKey);
+      if (!manifestPackage) continue;
+
+      const packageRelPath = getPackageRelativePath(manifestPackage);
+      if (!packageRelPath) continue;
+
+      if (!isLibraryComponentResource(packageRelPath)) continue;
 
       results.push({
-        directory: path.resolve(rootFolder, `node_modules/${resourceKey}/dist`),
-        publicPath: `/node_modules/${resourceKey}/dist`
+        directory: path.resolve(rootFolder, `${packageRelPath}/dist`),
+        publicPath: `/${packageRelPath}/dist`
       });
     }
   }
@@ -406,12 +414,31 @@ export function extractLibraryComponents(manifests: Manifest[]) {
   return results;
 }
 
-function isLibraryComponentResource(resource: ScriptResource, name: string) {
-  if (resource.type !== 'component') return false;
+function isLibraryComponentResource(packageRelPath: string) {
   const rootFolder = path.resolve(process.cwd());
-
-  const pathToTest = path.resolve(rootFolder, `node_modules/${name}/config/package-solution.json`);
+  const pathToTest = path.resolve(rootFolder, `${packageRelPath}/config/package-solution.json`);
   return fs.existsSync(pathToTest);
+}
+
+function getPackageRelativePath(manifest: Manifest) {
+  if (!manifest.relativeManifestPath) {
+    return null;
+  }
+
+  const parts = manifest.relativeManifestPath.split('/');
+  if (parts.length < 3) {
+    return null;
+  }
+
+  return parts.slice(0, -2).join('/');
+}
+
+function findPackage(manifests: Manifest[], name: string) {
+  for (const manifest of manifests) {
+    if (manifest.packageName === name) return manifest;
+  }
+
+  return null;
 }
 
 function hasPattern(patterns: ObjectPattern[], to: string): boolean {
