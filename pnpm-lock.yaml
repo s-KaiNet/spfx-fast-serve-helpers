@@ -10,22 +10,22 @@ importers:
     dependencies:
       '@microsoft/loader-load-themed-styles':
         specifier: 2.1.37
-        version: 2.1.37(@microsoft/load-themed-styles@2.0.132)(@types/webpack@5.28.5)
+        version: 2.1.37(@microsoft/load-themed-styles@2.0.142)(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       '@microsoft/spfx-heft-plugins':
-        specifier: 1.20.1
-        version: 1.20.1(@types/node@20.14.9)(@types/webpack@5.28.5)(webpack-cli@5.1.4)
+        specifier: 1.20.2
+        version: 1.20.2(@types/node@20.14.9)(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: 0.5.15
-        version: 0.5.15(@types/webpack@5.28.5)(react-refresh@0.14.2)(webpack-dev-server@5.0.4)(webpack@5.88.2)
+        version: 0.5.15(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(react-refresh@0.14.2)(type-fest@0.21.3)(webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       '@types/copy-webpack-plugin':
         specifier: 8.0.1
-        version: 8.0.1(webpack-cli@5.1.4)
+        version: 8.0.1(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       '@types/cross-spawn':
         specifier: 6.0.6
         version: 6.0.6
       '@types/webpack-dev-server':
         specifier: 4.7.1
-        version: 4.7.1(webpack-cli@5.1.4)(webpack@5.88.2)
+        version: 4.7.1(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       '@types/yargs':
         specifier: 17.0.32
         version: 17.0.32
@@ -34,7 +34,7 @@ importers:
         version: 10.4.19(postcss@8.4.38)
       clean-css-loader:
         specifier: 4.2.1
-        version: 4.2.1(webpack@5.88.2)
+        version: 4.2.1(loader-utils@3.2.2)(schema-utils@4.2.0)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       colors:
         specifier: 1.4.0
         version: 1.4.0
@@ -43,25 +43,25 @@ importers:
         version: 12.1.0
       copy-webpack-plugin:
         specifier: 12.0.2
-        version: 12.0.2(webpack@5.88.2)
+        version: 12.0.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       cross-spawn:
         specifier: 7.0.3
         version: 7.0.3
       css-loader:
         specifier: 7.1.2
-        version: 7.1.2(webpack@5.88.2)
+        version: 7.1.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       del:
         specifier: 6.0.0
         version: 6.0.0
       eslint-webpack-plugin:
         specifier: 4.2.0
-        version: 4.2.0(eslint@8.57.0)(webpack@5.88.2)
+        version: 4.2.0(eslint@8.57.0)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       file-loader:
         specifier: 6.2.0
-        version: 6.2.0(webpack@5.88.2)
+        version: 6.2.0(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       fork-ts-checker-webpack-plugin:
         specifier: 9.0.2
-        version: 9.0.2(typescript@5.5.2)(webpack@5.88.2)
+        version: 9.0.2(typescript@5.5.2)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       get-port:
         specifier: 5.1.1
         version: 5.1.1
@@ -82,7 +82,7 @@ importers:
         version: 8.4.38
       postcss-loader:
         specifier: 8.1.1
-        version: 8.1.1(postcss@8.4.38)(typescript@5.5.2)(webpack@5.88.2)
+        version: 8.1.1(postcss@8.4.38)(typescript@5.5.2)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       react-refresh:
         specifier: 0.14.2
         version: 0.14.2
@@ -94,22 +94,22 @@ importers:
         version: 1.77.6
       sass-loader:
         specifier: 14.2.1
-        version: 14.2.1(sass@1.77.6)(webpack@5.88.2)
+        version: 14.2.1(sass@1.77.6)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       spfx-css-modules-typescript-loader:
         specifier: 4.0.6
         version: 4.0.6
       style-loader:
         specifier: 4.0.0
-        version: 4.0.0(webpack@5.88.2)
+        version: 4.0.0(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       ts-loader:
         specifier: 9.5.1
-        version: 9.5.1(typescript@5.5.2)(webpack@5.88.2)
+        version: 9.5.1(typescript@5.5.2)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       tsconfig-paths-webpack-plugin:
         specifier: 4.1.0
         version: 4.1.0
       webpack:
         specifier: 5.88.2
-        version: 5.88.2(webpack-cli@5.1.4)
+        version: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       webpack-cli:
         specifier: 5.1.4
         version: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
@@ -131,10 +131,10 @@ importers:
         version: 2.6.11
       '@types/webpack':
         specifier: 5.28.5
-        version: 5.28.5(webpack-cli@5.1.4)
+        version: 5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       '@typescript-eslint/eslint-plugin':
         specifier: 7.14.1
-        version: 7.14.1(@typescript-eslint/parser@7.14.1)(eslint@8.57.0)(typescript@5.5.2)
+        version: 7.14.1(@typescript-eslint/parser@7.14.1(eslint@8.57.0)(typescript@5.5.2))(eslint@8.57.0)(typescript@5.5.2)
       '@typescript-eslint/parser':
         specifier: 7.14.1
         version: 7.14.1(eslint@8.57.0)(typescript@5.5.2)
@@ -178,6 +178,7 @@ packages:
   '@azure/core-http@3.0.4':
     resolution: {integrity: sha512-Fok9VVhMdxAFOtqiiAtg74fL0UJkt0z3D+ouUUxcRLzZNBioPRAMJFVxiWoJljYpXsRi4GDQHzQHDc9AiYaIUQ==}
     engines: {node: '>=14.0.0'}
+    deprecated: This package is no longer supported. Please migrate to use @azure/core-rest-pipeline
 
   '@azure/core-lro@2.7.2':
     resolution: {integrity: sha512-0YIpccoX8m/k00O7mDDMdJpbr6mf1yWo2dfmxt5A8XVZVVMz2SSKaEbMCeJRvgQ0IaSlqhjT47p4hVIRRy90xw==}
@@ -203,8 +204,8 @@ packages:
     resolution: {integrity: sha512-AfalUQ1ZppaKuxPPMsFEUdX6GZPB3d9paR9d/TTL7Ow2De8cJaC7ibi7kWVlFAVPCYo31OcnGymc0R89DX8Oaw==}
     engines: {node: '>=18.0.0'}
 
-  '@azure/identity@4.0.1':
-    resolution: {integrity: sha512-yRdgF03SFLqUMZZ1gKWt0cs0fvrDIkq2bJ6Oidqcoo5uM85YMBnXWMzYKK30XqIT76lkFyAaoAAy5knXhrG4Lw==}
+  '@azure/identity@4.2.1':
+    resolution: {integrity: sha512-U8hsyC9YPcEIzoaObJlRDvp7KiF0MGS7xcWbyJSVvXRkC/HXo1f0oYeBYmEvVgRfacw7GHf6D6yAoh9JHz6A5Q==}
     engines: {node: '>=18.0.0'}
 
   '@azure/logger@1.1.2':
@@ -376,11 +377,8 @@ packages:
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
 
-  '@microsoft/load-themed-styles@1.10.292':
-    resolution: {integrity: sha512-LQWGImtpv2zHKIPySLalR1aFXumXfOq8UuJvR15mIZRKXIoM+KuN9wZq+ved2FyeuePjQSJGOxYynxtCLLwDBA==}
-
-  '@microsoft/load-themed-styles@2.0.132':
-    resolution: {integrity: sha512-EC6spScZrinl5aWH8ME6kOSsZgIrOxJyvBlJXoWhEtHimjmzSrklvSNSuS6E8V2rk2zX85xFuLSaXIiU46bkuQ==}
+  '@microsoft/load-themed-styles@2.0.142':
+    resolution: {integrity: sha512-ee7XGfseTf91ZsLXckYwAsLmQpFVLCOr0GbVtdsKU4MmUe3eQ1FR2P7T2023dCgks131eWK4l2oVfazKIz2gVA==}
 
   '@microsoft/loader-load-themed-styles@2.1.37':
     resolution: {integrity: sha512-I8JxXrHLr7D+zxSeHhlfqcjcNKrbc7luxcdlbdUyn39TaJK5OsYMu92NqfsV8L90YscZJhMbtJM6L82SP7+7Qg==}
@@ -391,21 +389,21 @@ packages:
       '@types/webpack':
         optional: true
 
-  '@microsoft/rush-lib@5.117.3':
-    resolution: {integrity: sha512-wYASMXl027Hykf+Ze//ucN+iq0leMrQ/5uuJ7/nNsH5Pul0I1DAVApvZAfHeoEfQ8AO5o/Y2ZSxhmfS7m5NI3A==}
+  '@microsoft/rush-lib@5.135.0-pr4927.1':
+    resolution: {integrity: sha512-9HbxSdTGxEeLaZB3srs4iH4wH5zXIWOmOPTX9xXm70/Ue2futK4Iar7WUVE21bgBYLCf6+v51ILaCddvE7fr3w==}
     engines: {node: '>=5.6.0'}
 
-  '@microsoft/sp-css-loader@1.20.1':
-    resolution: {integrity: sha512-01TPxnd2ppu4rs4K9KN4VnF+jmJb4rnnXdztv4Y+b1ri3Qp8WUXgMp5KWttghnIIGW0RdJ0ElIxDNviR6IiUZg==}
+  '@microsoft/sp-css-loader@1.20.2':
+    resolution: {integrity: sha512-s11fA/tR1rqSRcfb2dCAvN0iUYIqLF3ykAWSETiQLFU9wsJXry3hJwQskuPHm4DbweiEkdHcVJWWgLvDH6pTNw==}
     peerDependencies:
       webpack: ^5.88.1
 
-  '@microsoft/sp-module-interfaces@1.20.1':
-    resolution: {integrity: sha512-kV5ipmUyCPL0FgS8uf+OH6Gpu33x8tr7q4eXUQFaG8TaCbrLkCh6F+H1CdcFEPcp7GIC3qdSfI7IhAKG5Cuz4w==}
+  '@microsoft/sp-module-interfaces@1.20.2':
+    resolution: {integrity: sha512-s4hm7PNes++7uviF+aJsqLsrzcaQttye/xuW+8IxMg1b2v/ys1bvfKUucM2N9T2hsz0q8+yWAwwuAl1C3PgBtA==}
     engines: {node: '>=18.17.1 <19.0.0'}
 
-  '@microsoft/spfx-heft-plugins@1.20.1':
-    resolution: {integrity: sha512-xlbTAm9jGh5PChubh4DhpdlucudYogeLKw2dm7TSdMzLIzA/buK4PyF/EfL4Um/xkR/iPp9jdfiKqdVrjOtBjw==}
+  '@microsoft/spfx-heft-plugins@1.20.2':
+    resolution: {integrity: sha512-uExUJxYrBEMkvfe76TFqW9Jz4VpZvopJSSVchqTUCFi6efkqODnzBXXU+6jThY0Du00YbCamnDQfIY4AqA++wQ==}
 
   '@mrmlnc/readdir-enhanced@2.2.1':
     resolution: {integrity: sha512-bPHp6Ji8b41szTOcaP63VlnbbO5Ny6dwAATtY6JTjh5N2OLrb5Qk/Th5cRkRQhkWCt+EJsYrNB0MiL+Gpn6e3g==}
@@ -513,52 +511,60 @@ packages:
     resolution: {integrity: sha512-OLkDZSqkA1mkoPNPvLFXyI6fb0enCuFji6Zfditi/CLAo9kmIhQFmEUDu4krSB8i908EljG8YwL5Xjxzm5wsWA==}
     engines: {node: '>=10.16'}
 
-  '@rushstack/heft-config-file@0.14.14':
-    resolution: {integrity: sha512-3DolQTSw7GTq3GtIPgTAL9bkuNxy2Z3niUN9MAgYxNla0Bi6d2SDRjTnDirLbasRhU8T/9AbGuiLwExiBnQ3sA==}
+  '@rushstack/heft-config-file@0.15.7':
+    resolution: {integrity: sha512-d8rwr9ctVmnVBPyl0o1WFh6NKsAJEX9eJip3mRGKOUd6Lq5FLHaTELwVNbqmZ76oQITABueD5MS02QE5Yq2fhw==}
     engines: {node: '>=10.13.0'}
 
-  '@rushstack/localization-utilities@0.9.37':
-    resolution: {integrity: sha512-QTQMX/84E246+eZqz8+kC+bo29DAtYwXzt21XIKKdT91BnVvrAmKfTOkbZOfWiUHKRDedcx8e26zuPPPZAyd2g==}
+  '@rushstack/localization-utilities@0.12.2':
+    resolution: {integrity: sha512-sNErW+OFd3YqMktJPjgimFRH2G2COfGEc3nVQOoxeLOhTI9ZjxhFAPbPHInS96t8pTuFz6UYx0WI2MUzIwzQVQ==}
 
-  '@rushstack/module-minifier@0.4.37':
-    resolution: {integrity: sha512-i0NI9Wp8qkA1kN6Ks1ZhRnSpFDOZILMAXrxcI9418czaUakjpUde+haq+SPG/b/xu2H4m0NJbTq2IkLvZendNQ==}
+  '@rushstack/lookup-by-path@0.2.2':
+    resolution: {integrity: sha512-yUz281pQjxXjKWapQc0KeXYjHnLFjnBmC2V+Gvc3itmJmK7MxFlhDwOUiORzKcmy+ICpwCi3DEnmA5/FinHIYA==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
       '@types/node':
         optional: true
 
-  '@rushstack/node-core-library@4.0.2':
-    resolution: {integrity: sha512-hyES82QVpkfQMeBMteQUnrhASL/KHPhd7iJ8euduwNJG4mu2GSOKybf0rOEjOm1Wz7CwJEUm9y0yD7jg2C1bfg==}
+  '@rushstack/module-minifier@0.6.22':
+    resolution: {integrity: sha512-pYuXQ22J7t/ZWDUKX6F94x/dnIsSUhgQUa8TSQ3hMuSqSJ5C1mf/q3WDYrzEp5Cnp3oJUz0g9ittTxBayL5vGg==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
       '@types/node':
         optional: true
 
-  '@rushstack/package-deps-hash@4.1.38':
-    resolution: {integrity: sha512-Fdm6JPUefpxLDP/ky4MakPtnSvm1didSt0UnGvDXaFcMdu/xSu+h6+FjIcqY404JKtte2rnrjtxRiSNyS5hoFA==}
+  '@rushstack/node-core-library@5.9.0':
+    resolution: {integrity: sha512-MMsshEWkTbXqxqFxD4gcIUWQOCeBChlGczdZbHfqmNZQFLHB3yWxDFSMHFUdu2/OB9NUk7Awn5qRL+rws4HQNg==}
+    peerDependencies:
+      '@types/node': '*'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
-  '@rushstack/package-extractor@0.6.40':
-    resolution: {integrity: sha512-Kx8MH3sGyJZz8Ha6evgy1ymHwMFpY7U/0ttahAf9K45r1HUPL2X86g6UfwBabXV44uAs3I5lgdZCvi+qUEqiWg==}
+  '@rushstack/package-deps-hash@4.2.0':
+    resolution: {integrity: sha512-sh60w8H3SliPBxfnvJzrvcSf2M/9KqBK/xB7uWaCPxkX8In/5bolKzL9Gl4MrNBMKm/yOBSYHJ2qOR9xKg8mHA==}
 
-  '@rushstack/rig-package@0.5.2':
-    resolution: {integrity: sha512-mUDecIJeH3yYGZs2a48k+pbhM6JYwWlgjs2Ca5f2n1G2/kgdgP9D/07oglEGf6mRyXEnazhEENeYTSNDRCwdqA==}
+  '@rushstack/package-extractor@0.9.1':
+    resolution: {integrity: sha512-akddNvE0hnupW1dttzOQFFJPaZHk9LaloU6RlOQ0XzR3vEgHfTxaWuhGf+3JI1M5xB6is7ifZYyxZVR5UAQjJQ==}
 
-  '@rushstack/rush-amazon-s3-build-cache-plugin@5.117.3':
-    resolution: {integrity: sha512-ulACaPBNyOj/RSo60/vhdSxdFU3EEo8owj0rG1tCEAVzacPRNAmYXQF6iYbMquIeGSOKdaQ48SrqZ+eLhRZgNw==}
+  '@rushstack/rig-package@0.5.3':
+    resolution: {integrity: sha512-olzSSjYrvCNxUFZowevC3uz8gvKr3WTpHQ7BkpjtRpA3wK+T0ybep/SRUMfr195gBzJm5gaXw0ZMgjIyHqJUow==}
 
-  '@rushstack/rush-azure-storage-build-cache-plugin@5.117.3':
-    resolution: {integrity: sha512-gqwfSDNOMynx7rSknntRfvdwYKDlgowSGiWBCEJaqn/YzBu/12br5azYLWJeJFvnwkyKauHFnWB+iBuzWF7LjA==}
+  '@rushstack/rush-amazon-s3-build-cache-plugin@5.135.0-pr4927.1':
+    resolution: {integrity: sha512-8YvIpDeJhYfr1+9W9ie0JlOoCu/8eN7/ObaMkQgyQuapzZ1g2myunW58+85TvfjfZ2ATtR7YCYm/0s8CyP6ddw==}
 
-  '@rushstack/rush-http-build-cache-plugin@5.117.3':
-    resolution: {integrity: sha512-sPtaa8sCTlrdYYEjKJfguFfleEQFzSOEbO1ZW4wK0JWocEEbOwRhMl9iJNWTX8Mg2/+FXQpqZAuKumWUD4KpPg==}
+  '@rushstack/rush-azure-storage-build-cache-plugin@5.135.0-pr4927.1':
+    resolution: {integrity: sha512-8hsj3eJ5BE+YmRTIGRwvy0hFZwqxPLK1ar2Oo/hwetqQiRZbOnTBNZ53iJe4DQbGhNJJzOpVUDG7Sg90optrhg==}
 
-  '@rushstack/rush-sdk@5.117.3':
-    resolution: {integrity: sha512-t7FYgwpKlF5QuqIrqO3NI1VJK6A2yvtdIGyziBgnq+79frhyex61GE2jLuNDbrC8FgLju0d45rxdJs5kyW3nZA==}
+  '@rushstack/rush-http-build-cache-plugin@5.135.0-pr4927.1':
+    resolution: {integrity: sha512-3X4XOGcbmxWshgZrUF+g9yuJThEodaHvsvL/fp22y4W7bHuqxKdl6BQjLRBmrhgFZu9WcpgxSVdlZXy/fVw41A==}
 
-  '@rushstack/set-webpack-public-path-plugin@5.1.21':
-    resolution: {integrity: sha512-s86M6vmb/VrM29Q9mVATwMcB+sTlX5ryxj0Ykowjl1wTJWKoV4gdG5hEroFKL+jfExggnYZWzD8g8nvrFxfcEw==}
+  '@rushstack/rush-sdk@5.135.0-pr4927.1':
+    resolution: {integrity: sha512-SPoVx1ZKjZkyWWkQ6DHz0nuMTJwseyGGjMt8kyygBRmLFlmT4Q/8nEniZBuPnw8b6uGs8A16u+x0YKxUgvgjuA==}
+
+  '@rushstack/set-webpack-public-path-plugin@5.1.50':
+    resolution: {integrity: sha512-f3jVlBnKraUskPjj2JbEYuE9sR44+7Y8R4Sy4zGLnYrIQfzVAEbLkTu3a/WCGqASc2A5uX64Ng9QuI7kS/AYpQ==}
     peerDependencies:
       '@types/node': '*'
       webpack: ^5.68.0
@@ -566,30 +572,30 @@ packages:
       '@types/node':
         optional: true
 
-  '@rushstack/stream-collator@4.1.38':
-    resolution: {integrity: sha512-SbncDR+7eSU+lWwH+4TMnXNYUlcqmF1o9bFYKRb0f0R6Q3mr/TMWMlr5+qzfU9ilDorE0H4tD7tTB6olYv/FfQ==}
+  '@rushstack/stream-collator@4.1.67':
+    resolution: {integrity: sha512-gb8lP0pQ8qA5/54MpetF16oVlK7ruTH1N/Hk72Brx3S0sXpJbc6SrZz6Ifi6OjHr2/ZS8HmG9PGq9btUkq0uxw==}
 
-  '@rushstack/terminal@0.10.0':
-    resolution: {integrity: sha512-UbELbXnUdc7EKwfH2sb8ChqNgapUOdqcCIdQP4NGxBpTZV2sQyeekuK3zmfQSa/MN+/7b4kBogl2wq0vpkpYGw==}
+  '@rushstack/terminal@0.14.2':
+    resolution: {integrity: sha512-2fC1wqu1VCExKC0/L+0noVcFQEXEnoBOtCIex1TOjBzEDWcw8KzJjjj7aTP6mLxepG0XIyn9OufeFb6SFsa+sg==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
       '@types/node':
         optional: true
 
-  '@rushstack/ts-command-line@4.19.1':
-    resolution: {integrity: sha512-J7H768dgcpG60d7skZ5uSSwyCZs/S2HrWP1Ds8d1qYAyaaeJmpmmLr9BVw97RjFzmQPOYnoXcKA4GkqDCkduQg==}
+  '@rushstack/ts-command-line@4.22.8':
+    resolution: {integrity: sha512-XbFjOoV7qZHJnSuFUHv0pKaFA4ixyCuki+xMjsMfDwfvQjs5MYG0IK5COal3tRnG7KCDe2l/G+9LrzYE/RJhgg==}
 
-  '@rushstack/typings-generator@0.12.37':
-    resolution: {integrity: sha512-emX7QoZCStg/39zuZLinLrIhUIv+XbBt53lLdnByTwcud/3Eo8A52hQc6LKQIj1+LlUfye/VpyJ7rBbTnPKvCg==}
+  '@rushstack/typings-generator@0.14.2':
+    resolution: {integrity: sha512-ivtCWBvFBkZb0c8jPeacQMCQc8Kf5NzDMYK6DuatFxbFGE56MzTN9Pr1DOBTjaNWyw45mAgTD7kzGc+iG239xw==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
       '@types/node':
         optional: true
 
-  '@rushstack/webpack-plugin-utilities@0.4.21':
-    resolution: {integrity: sha512-C6FN/pM797tXxBCQNnyrImg+AhyPmLuu3jRSvwEG2r+YAIOQ6p/DHcQGvBbiNdE75iL6ncEwNzPqb2ZXyhnn3A==}
+  '@rushstack/webpack-plugin-utilities@0.4.50':
+    resolution: {integrity: sha512-p3TTt5XNz/bar2JnLDinUI7xL6RgqOWfWyyjveJSzozV/Jh/VtIFbh/e5JCL77GzruT3WZlpkspS7sqpXhQaHg==}
     peerDependencies:
       '@types/webpack': ^4.39.8
       webpack: ^5.35.1 || ^4.31.0
@@ -599,8 +605,8 @@ packages:
       webpack:
         optional: true
 
-  '@rushstack/webpack5-localization-plugin@0.9.12':
-    resolution: {integrity: sha512-2eFqhcaEmtOy8XIPzTSpWtcpG1hBWQpbZ71mi3Va52aYuFiQO8roaTx18guiVik8maznpNho4GQ8pl5+9qknsw==}
+  '@rushstack/webpack5-localization-plugin@0.11.8':
+    resolution: {integrity: sha512-qjXAs6+JvCy3Xkgu47KZWGw1aGt6r2gIMxeWXDFekYPE95bM17e5G5rtb1GFU5Ta9Mj3qG+tHaOHOgr0j8pX1g==}
     peerDependencies:
       '@types/node': '*'
       webpack: ^5.68.0
@@ -608,8 +614,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@rushstack/webpack5-module-minifier-plugin@5.5.37':
-    resolution: {integrity: sha512-rXKd5RhSERxAlGo4EbVHWZhG9GCNIT1fZFPanVvhjoX8keOLDacqreBYGXeCfHI0vO0+oehzMycb/MFm6LQNUw==}
+  '@rushstack/webpack5-module-minifier-plugin@5.5.69':
+    resolution: {integrity: sha512-W3M4He1tv5pFMxT7E7634su+kpIHvalHDMaxEHJU1WeC/ug4CF//CwXpUE2v/gc4Ou82pXTB1EyEHMy2JnRgqQ==}
     engines: {node: '>=14.19.0'}
     peerDependencies:
       '@rushstack/module-minifier': '*'
@@ -619,8 +625,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@rushstack/worker-pool@0.4.37':
-    resolution: {integrity: sha512-ROnSatpZZWJYEhKqTHhTMnmnmxT0cntp7/xkTJ22cSbCdLng+9o6z00DmgauFB0+nsuryatQsAJUQvnwcVba2w==}
+  '@rushstack/worker-pool@0.4.67':
+    resolution: {integrity: sha512-HUDOp7PpHfBxRld2vTLrKXEB4fcif0IsWy5uqSYQB4Wh4akBSec5S6ksJTpP/QagpH8gRuRgP4Z9W6tzITpk0Q==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
@@ -974,8 +980,24 @@ packages:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
     engines: {node: '>=8'}
 
+  ajv-draft-04@1.0.0:
+    resolution: {integrity: sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==}
+    peerDependencies:
+      ajv: ^8.5.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+
+  ajv-formats@3.0.1:
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
     peerDependencies:
       ajv: ^8.0.0
     peerDependenciesMeta:
@@ -994,6 +1016,9 @@ packages:
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
+
+  ajv@8.13.0:
+    resolution: {integrity: sha512-PRA911Blj99jR5RMeTunVbNXMF6Lp4vZXnk5GQjcnUWUTsrXtekg/pnmFFI2u/I36Y/2bITGS30GZCXei6uNkA==}
 
   ajv@8.16.0:
     resolution: {integrity: sha512-F0twR8U1ZU67JIEtekUcLkXkoO5mMMmgGD8sK/xUFzJ805jxHQl92hImFAqqXMyMYjSPOyUPAwHYhB72g5sTXw==}
@@ -1412,10 +1437,6 @@ packages:
   commander@7.2.0:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
     engines: {node: '>= 10'}
-
-  commander@9.5.0:
-    resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
-    engines: {node: ^12.20.0 || >=14}
 
   component-emitter@1.3.1:
     resolution: {integrity: sha512-T0+barUSQRTUQASh8bx02dl+DhF54GtIDY13Y3m9oWTklKbb3Wv974meRpeZ3lp1JpLVECWWNHC4vaG2XHXouQ==}
@@ -2111,7 +2132,6 @@ packages:
     resolution: {integrity: sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
-    deprecated: '"Please update to latest v2.3 or v2.2"'
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -2825,6 +2845,10 @@ packages:
     resolution: {integrity: sha512-xXqpXoINfFhgua9xiqD8fPFHgkoq1mmmpE92WlDbm9rNRd/EbRb+Gqf908T2DMfuHjjJlksiK2RbHVOdD/MqSw==}
     engines: {node: '>=8.9.0'}
 
+  loader-utils@3.2.2:
+    resolution: {integrity: sha512-vjJi4vQDasD8t0kMpxe+9URAcgbSuASqoj/Wuk3MawTk97LYa2KfdHreAkd1G/pmPLMvzZEw7/OsydADNemerQ==}
+    engines: {node: '>= 12.13.0'}
+
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
@@ -3449,8 +3473,8 @@ packages:
   please-upgrade-node@3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
 
-  pnpm-sync-lib@0.1.4:
-    resolution: {integrity: sha512-3xwsXcsu+lj2l1nTF0TcgjHuMrnPpQJqHioPj5DTL9gFU+RSsoND2nEMelOo9qAz+BlPelxXZOc5z1Tgs7gwiQ==}
+  pnpm-sync-lib@0.2.9:
+    resolution: {integrity: sha512-qd2/crPxmpEXAWHlotOQfxQZ3a1fZIG4u73CiSPwPYDtd7Ithx7O3gtqzQb/0LXDEvk1NpL7u4xf7yEiUCqg3Q==}
 
   posix-character-classes@0.1.1:
     resolution: {integrity: sha512-xTgYBc3fuo7Yt7JbiuFxSYGToMoz8fLoE6TC9Wx1P/u+LfeThMOAqmuyECnlBaaJb+u1m9hHiXUEtwW4OzfUJg==}
@@ -4323,8 +4347,8 @@ packages:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
 
-  tar@6.1.15:
-    resolution: {integrity: sha512-/zKt9UyngnxIT/EAGYuxaMYgOIJiP81ab9ZfkILq4oNLPFX50qyYmu7jRj9qeXoxmJHjGlbH0+cm2uy1WCs10A==}
+  tar@6.2.1:
+    resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
   terser-webpack-plugin@5.3.10:
@@ -4760,6 +4784,11 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
 
+  yaml@2.4.1:
+    resolution: {integrity: sha512-pIXzoImaqmfOrL7teGUBt/T7ZDnyeGBWyXQBvOVhLkWLN37GXv8NMLK406UY6dS51JfcQHsmcW5cJ441bHg6Lg==}
+    engines: {node: '>= 14'}
+    hasBin: true
+
   yargs-parser@18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
     engines: {node: '>=6'}
@@ -4787,11 +4816,6 @@ packages:
   z-schema@4.2.4:
     resolution: {integrity: sha512-YvBeW5RGNeNzKOUJs3rTL4+9rpcvHXt5I051FJbOcitV8bl40pEfcG0Q+dWSwS0/BIYrMZ/9HHoqLllMkFhD0w==}
     engines: {node: '>=6.0.0'}
-    hasBin: true
-
-  z-schema@5.0.5:
-    resolution: {integrity: sha512-D7eujBWkLa3p2sIpJA0d1pr7es+a7m0vFAnZLlCEKq/Ij2k0MLi9Br2UPxoxdYystm5K1yeBGzub0FlYUEWj2Q==}
-    engines: {node: '>=8.0.0'}
     hasBin: true
 
 snapshots:
@@ -4879,7 +4903,7 @@ snapshots:
       '@azure/abort-controller': 2.1.2
       tslib: 2.6.3
 
-  '@azure/identity@4.0.1':
+  '@azure/identity@4.2.1':
     dependencies:
       '@azure/abort-controller': 1.1.0
       '@azure/core-auth': 1.7.2
@@ -5105,37 +5129,31 @@ snapshots:
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
-  '@microsoft/load-themed-styles@1.10.292': {}
+  '@microsoft/load-themed-styles@2.0.142': {}
 
-  '@microsoft/load-themed-styles@2.0.132': {}
-
-  '@microsoft/loader-load-themed-styles@2.1.37(@microsoft/load-themed-styles@1.10.292)(@types/webpack@5.28.5)':
+  '@microsoft/loader-load-themed-styles@2.1.37(@microsoft/load-themed-styles@2.0.142)(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@microsoft/load-themed-styles': 1.10.292
-      '@types/webpack': 5.28.5(webpack-cli@5.1.4)
+      '@microsoft/load-themed-styles': 2.0.142
       loader-utils: 1.4.2
+    optionalDependencies:
+      '@types/webpack': 5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
-  '@microsoft/loader-load-themed-styles@2.1.37(@microsoft/load-themed-styles@2.0.132)(@types/webpack@5.28.5)':
-    dependencies:
-      '@microsoft/load-themed-styles': 2.0.132
-      '@types/webpack': 5.28.5(webpack-cli@5.1.4)
-      loader-utils: 1.4.2
-
-  '@microsoft/rush-lib@5.117.3(@types/node@20.14.9)':
+  '@microsoft/rush-lib@5.135.0-pr4927.1(@types/node@20.14.9)':
     dependencies:
       '@pnpm/dependency-path': 2.1.8
       '@pnpm/link-bins': 5.3.25
-      '@rushstack/heft-config-file': 0.14.14(@types/node@20.14.9)
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/package-deps-hash': 4.1.38(@types/node@20.14.9)
-      '@rushstack/package-extractor': 0.6.40(@types/node@20.14.9)
-      '@rushstack/rig-package': 0.5.2
-      '@rushstack/rush-amazon-s3-build-cache-plugin': 5.117.3(@types/node@20.14.9)
-      '@rushstack/rush-azure-storage-build-cache-plugin': 5.117.3(@types/node@20.14.9)
-      '@rushstack/rush-http-build-cache-plugin': 5.117.3(@types/node@20.14.9)
-      '@rushstack/stream-collator': 4.1.38(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
-      '@rushstack/ts-command-line': 4.19.1(@types/node@20.14.9)
+      '@rushstack/heft-config-file': 0.15.7(@types/node@20.14.9)
+      '@rushstack/lookup-by-path': 0.2.2(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/package-deps-hash': 4.2.0(@types/node@20.14.9)
+      '@rushstack/package-extractor': 0.9.1(@types/node@20.14.9)
+      '@rushstack/rig-package': 0.5.3
+      '@rushstack/rush-amazon-s3-build-cache-plugin': 5.135.0-pr4927.1(@types/node@20.14.9)
+      '@rushstack/rush-azure-storage-build-cache-plugin': 5.135.0-pr4927.1(@types/node@20.14.9)
+      '@rushstack/rush-http-build-cache-plugin': 5.135.0-pr4927.1(@types/node@20.14.9)
+      '@rushstack/stream-collator': 4.1.67(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
+      '@rushstack/ts-command-line': 4.22.8(@types/node@20.14.9)
       '@types/node-fetch': 2.6.2
       '@yarnpkg/lockfile': 1.0.2
       builtin-modules: 3.1.0
@@ -5152,14 +5170,14 @@ snapshots:
       node-fetch: 2.6.7
       npm-check: 6.0.1
       npm-package-arg: 6.1.1
-      pnpm-sync-lib: 0.1.4
+      pnpm-sync-lib: 0.2.9
       read-package-tree: 5.1.6
       rxjs: 6.6.7
       semver: 7.5.4
       ssri: 8.0.1
       strict-uri-encode: 2.0.0
       tapable: 2.2.1
-      tar: 6.1.15
+      tar: 6.2.1
       true-case-path: 2.2.1
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -5167,63 +5185,60 @@ snapshots:
       - encoding
       - supports-color
 
-  '@microsoft/sp-css-loader@1.20.1(@types/node@20.14.9)(webpack@5.88.2)':
+  '@microsoft/sp-css-loader@1.20.2(@types/node@20.14.9)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@microsoft/load-themed-styles': 1.10.292
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
+      '@microsoft/load-themed-styles': 2.0.142
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
       autoprefixer: 9.7.1
-      css-loader: 3.4.2(webpack@5.88.2)
+      css-loader: 3.4.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       cssnano: 5.1.15(postcss@8.4.38)
-      loader-utils: 1.4.2
+      loader-utils: 3.2.2
       postcss: 8.4.38
       postcss-modules-extract-imports: 3.0.0(postcss@8.4.38)
       postcss-modules-local-by-default: 4.0.5(postcss@8.4.38)
       postcss-modules-scope: 3.0.0(postcss@8.4.38)
       postcss-modules-values: 4.0.0(postcss@8.4.38)
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/sp-module-interfaces@1.20.1(@types/node@20.14.9)':
+  '@microsoft/sp-module-interfaces@1.20.2(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
       z-schema: 4.2.4
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/spfx-heft-plugins@1.20.1(@types/node@20.14.9)(@types/webpack@5.28.5)(webpack-cli@5.1.4)':
+  '@microsoft/spfx-heft-plugins@1.20.2(@types/node@20.14.9)(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))':
     dependencies:
       '@azure/storage-blob': 12.17.0
-      '@microsoft/load-themed-styles': 1.10.292
-      '@microsoft/loader-load-themed-styles': 2.1.37(@microsoft/load-themed-styles@1.10.292)(@types/webpack@5.28.5)
-      '@microsoft/rush-lib': 5.117.3(@types/node@20.14.9)
-      '@microsoft/sp-css-loader': 1.20.1(@types/node@20.14.9)(webpack@5.88.2)
-      '@microsoft/sp-module-interfaces': 1.20.1(@types/node@20.14.9)
-      '@rushstack/heft-config-file': 0.14.14(@types/node@20.14.9)
-      '@rushstack/localization-utilities': 0.9.37(@types/node@20.14.9)
-      '@rushstack/module-minifier': 0.4.37(@types/node@20.14.9)
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/rig-package': 0.5.2
-      '@rushstack/set-webpack-public-path-plugin': 5.1.21(@types/node@20.14.9)(@types/webpack@5.28.5)(webpack@5.88.2)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
-      '@rushstack/webpack5-localization-plugin': 0.9.12(@types/node@20.14.9)(webpack@5.88.2)
-      '@rushstack/webpack5-module-minifier-plugin': 5.5.37(@rushstack/module-minifier@0.4.37)(@types/node@20.14.9)(webpack@5.88.2)
+      '@microsoft/rush-lib': 5.135.0-pr4927.1(@types/node@20.14.9)
+      '@microsoft/sp-css-loader': 1.20.2(@types/node@20.14.9)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
+      '@microsoft/sp-module-interfaces': 1.20.2(@types/node@20.14.9)
+      '@rushstack/heft-config-file': 0.15.7(@types/node@20.14.9)
+      '@rushstack/localization-utilities': 0.12.2(@types/node@20.14.9)
+      '@rushstack/module-minifier': 0.6.22(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/rig-package': 0.5.3
+      '@rushstack/set-webpack-public-path-plugin': 5.1.50(@types/node@20.14.9)(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
+      '@rushstack/webpack5-localization-plugin': 0.11.8(@types/node@20.14.9)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
+      '@rushstack/webpack5-module-minifier-plugin': 5.5.69(@rushstack/module-minifier@0.6.22(@types/node@20.14.9))(@types/node@20.14.9)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       '@types/tapable': 1.0.6
-      autoprefixer: 9.7.1
       express: 4.18.1
       fast-glob: 3.2.12
       git-repo-info: 2.1.1
-      html-loader: 4.2.0(webpack@5.88.2)
+      html-loader: 4.2.0(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       jszip: 3.8.0
       lodash: 4.17.21
       mime: 2.5.2
       resolve: 1.17.0
       source-map: 0.6.1
-      source-map-loader: 4.0.2(webpack@5.88.2)
+      source-map-loader: 4.0.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       tapable: 1.1.3
       true-case-path: 2.2.1
       uuid: 9.0.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       xml: 1.0.1
     transitivePeerDependencies:
       - '@swc/core'
@@ -5259,9 +5274,8 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.5.15(@types/webpack@5.28.5)(react-refresh@0.14.2)(webpack-dev-server@5.0.4)(webpack@5.88.2)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.5.15(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(react-refresh@0.14.2)(type-fest@0.21.3)(webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@types/webpack': 5.28.5(webpack-cli@5.1.4)
       ansi-html: 0.0.9
       core-js-pure: 3.37.1
       error-stack-parser: 2.1.4
@@ -5270,7 +5284,10 @@ snapshots:
       react-refresh: 0.14.2
       schema-utils: 4.2.0
       source-map: 0.7.4
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+    optionalDependencies:
+      '@types/webpack': 5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+      type-fest: 0.21.3
       webpack-dev-server: 5.0.4(webpack-cli@5.1.4)(webpack@5.88.2)
 
   '@pnpm/crypto.base32-hash@1.0.1':
@@ -5286,7 +5303,7 @@ snapshots:
       '@pnpm/crypto.base32-hash': 2.0.0
       '@pnpm/types': 9.4.2
       encode-registry: 3.0.1
-      semver: 7.5.4
+      semver: 7.6.2
 
   '@pnpm/error@1.4.0': {}
 
@@ -5352,54 +5369,62 @@ snapshots:
       write-file-atomic: 3.0.3
       write-yaml-file: 4.2.0
 
-  '@rushstack/heft-config-file@0.14.14(@types/node@20.14.9)':
+  '@rushstack/heft-config-file@0.15.7(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/rig-package': 0.5.2
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/rig-package': 0.5.3
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
       jsonpath-plus: 4.0.0
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/localization-utilities@0.9.37(@types/node@20.14.9)':
+  '@rushstack/localization-utilities@0.12.2(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
-      '@rushstack/typings-generator': 0.12.37(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
+      '@rushstack/typings-generator': 0.14.2(@types/node@20.14.9)
       pseudolocale: 1.1.0
       xmldoc: 1.1.4
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/module-minifier@0.4.37(@types/node@20.14.9)':
-    dependencies:
-      '@rushstack/worker-pool': 0.4.37(@types/node@20.14.9)
+  '@rushstack/lookup-by-path@0.2.2(@types/node@20.14.9)':
+    optionalDependencies:
       '@types/node': 20.14.9
+
+  '@rushstack/module-minifier@0.6.22(@types/node@20.14.9)':
+    dependencies:
+      '@rushstack/worker-pool': 0.4.67(@types/node@20.14.9)
       serialize-javascript: 6.0.0
       source-map: 0.7.4
       terser: 5.31.1
-
-  '@rushstack/node-core-library@4.0.2(@types/node@20.14.9)':
-    dependencies:
+    optionalDependencies:
       '@types/node': 20.14.9
+
+  '@rushstack/node-core-library@5.9.0(@types/node@20.14.9)':
+    dependencies:
+      ajv: 8.13.0
+      ajv-draft-04: 1.0.0(ajv@8.13.0)
+      ajv-formats: 3.0.1(ajv@8.13.0)
       fs-extra: 7.0.1
       import-lazy: 4.0.0
       jju: 1.4.0
       resolve: 1.22.8
       semver: 7.5.4
-      z-schema: 5.0.5
+    optionalDependencies:
+      '@types/node': 20.14.9
 
-  '@rushstack/package-deps-hash@4.1.38(@types/node@20.14.9)':
+  '@rushstack/package-deps-hash@4.2.0(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/package-extractor@0.6.40(@types/node@20.14.9)':
+  '@rushstack/package-extractor@0.9.1(@types/node@20.14.9)':
     dependencies:
       '@pnpm/link-bins': 5.3.25
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
       ignore: 5.1.9
       jszip: 3.8.0
       minimatch: 3.0.8
@@ -5408,16 +5433,16 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/rig-package@0.5.2':
+  '@rushstack/rig-package@0.5.3':
     dependencies:
       resolve: 1.22.8
       strip-json-comments: 3.1.1
 
-  '@rushstack/rush-amazon-s3-build-cache-plugin@5.117.3(@types/node@20.14.9)':
+  '@rushstack/rush-amazon-s3-build-cache-plugin@5.135.0-pr4927.1(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/rush-sdk': 5.117.3(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/rush-sdk': 5.135.0-pr4927.1(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
       https-proxy-agent: 5.0.1
       node-fetch: 2.6.7
     transitivePeerDependencies:
@@ -5425,22 +5450,22 @@ snapshots:
       - encoding
       - supports-color
 
-  '@rushstack/rush-azure-storage-build-cache-plugin@5.117.3(@types/node@20.14.9)':
+  '@rushstack/rush-azure-storage-build-cache-plugin@5.135.0-pr4927.1(@types/node@20.14.9)':
     dependencies:
-      '@azure/identity': 4.0.1
+      '@azure/identity': 4.2.1
       '@azure/storage-blob': 12.17.0
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/rush-sdk': 5.117.3(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/rush-sdk': 5.135.0-pr4927.1(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
     transitivePeerDependencies:
       - '@types/node'
       - encoding
       - supports-color
 
-  '@rushstack/rush-http-build-cache-plugin@5.117.3(@types/node@20.14.9)':
+  '@rushstack/rush-http-build-cache-plugin@5.135.0-pr4927.1(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/rush-sdk': 5.117.3(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/rush-sdk': 5.135.0-pr4927.1(@types/node@20.14.9)
       https-proxy-agent: 5.0.1
       node-fetch: 2.6.7
     transitivePeerDependencies:
@@ -5448,81 +5473,88 @@ snapshots:
       - encoding
       - supports-color
 
-  '@rushstack/rush-sdk@5.117.3(@types/node@20.14.9)':
+  '@rushstack/rush-sdk@5.135.0-pr4927.1(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/lookup-by-path': 0.2.2(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
       '@types/node-fetch': 2.6.2
       tapable: 2.2.1
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/set-webpack-public-path-plugin@5.1.21(@types/node@20.14.9)(@types/webpack@5.28.5)(webpack@5.88.2)':
+  '@rushstack/set-webpack-public-path-plugin@5.1.50(@types/node@20.14.9)(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/webpack-plugin-utilities': 0.4.21(@types/webpack@5.28.5)(webpack@5.88.2)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/webpack-plugin-utilities': 0.4.50(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+    optionalDependencies:
       '@types/node': 20.14.9
-      webpack: 5.88.2(webpack-cli@5.1.4)
     transitivePeerDependencies:
       - '@types/webpack'
 
-  '@rushstack/stream-collator@4.1.38(@types/node@20.14.9)':
+  '@rushstack/stream-collator@4.1.67(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/terminal@0.10.0(@types/node@20.14.9)':
+  '@rushstack/terminal@0.14.2(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@types/node': 20.14.9
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
       supports-color: 8.1.1
+    optionalDependencies:
+      '@types/node': 20.14.9
 
-  '@rushstack/ts-command-line@4.19.1(@types/node@20.14.9)':
+  '@rushstack/ts-command-line@4.22.8(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/typings-generator@0.12.37(@types/node@20.14.9)':
+  '@rushstack/typings-generator@0.14.2(@types/node@20.14.9)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
-      '@types/node': 20.14.9
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
       chokidar: 3.4.3
       fast-glob: 3.3.2
+    optionalDependencies:
+      '@types/node': 20.14.9
 
-  '@rushstack/webpack-plugin-utilities@0.4.21(@types/webpack@5.28.5)(webpack@5.88.2)':
+  '@rushstack/webpack-plugin-utilities@0.4.50(@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@types/webpack': 5.28.5(webpack-cli@5.1.4)
       memfs: 3.4.3
-      webpack: 5.88.2(webpack-cli@5.1.4)
       webpack-merge: 5.8.0
+    optionalDependencies:
+      '@types/webpack': 5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
-  '@rushstack/webpack5-localization-plugin@0.9.12(@types/node@20.14.9)(webpack@5.88.2)':
+  '@rushstack/webpack5-localization-plugin@0.11.8(@types/node@20.14.9)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@rushstack/localization-utilities': 0.9.37(@types/node@20.14.9)
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.14.9)
-      '@rushstack/terminal': 0.10.0(@types/node@20.14.9)
+      '@rushstack/localization-utilities': 0.12.2(@types/node@20.14.9)
+      '@rushstack/node-core-library': 5.9.0(@types/node@20.14.9)
+      '@rushstack/terminal': 0.14.2(@types/node@20.14.9)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+    optionalDependencies:
       '@types/node': 20.14.9
-      webpack: 5.88.2(webpack-cli@5.1.4)
 
-  '@rushstack/webpack5-module-minifier-plugin@5.5.37(@rushstack/module-minifier@0.4.37)(@types/node@20.14.9)(webpack@5.88.2)':
+  '@rushstack/webpack5-module-minifier-plugin@5.5.69(@rushstack/module-minifier@0.6.22(@types/node@20.14.9))(@types/node@20.14.9)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      '@rushstack/module-minifier': 0.4.37(@types/node@20.14.9)
-      '@rushstack/worker-pool': 0.4.37(@types/node@20.14.9)
+      '@rushstack/module-minifier': 0.6.22(@types/node@20.14.9)
+      '@rushstack/worker-pool': 0.4.67(@types/node@20.14.9)
       '@types/estree': 1.0.5
-      '@types/node': 20.14.9
       '@types/tapable': 1.0.6
       tapable: 2.2.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+    optionalDependencies:
+      '@types/node': 20.14.9
 
-  '@rushstack/worker-pool@0.4.37(@types/node@20.14.9)':
-    dependencies:
+  '@rushstack/worker-pool@0.4.67(@types/node@20.14.9)':
+    optionalDependencies:
       '@types/node': 20.14.9
 
   '@sinclair/typebox@0.27.8': {}
@@ -5557,11 +5589,11 @@ snapshots:
     dependencies:
       '@types/node': 20.14.9
 
-  '@types/copy-webpack-plugin@8.0.1(webpack-cli@5.1.4)':
+  '@types/copy-webpack-plugin@8.0.1(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))':
     dependencies:
       '@types/node': 20.14.9
       tapable: 2.2.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -5692,7 +5724,7 @@ snapshots:
     dependencies:
       '@types/node': 20.14.9
 
-  '@types/webpack-dev-server@4.7.1(webpack-cli@5.1.4)(webpack@5.88.2)':
+  '@types/webpack-dev-server@4.7.1(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
       webpack-dev-server: 5.0.4(webpack-cli@5.1.4)(webpack@5.88.2)
     transitivePeerDependencies:
@@ -5703,11 +5735,11 @@ snapshots:
       - webpack
       - webpack-cli
 
-  '@types/webpack@5.28.5(webpack-cli@5.1.4)':
+  '@types/webpack@5.28.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))':
     dependencies:
       '@types/node': 20.14.9
       tapable: 2.2.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -5724,7 +5756,7 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.3
 
-  '@typescript-eslint/eslint-plugin@7.14.1(@typescript-eslint/parser@7.14.1)(eslint@8.57.0)(typescript@5.5.2)':
+  '@typescript-eslint/eslint-plugin@7.14.1(@typescript-eslint/parser@7.14.1(eslint@8.57.0)(typescript@5.5.2))(eslint@8.57.0)(typescript@5.5.2)':
     dependencies:
       '@eslint-community/regexpp': 4.10.1
       '@typescript-eslint/parser': 7.14.1(eslint@8.57.0)(typescript@5.5.2)
@@ -5737,6 +5769,7 @@ snapshots:
       ignore: 5.3.1
       natural-compare: 1.4.0
       ts-api-utils: 1.3.0(typescript@5.5.2)
+    optionalDependencies:
       typescript: 5.5.2
     transitivePeerDependencies:
       - supports-color
@@ -5749,6 +5782,7 @@ snapshots:
       '@typescript-eslint/visitor-keys': 7.14.1
       debug: 4.3.5(supports-color@5.5.0)
       eslint: 8.57.0
+    optionalDependencies:
       typescript: 5.5.2
     transitivePeerDependencies:
       - supports-color
@@ -5765,6 +5799,7 @@ snapshots:
       debug: 4.3.5(supports-color@5.5.0)
       eslint: 8.57.0
       ts-api-utils: 1.3.0(typescript@5.5.2)
+    optionalDependencies:
       typescript: 5.5.2
     transitivePeerDependencies:
       - supports-color
@@ -5781,6 +5816,7 @@ snapshots:
       minimatch: 9.0.5
       semver: 7.6.2
       ts-api-utils: 1.3.0(typescript@5.5.2)
+    optionalDependencies:
       typescript: 5.5.2
     transitivePeerDependencies:
       - supports-color
@@ -5911,20 +5947,21 @@ snapshots:
       '@webassemblyjs/ast': 1.12.1
       '@xtuc/long': 4.2.2
 
-  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4)(webpack@5.88.2)':
+  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
 
-  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4)(webpack@5.88.2)':
+  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
 
-  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4)(webpack-dev-server@5.0.4)(webpack@5.88.2)':
+  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))':
     dependencies:
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
+    optionalDependencies:
       webpack-dev-server: 5.0.4(webpack-cli@5.1.4)(webpack@5.88.2)
 
   '@xtuc/ieee754@1.2.0': {}
@@ -5971,9 +6008,17 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
+  ajv-draft-04@1.0.0(ajv@8.13.0):
+    optionalDependencies:
+      ajv: 8.13.0
+
   ajv-formats@2.1.1(ajv@8.16.0):
-    dependencies:
+    optionalDependencies:
       ajv: 8.16.0
+
+  ajv-formats@3.0.1(ajv@8.13.0):
+    optionalDependencies:
+      ajv: 8.13.0
 
   ajv-keywords@3.5.2(ajv@6.12.6):
     dependencies:
@@ -5989,6 +6034,13 @@ snapshots:
       fast-deep-equal: 3.1.3
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
+      uri-js: 4.4.1
+
+  ajv@8.13.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
       uri-js: 4.4.1
 
   ajv@8.16.0:
@@ -6349,10 +6401,13 @@ snapshots:
       isobject: 3.0.1
       static-extend: 0.1.2
 
-  clean-css-loader@4.2.1(webpack@5.88.2):
+  clean-css-loader@4.2.1(loader-utils@3.2.2)(schema-utils@4.2.0)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       clean-css: 5.3.3
-      webpack: 5.88.2(webpack-cli@5.1.4)
+    optionalDependencies:
+      loader-utils: 3.2.2
+      schema-utils: 4.2.0
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   clean-css@5.3.3:
     dependencies:
@@ -6439,9 +6494,6 @@ snapshots:
 
   commander@7.2.0: {}
 
-  commander@9.5.0:
-    optional: true
-
   component-emitter@1.3.1: {}
 
   compressible@2.0.18:
@@ -6499,7 +6551,7 @@ snapshots:
 
   copy-descriptor@0.1.1: {}
 
-  copy-webpack-plugin@12.0.2(webpack@5.88.2):
+  copy-webpack-plugin@12.0.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       fast-glob: 3.3.2
       glob-parent: 6.0.2
@@ -6507,7 +6559,7 @@ snapshots:
       normalize-path: 3.0.0
       schema-utils: 4.2.0
       serialize-javascript: 6.0.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   core-js-pure@3.37.1: {}
 
@@ -6527,6 +6579,7 @@ snapshots:
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
+    optionalDependencies:
       typescript: 5.5.2
 
   cosmiconfig@9.0.0(typescript@5.5.2):
@@ -6535,6 +6588,7 @@ snapshots:
       import-fresh: 3.3.0
       js-yaml: 4.1.0
       parse-json: 5.2.0
+    optionalDependencies:
       typescript: 5.5.2
 
   cp-file@7.0.0:
@@ -6577,7 +6631,7 @@ snapshots:
     dependencies:
       postcss: 8.4.38
 
-  css-loader@3.4.2(webpack@5.88.2):
+  css-loader@3.4.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       camelcase: 5.3.1
       cssesc: 3.0.0
@@ -6591,9 +6645,9 @@ snapshots:
       postcss-modules-values: 3.0.0
       postcss-value-parser: 4.2.0
       schema-utils: 2.7.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
-  css-loader@7.1.2(webpack@5.88.2):
+  css-loader@7.1.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.38)
       postcss: 8.4.38
@@ -6603,7 +6657,8 @@ snapshots:
       postcss-modules-values: 4.0.0(postcss@8.4.38)
       postcss-value-parser: 4.2.0
       semver: 7.6.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
+    optionalDependencies:
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   css-select@4.3.0:
     dependencies:
@@ -6681,6 +6736,7 @@ snapshots:
   debug@4.3.5(supports-color@5.5.0):
     dependencies:
       ms: 2.1.2
+    optionalDependencies:
       supports-color: 5.5.0
 
   debuglog@1.0.1: {}
@@ -6780,7 +6836,7 @@ snapshots:
       require-package-name: 2.0.1
       resolve: 1.22.8
       resolve-from: 5.0.0
-      semver: 7.5.4
+      semver: 7.6.2
       yargs: 16.2.0
     transitivePeerDependencies:
       - supports-color
@@ -6794,7 +6850,7 @@ snapshots:
       '@pnpm/crypto.base32-hash': 1.0.1
       '@pnpm/types': 8.9.0
       encode-registry: 3.0.1
-      semver: 7.5.4
+      semver: 7.6.2
 
   deps-regex@0.2.0: {}
 
@@ -6933,7 +6989,7 @@ snapshots:
 
   eslint-visitor-keys@3.4.3: {}
 
-  eslint-webpack-plugin@4.2.0(eslint@8.57.0)(webpack@5.88.2):
+  eslint-webpack-plugin@4.2.0(eslint@8.57.0)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       '@types/eslint': 8.56.10
       eslint: 8.57.0
@@ -6941,7 +6997,7 @@ snapshots:
       micromatch: 4.0.7
       normalize-path: 3.0.0
       schema-utils: 4.2.0
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   eslint@8.57.0:
     dependencies:
@@ -7195,11 +7251,11 @@ snapshots:
     dependencies:
       flat-cache: 3.2.0
 
-  file-loader@6.2.0(webpack@5.88.2):
+  file-loader@6.2.0(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   fill-range@4.0.0:
     dependencies:
@@ -7265,7 +7321,7 @@ snapshots:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
 
-  fork-ts-checker-webpack-plugin@9.0.2(typescript@5.5.2)(webpack@5.88.2):
+  fork-ts-checker-webpack-plugin@9.0.2(typescript@5.5.2)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       '@babel/code-frame': 7.24.7
       chalk: 4.1.2
@@ -7280,7 +7336,7 @@ snapshots:
       semver: 7.6.2
       tapable: 2.2.1
       typescript: 5.5.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   form-data@3.0.1:
     dependencies:
@@ -7562,11 +7618,11 @@ snapshots:
 
   html-entities@2.5.2: {}
 
-  html-loader@4.2.0(webpack@5.88.2):
+  html-loader@4.2.0(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       html-minifier-terser: 7.2.0
       parse5: 7.1.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   html-minifier-terser@7.2.0:
     dependencies:
@@ -7608,12 +7664,13 @@ snapshots:
 
   http-proxy-middleware@2.0.6(@types/express@4.17.21):
     dependencies:
-      '@types/express': 4.17.21
       '@types/http-proxy': 1.17.14
       http-proxy: 1.18.1
       is-glob: 4.0.3
       is-plain-obj: 3.0.0
       micromatch: 4.0.7
+    optionalDependencies:
+      '@types/express': 4.17.21
     transitivePeerDependencies:
       - debug
 
@@ -7665,7 +7722,7 @@ snapshots:
 
   ignore-walk@3.0.4:
     dependencies:
-      minimatch: 3.0.8
+      minimatch: 3.1.2
 
   ignore@4.0.6: {}
 
@@ -7950,7 +8007,7 @@ snapshots:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.5.4
+      semver: 7.6.2
 
   jszip@3.8.0:
     dependencies:
@@ -8038,7 +8095,7 @@ snapshots:
   load-yaml-file@0.2.0:
     dependencies:
       graceful-fs: 4.2.11
-      js-yaml: 3.13.1
+      js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
 
@@ -8055,6 +8112,8 @@ snapshots:
       big.js: 5.2.2
       emojis-list: 3.0.0
       json5: 2.2.3
+
+  loader-utils@3.2.2: {}
 
   locate-path@5.0.0:
     dependencies:
@@ -8381,7 +8440,7 @@ snapshots:
     dependencies:
       hosted-git-info: 4.1.0
       is-core-module: 2.14.0
-      semver: 7.5.4
+      semver: 7.6.2
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -8418,7 +8477,7 @@ snapshots:
       pkg-dir: 5.0.0
       preferred-pm: 3.1.3
       rc-config-loader: 4.1.3
-      semver: 7.5.4
+      semver: 7.6.2
       semver-diff: 3.1.1
       strip-ansi: 6.0.1
       text-table: 0.2.0
@@ -8689,7 +8748,10 @@ snapshots:
     dependencies:
       semver-compare: 1.0.0
 
-  pnpm-sync-lib@0.1.4: {}
+  pnpm-sync-lib@0.2.9:
+    dependencies:
+      '@pnpm/dependency-path': 2.1.8
+      yaml: 2.4.1
 
   posix-character-classes@0.1.1: {}
 
@@ -8729,13 +8791,14 @@ snapshots:
     dependencies:
       postcss: 8.4.38
 
-  postcss-loader@8.1.1(postcss@8.4.38)(typescript@5.5.2)(webpack@5.88.2):
+  postcss-loader@8.1.1(postcss@8.4.38)(typescript@5.5.2)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       cosmiconfig: 9.0.0(typescript@5.5.2)
       jiti: 1.21.6
       postcss: 8.4.38
       semver: 7.6.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
+    optionalDependencies:
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
     transitivePeerDependencies:
       - typescript
 
@@ -9192,11 +9255,12 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@14.2.1(sass@1.77.6)(webpack@5.88.2):
+  sass-loader@14.2.1(sass@1.77.6)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       neo-async: 2.6.2
+    optionalDependencies:
       sass: 1.77.6
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   sass@1.77.6:
     dependencies:
@@ -9387,11 +9451,11 @@ snapshots:
 
   source-map-js@1.2.0: {}
 
-  source-map-loader@4.0.2(webpack@5.88.2):
+  source-map-loader@4.0.2(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       iconv-lite: 0.6.3
       source-map-js: 1.2.0
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   source-map-resolve@0.5.3:
     dependencies:
@@ -9524,9 +9588,9 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-loader@4.0.0(webpack@5.88.2):
+  style-loader@4.0.0(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   stylehacks@5.1.1(postcss@8.4.38):
     dependencies:
@@ -9562,7 +9626,7 @@ snapshots:
 
   tapable@2.2.1: {}
 
-  tar@6.1.15:
+  tar@6.2.1:
     dependencies:
       chownr: 2.0.0
       fs-minipass: 2.1.0
@@ -9571,14 +9635,14 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  terser-webpack-plugin@5.3.10(webpack@5.88.2):
+  terser-webpack-plugin@5.3.10(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.31.1
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   terser@5.31.1:
     dependencies:
@@ -9655,7 +9719,7 @@ snapshots:
     dependencies:
       typescript: 5.5.2
 
-  ts-loader@9.5.1(typescript@5.5.2)(webpack@5.88.2):
+  ts-loader@9.5.1(typescript@5.5.2)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.17.0
@@ -9663,7 +9727,7 @@ snapshots:
       semver: 7.6.2
       source-map: 0.7.4
       typescript: 5.5.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   tsconfig-paths-webpack-plugin@4.1.0:
     dependencies:
@@ -9757,7 +9821,7 @@ snapshots:
       is-yarn-global: 0.3.0
       latest-version: 5.1.0
       pupa: 2.1.1
-      semver: 7.5.4
+      semver: 7.6.2
       semver-diff: 3.1.1
       xdg-basedir: 4.0.0
 
@@ -9812,9 +9876,9 @@ snapshots:
   webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2):
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
-      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4)(webpack@5.88.2)
-      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4)(webpack@5.88.2)
-      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4)(webpack-dev-server@5.0.4)(webpack@5.88.2)
+      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
+      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
+      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))(webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.88.2))(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       colorette: 2.0.20
       commander: 10.0.1
       cross-spawn: 7.0.3
@@ -9823,11 +9887,12 @@ snapshots:
       import-local: 3.1.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.88.2(webpack-cli@5.1.4)
-      webpack-dev-server: 5.0.4(webpack-cli@5.1.4)(webpack@5.88.2)
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
       webpack-merge: 5.10.0
+    optionalDependencies:
+      webpack-dev-server: 5.0.4(webpack-cli@5.1.4)(webpack@5.88.2)
 
-  webpack-dev-middleware@7.2.1(webpack@5.88.2):
+  webpack-dev-middleware@7.2.1(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
     dependencies:
       colorette: 2.0.20
       memfs: 4.9.3
@@ -9835,7 +9900,8 @@ snapshots:
       on-finished: 2.4.1
       range-parser: 1.2.1
       schema-utils: 4.2.0
-      webpack: 5.88.2(webpack-cli@5.1.4)
+    optionalDependencies:
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.88.2):
     dependencies:
@@ -9867,10 +9933,11 @@ snapshots:
       serve-index: 1.9.1
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack: 5.88.2(webpack-cli@5.1.4)
-      webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
-      webpack-dev-middleware: 7.2.1(webpack@5.88.2)
+      webpack-dev-middleware: 7.2.1(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       ws: 8.17.1
+    optionalDependencies:
+      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
+      webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -9890,7 +9957,7 @@ snapshots:
 
   webpack-sources@3.2.3: {}
 
-  webpack@5.88.2(webpack-cli@5.1.4):
+  webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.5
@@ -9913,10 +9980,11 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.88.2)
+      terser-webpack-plugin: 5.3.10(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       watchpack: 2.4.1
-      webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
       webpack-sources: 3.2.3
+    optionalDependencies:
+      webpack-cli: 5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -10007,6 +10075,8 @@ snapshots:
 
   yaml@1.10.2: {}
 
+  yaml@2.4.1: {}
+
   yargs-parser@18.1.3:
     dependencies:
       camelcase: 5.3.1
@@ -10045,11 +10115,3 @@ snapshots:
       validator: 13.12.0
     optionalDependencies:
       commander: 2.20.3
-
-  z-schema@5.0.5:
-    dependencies:
-      lodash.get: 4.4.2
-      lodash.isequal: 4.5.0
-      validator: 13.12.0
-    optionalDependencies:
-      commander: 9.5.0
