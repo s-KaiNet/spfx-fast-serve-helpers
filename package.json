@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.19.4",
+  "version": "1.19.5",
   "description": "Contains helper classes and functions for spfx-fast-serve tool",
   "main": "lib/index.js",
   "bin": {
@@ -52,7 +52,6 @@
     "@types/webpack-dev-server": "4.7.1",
     "@types/yargs": "17.0.32",
     "autoprefixer": "10.4.19",
-    "clean-css-loader": "4.2.1",
     "colors": "1.4.0",
     "commander": "12.1.0",
     "copy-webpack-plugin": "12.0.2",
