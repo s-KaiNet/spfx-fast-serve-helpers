@@ -32,18 +32,6 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
     }
   }
 
-  const cleanCssLoader = {
-    loader: require.resolve('clean-css-loader'),
-    options: {
-      level: {
-        1: {
-          all: false,
-          removeQuotes: true
-        }
-      }
-    }
-  }
-
   const externalComponents = getExternalComponents();
 
   const baseConfig: webpack.Configuration = {
@@ -130,7 +118,6 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 }
               }
             },
-            cleanCssLoader,
             {
               loader: require.resolve('postcss-loader'),
               options: {
@@ -162,7 +149,6 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
                 modules: false
               }
             },
-            cleanCssLoader,
             {
               loader: require.resolve('postcss-loader'),
               options: {

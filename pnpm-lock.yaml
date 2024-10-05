@@ -32,9 +32,6 @@ importers:
       autoprefixer:
         specifier: 9.8.8
         version: 9.8.8
-      clean-css-loader:
-        specifier: 4.2.1
-        version: 4.2.1(loader-utils@3.2.2)(schema-utils@4.2.0)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2)))
       colors:
         specifier: 1.4.0
         version: 1.4.0
@@ -1315,21 +1312,6 @@ packages:
   class-utils@0.3.6:
     resolution: {integrity: sha512-qOhPa/Fj7s6TY8H8esGu5QNpMMQxz79h+urzrNYN6mn+9BnxlDGf5QZ+XeCDsxSjPqsSR56XOZOJmpeurnLMeg==}
     engines: {node: '>=0.10.0'}
-
-  clean-css-loader@4.2.1:
-    resolution: {integrity: sha512-OQbdYeMtTMXxi6kZMq5iQOaeBHdEbVE1pO/TVKTrqQ3rQO6OWLCOZZzak6YxB+JkCOtWzRfAaPQQqbJbK0j8Vw==}
-    engines: {node: '>= 12.0.0'}
-    peerDependencies:
-      loader-utils: ^1.0.0 || ^2.0.0 || ^3.0.0
-      schema-utils: ^3.0.0 || ^4.0.0
-      webpack: '>=2.0.0'
-    peerDependenciesMeta:
-      loader-utils:
-        optional: true
-      schema-utils:
-        optional: true
-      webpack:
-        optional: true
 
   clean-css@5.3.3:
     resolution: {integrity: sha512-D5J+kHaVb/wKSFcyyV75uCn8fiY4sV38XJoe4CUyGQ+mOU/fMVYUdH1hJC+CJQ5uY3EnW27SbJYS4X8BiLrAFg==}
@@ -6394,14 +6376,6 @@ snapshots:
       define-property: 0.2.5
       isobject: 3.0.1
       static-extend: 0.1.2
-
-  clean-css-loader@4.2.1(loader-utils@3.2.2)(schema-utils@4.2.0)(webpack@5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))):
-    dependencies:
-      clean-css: 5.3.3
-    optionalDependencies:
-      loader-utils: 3.2.2
-      schema-utils: 4.2.0
-      webpack: 5.88.2(webpack-cli@5.1.4(webpack-dev-server@5.0.4)(webpack@5.88.2))
 
   clean-css@5.3.3:
     dependencies:
