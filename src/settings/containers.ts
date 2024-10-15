@@ -1,7 +1,6 @@
-import { ApplySettings, ServeConfigurations, WatchOptions } from '../common/types';
+import { ApplySettings, ServeConfigurations } from '../common/types';
 import { getJSONFile } from '../common/helpers';
 import { serveSettings } from '../common/settingsManager';
-import { ClientConfiguration, Static, WebSocketURL } from 'webpack-dev-server';
 
 export const applyContainersSetting: ApplySettings = (config) => {
   let shouldApply = false;
@@ -19,18 +18,6 @@ export const applyContainersSetting: ApplySettings = (config) => {
   }
 
   if (shouldApply) {
-    const publicPath = `https://${containersHost}:${config.devServer.port}/dist/`;
-
     config.devServer.host = containersHost;
-    const devStatic = config.devServer.static as Static[];
-
-    for (const staticItem of devStatic) {
-      staticItem.publicPath = publicPath;
-      ((config.devServer.client as ClientConfiguration).webSocketURL as WebSocketURL).hostname = 'localhost';
-
-      staticItem.watch = staticItem.watch || {};
-      (staticItem.watch as WatchOptions).poll = 1000;
-      (staticItem.watch as WatchOptions).aggregateTimeout = 500;
-    }
   }
 }
