@@ -1,6 +1,7 @@
 import { ApplySettings, ServeConfigurations } from '../common/types';
 import { getJSONFile } from '../common/helpers';
 import { serveSettings } from '../common/settingsManager';
+import { ClientConfiguration } from 'webpack-dev-server';
 
 export const applyContainersSetting: ApplySettings = (config) => {
   let shouldApply = false;
@@ -19,5 +20,18 @@ export const applyContainersSetting: ApplySettings = (config) => {
 
   if (shouldApply) {
     config.devServer.host = containersHost;
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 300,
+      ignored: /node_modules/
+    }
+
+    config.devServer.client = config.devServer.client || {};
+    (config.devServer.client as ClientConfiguration).webSocketURL = {
+      hostname: 'localhost',
+      pathname: '/ws',
+      port: config.devServer.port,
+      protocol: 'wss'
+    };
   }
 }
