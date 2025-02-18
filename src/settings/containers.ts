@@ -22,7 +22,7 @@ export const applyContainersSetting: ApplySettings = (config) => {
     config.devServer.host = containersHost;
     config.watchOptions = {
       poll: 1000,
-      aggregateTimeout: 500,
+      aggregateTimeout: 300,
       ignored: /node_modules/
     }
 
