@@ -1,5 +1,5 @@
 import { ApplySettings, ServeConfigurations } from '../common/types';
-import { getJSONFile } from '../common/helpers';
+import isDocker, { getJSONFile } from '../common/helpers';
 import { serveSettings } from '../common/settingsManager';
 import { ClientConfiguration } from 'webpack-dev-server';
 
@@ -10,7 +10,7 @@ export const applyContainersSetting: ApplySettings = (config) => {
   // resolve running in a containerized environment automatically by checking 0.0.0.0 as hostname or ip address
   if (serveSettings.containers == null) {
     const serveConfig = getJSONFile<ServeConfigurations>('config/serve.json');
-    if (serveConfig?.hostname === containersHost || serveConfig?.ipAddress === containersHost) {
+    if (serveConfig?.hostname === containersHost || serveConfig?.ipAddress === containersHost || isDocker()) {
       shouldApply = true;
     }
 

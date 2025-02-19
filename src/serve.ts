@@ -24,7 +24,7 @@ program
   .option('-e, --eslint [value]', 'ESLint support', customParseBoolean, true)
   .option('-r, --hotRefresh  [value]', 'When true, enables webpack\'s Hot Module Replacement (HMR) feature, more info - https://github.com/s-KaiNet/spfx-fast-serve/blob/master/docs/HMR.md', customParseBoolean, false)
   .option('-q, --reactProfiling  [value]', 'When true, enables react profiling mode through React Chrome extension', customParseBoolean, false)
-  .option('-t, --containers [value]', 'Explicitly enables containerized environment support', customParseBoolean, false)
+  .option('-t, --containers [value]', 'Explicitly enables containerized environment support', customParseBoolean, null)
   .option('-d, --debug [value]', 'Enables debug logging for fast-serve. In debug mode it prints more information about execution context', customParseBoolean, false)
   .version(packageJson.version, '-v, --version', 'Output the fast-serve version')
   .helpOption('-h, --help', 'Display help for command')

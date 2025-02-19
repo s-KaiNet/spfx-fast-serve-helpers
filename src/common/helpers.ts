@@ -414,6 +414,10 @@ export function extractLibraryComponents(manifests: Manifest[]) {
   return results;
 }
 
+export default function isDocker() {
+  return hasDockerEnv() || hasDockerCGroup();
+}
+
 function isLibraryComponentResource(packageRelPath: string) {
   const rootFolder = path.resolve(process.cwd());
   const pathToTest = path.resolve(rootFolder, `${packageRelPath}/config/package-solution.json`);
@@ -449,4 +453,21 @@ function hasPattern(patterns: ObjectPattern[], to: string): boolean {
   }
 
   return false;
+}
+
+function hasDockerEnv() {
+  try {
+    fs.statSync('/.dockerenv');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function hasDockerCGroup() {
+  try {
+    return fs.readFileSync('/proc/self/cgroup', 'utf8').includes('docker');
+  } catch {
+    return false;
+  }
 }
