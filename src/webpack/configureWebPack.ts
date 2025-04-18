@@ -31,7 +31,7 @@ const createConfig = async function () {
 
   baseConfig.output.publicPath = `https://${baseConfig.devServer.host}:${baseConfig.devServer.port}/dist/`;
 
-  const manifest = getJSONFile<Manifest[]>('temp/manifests.json');
+  const manifest = getJSONFile<Manifest[]>('temp/build/manifests.json');
 
   baseConfig.devServer.static = [...baseConfig.devServer.static as Static[], ...extractLibraryComponents(manifest)];
 

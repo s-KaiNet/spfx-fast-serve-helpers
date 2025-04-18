@@ -23,7 +23,7 @@ export const applyOpenUrlSetting: ApplySettings = (config) => {
         openUrl = new URL(configValue.pageUrl.replace(SERVE_SPFX_PLACEHOLDER, process.env[SERVE_SPFX_KEY]));
       }
 
-      openUrl.searchParams.set('debugManifestsFile', `https://${config.devServer.host}:${config.devServer.port}/temp/manifests.js`);
+      openUrl.searchParams.set('debugManifestsFile', `https://${config.devServer.host}:${config.devServer.port}/temp/build/manifests.js`);
       openUrl.searchParams.set('loadSPFX', 'true');
 
       if (configValue.customActions) {
