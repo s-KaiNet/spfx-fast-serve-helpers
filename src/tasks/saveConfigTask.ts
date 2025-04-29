@@ -25,7 +25,7 @@ export function addSaveConfigTask(build: any): void {
       generatedConfiguration.plugins.push(new ManifestPlugin({
         ...pluginOptions,
         useManifestsJsonForComponentDependencies: true
-      }));
+      }) as any);
 
       writeFileSync(saveTo, JSON.stringify(generatedConfiguration, null, 2));
 

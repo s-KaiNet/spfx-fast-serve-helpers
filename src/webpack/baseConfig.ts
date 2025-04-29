@@ -182,7 +182,7 @@ export async function createBaseConfig(): Promise<webpack.Configuration> {
     plugins: [
       new AsyncComponentPlugin({
         externalComponents
-      }),
+      }) as any,
       new webpack.WatchIgnorePlugin({
         paths: [path.resolve(rootFolder, 'temp')]
       }),
