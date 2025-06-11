@@ -113,7 +113,7 @@ function getEntryPath(tsPath: string) {
   let pathToCheck = tsPath;
   // if bundled entry, then the path is received in format "../../lib/webparts/contextInfo/ContextInfoWebPart.js"
   if (!path.isAbsolute(pathToCheck)) {
-    const bundledEntriesPath = path.join(process.cwd(), 'temp/bundle-entries');
+    const bundledEntriesPath = path.join(process.cwd(), 'temp/build/bundle-entries');
     pathToCheck = path.join(bundledEntriesPath, pathToCheck);
   }
 
