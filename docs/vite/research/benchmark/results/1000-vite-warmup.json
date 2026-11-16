@@ -1,0 +1,159 @@
+{
+  "suite": "vite-warmup",
+  "label": "1000",
+  "modules": 1000,
+  "barrels": true,
+  "date": "2026-11-15T23:33:27.644Z",
+  "node": "v24.21.0",
+  "cpus": "Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz",
+  "loads": {
+    "cold": [
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 7305,
+        "tTree": 7186,
+        "tPnp": 3490,
+        "tRendered": 7186,
+        "canvas": 1654,
+        "wpZone": 1654,
+        "dcl": 897,
+        "load": 1394,
+        "nodes": 846,
+        "total": 1568,
+        "totalBytes": 16229719,
+        "local": 1180,
+        "localBytes": 16068395,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1398,
+        "manifestsStart": 1398,
+        "lastLocalEnd": 6605,
+        "serverCpuS": 1.03,
+        "serverRssMB": 520,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 9207,
+        "tTree": 9100,
+        "tPnp": 4329,
+        "tRendered": 9100,
+        "canvas": 2012,
+        "wpZone": 2012,
+        "dcl": 1204,
+        "load": 1754,
+        "nodes": 846,
+        "total": 1571,
+        "totalBytes": 16229105,
+        "local": 1180,
+        "localBytes": 16068443,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1756,
+        "manifestsStart": 1756,
+        "lastLocalEnd": 8465,
+        "serverCpuS": 1.23,
+        "serverRssMB": 524,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 7124,
+        "tTree": 7000,
+        "tPnp": 3380,
+        "tRendered": 7000,
+        "canvas": 1475,
+        "wpZone": 1475,
+        "dcl": 727,
+        "load": 1214,
+        "nodes": 846,
+        "total": 1568,
+        "totalBytes": 16229230,
+        "local": 1180,
+        "localBytes": 16068381,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1217,
+        "manifestsStart": 1217,
+        "lastLocalEnd": 6410,
+        "serverCpuS": 1.17,
+        "serverRssMB": 519,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      }
+    ]
+  },
+  "edits": {},
+  "server": {
+    "start": [
+      {
+        "tListen": 297,
+        "tReady": 297,
+        "rss": 157
+      },
+      {
+        "tListen": 415,
+        "tReady": 415,
+        "rss": 157
+      },
+      {
+        "tListen": 308,
+        "tReady": 308,
+        "rss": 162
+      }
+    ],
+    "warmup": [
+      {
+        "tIdleAfterReady": 3100,
+        "tFromSpawn": 4412,
+        "rss": 492
+      },
+      {
+        "tIdleAfterReady": 3101,
+        "tFromSpawn": 4531,
+        "rss": 495
+      },
+      {
+        "tIdleAfterReady": 3136,
+        "tFromSpawn": 4457,
+        "rss": 486
+      }
+    ],
+    "end": [
+      {
+        "rss": 520,
+        "peakRss": 542,
+        "cpuS": 5.49
+      },
+      {
+        "rss": 524,
+        "peakRss": 542,
+        "cpuS": 5.92
+      },
+      {
+        "rss": 519,
+        "peakRss": 537,
+        "cpuS": 5.68
+      }
+    ]
+  }
+}

@@ -1,0 +1,445 @@
+{
+  "suite": "heft",
+  "label": "250",
+  "modules": 250,
+  "barrels": true,
+  "date": "2026-11-15T23:45:29.085Z",
+  "node": "v24.21.0",
+  "cpus": "Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz",
+  "loads": {
+    "cold": [
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 2914,
+        "tTree": 2574,
+        "tPnp": 2856,
+        "tRendered": 2856,
+        "canvas": 1341,
+        "wpZone": 1341,
+        "dcl": 586,
+        "load": 1087,
+        "nodes": 208,
+        "total": 273,
+        "totalBytes": 834723,
+        "local": 6,
+        "localBytes": 722214,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1091,
+        "manifestsStart": 1091,
+        "lastLocalEnd": 1593,
+        "slowestLocal": [
+          {
+            "url": "/dist/bench-pnp-web-part.js",
+            "start": 1362,
+            "ms": 231,
+            "status": 200
+          },
+          {
+            "url": "/dist/bench-tree-web-part.js",
+            "start": 1358,
+            "ms": 132,
+            "status": 200
+          },
+          {
+            "url": "/dist/ControlStrings_en-us.js",
+            "start": 1365,
+            "ms": 83,
+            "status": 200
+          },
+          {
+            "url": "/dist/BenchPnpWebPartStrings_en-us.js",
+            "start": 1364,
+            "ms": 82,
+            "status": 200
+          }
+        ],
+        "serverCpuS": 0.19,
+        "serverRssMB": 972,
+        "errors": [
+          "Uncaught (in promise)"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 3039,
+        "tTree": 2688,
+        "tPnp": 2992,
+        "tRendered": 2992,
+        "canvas": 1385,
+        "wpZone": 1385,
+        "dcl": 633,
+        "load": 1151,
+        "nodes": 208,
+        "total": 272,
+        "totalBytes": 837364,
+        "local": 6,
+        "localBytes": 722214,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1154,
+        "manifestsStart": 1154,
+        "lastLocalEnd": 1706,
+        "slowestLocal": [
+          {
+            "url": "/dist/bench-pnp-web-part.js",
+            "start": 1403,
+            "ms": 302,
+            "status": 200
+          },
+          {
+            "url": "/dist/bench-tree-web-part.js",
+            "start": 1401,
+            "ms": 91,
+            "status": 200
+          },
+          {
+            "url": "/dist/ControlStrings_en-us.js",
+            "start": 1405,
+            "ms": 45,
+            "status": 200
+          },
+          {
+            "url": "/dist/BenchPnpWebPartStrings_en-us.js",
+            "start": 1404,
+            "ms": 38,
+            "status": 200
+          }
+        ],
+        "serverCpuS": 0.19,
+        "serverRssMB": 993,
+        "errors": [
+          "Uncaught (in promise)"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 3403,
+        "tTree": 3040,
+        "tPnp": 3327,
+        "tRendered": 3327,
+        "canvas": 1825,
+        "wpZone": 1825,
+        "dcl": 1044,
+        "load": 1566,
+        "nodes": 208,
+        "total": 273,
+        "totalBytes": 834764,
+        "local": 6,
+        "localBytes": 722214,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1578,
+        "manifestsStart": 1578,
+        "lastLocalEnd": 2031,
+        "slowestLocal": [
+          {
+            "url": "/dist/bench-pnp-web-part.js",
+            "start": 1845,
+            "ms": 186,
+            "status": 200
+          },
+          {
+            "url": "/dist/bench-tree-web-part.js",
+            "start": 1842,
+            "ms": 111,
+            "status": 200
+          },
+          {
+            "url": "/dist/ControlStrings_en-us.js",
+            "start": 1847,
+            "ms": 47,
+            "status": 200
+          },
+          {
+            "url": "/dist/BenchTreeWebPartStrings_en-us.js",
+            "start": 1844,
+            "ms": 34,
+            "status": 200
+          }
+        ],
+        "serverCpuS": 0.19,
+        "serverRssMB": 1007,
+        "errors": [
+          "Uncaught (in promise)"
+        ]
+      }
+    ],
+    "f5": [
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": false,
+        "wall": 2447,
+        "tTree": 2231,
+        "tPnp": 2313,
+        "tRendered": 2313,
+        "canvas": 1103,
+        "wpZone": 1103,
+        "dcl": 555,
+        "load": 935,
+        "nodes": 208,
+        "total": 388,
+        "totalBytes": 1142902,
+        "local": 6,
+        "localBytes": 722214,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 935,
+        "manifestsStart": 935,
+        "lastLocalEnd": 1336,
+        "slowestLocal": [
+          {
+            "url": "/dist/bench-pnp-web-part.js",
+            "start": 1118,
+            "ms": 219,
+            "status": 200
+          },
+          {
+            "url": "/dist/bench-tree-web-part.js",
+            "start": 1115,
+            "ms": 124,
+            "status": 200
+          },
+          {
+            "url": "/dist/ControlStrings_en-us.js",
+            "start": 1119,
+            "ms": 60,
+            "status": 200
+          },
+          {
+            "url": "/dist/BenchTreeWebPartStrings_en-us.js",
+            "start": 1117,
+            "ms": 55,
+            "status": 200
+          }
+        ],
+        "serverCpuS": 0.17,
+        "serverRssMB": 978,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "Uncaught (in promise)"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": false,
+        "wall": 2437,
+        "tTree": 2206,
+        "tPnp": 2367,
+        "tRendered": 2367,
+        "canvas": 1116,
+        "wpZone": 1116,
+        "dcl": 917,
+        "load": null,
+        "nodes": 208,
+        "total": 371,
+        "totalBytes": 816662,
+        "local": 6,
+        "localBytes": 722214,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 947,
+        "manifestsStart": 947,
+        "lastLocalEnd": 1289,
+        "slowestLocal": [
+          {
+            "url": "/dist/bench-pnp-web-part.js",
+            "start": 1152,
+            "ms": 137,
+            "status": 200
+          },
+          {
+            "url": "/dist/bench-tree-web-part.js",
+            "start": 1148,
+            "ms": 67,
+            "status": 200
+          },
+          {
+            "url": "/temp/build/manifests.js",
+            "start": 947,
+            "ms": 31,
+            "status": 200
+          },
+          {
+            "url": "/dist/ControlStrings_en-us.js",
+            "start": 1154,
+            "ms": 31,
+            "status": 200
+          }
+        ],
+        "serverCpuS": 1.25,
+        "serverRssMB": 767,
+        "errors": [
+          "Uncaught (in promise) TypeError: Failed to fetch",
+          "Uncaught (in promise)",
+          "Uncaught (in promise)"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": false,
+        "wall": 2467,
+        "tTree": 2292,
+        "tPnp": 2360,
+        "tRendered": 2360,
+        "canvas": 1128,
+        "wpZone": 1128,
+        "dcl": 589,
+        "load": 953,
+        "nodes": 208,
+        "total": 392,
+        "totalBytes": 817268,
+        "local": 6,
+        "localBytes": 722214,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 956,
+        "manifestsStart": 956,
+        "lastLocalEnd": 1403,
+        "slowestLocal": [
+          {
+            "url": "/dist/bench-pnp-web-part.js",
+            "start": 1142,
+            "ms": 260,
+            "status": 200
+          },
+          {
+            "url": "/dist/bench-tree-web-part.js",
+            "start": 1140,
+            "ms": 156,
+            "status": 200
+          },
+          {
+            "url": "/dist/ControlStrings_en-us.js",
+            "start": 1144,
+            "ms": 100,
+            "status": 200
+          },
+          {
+            "url": "/dist/BenchPnpWebPartStrings_en-us.js",
+            "start": 1143,
+            "ms": 99,
+            "status": 200
+          }
+        ],
+        "serverCpuS": 0.17,
+        "serverRssMB": 771,
+        "errors": []
+      }
+    ]
+  },
+  "edits": {
+    "leaf": [
+      {
+        "latency": 4737,
+        "rebuild": 895,
+        "manualReload": true,
+        "serverCpuS": 3.16
+      },
+      {
+        "latency": 4749,
+        "rebuild": 743,
+        "manualReload": true,
+        "serverCpuS": 2.34
+      },
+      {
+        "latency": 4534,
+        "rebuild": 622,
+        "manualReload": true,
+        "serverCpuS": 2.28
+      }
+    ],
+    "mid": [
+      {
+        "latency": 5078,
+        "rebuild": 853,
+        "manualReload": true,
+        "serverCpuS": 1.31
+      },
+      {
+        "latency": 4761,
+        "rebuild": 829,
+        "manualReload": true,
+        "serverCpuS": 4.58
+      },
+      {
+        "latency": 5066,
+        "rebuild": 922,
+        "manualReload": true,
+        "serverCpuS": 2.38
+      }
+    ],
+    "scss": [
+      {
+        "latency": 4756,
+        "rebuild": 598,
+        "manualReload": true,
+        "serverCpuS": 1.85
+      },
+      {
+        "latency": 5033,
+        "rebuild": 461,
+        "manualReload": true,
+        "serverCpuS": 0.91
+      },
+      {
+        "latency": 4861,
+        "rebuild": 472,
+        "manualReload": true,
+        "serverCpuS": 1.77
+      }
+    ]
+  },
+  "server": {
+    "start": [
+      {
+        "tListen": 10191,
+        "tReady": 13800,
+        "rss": 958
+      },
+      {
+        "tListen": 10456,
+        "tReady": 13958,
+        "rss": 985
+      },
+      {
+        "tListen": 11244,
+        "tReady": 15024,
+        "rss": 988
+      }
+    ],
+    "end": [
+      {
+        "rss": 771,
+        "peakRss": 985,
+        "cpuS": 24.18
+      },
+      {
+        "rss": 993,
+        "peakRss": 1001,
+        "cpuS": 22.73
+      },
+      {
+        "rss": 963,
+        "peakRss": 1072,
+        "cpuS": 49.86
+      }
+    ]
+  }
+}

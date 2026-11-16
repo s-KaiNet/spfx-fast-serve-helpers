@@ -1,0 +1,93 @@
+{
+  "requireVersion": "2.3.7",
+  "baseUrl": "https://relative-path.invalid/",
+  "waitSeconds": 90,
+  "paths": {
+    "f9e737b7-f0df-4597-ba8c-3060f82380db_1.25.0": "https://res-1.cdn.office.net/files/sp-client/sp-property-pane_en-us_c4449716fcd9eaf7b0c3",
+    "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1": "https://localhost:4321/dist/hello-world-web-part",
+    "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1/HelloWorldWebPartStrings": "https://localhost:4321/dist/HelloWorldWebPartStrings_en-us",
+    "3cadd7f5-5449-49c4-a153-1beb8facd90a_18.3.1": "https://res-1.cdn.office.net/files/sp-client/react-dom-client-18-bundle_none_67888f69ed394db31937"
+  },
+  "map": {
+    "f9e737b7-f0df-4597-ba8c-3060f82380db_1.25.0": {
+      "@microsoft/sp-diagnostics": "78359e4b-07c2-43c6-8d0b-d060b4d577e8_1.25.0",
+      "react": "0d910c1c-13b9-4e1c-9aa4-b008c5e42d7d_18.3.1",
+      "react-dom": "aa0a46ec-1505-43cd-a44a-93f3a5aa460a_18.3.1",
+      "@msinternal/sp-fluentui-migration-reactdom-render-bundle": "63d75709-2785-4c91-97ad-489b171397d4_0.1.0",
+      "@microsoft/sp-core-library": "7263c7d0-1d6a-45ec-8d85-d4d1d234171b_1.25.0",
+      "@msinternal/sp-pages-content-panel-context": "3173fefe-9995-49d1-a75d-a5caeaaba212_0.1.0",
+      "@microsoft/load-themed-styles": "229b8d08-79f3-438b-8c21-4613fc877abd_0.1.2",
+      "@msinternal/odsp-core-bundle": "2e09fb9b-13bb-48f2-859f-97d6fff71176_1.5.254",
+      "@msinternal/sp-fluentui-v9-utilities-bundle": "0ec74f52-38bc-4a51-ab82-7c91a2b399a2_0.1.0",
+      "@msinternal/sp-component-utilities": "8494e7d7-6b99-47b2-a741-59873e42f16f_13.18.2",
+      "@msinternal/swc-helpers-bundle": "4b3b655d-e574-4eda-9d96-d22ea723d919_0.5.13",
+      "@msinternal/sp-fluentui-v9-react-button-bundle": "72ec0651-8a26-441c-87f2-77ec66884ca3_0.1.0",
+      "@msinternal/sp-fluentui-v9-react-menu-bundle": "f652a763-4d5f-4a08-aed3-d3377ef835ff_0.1.0",
+      "@msinternal/odsp-utilities-bundle": "cc2cc925-b5be-41bb-880a-f0f8030c6aff_5.6.776",
+      "@msinternal/sp-telemetry": "8217e442-8ed3-41fd-957d-b112e841286a_1.1.34",
+      "@microsoft/sp-lodash-subset": "73e1dc6c-8441-42cc-ad47-4bd3659f8a3a_1.25.0",
+      "@msinternal/sp-fluentui-v9-react-field-bundle": "d3139516-bb4d-4141-9d35-a8aefe0272ec_0.1.0",
+      "@msinternal/sp-fluentui-v9-react-infolabel-bundle": "17f3a86d-33ce-4338-8594-8700ee90c494_0.1.0",
+      "@msinternal/sp-fluentui-v9-react-tooltip-bundle": "33c5a798-8532-4741-888a-d0a7734036b5_0.1.0",
+      "@msinternal/sp-fluentui-v9-react-combobox-bundle": "29728f96-9823-40fa-a481-ffdf106880b1_0.1.0",
+      "@msinternal/sp-fluentui-v9-react-label-bundle": "dbdce381-c024-42a0-ab20-4134aca49a27_0.1.0",
+      "@ms/office-ui-fabric-react-bundle": "396bbc17-3d18-4f43-8299-d99720d88e22_1.19.69",
+      "@msinternal/sp-fluentui-migration-tooltip-bundle": "fab65e60-a04f-4772-874c-10691e4afa4b_0.1.0",
+      "@msinternal/sp-fluentui-migration-button-bundle": "0ad7e31a-8df9-4659-add8-a32c8e40040d_0.1.0",
+      "@msinternal/sp-fluentui-migration-label-bundle": "ffe5c101-373a-4bd2-bebb-13082852bab0_0.1.0",
+      "@msinternal/sp-heading-level": "bf211556-3cf0-412c-9618-a4f0e7069ebf_0.1.0",
+      "@microsoft/sp-loader": "1c6c9123-7aac-41f3-a376-3caea41ed83f_1.25.0"
+    },
+    "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1": {
+      "HelloWorldWebPartStrings": "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1/HelloWorldWebPartStrings",
+      "react": "0d910c1c-13b9-4e1c-9aa4-b008c5e42d7d_18.3.1",
+      "@microsoft/sp-core-library": "7263c7d0-1d6a-45ec-8d85-d4d1d234171b_1.25.0",
+      "@microsoft/sp-property-pane": "f9e737b7-f0df-4597-ba8c-3060f82380db_1.25.0",
+      "@microsoft/sp-webpart-base": "974a7777-0990-4136-8fa6-95d80114c2e0_1.25.0",
+      "@microsoft/sp-lodash-subset": "73e1dc6c-8441-42cc-ad47-4bd3659f8a3a_1.25.0",
+      "react-dom/client": "3cadd7f5-5449-49c4-a153-1beb8facd90a_18.3.1"
+    },
+    "3cadd7f5-5449-49c4-a153-1beb8facd90a_18.3.1": {
+      "react-dom": "aa0a46ec-1505-43cd-a44a-93f3a5aa460a_18.3.1"
+    }
+  },
+  "definedSubset": [
+    "7263c7d0-1d6a-45ec-8d85-d4d1d234171b_1.25.0",
+    "0d910c1c-13b9-4e1c-9aa4-b008c5e42d7d_18.3.1",
+    "73e1dc6c-8441-42cc-ad47-4bd3659f8a3a_1.25.0",
+    "aa0a46ec-1505-43cd-a44a-93f3a5aa460a_18.3.1",
+    "974a7777-0990-4136-8fa6-95d80114c2e0_1.25.0",
+    "3cadd7f5-5449-49c4-a153-1beb8facd90a_18.3.1",
+    "f9e737b7-f0df-4597-ba8c-3060f82380db_1.25.0",
+    "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1/HelloWorldWebPartStrings",
+    "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1"
+  ],
+  "totalDefined": 226,
+  "totalPaths": 117,
+  "scriptTagsForOurs": [
+    {
+      "module": "3cadd7f5-5449-49c4-a153-1beb8facd90a_18.3.1",
+      "src": "https://res-1.cdn.office.net/files/sp-client/react-dom-client-18-bundle_none_67888f69ed394db31937.js",
+      "crossorigin": "anonymous",
+      "integrity": "sha256-Z5uriiR5Gbb5VZAO2bNNt4fQvXOH5IvvwpvbTFWm6V4="
+    },
+    {
+      "module": "f9e737b7-f0df-4597-ba8c-3060f82380db_1.25.0",
+      "src": "https://res-1.cdn.office.net/files/sp-client/sp-property-pane_en-us_c4449716fcd9eaf7b0c3.js",
+      "crossorigin": "anonymous",
+      "integrity": "sha256-S5VxRfU4nPeY1VCrosStD0F2MwZnJl9Bx077NGD4xHQ="
+    },
+    {
+      "module": "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1/HelloWorldWebPartStrings",
+      "src": "https://localhost:4321/dist/HelloWorldWebPartStrings_en-us.js",
+      "crossorigin": null,
+      "integrity": null
+    },
+    {
+      "module": "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1",
+      "src": "https://localhost:4321/dist/hello-world-web-part.js",
+      "crossorigin": null,
+      "integrity": null
+    }
+  ]
+}

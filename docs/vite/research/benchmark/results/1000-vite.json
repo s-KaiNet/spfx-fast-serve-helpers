@@ -1,0 +1,383 @@
+{
+  "suite": "vite",
+  "label": "1000",
+  "modules": 1000,
+  "barrels": true,
+  "date": "2026-11-15T23:04:54.800Z",
+  "node": "v24.21.0",
+  "cpus": "Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz",
+  "loads": {
+    "cold": [
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 8704,
+        "tTree": 8568,
+        "tPnp": 3962,
+        "tRendered": 8568,
+        "canvas": 1551,
+        "wpZone": 1551,
+        "dcl": 785,
+        "load": 1302,
+        "nodes": 846,
+        "total": 1571,
+        "totalBytes": 16231485,
+        "local": 1180,
+        "localBytes": 16068429,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1305,
+        "manifestsStart": 1305,
+        "lastLocalEnd": 8045,
+        "serverCpuS": 5.46,
+        "serverRssMB": 423,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      },
+      {
+        "ok": false,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 180053,
+        "tTree": null,
+        "tPnp": null,
+        "tRendered": null,
+        "canvas": 1932,
+        "wpZone": 1932,
+        "dcl": 1160,
+        "load": 1673,
+        "nodes": 0,
+        "total": 1582,
+        "totalBytes": 13635774,
+        "local": 1184,
+        "localBytes": 13479810,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1676,
+        "manifestsStart": 1676,
+        "lastLocalEnd": 94027,
+        "serverCpuS": 5.79,
+        "serverRssMB": 279,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "Could not load bench-tree-web-part in require. Error: Load timeout for modules: spfx-vite-loader-fd161a6d-a8ea-4165-a7f4-7fbe0352c77e!/@spfx-entry/fd161a6d-a8ea-4165-a7f4-7fbe0352c77e_unnormalized2,spfx-vite-loader-fd161a6d-a8ea-4165-a7f4-7fbe0352c77e!/@spfx-entry/fd161a6d-a8ea-4165-a7f4-7fbe0352c77",
+          "Could not load bench-pnp-web-part in require. Error: Load timeout for modules: spfx-vite-loader-fd161a6d-a8ea-4165-a7f4-7fbe0352c77e!/@spfx-entry/fd161a6d-a8ea-4165-a7f4-7fbe0352c77e_unnormalized2,spfx-vite-loader-fd161a6d-a8ea-4165-a7f4-7fbe0352c77e!/@spfx-entry/fd161a6d-a8ea-4165-a7f4-7fbe0352c77e"
+        ],
+        "state": {
+          "tree": null,
+          "pnp": null,
+          "nodes": 0,
+          "canvas": 1931.8999999985099,
+          "wpZone": 1931.8999999985099,
+          "dcl": 1160,
+          "load": 1673,
+          "href": "https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4341%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true",
+          "errorText": null
+        },
+        "hrefNow": "https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4341%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true"
+      },
+      {
+        "ok": true,
+        "how": "navigate",
+        "clearCache": true,
+        "wall": 8432,
+        "tTree": 8337,
+        "tPnp": 4472,
+        "tRendered": 8337,
+        "canvas": 1688,
+        "wpZone": 1688,
+        "dcl": 928,
+        "load": 1404,
+        "nodes": 846,
+        "total": 1570,
+        "totalBytes": 16235057,
+        "local": 1180,
+        "localBytes": 16068404,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1406,
+        "manifestsStart": 1406,
+        "lastLocalEnd": 7752,
+        "serverCpuS": 5.1,
+        "serverRssMB": 412,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      }
+    ],
+    "f5": [
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": false,
+        "wall": 5882,
+        "tTree": 5782,
+        "tPnp": 2775,
+        "tRendered": 5782,
+        "canvas": 1100,
+        "wpZone": 1100,
+        "dcl": 574,
+        "load": 945,
+        "nodes": 846,
+        "total": 1565,
+        "totalBytes": 16030274,
+        "local": 1180,
+        "localBytes": 15931486,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 948,
+        "manifestsStart": 948,
+        "lastLocalEnd": 5378,
+        "serverCpuS": 0.74,
+        "serverRssMB": 460,
+        "errors": []
+      },
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": false,
+        "wall": 5556,
+        "tTree": 5446,
+        "tPnp": 2900,
+        "tRendered": 5446,
+        "canvas": 1098,
+        "wpZone": 1098,
+        "dcl": 919,
+        "load": 1964,
+        "nodes": 846,
+        "total": 1565,
+        "totalBytes": 12976198,
+        "local": 1180,
+        "localBytes": 12877765,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 949,
+        "manifestsStart": 949,
+        "lastLocalEnd": 5086,
+        "serverCpuS": 0.56,
+        "serverRssMB": 453,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": false,
+        "wall": 5882,
+        "tTree": 5849,
+        "tPnp": 3145,
+        "tRendered": 5849,
+        "canvas": 1560,
+        "wpZone": 1560,
+        "dcl": 990,
+        "load": 1397,
+        "nodes": 846,
+        "total": 1565,
+        "totalBytes": 6856972,
+        "local": 1180,
+        "localBytes": 6758297,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1399,
+        "manifestsStart": 1399,
+        "lastLocalEnd": 5434,
+        "serverCpuS": 0.48,
+        "serverRssMB": 440,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)"
+        ]
+      }
+    ],
+    "warmServerEmptyCache": [
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": true,
+        "wall": 6420,
+        "tTree": 6315,
+        "tPnp": 3635,
+        "tRendered": 6315,
+        "canvas": 1138,
+        "wpZone": 1138,
+        "dcl": 577,
+        "load": 965,
+        "nodes": 846,
+        "total": 1571,
+        "totalBytes": 16223546,
+        "local": 1180,
+        "localBytes": 16068235,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 967,
+        "manifestsStart": 967,
+        "lastLocalEnd": 5904,
+        "serverCpuS": 0.61,
+        "serverRssMB": 442,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": true,
+        "wall": 5969,
+        "tTree": 5861,
+        "tPnp": 3078,
+        "tRendered": 5861,
+        "canvas": 1171,
+        "wpZone": 1171,
+        "dcl": 604,
+        "load": 1003,
+        "nodes": 846,
+        "total": 1570,
+        "totalBytes": 16220752,
+        "local": 1180,
+        "localBytes": 16068215,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1007,
+        "manifestsStart": 1007,
+        "lastLocalEnd": 5434,
+        "serverCpuS": 0.57,
+        "serverRssMB": 446,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      },
+      {
+        "ok": true,
+        "how": "reload",
+        "clearCache": true,
+        "wall": 6545,
+        "tTree": 6415,
+        "tPnp": 3647,
+        "tRendered": 6415,
+        "canvas": 1272,
+        "wpZone": 1272,
+        "dcl": 717,
+        "load": 1102,
+        "nodes": 846,
+        "total": 1570,
+        "totalBytes": 16221004,
+        "local": 1180,
+        "localBytes": 16068238,
+        "local304": 0,
+        "localFromCache": 0,
+        "localFailed": [],
+        "firstLocalStart": 1105,
+        "manifestsStart": 1105,
+        "lastLocalEnd": 6095,
+        "serverCpuS": 0.68,
+        "serverRssMB": 450,
+        "errors": [
+          "Uncaught (in promise)",
+          "Uncaught (in promise)",
+          "TypeError: Failed to fetch\n    at PnPTelemetry.<anonymous> (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2257:29)\n    at step (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2194:15)\n    at Object.next (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2143:12)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2121:66\n    at new Promise (<anonymous>)\n    at __awaiter (https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2101:10)\n    at https://localhost:4341/node_modules/.vite/deps/IconButton-CUjC0uka.js?v=04c1d6c6:2254:14"
+        ]
+      }
+    ]
+  },
+  "edits": {
+    "leaf": [
+      {
+        "latency": 67,
+        "serverCpuS": 0.06
+      },
+      {
+        "latency": 58,
+        "serverCpuS": 0.05
+      },
+      {
+        "latency": 61,
+        "serverCpuS": 0.04
+      }
+    ],
+    "mid": [
+      {
+        "latency": 34,
+        "serverCpuS": 0.01
+      },
+      {
+        "latency": 34,
+        "serverCpuS": 0.01
+      },
+      {
+        "latency": 34,
+        "serverCpuS": 0
+      }
+    ],
+    "scss": [
+      {
+        "latency": 49,
+        "serverCpuS": 0.06
+      },
+      {
+        "latency": 47,
+        "serverCpuS": 0.06
+      },
+      {
+        "latency": 60,
+        "serverCpuS": 0.06
+      }
+    ]
+  },
+  "server": {
+    "start": [
+      {
+        "tListen": 309,
+        "tReady": 309,
+        "rss": 153
+      },
+      {
+        "tListen": 307,
+        "tReady": 307,
+        "rss": 161
+      },
+      {
+        "tListen": 314,
+        "tReady": 314,
+        "rss": 160
+      }
+    ],
+    "end": [
+      {
+        "rss": 450,
+        "peakRss": 474,
+        "cpuS": 9.66
+      },
+      {
+        "rss": 279,
+        "peakRss": 421,
+        "cpuS": 6.32
+      },
+      {
+        "rss": 437,
+        "peakRss": 450,
+        "cpuS": 8.89
+      }
+    ]
+  }
+}

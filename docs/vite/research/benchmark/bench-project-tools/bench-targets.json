@@ -1,0 +1,37 @@
+{
+  "modules": 1000,
+  "barrels": true,
+  "depth": 9,
+  "levelSizes": [
+    1,
+    2,
+    5,
+    10,
+    21,
+    46,
+    98,
+    211,
+    452
+  ],
+  "counts": {
+    "tree": 846,
+    "utils": 120,
+    "shared": 30,
+    "barrels": 3,
+    "types": 1,
+    "scss": 122
+  },
+  "leaf": {
+    "file": "src/gen/components/l8/Node620.tsx",
+    "node": 620
+  },
+  "mid": {
+    "file": "src/gen/components/l4/Node18.tsx",
+    "node": 18,
+    "descendants": 57
+  },
+  "scss": {
+    "file": "src/gen/components/l8/Node623.module.scss",
+    "node": 623
+  }
+}

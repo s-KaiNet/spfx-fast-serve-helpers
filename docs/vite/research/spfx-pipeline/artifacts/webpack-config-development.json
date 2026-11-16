@@ -1,0 +1,218 @@
+{
+  "module": {
+    "rules": [
+      {
+        "type": "asset/resource",
+        "generator": {
+          "filename": "[name]_[contenthash][ext]"
+        },
+        "dependency": "url",
+        "test": []
+      },
+      {
+        "dependency": {
+          "not": [
+            "url"
+          ]
+        },
+        "test": "RegExp(/\\.js$/)",
+        "resolve": {
+          "fullySpecified": false
+        }
+      },
+      {
+        "dependency": "[Circular]",
+        "use": [
+          {
+            "loader": "/home/sergei/Projects/spfx-rea/node_modules/@microsoft/sp-css-loader",
+            "options": {
+              "async": true,
+              "production": false,
+              "generateCssClassName": "Function(DEFAULT_GENERATE_CSS_CLASS_NAME)"
+            }
+          }
+        ],
+        "test": "RegExp(/\\.module(?:\\.scss)?\\.css$/i)"
+      },
+      {
+        "dependency": "[Circular]",
+        "use": [
+          {
+            "loader": "/home/sergei/Projects/spfx-rea/node_modules/@microsoft/sp-css-loader",
+            "options": {
+              "async": true,
+              "production": false
+            }
+          }
+        ],
+        "test": "RegExp(/(?<!\\.module(?:\\.scss)?)\\.css$/)"
+      },
+      {
+        "dependency": "[Circular]",
+        "test": "RegExp(/\\.sprite\\.svg$/)",
+        "type": "asset/source"
+      },
+      {
+        "dependency": "[Circular]",
+        "type": "asset/resource",
+        "generator": "[Circular]",
+        "test": {
+          "or": [
+            "RegExp(/\\.jpg((\\?|\\#).+)?$/)",
+            "RegExp(/\\.png((\\?|\\#).+)?$/)",
+            "RegExp(/\\.woff((\\?|\\#).+)?$/)",
+            "RegExp(/\\.woff2((\\?|\\#).+)?$/)",
+            "RegExp(/\\.eot((\\?|\\#).+)?$/)",
+            "RegExp(/\\.ttf((\\?|\\#).+)?$/)",
+            "RegExp(/\\.svg((\\?|\\#).+)?$/)",
+            "RegExp(/\\.gif((\\?|\\#).+)?$/)",
+            "RegExp(/\\.dds((\\?|\\#).+)?$/)",
+            "RegExp(/\\.cur((\\?|\\#).+)?$/)",
+            "RegExp(/\\.webp((\\?|\\#).+)?$/)",
+            "RegExp(/\\.mp4((\\?|\\#).+)?$/)",
+            "RegExp(/\\.zip((\\?|\\#).+)?$/)"
+          ]
+        },
+        "exclude": "RegExp(/\\.sprite\\.svg$/)"
+      },
+      {
+        "dependency": "[Circular]",
+        "test": "RegExp(/\\.html$/)",
+        "use": {
+          "loader": "/home/sergei/Projects/spfx-rea/node_modules/html-loader"
+        }
+      },
+      {
+        "test": "RegExp(/\\.(?:js|css)$/)",
+        "enforce": "pre",
+        "use": {
+          "loader": "/home/sergei/Projects/spfx-rea/node_modules/source-map-loader",
+          "options": {
+            "filterSourceMappingUrl": "Function(defaultFilter)"
+          }
+        }
+      }
+    ],
+    "noParse": [
+      "RegExp(/\\.map$/)"
+    ]
+  },
+  "resolve": {
+    "alias": {},
+    "modules": [
+      "node_modules"
+    ],
+    "extensions": [
+      ".wasm",
+      ".mjs",
+      ".js",
+      ".json",
+      ".css",
+      ".jsx"
+    ]
+  },
+  "context": "/home/sergei/Projects/spfx-rea",
+  "devtool": "source-map",
+  "mode": "development",
+  "entry": {
+    "hello-world-web-part": {
+      "import": "/home/sergei/Projects/spfx-rea/lib/webparts/helloWorld/HelloWorldWebPart.js",
+      "library": {
+        "type": "amd",
+        "name": "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1"
+      }
+    }
+  },
+  "externals": [
+    "@microsoft/sp-core-library",
+    "@microsoft/sp-lodash-subset",
+    "@microsoft/sp-diagnostics",
+    "@microsoft/sp-dynamic-data",
+    "@microsoft/sp-page-context",
+    "@microsoft/sp-http-base",
+    "@microsoft/sp-loader",
+    "@microsoft/sp-http-msgraph",
+    "@microsoft/sp-http",
+    "@microsoft/sp-component-base",
+    "@microsoft/sp-image-helper",
+    "@microsoft/sp-property-pane",
+    "@microsoft/sp-top-actions",
+    "@microsoft/sp-webpart-base",
+    "@microsoft/sp-office-ui-fabric-core",
+    "react",
+    "react-dom",
+    "react-dom/client",
+    "@microsoft/microsoft-graph-client",
+    "HelloWorldWebPartStrings"
+  ],
+  "output": {
+    "hashFunction": "md5",
+    "chunkFilename": "chunk.[name].js",
+    "filename": "[name].js",
+    "chunkLoadingGlobal": "webpackJsonp_2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1",
+    "libraryTarget": "amd",
+    "uniqueName": "2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1",
+    "path": "/home/sergei/Projects/spfx-rea/dist",
+    "devtoolModuleFilenameTemplate": "webpack:///../[resource-path]",
+    "devtoolFallbackModuleFilenameTemplate": "webpack:///../[resource-path]?[contenthash]",
+    "crossOriginLoading": "anonymous"
+  },
+  "optimization": {
+    "moduleIds": "deterministic",
+    "usedExports": false,
+    "sideEffects": true,
+    "removeEmptyChunks": true,
+    "realContentHash": false,
+    "avoidEntryIife": false
+  },
+  "performance": {
+    "hints": false
+  },
+  "plugins": [
+    {
+      "__plugin": "SetPublicPathCurrentScriptPlugin",
+      "options": []
+    },
+    {
+      "__plugin": "DefinePlugin",
+      "options": []
+    },
+    {
+      "__plugin": "AsyncComponentPlugin",
+      "options": []
+    },
+    {
+      "__plugin": "ManifestPlugin",
+      "options": [
+        "terminal",
+        "selectedLocales",
+        "production",
+        "includeIntegrity",
+        "sourceLocaleName",
+        "bundleEntries",
+        "internalModuleBaseUrls",
+        "debugInternalModuleBaseUrls",
+        "linkedExternals",
+        "referencedProjects",
+        "cumulativeManifestProcessor",
+        "useManifestsJsonForComponentDependencies",
+        "tryGetLocFileTranslations",
+        "_asyncOnlyDependencies",
+        "componentDependenciesAuditDropPath",
+        "_manifestsJsFileMetadata",
+        "_flightedDependencyConfig",
+        "_tryGetLegacyExternalByNameAsync"
+      ]
+    },
+    {
+      "__plugin": "CopyReleaseAssetsPlugin",
+      "options": [
+        "releasePath",
+        "isDebug",
+        "assetsFolderName",
+        "manifestsFolderName",
+        "releaseMapFiles"
+      ]
+    }
+  ]
+}

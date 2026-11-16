@@ -1,0 +1,79 @@
+{
+  "label": "1000",
+  "rows": [
+    {
+      "cold": {
+        "ms": 2657,
+        "requests": 1177,
+        "src": 1125,
+        "deps": 37,
+        "depth": 13,
+        "kb": 15603
+      },
+      "warm": {
+        "ms": 495,
+        "requests": 1177,
+        "src": 1125,
+        "deps": 37,
+        "depth": 13,
+        "kb": 15603
+      },
+      "coldServerCpuS": 4.11,
+      "rssAfter": 430,
+      "newDeps": false
+    },
+    {
+      "cold": {
+        "ms": 2550,
+        "requests": 1177,
+        "src": 1125,
+        "deps": 37,
+        "depth": 13,
+        "kb": 15603
+      },
+      "warm": {
+        "ms": 430,
+        "requests": 1177,
+        "src": 1125,
+        "deps": 37,
+        "depth": 13,
+        "kb": 15603
+      },
+      "coldServerCpuS": 4,
+      "rssAfter": 439,
+      "newDeps": false
+    },
+    {
+      "cold": {
+        "ms": 2561,
+        "requests": 1177,
+        "src": 1125,
+        "deps": 37,
+        "depth": 13,
+        "kb": 15603
+      },
+      "warm": {
+        "ms": 415,
+        "requests": 1177,
+        "src": 1125,
+        "deps": 37,
+        "depth": 13,
+        "kb": 15603
+      },
+      "coldServerCpuS": 4.02,
+      "rssAfter": 461,
+      "newDeps": false
+    }
+  ],
+  "table": {
+    "coldMs": 2561,
+    "warmMs": 430,
+    "requests": 1177,
+    "src": 1125,
+    "deps": 37,
+    "depth": 13,
+    "kb": 15603,
+    "coldServerCpuS": 4.02,
+    "rssAfter": 439
+  }
+}

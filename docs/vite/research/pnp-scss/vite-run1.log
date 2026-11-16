@@ -1,0 +1,9 @@
+1:19:09 AM [vite] (client) Forced re-optimization of dependencies
+
+  [spfx-serve] web parts: BenchTreeWebPart, BenchPnpWebPart
+  [spfx-serve] open: https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4361%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true
+
+
+  VITE v8.3.8  ready in 293 ms
+
+  ➜  Local:   https://localhost:4361/
