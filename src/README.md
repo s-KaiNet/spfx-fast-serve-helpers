@@ -22,7 +22,7 @@ Modules:
 | `externals/` | SPFx library facades (`@microsoft/sp-*` and any package shipping an SPFx library manifest, discovered like SPFx's own externals scan). ESM importers get a top-level-await facade (`loadComponentById(id, version)` via the `libraryLoader` runtime); `require()` importers in pre-bundled deps get a sync facade plus one `await preloadLibraries([...])` per chunk. The debug manifest lists only `@microsoft/sp-loader` |
 | `localization/` | `*Strings` virtual modules from `loc/<locale>.js` |
 | `styles/` | SPFx CSS modules naming, `~` Sass imports, theme tokens via the `themedStyles` runtime |
-| `transforms/` | source-level compatibility: `DEBUG` / `process.env.NODE_ENV` defines |
+| `transforms/` | source-level compatibility for project source: `DEBUG` / `process.env.NODE_ENV` defines; relative `require('./x.png' / './t.json' / ...)` → hoisted ESM imports (assets as `?url`, JSON as default, scripts/styles as namespaces); type re-exports without `type` (`export { IFoo } from`, or an imported type exported again) are checked against the target's runtime exports (Vite's cached transform + es-module-lexer, following `export *`), removed from the served code and reported in the terminal and the browser console |
 | `server/` | HTTPS (Rushstack dev certificate), port/origin, watch ignores, warmup, React dedupe, debug URL, project-model changes → full reload |
 | `runtime/` | browser code as TS (own `tsconfig.json`: DOM, no Node), built to `lib/runtime`: `componentShim.ts` and `libraryLoader.ts` (classic scripts, concatenated into the bundle shim), `themedStyles.ts` (ES module). `contracts.ts` holds the types shared with Node |
 | `utils/` | small helpers (JSONC, paths, runtime source loading, Vite helpers) |

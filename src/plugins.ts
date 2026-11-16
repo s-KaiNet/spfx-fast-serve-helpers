@@ -8,7 +8,7 @@ import { manifestsPlugin } from './manifests/index.js';
 import type { HttpsCredentials } from './server/certificate.js';
 import { serverPlugin } from './server/index.js';
 import { libraryCssPlugin, stylesPlugin } from './styles/index.js';
-import { definesPlugin } from './transforms/defines.js';
+import { transformPlugins } from './transforms/index.js';
 
 export function fastServePlugins(context: ServeContext, https: HttpsCredentials): PluginOption[] {
   const externals = createExternals(context);
@@ -26,7 +26,7 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
     localizationPlugin(context),
     libraryCssPlugin(context),
     stylesPlugin(),
-    definesPlugin(),
+    ...transformPlugins(context),
     react(),
   ];
 }

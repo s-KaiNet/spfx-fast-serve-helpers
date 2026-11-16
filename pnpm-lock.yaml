@@ -178,6 +178,9 @@ importers:
       es-module-lexer:
         specifier: ^3.0.4
         version: 3.0.4
+      magic-string:
+        specifier: ^1.4.5
+        version: 1.4.5
       vite:
         specifier: ^8.3.8
         version: 8.3.8(@types/node@22.20.5)(terser@5.51.2)
