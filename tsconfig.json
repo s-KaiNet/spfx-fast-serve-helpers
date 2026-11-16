@@ -1,7 +1,4 @@
 {
-  // Type-checks everything (sources, tests, config files). Build uses tsconfig.build.json.
-  // Browser runtime files (src/runtime) have their own tsconfig (DOM libs, no Node types); only their
-  // type-only contracts are shared with the Node code.
   "compilerOptions": {
     "target": "ES2023",
     "lib": ["ES2023"],

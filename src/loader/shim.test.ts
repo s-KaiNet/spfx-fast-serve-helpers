@@ -50,6 +50,7 @@ function fakeSharePointPage() {
   const errorText = { nodeValue: 'ERROR:[object Object]' };
   const queriedSelectors: string[] = [];
   let onMutation: (() => void) | undefined;
+  const visibilityListeners: (() => void)[] = [];
   const globals = {
     NodeFilter: { SHOW_TEXT: 4 },
     MutationObserver: class {
@@ -65,6 +66,10 @@ function fakeSharePointPage() {
     },
     document: {
       body: {},
+      visibilityState: 'visible',
+      addEventListener: (type: string, listener: () => void) => {
+        if (type === 'visibilitychange') visibilityListeners.push(listener);
+      },
       querySelectorAll: (selector: string) => {
         queriedSelectors.push(selector);
         return [{}];
@@ -75,7 +80,10 @@ function fakeSharePointPage() {
       },
     },
   };
-  return { globals, errorText, queriedSelectors, mutate: () => onMutation?.() };
+  const becomeVisible = () => {
+    for (const listener of visibilityListeners) listener();
+  };
+  return { globals, errorText, queriedSelectors, mutate: () => onMutation?.(), becomeVisible };
 }
 
 type Factory = (...modules: unknown[]) => unknown;
@@ -110,7 +118,7 @@ interface LoaderPlugin {
 }
 
 async function failingLoad(extraGlobals: Record<string, unknown>, importError: Error) {
-  const { modules } = await evaluateShim(bundle, extraGlobals, importError);
+  const { modules, page } = await evaluateShim(bundle, extraGlobals, importError);
   const plugin = modules.get('spfx-fast-serve-loader:hello-web-part')?.factory() as LoaderPlugin | undefined;
   if (!plugin) throw new Error('loader plugin not defined');
   const onload = Object.assign(vi.fn<(value: unknown) => void>(), { error: vi.fn<(error: unknown) => void>() });
@@ -120,7 +128,7 @@ async function failingLoad(extraGlobals: Record<string, unknown>, importError: E
     expect(onload.error).toHaveBeenCalled();
   });
   const [failure] = onload.error.mock.calls[0] ?? [];
-  return failure instanceof Error ? failure.message : String(failure);
+  return { message: failure instanceof Error ? failure.message : String(failure), page };
 }
 
 describe('renderShim', () => {
@@ -188,7 +196,7 @@ describe('bundle load failures', () => {
     const location = { reload: vi.fn<() => void>() };
     vi.useFakeTimers({ toFake: ['setTimeout'] });
     try {
-      const message = await failingLoad({ fetch, location, setTimeout }, fetchFailure);
+      const { message } = await failingLoad({ fetch, location, setTimeout }, fetchFailure);
       expect(message).toBe(
         '[fast-serve] Failed to load bundle "hello-web-part" from https://localhost:4321: [PARSE_ERROR] Unexpected token in src/a.tsx:15:18. ' +
           'See the fast-serve terminal for details (the page reloads after the next file change)',
@@ -203,9 +211,61 @@ describe('bundle load failures', () => {
     }
   });
 
+  it('backs off while the dev server is unreachable and reloads once it is back', async () => {
+    const reachable = { error: null, fileRevision: 3 };
+    let serverUp = true;
+    const fetch = vi.fn<() => Promise<unknown>>(() =>
+      serverUp ? Promise.resolve({ ok: true, json: () => Promise.resolve(reachable) }) : Promise.reject(new TypeError('Failed to fetch')),
+    );
+    const location = { reload: vi.fn<() => void>() };
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] });
+    try {
+      await failingLoad({ fetch, location, setTimeout, Date, console }, fetchFailure);
+      serverUp = false;
+      await vi.advanceTimersByTimeAsync(1000);
+      const callsWhenServerStopped = fetch.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(2000 + 4000 + 8000);
+      expect(fetch.mock.calls.length - callsWhenServerStopped).toBe(3);
+      await vi.advanceTimersByTimeAsync(5 * 60_000);
+      expect(fetch.mock.calls.length - callsWhenServerStopped).toBeLessThan(20);
+      expect(location.reload).not.toHaveBeenCalled();
+      serverUp = true;
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(location.reload).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops polling after the server stays unreachable and resumes when the tab becomes visible', async () => {
+    let serverUp = true;
+    const fetch = vi.fn<() => Promise<unknown>>(() =>
+      serverUp ? Promise.resolve({ ok: true, json: () => Promise.resolve({ error: null, fileRevision: 1 }) }) : Promise.reject(new TypeError('Failed to fetch')),
+    );
+    const location = { reload: vi.fn<() => void>() };
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] });
+    try {
+      const { page } = await failingLoad({ fetch, location, setTimeout, Date, console }, fetchFailure);
+      serverUp = false;
+      await vi.advanceTimersByTimeAsync(11 * 60_000);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('stopped waiting for file changes'));
+      const callsWhenStopped = fetch.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(10 * 60_000);
+      expect(fetch.mock.calls.length).toBe(callsWhenStopped);
+      serverUp = true;
+      page.becomeVisible();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(location.reload).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+      warn.mockRestore();
+    }
+  });
+
   it('points to the terminal when the dev server is not reachable', async () => {
     const fetch = vi.fn<() => Promise<unknown>>(() => Promise.reject(new TypeError('Failed to fetch')));
-    const message = await failingLoad({ fetch }, fetchFailure);
+    const { message } = await failingLoad({ fetch }, fetchFailure);
     expect(message).toContain('Failed to fetch dynamically imported module');
     expect(message).toContain('check the fast-serve terminal');
     expect(message).not.toContain('reloads');

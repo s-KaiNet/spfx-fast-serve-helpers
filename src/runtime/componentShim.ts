@@ -22,6 +22,8 @@ type ShimServerStatus = import('./contracts.js').ServerStatus;
 
 const MODULE_FETCH_FAILURE = /dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
 const STATUS_POLL_MS = 1000;
+const UNREACHABLE_POLL_MAX_MS = 30_000;
+const UNREACHABLE_GIVE_UP_MS = 10 * 60_000;
 
 function describeShimError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -51,12 +53,39 @@ let reloadScheduled = false;
 function reloadAfterNextFileChange(failedAtRevision: number): void {
   if (reloadScheduled) return;
   reloadScheduled = true;
+  let delay = STATUS_POLL_MS;
+  let unreachableSince: number | undefined;
+  let stopped = false;
+
+  const schedule = () => setTimeout(() => void poll(), delay);
   const poll = async () => {
     const status = await fetchServerStatus();
-    if (status && status.fileRevision !== failedAtRevision) location.reload();
-    else setTimeout(() => void poll(), STATUS_POLL_MS);
+    if (status) {
+      if (unreachableSince !== undefined || status.fileRevision !== failedAtRevision) {
+        location.reload();
+        return;
+      }
+      delay = STATUS_POLL_MS;
+    } else {
+      unreachableSince ??= Date.now();
+      if (Date.now() - unreachableSince >= UNREACHABLE_GIVE_UP_MS) {
+        stopped = true;
+        console.warn(`[fast-serve] ${shimConfig.origin} is not reachable: stopped waiting for file changes, polling resumes when this tab becomes visible again`);
+        return;
+      }
+      delay = Math.min(delay * 2, UNREACHABLE_POLL_MAX_MS);
+    }
+    schedule();
   };
-  setTimeout(() => void poll(), STATUS_POLL_MS);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!stopped || document.visibilityState !== 'visible') return;
+    stopped = false;
+    unreachableSince = Date.now();
+    delay = STATUS_POLL_MS;
+    void poll();
+  });
+  schedule();
 }
 
 function formatServerError(serverError: ShimLastServerError): string {
