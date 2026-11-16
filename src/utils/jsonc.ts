@@ -20,7 +20,7 @@ export function stripJsonComments(text: string): string {
       out += char;
     }
   }
-  return out.replace(/,(\s*[}\]])/g, '$1');
+  return out.replaceAll(/,(\s*[}\]])/g, '$1');
 }
 
 export function parseJsonc(text: string): unknown {

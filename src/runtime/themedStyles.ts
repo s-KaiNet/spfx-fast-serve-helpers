@@ -13,7 +13,7 @@ function currentTheme(): Theme | undefined {
 }
 
 export function detokenize(css: string, theme: Theme | undefined = currentTheme()): string {
-  return css.replace(THEME_TOKEN, (_match, slot: string, defaultValue: string | undefined) => {
+  return css.replaceAll(THEME_TOKEN, (_match, slot: string, defaultValue: string | undefined) => {
     return theme?.[slot] ?? defaultValue ?? 'inherit';
   });
 }

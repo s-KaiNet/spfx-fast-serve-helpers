@@ -52,10 +52,10 @@ describe('renderShim', () => {
       load(name: string, req: unknown, onload: { (v: unknown): void; error(e: unknown): void }): void;
     };
     const core = { Version: 1 };
-    const scopedRequire = vi.fn((_names: string[], onLoad: (...m: unknown[]) => void) => {
+    const scopedRequire = vi.fn<(names: string[], onLoad: (...m: unknown[]) => void) => void>((_names, onLoad) => {
       onLoad(core);
     });
-    const onload = Object.assign(vi.fn(), { error: vi.fn() });
+    const onload = Object.assign(vi.fn<(value: unknown) => void>(), { error: vi.fn<(error: unknown) => void>() });
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     plugin.load('/@spfx/entry/hello-web-part', scopedRequire, onload);
 

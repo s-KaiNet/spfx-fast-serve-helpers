@@ -13,7 +13,7 @@ export function findUsedLibraries(sourceDir: string, libraryNames: ReadonlySet<s
       if (specifier !== undefined && libraryNames.has(specifier)) used.add(specifier);
     }
   }
-  return [...used].sort();
+  return [...used].toSorted();
 }
 
 function* walk(dir: string): Generator<string> {

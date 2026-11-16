@@ -53,9 +53,9 @@ HTTPS is always on, with the SPFx development certificate.
 
 ```sh
 pnpm install
-pnpm build      # compile to lib/ (Node code + lib/runtime browser code)
+pnpm build      # compile to lib/ with TypeScript 7 (Node code + lib/runtime browser code)
 pnpm dev        # watch build (Node code)
-pnpm lint
+pnpm lint       # oxlint with type-aware rules (oxlint-tsgolint), config in .oxlintrc.json
 pnpm typecheck
 pnpm test
 ```

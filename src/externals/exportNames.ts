@@ -15,7 +15,7 @@ export async function readExportNames(root: string, packageName: string): Promis
     if (isObject(exported)) Object.keys(exported).forEach((name) => names.add(name));
   }
   names.delete('default');
-  return [...names].filter(isIdentifier).sort();
+  return [...names].filter(isIdentifier).toSorted();
 }
 
 function findEsmEntry(requireFromRoot: NodeJS.Require, packageName: string): string | undefined {

@@ -44,14 +44,14 @@ describe('resolveOptions', () => {
   });
 });
 
-describe('loadOptionsFile', () => {
-  function projectWith(content?: string): string {
-    const root = mkdtempSync(path.join(tmpdir(), 'fast-serve-options-'));
-    mkdirSync(path.join(root, 'config'));
-    if (content !== undefined) writeFileSync(path.join(root, 'config', 'fast-serve.json'), content);
-    return root;
-  }
+function projectWith(content?: string): string {
+  const root = mkdtempSync(path.join(tmpdir(), 'fast-serve-options-'));
+  mkdirSync(path.join(root, 'config'));
+  if (content !== undefined) writeFileSync(path.join(root, 'config', 'fast-serve.json'), content);
+  return root;
+}
 
+describe('loadOptionsFile', () => {
   it('returns no options when the file is missing', () => {
     expect(loadOptionsFile(projectWith())).toEqual({});
   });
