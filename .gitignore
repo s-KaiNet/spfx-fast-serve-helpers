@@ -1,4 +1,7 @@
 node_modules/
-lib/
-coverage/
+/lib/
+/coverage/
 *.tgz
+
+# Test fixtures ship a tiny fake node_modules
+!test/fixtures/*/node_modules/

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": { "/@vite/client": ["./viteClient.d.ts"] },
+    "types": [],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "newLine": "lf",
+    "declaration": false,
+    "sourceMap": false,
+    "rootDir": ".",
+    "outDir": "../../lib/runtime"
+  },
+  "include": ["."],
+  "exclude": ["**/*.test.ts"]
+}

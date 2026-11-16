@@ -1,28 +1,47 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import type { FastServeOptions } from './config/options.js';
 import { packageVersion } from './packageInfo.js';
 import { runCli } from './runCli.js';
 
-function run(args: string[]) {
+async function run(args: string[], startServer = vi.fn<(options: FastServeOptions) => Promise<void>>()) {
   let out = '';
   let err = '';
-  const code = runCli(args, { out: (t) => (out += t), err: (t) => (err += t) });
-  return { code, out, err };
+  const code = await runCli(args, { out: (t) => (out += t), err: (t) => (err += t), startServer });
+  return { code, out, err, startServer };
 }
 
 describe('runCli', () => {
-  it('prints the version', () => {
-    expect(run(['--version'])).toEqual({ code: 0, out: `${packageVersion}\n`, err: '' });
+  it('prints the version', async () => {
+    expect(await run(['--version'])).toMatchObject({ code: 0, out: `${packageVersion}\n`, err: '' });
   });
 
-  it('prints help', () => {
-    const result = run(['--help']);
+  it('prints help', async () => {
+    const result = await run(['--help']);
     expect(result.code).toBe(0);
     expect(result.out).toContain('Usage: fast-serve');
+    expect(result.startServer).not.toHaveBeenCalled();
   });
 
-  it('fails on unknown options', () => {
-    const result = run(['--nope']);
+  it('fails on unknown options', async () => {
+    const result = await run(['--nope']);
     expect(result.code).toBe(1);
     expect(result.err).toContain('--nope');
+  });
+
+  it('starts the server with zero config', async () => {
+    const result = await run([]);
+    expect(result.code).toBe(0);
+    expect(result.startServer).toHaveBeenCalledWith({});
+  });
+
+  it('passes options from flags', async () => {
+    const result = await run(['-p', '4400', '--page-url', 'https://t/p.aspx', '--locale', 'de-de']);
+    expect(result.startServer).toHaveBeenCalledWith({ port: 4400, pageUrl: 'https://t/p.aspx', locale: 'de-de' });
+  });
+
+  it('reports start errors', async () => {
+    const result = await run([], vi.fn().mockRejectedValue(new Error('boom')));
+    expect(result).toMatchObject({ code: 1, err: '[fast-serve] boom\n' });
+    expect((await run(['--port', 'x'])).err).toContain('Invalid port');
   });
 });

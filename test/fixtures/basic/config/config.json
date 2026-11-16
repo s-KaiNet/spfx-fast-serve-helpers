@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "hello-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/hello/HelloWebPart.js",
+          "manifest": "./src/webparts/hello/HelloWebPart.manifest.json"
+        }
+      ]
+    },
+    "banner-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/banner/BannerApplicationCustomizer.js",
+          "manifest": "./src/extensions/banner/BannerApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "HelloWebPartStrings": "lib/webparts/hello/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/controls/lib/loc/{locale}.js",
+  }
+}

@@ -1,0 +1,32 @@
+import react from '@vitejs/plugin-react';
+import type { PluginOption } from 'vite';
+import type { ServeContext } from './context.js';
+import { createExternals } from './externals/index.js';
+import { bundleShimPath, createServedBundles, loaderPlugin } from './loader/index.js';
+import { localizationPlugin } from './localization/index.js';
+import { manifestsPlugin } from './manifests/index.js';
+import type { HttpsCredentials } from './server/certificate.js';
+import { serverPlugin } from './server/index.js';
+import { stylesPlugin } from './styles/index.js';
+import { definesPlugin } from './transforms/defines.js';
+
+export function fastServePlugins(context: ServeContext, https: HttpsCredentials): PluginOption[] {
+  const externals = createExternals(context);
+  const servedBundles = createServedBundles(context.logger.warn);
+  const bundles = () => servedBundles(context.project.bundles());
+
+  return [
+    serverPlugin(context, https),
+    manifestsPlugin(context, {
+      bundles,
+      bundleScriptPath: bundleShimPath,
+      scriptResources: () => externals.manifestScriptResources(),
+    }),
+    loaderPlugin(context, { bundles, externals: () => externals.shimConfig() }),
+    externals.plugin,
+    localizationPlugin(context),
+    stylesPlugin(),
+    definesPlugin(),
+    react(),
+  ];
+}

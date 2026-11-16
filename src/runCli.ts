@@ -1,45 +1,73 @@
 import { parseArgs } from 'node:util';
+import { OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/options.js';
 import { packageName, packageVersion } from './packageInfo.js';
 
-export interface CliOutput {
+export interface CliIo {
   out(text: string): void;
   err(text: string): void;
+
+  startServer(options: FastServeOptions): Promise<void>;
 }
 
 const helpText = `${packageName} ${packageVersion}
-Vite dev server for SharePoint Framework 1.24.x projects (work in progress).
+Vite dev server for SharePoint Framework 1.24.x projects. Run it in the project folder.
 
 Usage: fast-serve [options]
 
 Options:
-  -h, --help     Show this help
-  -v, --version  Show the version
+  -p, --port <port>      HTTPS port (default: config/serve.json "port", else 4321)
+      --page-url <url>   SharePoint page to open with the debug query
+                         (default: config/serve.json "initialPage"; {tenantDomain} = $${TENANT_DOMAIN_ENV})
+      --locale <locale>  Locale of localized strings (default: en-us)
+  -h, --help             Show this help
+  -v, --version          Show the version
+
+The same options can be set in ${OPTIONS_FILE}: { "port": 4321, "pageUrl": "…", "locale": "en-us" }.
+Command-line flags win over the file.
 `;
 
-/** Runs the CLI with the given arguments and returns the process exit code. */
-export function runCli(args: string[], output: CliOutput): number {
-  let values: { help?: boolean; version?: boolean };
+export async function runCli(args: string[], io: CliIo): Promise<number> {
+  let values;
   try {
     ({ values } = parseArgs({
       args,
       options: {
         help: { type: 'boolean', short: 'h' },
         version: { type: 'boolean', short: 'v' },
+        port: { type: 'string', short: 'p' },
+        'page-url': { type: 'string' },
+        locale: { type: 'string' },
       },
       strict: true,
       allowPositionals: false,
     }));
   } catch (error) {
-    output.err(`${error instanceof Error ? error.message : String(error)}\n\n${helpText}`);
+    io.err(`${errorMessage(error)}\n\n${helpText}`);
     return 1;
   }
 
+  if (values.help) {
+    io.out(helpText);
+    return 0;
+  }
   if (values.version) {
-    output.out(`${packageVersion}\n`);
+    io.out(`${packageVersion}\n`);
     return 0;
   }
 
-  // The dev server is not implemented yet: for now every other invocation prints help.
-  output.out(helpText);
-  return 0;
+  try {
+    const options: FastServeOptions = {};
+    if (values.port !== undefined) options.port = parsePort(values.port);
+    if (values['page-url'] !== undefined) options.pageUrl = values['page-url'];
+    if (values.locale !== undefined) options.locale = values.locale;
+    await io.startServer(options);
+    return 0;
+  } catch (error) {
+    io.err(`[fast-serve] ${errorMessage(error)}\n`);
+    return 1;
+  }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
