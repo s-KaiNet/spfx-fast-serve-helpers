@@ -17,6 +17,26 @@ const bundle: SpfxBundle = {
   ],
 };
 
+const sharedBundle: SpfxBundle = {
+  name: 'shared-bundle',
+  components: [
+    {
+      bundleName: 'shared-bundle',
+      manifestFile: '/p/src/webparts/first/FirstWebPart.manifest.json',
+      entryFile: '/p/src/webparts/first/FirstWebPart.ts',
+      exportName: 'a',
+      manifest: { id: 'first', alias: 'FirstWebPart', componentType: 'WebPart', version: '0.0.1' },
+    },
+    {
+      bundleName: 'shared-bundle',
+      manifestFile: '/p/src/webparts/second/SecondWebPart.manifest.json',
+      entryFile: '/p/src/webparts/second/SecondWebPart.ts',
+      exportName: 'b',
+      manifest: { id: 'second', alias: 'SecondWebPart', componentType: 'WebPart', version: '0.0.1' },
+    },
+  ],
+};
+
 describe('loader paths', () => {
   it('round-trips bundle names', () => {
     expect(bundleShimPath('hello-web-part')).toBe('@spfx/bundle/hello-web-part.js');
@@ -62,8 +82,8 @@ describe('renderShim', () => {
   type Factory = (...modules: unknown[]) => unknown;
   const prelude = 'window.__spfxFastServe = { useScopedRequire: function (req) { window.scopedRequire = req; } };';
 
-  async function evaluateShim() {
-    const code = await renderShim(createShimConfig(bundle, 'https://localhost:4321'), prelude);
+  async function evaluateShim(shimBundle: SpfxBundle = bundle) {
+    const code = await renderShim(createShimConfig(shimBundle, 'https://localhost:4321'), prelude);
     const modules = new Map<string, { deps: string[]; factory: Factory }>();
     const define = (id: string, deps: string[], factory: Factory) => modules.set(id, { deps, factory });
     const window: { scopedRequire?: unknown } = {};
@@ -83,6 +103,14 @@ describe('renderShim', () => {
     expect(modules.get('abc_1.0.0')?.deps).toEqual(['spfx-fast-serve-loader:hello-web-part!/@spfx/entry/hello-web-part']);
     const entry = { default: 'HelloWebPart class' };
     expect(modules.get('abc_1.0.0')?.factory(entry)).toBe(entry);
+  });
+
+  it('defines every component of a shared bundle on top of one entry load', async () => {
+    const { modules } = await evaluateShim(sharedBundle);
+    const entryDependency = 'spfx-fast-serve-loader:shared-bundle!/@spfx/entry/shared-bundle';
+    expect([...modules.keys()]).toEqual(['spfx-fast-serve-loader:shared-bundle', 'first_0.0.1', 'second_0.0.1']);
+    expect(modules.get('first_0.0.1')?.deps).toEqual([entryDependency]);
+    expect(modules.get('second_0.0.1')?.deps).toEqual([entryDependency]);
   });
 
   it('hands the scoped require to the library loader and shows entry failures instead of SharePoint\'s [object Object]', async () => {
@@ -115,5 +143,17 @@ describe('renderBundleEntry', () => {
     expect(code).toContain('export * from "/src/webparts/hello/HelloWebPart.ts";');
     expect(code).toContain('export { default } from "/src/webparts/hello/HelloWebPart.ts";');
     expect(code).toContain('import.meta.hot.accept(() => location.reload())');
+  });
+});
+
+describe('renderBundleEntry with several components', () => {
+  it('re-exports each component under its export name and keeps the reload fallback', () => {
+    expect(renderBundleEntry('/p', sharedBundle).split('\n')).toEqual([
+      "import '@vitejs/plugin-react/preamble';",
+      'export * as a from "/src/webparts/first/FirstWebPart.ts";',
+      'export * as b from "/src/webparts/second/SecondWebPart.ts";',
+      'if (import.meta.hot) import.meta.hot.accept(() => location.reload());',
+      '',
+    ]);
   });
 });

@@ -7,7 +7,6 @@ import { createShimConfig, renderShim } from './shim.js';
 import type { SpfxBundle } from '../project/index.js';
 
 export { bundleShimPath } from './paths.js';
-export { createServedBundles } from './servedBundles.js';
 
 export interface LoaderPluginOptions {
   bundles: () => SpfxBundle[];

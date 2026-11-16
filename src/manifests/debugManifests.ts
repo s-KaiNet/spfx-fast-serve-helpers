@@ -8,6 +8,7 @@ export interface DebugManifest extends ComponentManifest {
   loaderConfig: {
     internalModuleBaseUrls: string[];
     entryModuleId: string;
+    exportName?: string;
     scriptResources: Record<string, ScriptResource>;
   };
 }
@@ -24,7 +25,7 @@ export interface DebugManifestsInput {
 
 export function buildDebugManifests(input: DebugManifestsInput): DebugManifest[] {
   return input.bundles.flatMap((bundle) =>
-    bundle.components.map(({ manifest }) => ({
+    bundle.components.map(({ manifest, exportName }) => ({
       ...manifest,
       loaderConfig: {
         internalModuleBaseUrls: [`${input.origin}/`],
@@ -33,6 +34,7 @@ export function buildDebugManifests(input: DebugManifestsInput): DebugManifest[]
           [bundle.name]: { type: 'path', path: input.bundleScriptPath(bundle.name) },
           ...input.scriptResources,
         },
+        ...(exportName === undefined ? {} : { exportName }),
       },
     })),
   );

@@ -1,0 +1,28 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { createProject } from './project.js';
+
+const root = fileURLToPath(new URL('../../test/fixtures/multi', import.meta.url));
+
+describe('bundles with several components', () => {
+  it('gives every component an export name, counting unsupported components like SPFx does', () => {
+    const warnings: string[] = [];
+    const bundles = createProject(root, { warn: (message) => warnings.push(message) }).bundles();
+    const shared = bundles.find((bundle) => bundle.name === 'shared-bundle');
+    expect(
+      shared?.components.map(({ manifest, exportName, entryFile }) => ({ alias: manifest.alias, exportName, entryFile })),
+    ).toEqual([
+      { alias: 'FirstWebPart', exportName: 'a', entryFile: path.join(root, 'src/webparts/first/FirstWebPart.ts') },
+      { alias: 'SecondWebPart', exportName: 'c', entryFile: path.join(root, 'src/webparts/second/SecondWebPart.ts') },
+    ]);
+    expect(warnings).toEqual(['BannerApplicationCustomizer: componentType "Extension" is not supported yet, skipped']);
+  });
+
+  it('leaves single-component bundles without an export name', () => {
+    const bundles = createProject(root, { warn: () => undefined }).bundles();
+    const single = bundles.find((bundle) => bundle.name === 'single-bundle');
+    expect(single?.components).toHaveLength(1);
+    expect(single?.components[0]).not.toHaveProperty('exportName');
+  });
+});

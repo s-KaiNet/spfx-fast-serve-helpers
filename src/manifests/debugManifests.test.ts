@@ -43,6 +43,48 @@ describe('buildDebugManifests', () => {
   });
 });
 
+describe('buildDebugManifests with several components in one bundle', () => {
+  const sharedBundle: SpfxBundle = {
+    name: 'shared-bundle',
+    components: [
+      {
+        bundleName: 'shared-bundle',
+        manifestFile: '/p/src/First.manifest.json',
+        entryFile: '/p/src/First.ts',
+        exportName: 'a',
+        manifest: { id: 'first', alias: 'FirstWebPart', componentType: 'WebPart', version: '0.0.1' },
+      },
+      {
+        bundleName: 'shared-bundle',
+        manifestFile: '/p/src/Second.manifest.json',
+        entryFile: '/p/src/Second.ts',
+        exportName: 'b',
+        manifest: { id: 'second', alias: 'SecondWebPart', componentType: 'WebPart', version: '0.0.1' },
+      },
+    ],
+  };
+
+  it('points every component at the same bundle script and picks its export', () => {
+    const manifests = buildDebugManifests({
+      bundles: [sharedBundle],
+      origin: 'https://localhost:4321',
+      bundleScriptPath: (name) => `@spfx/bundle/${name}.js`,
+      scriptResources: {},
+    });
+    expect(manifests.map(({ id, loaderConfig }) => ({ id, loaderConfig }))).toEqual(
+      ['first', 'second'].map((id, index) => ({
+        id,
+        loaderConfig: {
+          internalModuleBaseUrls: ['https://localhost:4321/'],
+          entryModuleId: 'shared-bundle',
+          scriptResources: { 'shared-bundle': { type: 'path', path: '@spfx/bundle/shared-bundle.js' } },
+          exportName: ['a', 'b'][index],
+        },
+      })),
+    );
+  });
+});
+
 describe('renderManifestsModule', () => {
   it('renders an AMD module whose getManifests() returns the manifests', () => {
     const manifests = buildDebugManifests({

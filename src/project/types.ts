@@ -25,6 +25,8 @@ export interface SpfxComponent {
   manifestFile: string;
 
   entryFile: string;
+
+  exportName?: string;
 }
 
 export interface SpfxBundle {

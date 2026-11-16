@@ -3,6 +3,7 @@ import path from 'node:path';
 import { isObject, type JsonObject } from '../utils/guards.js';
 import { readJsoncFile, readOptionalJsoncFile } from '../utils/jsonc.js';
 import { isInside, toPosix } from '../utils/paths.js';
+import { bundleExportNames } from './exportNames.js';
 import { findSpfxLibraries } from './libraries.js';
 import { findSourceFile, LOC_EXTENSIONS, SOURCE_EXTENSIONS } from './sourcePaths.js';
 import type {
@@ -95,28 +96,35 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
       const result: SpfxBundle[] = [];
       for (const [name, bundle] of Object.entries(isObject(config.bundles) ? config.bundles : {})) {
         const entries = isObject(bundle) && Array.isArray(bundle.components) ? bundle.components : [];
-        const components = entries.flatMap((entry) => readComponent(name, entry));
+        const components = withExportNames(entries.flatMap((entry) => readComponentEntry(name, entry)))
+          .filter(isSupported)
+          .map((componentEntry) => toComponent(name, componentEntry));
         if (components.length > 0) result.push({ name, components });
       }
       return result;
     });
 
-  function readComponent(bundleName: string, entry: unknown): SpfxComponent[] {
+  function readComponentEntry(bundleName: string, entry: unknown): ComponentEntry[] {
     if (!isObject(entry) || typeof entry.manifest !== 'string' || typeof entry.entrypoint !== 'string') {
       logger.warn(`config/config.json bundle "${bundleName}": a component without "manifest"/"entrypoint" is skipped`);
       return [];
     }
     const manifestFile = path.resolve(root, entry.manifest);
-    const manifest = readManifest(manifestFile, packageJson().version);
-    if (!SUPPORTED_COMPONENT_TYPES.has(manifest.componentType)) {
-      logger.warn(`${manifest.alias}: componentType "${manifest.componentType}" is not supported yet, skipped`);
-      return [];
-    }
-    const entryFile = findSourceFile(root, entry.entrypoint, SOURCE_EXTENSIONS);
+    return [{ manifest: readManifest(manifestFile, packageJson().version), manifestFile, entrypoint: entry.entrypoint }];
+  }
+
+  function isSupported({ manifest }: ComponentEntry): boolean {
+    if (SUPPORTED_COMPONENT_TYPES.has(manifest.componentType)) return true;
+    logger.warn(`${manifest.alias}: componentType "${manifest.componentType}" is not supported yet, skipped`);
+    return false;
+  }
+
+  function toComponent(bundleName: string, { manifest, manifestFile, entrypoint, exportName }: ComponentEntry): SpfxComponent {
+    const entryFile = findSourceFile(root, entrypoint, SOURCE_EXTENSIONS);
     if (!entryFile) {
-      throw new Error(`Cannot find the source of "${entry.entrypoint}" (${manifest.alias}) under src/`);
+      throw new Error(`Cannot find the source of "${entrypoint}" (${manifest.alias}) under src/`);
     }
-    return [{ bundleName, manifest, manifestFile, entryFile }];
+    return { bundleName, manifest, manifestFile, entryFile, ...(exportName === undefined ? {} : { exportName }) };
   }
 
   const libraries = (): Map<string, SpfxLibrary> =>
@@ -174,6 +182,21 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
       return false;
     },
   };
+}
+
+interface ComponentEntry {
+  manifest: ComponentManifest;
+  manifestFile: string;
+  entrypoint: string;
+  exportName?: string;
+}
+
+function withExportNames(entries: ComponentEntry[]): ComponentEntry[] {
+  const uniqueComponents = [...new Map(entries.map((entry) => [entry.manifest.id, entry])).values()];
+  if (uniqueComponents.length < 2) return uniqueComponents;
+  const exportNames = bundleExportNames(uniqueComponents.length);
+  for (const [index, entry] of uniqueComponents.entries()) entry.exportName = exportNames[index];
+  return uniqueComponents;
 }
 
 function readManifest(file: string, packageVersion: string): ComponentManifest {
