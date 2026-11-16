@@ -1,5 +1,7 @@
 import react from '@vitejs/plugin-react';
 import type { PluginOption } from 'vite';
+import { tsconfigPathsPlugin } from './aliases/index.js';
+import { assetTypingsPlugin } from './assets/index.js';
 import type { ServeContext } from './context.js';
 import { createExternals } from './externals/index.js';
 import { bundleShimPath, loaderPlugin } from './loader/index.js';
@@ -23,10 +25,12 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
     }),
     loaderPlugin(context, { bundles, shimPrelude: () => externals.shimPrelude() }),
     externals.plugin,
+    tsconfigPathsPlugin(context),
     localizationPlugin(context),
     libraryCssPlugin(context),
     stylesPlugin(),
     scssTypingsPlugin(context),
+    assetTypingsPlugin(context),
     ...transformPlugins(context),
     react(),
   ];

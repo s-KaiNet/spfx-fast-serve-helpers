@@ -49,6 +49,7 @@
     "@microsoft/sp-css-loader": "1.24.1",
     "@rushstack/heft-config-file": "0.20.16",
     "@rushstack/heft-sass-plugin": "1.5.0",
+    "@rushstack/heft-static-asset-typings-plugin": "0.1.26",
     "@rushstack/rig-package": "0.7.3",
     "@types/node": "^22.20.5",
     "@types/picomatch": "^4.0.3",

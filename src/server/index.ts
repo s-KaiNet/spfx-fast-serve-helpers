@@ -47,8 +47,12 @@ export function serverPlugin(context: ServeContext, https: HttpsCredentials): Pl
 
     configureServer(server) {
       const onFileEvent = (file: string) => {
-        if (!project.invalidate(file)) return;
+        const change = project.invalidate(file);
+        if (!change) return;
         logger.info(`${toPosix(path.relative(root, file))} changed, reloading the page`);
+        if (change === 'tsconfig') {
+          for (const environment of Object.values(server.environments)) environment.moduleGraph.invalidateAll();
+        }
         server.ws.send({ type: 'full-reload' });
       };
       server.watcher.add(project.modelFiles());

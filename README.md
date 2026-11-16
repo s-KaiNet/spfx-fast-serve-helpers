@@ -66,6 +66,22 @@ Zero config works. Options, by precedence:
 
 HTTPS is always on, with the SPFx development certificate. There is no `vite.config` to write: `fast-serve` configures Vite itself.
 
+### TypeScript paths, static assets and theme colors
+
+- **`paths` aliases.** `compilerOptions.paths` and `baseUrl` in `tsconfig.json` (including the files it `extends`) resolve imports in `src` the way `tsc` does: exact keys first, then the longest matching wildcard, targets in order, then `baseUrl`, then `node_modules`. Editing `tsconfig.json` (or a file it extends inside the project) reloads the page with the new aliases.
+- **Static assets.** `import logo from './assets/logo.png'` (or `require('./assets/logo.png')`) gives an absolute URL on the dev server, e.g. `https://localhost:4321/src/webparts/hello/assets/logo.png`. Typings come from the SPFx build rig: Heft's `static-asset-typings` task writes `temp/static-asset-ts/**/*.d.ts` for the extensions in the rig's `config/static-asset-typings.json` (`.gif`, `.jpg`, `.jpeg`, `.png`, `.svg`, `.webp`), and the rig's `tsconfig` reads them through `rootDirs`. `fast-serve` writes the same files when it starts and when you add an asset, so new assets are typed without a `heft build`. For other extensions (e.g. `.woff`, `.mp4`) add your own declaration, exactly as `heft build` needs it:
+  ```ts
+  declare module '*.mp4' {
+    const url: string;
+    export default url;
+  }
+  ```
+  TypeScript finds these typings for relative imports only (through `rootDirs`). To type assets imported through a `paths` alias, add the typings folder as a second target; `fast-serve` uses the first target that exists:
+  ```json
+  "paths": { "@assets/*": ["./src/assets/*", "./temp/static-asset-ts/assets/*"] }
+  ```
+- **Theme colors.** `"[theme:themePrimary, default: #0078d4]"` tokens in your styles resolve to the page theme when a stylesheet is inserted or hot-updated. Switching the site theme while the page is open does not recolor them: reload the page.
+
 ## HMR: do's and don'ts
 
 What updates in place, keeping React state:
@@ -78,7 +94,7 @@ What reloads the page (by design):
 
 - edits to the web part class (`*WebPart.ts`) and to anything only the web part class imports (services, helpers);
 - edits to files that export components **and** other values such as constants or hooks (type-only exports are fine): Fast Refresh skips them, the update bubbles up and ends in a reload. Keep components in component-only files;
-- edits to `config/config.json`, `config/serve.json`, `package.json` or a web part manifest.
+- edits to `config/config.json`, `config/serve.json`, `package.json`, `tsconfig.json` or a web part manifest.
 
 Watch out:
 
@@ -105,7 +121,7 @@ Watch out:
 - Web parts only: no extensions (Application Customizers, Command Sets, Field/Form Customizers), Adaptive Card Extensions or library components yet.
 - Dev server only: no production build, no type checking and no linting (run `tsc --noEmit` / ESLint / `heft build` separately).
 - No error overlay; errors show in the web part, the browser console and the terminal.
-- `config/config.json` `externals` and TypeScript `paths` aliases are not supported yet.
+- `config/config.json` `externals` are not supported yet.
 - `localhost` only (no tunnels, containers or WSL-specific setup); no Teams hosts.
 - The page is loaded from `localhost` module by module, so a cold page load of a very large project is slower than `heft start`; edits are much faster.
 

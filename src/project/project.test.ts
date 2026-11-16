@@ -1,3 +1,5 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -87,12 +89,42 @@ describe('createProject', () => {
     const { project } = fixtureProject();
     const bundles = project.bundles();
     expect(project.bundles()).toBe(bundles);
-    expect(project.invalidate(path.join(root, 'src/webparts/hello/components/Hello.tsx'))).toBe(false);
+    expect(project.invalidate(path.join(root, 'src/webparts/hello/components/Hello.tsx'))).toBeUndefined();
     expect(project.bundles()).toBe(bundles);
-    expect(project.invalidate(path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'))).toBe(true);
+    expect(project.invalidate(path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'))).toBe('model');
     expect(project.bundles()).not.toBe(bundles);
     expect(project.bundles()).toEqual(bundles);
-    expect(project.invalidate(path.join(root, 'config/config.json'))).toBe(true);
+    expect(project.invalidate(path.join(root, 'config/config.json'))).toBe('model');
+  });
+
+  it('reads tsconfig path aliases through extends and invalidates them separately', () => {
+    const { project } = fixtureProject();
+    const paths = project.tsconfigPaths();
+    expect(paths?.mappings).toEqual([{ prefix: '@components/', suffix: '', wildcard: true, targets: ['./src/webparts/hello/components/*'] }]);
+    expect(paths?.pathsBase).toBe(root);
+    expect(project.tsconfigPaths()).toBe(paths);
+    const bundles = project.bundles();
+    expect(project.invalidate(path.join(root, 'tsconfig.base.json'))).toBe('tsconfig');
+    expect(project.tsconfigPaths()).not.toBe(paths);
+    expect(project.bundles()).toBe(bundles);
+  });
+
+  it('has no aliases without tsconfig paths or baseUrl, and warns about an unreadable tsconfig', () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
+    try {
+      const warnings: string[] = [];
+      const project = createProject(projectRoot, { warn: (message) => warnings.push(message) });
+      expect(project.tsconfigPaths()).toBeUndefined();
+      writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "compilerOptions": { "strict": true } }');
+      expect(project.invalidate(path.join(projectRoot, 'tsconfig.json'))).toBe('tsconfig');
+      expect(project.tsconfigPaths()).toBeUndefined();
+      writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "extends": "./missing.json" }');
+      project.invalidate(path.join(projectRoot, 'tsconfig.json'));
+      expect(project.tsconfigPaths()).toBeUndefined();
+      expect(warnings).toEqual([expect.stringMatching(/^tsconfig\.json "paths" and "baseUrl" are ignored: .*missing\.json/)]);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   it('lists the files that define the model', () => {
@@ -102,6 +134,8 @@ describe('createProject', () => {
       path.join(root, 'config/config.json'),
       path.join(root, 'config/serve.json'),
       path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'),
+      path.join(root, 'tsconfig.json'),
+      path.join(root, 'tsconfig.base.json'),
     ]);
   });
 
