@@ -3,6 +3,7 @@ import type { ServeContext } from '../context.js';
 import { sendJavaScript } from '../utils/vite.js';
 import { renderBundleEntry } from './entry.js';
 import { parseBundleEntryPath, parseBundleShimPath } from './paths.js';
+import { createServerErrorLog, recordErrorsMiddleware, serverStatusMiddleware } from './serverErrors.js';
 import { createShimConfig, renderShim } from './shim.js';
 import type { SpfxBundle } from '../project/index.js';
 
@@ -18,6 +19,7 @@ const VIRTUAL_ENTRY_PREFIX = '\0spfx-entry:';
 export function loaderPlugin(context: ServeContext, options: LoaderPluginOptions): Plugin {
   const { root } = context;
   const findBundle = (name: string) => options.bundles().find((bundle) => bundle.name === name);
+  const serverErrors = createServerErrorLog(root);
 
   return {
     name: 'fast-serve:loader',
@@ -31,6 +33,12 @@ export function loaderPlugin(context: ServeContext, options: LoaderPluginOptions
     }),
 
     configureServer(server) {
+      for (const event of ['change', 'add', 'unlink'] as const) {
+        server.watcher.on(event, () => {
+          serverErrors.fileChanged();
+        });
+      }
+      server.middlewares.use(serverStatusMiddleware(serverErrors));
       server.middlewares.use((req, res, next) => {
         const bundleName = parseBundleShimPath((req.url ?? '').split('?')[0] ?? '');
         const bundle = bundleName === undefined ? undefined : findBundle(bundleName);
@@ -45,6 +53,9 @@ export function loaderPlugin(context: ServeContext, options: LoaderPluginOptions
             sendJavaScript(res, code);
           }, next);
       });
+      return () => {
+        server.middlewares.use(recordErrorsMiddleware(serverErrors));
+      };
     },
 
     resolveId(source) {

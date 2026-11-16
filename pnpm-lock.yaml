@@ -181,6 +181,12 @@ importers:
       magic-string:
         specifier: ^1.4.5
         version: 1.4.5
+      picomatch:
+        specifier: ^4.0.7
+        version: 4.0.7
+      tinyglobby:
+        specifier: ^0.2.17
+        version: 0.2.17
       vite:
         specifier: ^8.3.8
         version: 8.3.8(@types/node@22.20.5)(sass-embedded@1.85.1)(terser@5.51.2)
@@ -200,6 +206,9 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      '@types/picomatch':
+        specifier: ^4.0.3
+        version: 4.0.3
       oxlint:
         specifier: ^1.93.0
         version: 1.93.0(oxlint-tsgolint@7.0.2007)
@@ -651,6 +660,9 @@ packages:
 
   '@types/node@22.20.5':
     resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
+
+  '@types/picomatch@4.0.3':
+    resolution: {integrity: sha512-iG0T6+nYJ9FAPmx9SsUlnwcq1ZVRuCXcVEvWnntoPlrOpwtSTKNDC9uVAxTsC3PUvJ+99n4RpAcNgBbHX3JSnQ==}
 
   '@types/tapable@1.0.6':
     resolution: {integrity: sha512-W+bw9ds02rAQaMvaLYxAbJ6cvguW/iJXNT6lTssS1ps6QdrMKttqEAMEG/b5CR8TZl3/L7/lH0ZV5nNR1LXikA==}
@@ -2357,6 +2369,8 @@ snapshots:
   '@types/node@22.20.5':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/picomatch@4.0.3': {}
 
   '@types/tapable@1.0.6': {}
 

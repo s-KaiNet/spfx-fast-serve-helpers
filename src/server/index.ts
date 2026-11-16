@@ -7,6 +7,7 @@ import type { HttpsCredentials } from './certificate.js';
 
 export { loadDevCertificate } from './certificate.js';
 export { debugPageUrl, debugQuery } from './debugUrl.js';
+export { createViteLogger } from './viteLogger.js';
 
 const SPFX_BUILD_OUTPUT_FOLDERS = ['lib', 'lib-commonjs', 'lib-esm', 'lib-dts', 'dist', 'temp', 'release', 'sharepoint', 'teams', 'jest-output', '.heft'];
 

@@ -51,6 +51,7 @@
     "@rushstack/heft-sass-plugin": "1.5.0",
     "@rushstack/rig-package": "0.7.3",
     "@types/node": "^22.20.5",
+    "@types/picomatch": "^4.0.3",
     "oxlint": "^1.93.0",
     "oxlint-tsgolint": "^7.0.2007",
     "rolldown": "1.2.19",
@@ -63,6 +64,8 @@
     "@vitejs/plugin-react": "^6.3.0",
     "es-module-lexer": "^3.0.4",
     "magic-string": "^1.4.5",
+    "picomatch": "^4.0.7",
+    "tinyglobby": "^0.2.17",
     "vite": "^8.3.8"
   }
 }

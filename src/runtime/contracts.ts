@@ -5,6 +5,8 @@ export interface BundleShimConfig {
 
   entryPath: string;
 
+  statusPath: string;
+
   components: ShimComponent[];
 }
 
@@ -35,4 +37,17 @@ export interface FastServeGlobal {
   preloadLibraries(libraries: readonly SpfxLibraryReference[]): Promise<unknown>;
 
   loadedLibrary(library: SpfxLibraryReference): unknown;
+}
+
+export interface LastServerError {
+  message: string;
+
+  location?: string;
+  plugin?: string;
+}
+
+export interface ServerStatus {
+  error: LastServerError | null;
+
+  fileRevision: number;
 }

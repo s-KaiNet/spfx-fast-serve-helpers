@@ -65,6 +65,23 @@ describe('library loader runtime', () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
+  it('explains when the page serves only an older version than the project requests', async () => {
+    const reason = { message: 'Cannot find manifest for core-id_1.24.1. Store had [1.23.0]' };
+    const { fastServe } = await installLibraryLoader(() => rejectAsSharePointDoes(reason));
+
+    await expect(fastServe.loadLibrary(core)).rejects.toThrow(
+      'from SharePoint: this SharePoint serves @microsoft/sp-core-library 1.23.0, older than 1.24.1 used by the project. ' +
+        'The project uses a newer SPFx version than this tenant supports',
+    );
+  });
+
+  it('does not blame the tenant version when it is newer', async () => {
+    const reason = { message: 'Cannot find manifest for core-id_1.24.1. Store had [1.25.0]' };
+    const { fastServe } = await installLibraryLoader(() => rejectAsSharePointDoes(reason));
+
+    await expect(fastServe.loadLibrary(core)).rejects.not.toThrow('older than');
+  });
+
   it('serializes failure reasons that are plain objects', async () => {
     const { fastServe } = await installLibraryLoader(() => rejectAsSharePointDoes({ code: 42 }));
     await expect(fastServe.loadLibrary(core)).rejects.toThrow('from SharePoint: {"code":42}');

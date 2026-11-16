@@ -7,7 +7,7 @@ Entry points:
 
 - `cli.ts`: `fast-serve` bin (thin; process wiring only).
 - `runCli.ts`: argument parsing (testable, no `process` access).
-- `devServer.ts`: `startDevServer()`: options + project model → `vite.createServer()` (no user `vite.config`).
+- `devServer.ts`: `startDevServer()`: SPFx version check → options + project model → `vite.createServer()` (no user `vite.config`). Startup failures (port in use, certificate, no web parts) close the server and are rethrown as readable messages; the CLI exits with code 1.
 - `plugins.ts`: composes the feature modules' Vite plugins.
 - `context.ts`: `ServeContext` (root, resolved options, project model, logger) passed to every module.
 
@@ -16,14 +16,14 @@ Modules:
 | Folder | Owns |
 |---|---|
 | `config/` | options (`port`, `pageUrl`, `locale`): CLI flags > `config/fast-serve.json` > `config/serve.json` > defaults |
-| `project/` | SPFx project facts, plain Node, **no Vite imports**: config.json bundles → components, manifests, package.json, serve.json, loc files, SPFx libraries in node_modules, lib→src mapping. Cached; `invalidate(file)` |
+| `project/` | SPFx project facts, plain Node, **no Vite imports**: config.json bundles → components, manifests, package.json, serve.json, loc files, SPFx libraries in node_modules, lib→src mapping. Cached; `invalidate(file)`. `spfxVersion.ts`: installed SPFx version (`@microsoft/sp-core-library`, then `spfx-heft-plugins`) checked against this package's `major.minor` |
 | `manifests/` | `GET /temp/build/manifests.js` (debug manifests) |
-| `loader/` | AMD shim per bundle (`/@spfx/bundle/<bundle>.js`) + generated ESM entry (`/@spfx/entry/<bundle>`) with the Fast Refresh preamble; `optimizeDeps.entries` |
+| `loader/` | AMD shim per bundle (`/@spfx/bundle/<bundle>.js`) + generated ESM entry (`/@spfx/entry/<bundle>`) with the Fast Refresh preamble; `optimizeDeps.entries`. `serverErrors.ts`: records the last server error (error-handling middleware) and serves `/@spfx/status` (`{ error, fileRevision }`); the shim uses it to show compile errors in the web part and to reload the page after the next file change when a bundle failed to load |
 | `externals/` | SPFx library facades (`@microsoft/sp-*` and any package shipping an SPFx library manifest, discovered like SPFx's own externals scan). ESM importers get a top-level-await facade (`loadComponentById(id, version)` via the `libraryLoader` runtime); `require()` importers in pre-bundled deps get a sync facade plus one `await preloadLibraries([...])` per chunk. The debug manifest lists only `@microsoft/sp-loader` |
 | `localization/` | `*Strings` virtual modules from `loc/<locale>.js` |
 | `styles/` | SPFx CSS modules naming, `~` Sass imports, theme tokens via the `themedStyles` runtime; `scssTypings/`: Sass typings (`temp/sass-ts/**/*.d.ts`) regenerated on add/change/unlink and once after the server starts, with heft's own `SassProcessor` and the project's `config/sass.json` (rig-aware, both resolved from the project) so the output is byte-identical to `heft build` |
 | `transforms/` | source-level compatibility for project source: `DEBUG` / `process.env.NODE_ENV` defines; relative `require('./x.png' / './t.json' / ...)` → hoisted ESM imports (assets as `?url`, JSON as default, scripts/styles as namespaces); type re-exports without `type` (`export { IFoo } from`, or an imported type exported again) are checked against the target's runtime exports (Vite's cached transform + es-module-lexer, following `export *`), removed from the served code and reported in the terminal and the browser console |
-| `server/` | HTTPS (Rushstack dev certificate), port/origin, watch ignores, warmup, React dedupe, debug URL, project-model changes → full reload |
+| `server/` | HTTPS (Rushstack dev certificate), port/origin, watch ignores, warmup, React dedupe, debug URL, project-model changes → full reload; Vite logger that drops the reason-less `[Unhandled rejection] Unknown Error: undefined` SharePoint raises on every page load (forwarded by `server.forwardConsole`) |
 | `runtime/` | browser code as TS (own `tsconfig.json`: DOM, no Node), built to `lib/runtime`: `componentShim.ts` and `libraryLoader.ts` (classic scripts, concatenated into the bundle shim), `themedStyles.ts` (ES module). `contracts.ts` holds the types shared with Node |
 | `utils/` | small helpers (JSONC, paths, runtime source loading, Vite helpers) |
 

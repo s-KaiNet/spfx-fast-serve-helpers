@@ -78,20 +78,52 @@ function fakeSharePointPage() {
   return { globals, errorText, queriedSelectors, mutate: () => onMutation?.() };
 }
 
+type Factory = (...modules: unknown[]) => unknown;
+const prelude = 'window.__spfxFastServe = { useScopedRequire: function (req) { window.scopedRequire = req; } };';
+
+async function evaluateShim(shimBundle: SpfxBundle = bundle, extraGlobals: Record<string, unknown> = {}, importError?: Error) {
+  const code = await renderShim(createShimConfig(shimBundle, 'https://localhost:4321'), prelude);
+  const modules = new Map<string, { deps: string[]; factory: Factory }>();
+  const define = (id: string, deps: string[], factory: Factory) => modules.set(id, { deps, factory });
+  const window: { scopedRequire?: unknown } = {};
+  const page = fakeSharePointPage();
+  const importEntry = () => Promise.reject(importError ?? new Error('no module loader in tests'));
+  runInNewContext(code.replace('import(shimConfig.origin', 'importEntry(shimConfig.origin'), {
+    define,
+    window,
+    console,
+    Promise,
+    URL,
+    Error,
+    String,
+    Object,
+    setTimeout,
+    importEntry,
+    ...page.globals,
+    ...extraGlobals,
+  });
+  return { code, modules, window, page };
+}
+
+interface LoaderPlugin {
+  load(name: string, req: unknown, onload: { (v: unknown): void; error(e: unknown): void }): void;
+}
+
+async function failingLoad(extraGlobals: Record<string, unknown>, importError: Error) {
+  const { modules } = await evaluateShim(bundle, extraGlobals, importError);
+  const plugin = modules.get('spfx-fast-serve-loader:hello-web-part')?.factory() as LoaderPlugin | undefined;
+  if (!plugin) throw new Error('loader plugin not defined');
+  const onload = Object.assign(vi.fn<(value: unknown) => void>(), { error: vi.fn<(error: unknown) => void>() });
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  plugin.load('/@spfx/entry/hello-web-part', vi.fn<() => void>(), onload);
+  await vi.waitFor(() => {
+    expect(onload.error).toHaveBeenCalled();
+  });
+  const [failure] = onload.error.mock.calls[0] ?? [];
+  return failure instanceof Error ? failure.message : String(failure);
+}
+
 describe('renderShim', () => {
-  type Factory = (...modules: unknown[]) => unknown;
-  const prelude = 'window.__spfxFastServe = { useScopedRequire: function (req) { window.scopedRequire = req; } };';
-
-  async function evaluateShim(shimBundle: SpfxBundle = bundle) {
-    const code = await renderShim(createShimConfig(shimBundle, 'https://localhost:4321'), prelude);
-    const modules = new Map<string, { deps: string[]; factory: Factory }>();
-    const define = (id: string, deps: string[], factory: Factory) => modules.set(id, { deps, factory });
-    const window: { scopedRequire?: unknown } = {};
-    const page = fakeSharePointPage();
-    runInNewContext(code, { define, window, console, Promise, URL, Error, String, Object, setTimeout, ...page.globals });
-    return { code, modules, window, page };
-  }
-
   it('runs the prelude before the shim', async () => {
     const { code } = await evaluateShim();
     expect(code.startsWith(prelude)).toBe(true);
@@ -133,6 +165,50 @@ describe('renderShim', () => {
     page.mutate();
     expect(page.queriedSelectors).toEqual(['[data-sp-web-part-id="abc"] [data-automation-id="webPartError"]']);
     expect(page.errorText.nodeValue).toBe(`ERROR:${error.message}`);
+  });
+});
+
+function statusResponses(...statuses: object[]) {
+  const queue = [...statuses];
+  return vi.fn<(url: string) => Promise<unknown>>(() => {
+    const status = queue.length > 1 ? queue.shift() : queue[0];
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(status) });
+  });
+}
+
+describe('bundle load failures', () => {
+  const fetchFailure = new TypeError('Failed to fetch dynamically imported module: https://localhost:4321/@spfx/entry/hello-web-part');
+
+  it('shows the compile error recorded by the server and reloads after the next file change', async () => {
+    const fetch = statusResponses(
+      { error: { message: '[PARSE_ERROR] Unexpected token', location: 'src/a.tsx:15:18' }, fileRevision: 3 },
+      { error: null, fileRevision: 3 },
+      { error: null, fileRevision: 4 },
+    );
+    const location = { reload: vi.fn<() => void>() };
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    try {
+      const message = await failingLoad({ fetch, location, setTimeout }, fetchFailure);
+      expect(message).toBe(
+        '[fast-serve] Failed to load bundle "hello-web-part" from https://localhost:4321: [PARSE_ERROR] Unexpected token in src/a.tsx:15:18. ' +
+          'See the fast-serve terminal for details (the page reloads after the next file change)',
+      );
+      expect(fetch).toHaveBeenCalledWith('https://localhost:4321/@spfx/status', { cache: 'no-store' });
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(location.reload).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(location.reload).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('points to the terminal when the dev server is not reachable', async () => {
+    const fetch = vi.fn<() => Promise<unknown>>(() => Promise.reject(new TypeError('Failed to fetch')));
+    const message = await failingLoad({ fetch }, fetchFailure);
+    expect(message).toContain('Failed to fetch dynamically imported module');
+    expect(message).toContain('check the fast-serve terminal');
+    expect(message).not.toContain('reloads');
   });
 });
 

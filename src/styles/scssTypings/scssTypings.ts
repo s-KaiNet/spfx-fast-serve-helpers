@@ -1,5 +1,7 @@
-import { glob, rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
+import picomatch from 'picomatch';
+import { glob } from 'tinyglobby';
 import type { Logger } from '../../logger.js';
 import { isInside, toPosix } from '../../utils/paths.js';
 import { createHeftSassTypings, type HeftSassTypings } from './heftSass.js';
@@ -64,7 +66,7 @@ export function createScssTypings({ root, logger }: ScssTypingsOptions): ScssTyp
     const { processor } = typings;
     if (!isInside(processor.sourceFolderPath, file)) return false;
     const relative = toPosix(path.relative(processor.sourceFolderPath, file));
-    return path.matchesGlob(relative, processor.inputFileGlob) && !(processor.ignoredFileGlobs ?? []).some((pattern) => path.matchesGlob(relative, pattern));
+    return picomatch.isMatch(relative, processor.inputFileGlob) && !picomatch.isMatch(relative, processor.ignoredFileGlobs ?? []);
   }
 
   return {
@@ -72,11 +74,13 @@ export function createScssTypings({ root, logger }: ScssTypingsOptions): ScssTyp
       const typings = await ready();
       if (!typings) return;
       const { processor } = typings;
-      const files: string[] = [];
-      for await (const file of glob(processor.inputFileGlob, { cwd: processor.sourceFolderPath, exclude: processor.ignoredFileGlobs ?? [] })) {
-        files.push(path.resolve(processor.sourceFolderPath, file));
-      }
-      await compile(files);
+      const files = await glob(processor.inputFileGlob, {
+        cwd: processor.sourceFolderPath,
+        ignore: processor.ignoredFileGlobs ?? [],
+        absolute: true,
+        expandDirectories: false,
+      });
+      await compile(files.map((file) => path.resolve(file)));
     },
     async fileChanged(file) {
       if (await isTypingsSource(file)) await compile([path.resolve(file)]);

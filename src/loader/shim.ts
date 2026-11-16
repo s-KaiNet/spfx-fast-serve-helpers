@@ -2,12 +2,14 @@ import type { SpfxBundle } from '../project/index.js';
 import type { BundleShimConfig } from '../runtime/contracts.js';
 import { readRuntimeSource } from '../utils/runtimeSource.js';
 import { bundleEntryPath } from './paths.js';
+import { SERVER_STATUS_PATH } from './serverErrors.js';
 
 export function createShimConfig(bundle: SpfxBundle, origin: string): BundleShimConfig {
   return {
     bundleName: bundle.name,
     origin,
     entryPath: bundleEntryPath(bundle.name),
+    statusPath: SERVER_STATUS_PATH,
     components: bundle.components.map(({ manifest }) => ({
       id: manifest.id,
       alias: manifest.alias,
