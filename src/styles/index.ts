@@ -2,6 +2,8 @@ import type { Plugin } from 'vite';
 import { readRuntimeSource, runtimeFilePath } from '../utils/runtimeSource.js';
 import { isStyleRequest } from '../utils/vite.js';
 
+export { libraryCssPlugin } from './libraryCss/index.js';
+
 const THEMED_STYLES_ID = 'virtual:fast-serve/themed-styles';
 const RESOLVED_THEMED_STYLES_ID = '\0' + THEMED_STYLES_ID;
 

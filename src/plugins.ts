@@ -7,7 +7,7 @@ import { localizationPlugin } from './localization/index.js';
 import { manifestsPlugin } from './manifests/index.js';
 import type { HttpsCredentials } from './server/certificate.js';
 import { serverPlugin } from './server/index.js';
-import { stylesPlugin } from './styles/index.js';
+import { libraryCssPlugin, stylesPlugin } from './styles/index.js';
 import { definesPlugin } from './transforms/defines.js';
 
 export function fastServePlugins(context: ServeContext, https: HttpsCredentials): PluginOption[] {
@@ -24,6 +24,7 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
     loaderPlugin(context, { bundles, shimPrelude: () => externals.shimPrelude() }),
     externals.plugin,
     localizationPlugin(context),
+    libraryCssPlugin(context),
     stylesPlugin(),
     definesPlugin(),
     react(),

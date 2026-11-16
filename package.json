@@ -46,6 +46,7 @@
   },
   "homepage": "https://github.com/s-KaiNet/spfx-fast-serve-helpers#readme",
   "devDependencies": {
+    "@microsoft/sp-css-loader": "1.24.1",
     "@types/node": "^22.20.5",
     "oxlint": "^1.93.0",
     "oxlint-tsgolint": "^7.0.2007",
