@@ -1,15 +1,24 @@
 # spfx-fast-serve-helpers
 
-`fast-serve` CLI and helper functions for [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve) tool.
+> **Work in progress.** Vite-based rewrite for SharePoint Framework **1.24.x** (Heft) projects.
 
------
+A dev-server-only replacement for `heft start`: fast start, true HMR with React Fast Refresh, and your web part runs inside a real SharePoint page. Production builds and packaging stay on Heft (`heft build` / `heft package-solution`).
 
-## For issues please use [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve/issues) repository
+Version follows the supported SPFx version (`1.24.x` → SPFx `>=1.24.0 <1.25.0`).
 
------
+Design notes, decisions and status: [docs/vite/HANDOFF.md](docs/vite/HANDOFF.md).
 
 ## Development
 
-1. `pnpm i`
-2. `pnpm run dev`
-3. In a folder with SPFx solution `pnpm link 'path/to/spfx-fast-serve-helpers'`.
+```sh
+pnpm install
+pnpm build      # compile to lib/
+pnpm dev        # watch build
+pnpm lint
+pnpm typecheck
+pnpm test
+```
+
+## License
+
+MIT

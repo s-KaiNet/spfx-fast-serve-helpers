@@ -1,22 +1,27 @@
 {
+  // Type-checks everything (sources, tests, config files). Build uses tsconfig.build.json.
+  // Note: browser runtime files (src/**/runtime/*) will need DOM libs and must not use Node
+  // APIs; they get their own tsconfig (lib: DOM, no node types) when the first one is added.
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
     "newLine": "lf",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "removeComments": true,
-    "skipLibCheck": true,
-    "outDir": "./lib",
-    "types": [
-      "node",
-    ]
+    "rootDir": "src",
+    "outDir": "lib"
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src"]
 }

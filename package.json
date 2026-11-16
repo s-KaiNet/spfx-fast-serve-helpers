@@ -1,25 +1,40 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.21.1",
-  "description": "Contains helper classes and functions for spfx-fast-serve tool",
-  "main": "lib/index.js",
+  "version": "1.24.0",
+  "description": "Vite-based dev server for SharePoint Framework 1.24.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
+  "type": "module",
   "bin": {
-    "fast-serve": "lib/serve.js"
+    "fast-serve": "lib/cli.js"
   },
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "!lib/**/*.test.*"
+  ],
+  "engines": {
+    "node": ">=22.14.0 <23.0.0 || >=24.0.0 <25.0.0 || >=26.0.0 <27.0.0"
+  },
+  "packageManager": "pnpm@12.11.2",
   "scripts": {
-    "build": "npm run lint && npm run ts && npm run copy",
-    "ts": "tsc -p .",
-    "lint": "eslint -c .eslintrc.json --ext .ts src",
-    "copy": "cpy **/*.* ../../lib/templates --parents --cwd=src/templates",
-    "copy-lib": "cpy **/*.* ../../../../../../spfx19/node_modules/spfx-fast-serve-helpers/lib --parents --cwd=lib",
-    "prepublishOnly": "rimraf -- lib && npm run build",
-    "watch:copy": "nodemon --watch lib --exec \"npm run copy-lib\"",
-    "watch:ts": "npm run copy && tsc -p . --watch",
-    "dev": "concurrently \"npm:watch:*\"",
-    "pub:beta": "pnpm publish --tag beta",
-    "pub:prev": "pnpm publish --tag previous",
-    "pub:next": "pnpm publish --tag next"
+    "clean": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
+    "build": "pnpm clean && tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
+  "keywords": [
+    "spfx",
+    "sharepoint",
+    "vite",
+    "hmr",
+    "fast-refresh",
+    "heft"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s-KaiNet/spfx-fast-serve-helpers.git"
@@ -31,60 +46,12 @@
   },
   "homepage": "https://github.com/s-KaiNet/spfx-fast-serve-helpers#readme",
   "devDependencies": {
-    "@types/node": "20.14.9",
-    "@types/node-fetch": "2.6.11",
-    "@types/webpack": "5.28.5",
-    "@typescript-eslint/eslint-plugin": "7.14.1",
-    "@typescript-eslint/parser": "7.14.1",
-    "concurrently": "8.2.2",
-    "cpy-cli": "3.1.1",
-    "eslint": "8.57.0",
-    "nodemon": "3.1.4",
-    "rimraf": "5.0.7",
-    "typescript": "5.5.2"
-  },
-  "dependencies": {
-    "@microsoft/loader-load-themed-styles": "2.1.37",
-    "@microsoft/spfx-heft-plugins": "1.21.0",
-    "@pmmmwh/react-refresh-webpack-plugin": "0.5.15",
-    "@types/copy-webpack-plugin": "8.0.1",
-    "@types/cross-spawn": "6.0.6",
-    "@types/webpack-dev-server": "4.7.1",
-    "@types/yargs": "17.0.32",
-    "autoprefixer": "9.8.8",
-    "colors": "1.4.0",
-    "commander": "12.1.0",
-    "copy-webpack-plugin": "12.0.2",
-    "cross-spawn": "7.0.3",
-    "css-loader": "7.1.2",
-    "del": "6.0.0",
-    "eslint-webpack-plugin": "4.2.0",
-    "file-loader": "6.2.0",
-    "fork-ts-checker-webpack-plugin": "9.0.2",
-    "get-port": "5.1.1",
-    "globby": "11.1.0",
-    "json5": "2.2.3",
-    "kill-port": "2.0.1",
-    "node-fetch": "2.6.1",
-    "postcss": "8.4.38",
-    "postcss-loader": "8.1.1",
-    "react-refresh": "0.14.2",
-    "react-refresh-typescript": "2.0.9",
-    "sass": "1.77.6",
-    "sass-loader": "14.2.1",
-    "spfx-css-modules-typescript-loader": "4.0.6",
-    "style-loader": "4.0.0",
-    "ts-loader": "9.5.1",
-    "tsconfig-paths-webpack-plugin": "4.1.0",
-    "webpack": "5.88.2",
-    "webpack-cli": "5.1.4",
-    "webpack-dev-server": "5.0.4",
-    "webpack-merge": "5.10.0",
-    "yargs": "17.7.2"
-  },
-  "overrides": {
-    "@pmmmwh/react-refresh-webpack-plugin": {
-      "webpack-dev-server": "^5.0.2"
-    }
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
   }
 }
