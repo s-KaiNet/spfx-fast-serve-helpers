@@ -6,20 +6,33 @@ export interface BundleShimConfig {
   entryPath: string;
 
   components: ShimComponent[];
-  externals: ShimExternalsConfig;
 }
 
 export interface ShimComponent {
+  id: string;
   alias: string;
 
   moduleId: string;
 }
 
-export interface ShimExternalsConfig {
-  preload: string[];
+export interface SpfxLibraryReference {
+  name: string;
+  id: string;
+  version: string;
 }
+
+export interface LibraryLoaderConfig {
+  componentLoaderModule: string;
+}
+
+export type ScopedRequire = (names: string[], onLoad: (...modules: unknown[]) => void, onError: (error: unknown) => void) => void;
 
 export interface FastServeGlobal {
-  externals: Record<string, unknown>;
-}
+  useScopedRequire(scopedRequire: ScopedRequire): void;
 
+  loadLibrary(library: SpfxLibraryReference): Promise<unknown>;
+
+  preloadLibraries(libraries: readonly SpfxLibraryReference[]): Promise<unknown>;
+
+  loadedLibrary(library: SpfxLibraryReference): unknown;
+}

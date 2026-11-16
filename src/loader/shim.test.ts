@@ -26,44 +26,85 @@ describe('loader paths', () => {
   });
 });
 
+function fakeSharePointPage() {
+  const errorText = { nodeValue: 'ERROR:[object Object]' };
+  const queriedSelectors: string[] = [];
+  let onMutation: (() => void) | undefined;
+  const globals = {
+    NodeFilter: { SHOW_TEXT: 4 },
+    MutationObserver: class {
+      constructor(callback: () => void) {
+        onMutation = callback;
+      }
+      observe() {
+        return undefined;
+      }
+      disconnect() {
+        return undefined;
+      }
+    },
+    document: {
+      body: {},
+      querySelectorAll: (selector: string) => {
+        queriedSelectors.push(selector);
+        return [{}];
+      },
+      createTreeWalker: () => {
+        const nodes = [errorText];
+        return { nextNode: () => nodes.shift() ?? null };
+      },
+    },
+  };
+  return { globals, errorText, queriedSelectors, mutate: () => onMutation?.() };
+}
+
 describe('renderShim', () => {
   type Factory = (...modules: unknown[]) => unknown;
+  const prelude = 'window.__spfxFastServe = { useScopedRequire: function (req) { window.scopedRequire = req; } };';
 
-  async function evaluateShim(preload: string[]) {
-    const code = await renderShim(createShimConfig(bundle, 'https://localhost:4321', { preload }));
+  async function evaluateShim() {
+    const code = await renderShim(createShimConfig(bundle, 'https://localhost:4321'), prelude);
     const modules = new Map<string, { deps: string[]; factory: Factory }>();
     const define = (id: string, deps: string[], factory: Factory) => modules.set(id, { deps, factory });
-    const window: { __spfxFastServe?: { externals: Record<string, unknown> } } = {};
-    runInNewContext(code, { define, window, console, Promise, URL });
-    return { modules, window };
+    const window: { scopedRequire?: unknown } = {};
+    const page = fakeSharePointPage();
+    runInNewContext(code, { define, window, console, Promise, URL, Error, String, Object, setTimeout, ...page.globals });
+    return { code, modules, window, page };
   }
 
+  it('runs the prelude before the shim', async () => {
+    const { code } = await evaluateShim();
+    expect(code.startsWith(prelude)).toBe(true);
+  });
+
   it('defines one module per component through a loader plugin', async () => {
-    const { modules } = await evaluateShim([]);
+    const { modules } = await evaluateShim();
     expect([...modules.keys()]).toEqual(['spfx-fast-serve-loader:hello-web-part', 'abc_1.0.0']);
     expect(modules.get('abc_1.0.0')?.deps).toEqual(['spfx-fast-serve-loader:hello-web-part!/@spfx/entry/hello-web-part']);
     const entry = { default: 'HelloWebPart class' };
     expect(modules.get('abc_1.0.0')?.factory(entry)).toBe(entry);
   });
 
-  it('preloads externals with the scoped require before importing the entry', async () => {
-    const { modules, window } = await evaluateShim(['@microsoft/sp-core-library']);
+  it('hands the scoped require to the library loader and shows entry failures instead of SharePoint\'s [object Object]', async () => {
+    const { modules, window, page } = await evaluateShim();
     const plugin = modules.get('spfx-fast-serve-loader:hello-web-part')?.factory() as {
       load(name: string, req: unknown, onload: { (v: unknown): void; error(e: unknown): void }): void;
     };
-    const core = { Version: 1 };
-    const scopedRequire = vi.fn<(names: string[], onLoad: (...m: unknown[]) => void) => void>((_names, onLoad) => {
-      onLoad(core);
-    });
+    const scopedRequire = vi.fn<() => void>();
     const onload = Object.assign(vi.fn<(value: unknown) => void>(), { error: vi.fn<(error: unknown) => void>() });
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     plugin.load('/@spfx/entry/hello-web-part', scopedRequire, onload);
 
+    expect(window.scopedRequire).toBe(scopedRequire);
     await vi.waitFor(() => {
       expect(onload.error).toHaveBeenCalled();
     });
-    expect(scopedRequire).toHaveBeenCalledWith(['@microsoft/sp-core-library'], expect.any(Function), expect.any(Function));
-    expect(window.__spfxFastServe?.externals['@microsoft/sp-core-library']).toBe(core);
+    const error = onload.error.mock.calls[0]?.[0] as Error;
+    expect(error.message).toMatch(/^\[fast-serve\] Failed to load bundle "hello-web-part" from https:\/\/localhost:4321: /);
+
+    page.mutate();
+    expect(page.queriedSelectors).toEqual(['[data-sp-web-part-id="abc"] [data-automation-id="webPartError"]']);
+    expect(page.errorText.nodeValue).toBe(`ERROR:${error.message}`);
   });
 });
 

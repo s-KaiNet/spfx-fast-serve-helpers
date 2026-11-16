@@ -22,7 +22,7 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
       bundleScriptPath: bundleShimPath,
       scriptResources: () => externals.manifestScriptResources(),
     }),
-    loaderPlugin(context, { bundles, externals: () => externals.shimConfig() }),
+    loaderPlugin(context, { bundles, shimPrelude: () => externals.shimPrelude() }),
     externals.plugin,
     localizationPlugin(context),
     stylesPlugin(),

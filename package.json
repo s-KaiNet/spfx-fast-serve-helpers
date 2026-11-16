@@ -49,6 +49,7 @@
     "@types/node": "^22.20.5",
     "oxlint": "^1.93.0",
     "oxlint-tsgolint": "^7.0.2007",
+    "rolldown": "1.2.19",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },

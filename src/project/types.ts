@@ -36,6 +36,7 @@ export interface SpfxLibrary {
   packageName: string;
   id: string;
   version: string;
+  packageDir: string;
 }
 
 export interface LocalizedResource {

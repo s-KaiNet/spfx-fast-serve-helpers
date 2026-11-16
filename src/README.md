@@ -19,12 +19,12 @@ Modules:
 | `project/` | SPFx project facts, plain Node, **no Vite imports**: config.json bundles → components, manifests, package.json, serve.json, loc files, SPFx libraries in node_modules, lib→src mapping. Cached; `invalidate(file)` |
 | `manifests/` | `GET /temp/build/manifests.js` (debug manifests) |
 | `loader/` | AMD shim per bundle (`/@spfx/bundle/<bundle>.js`) + generated ESM entry (`/@spfx/entry/<bundle>`) with the Fast Refresh preamble; `optimizeDeps.entries` |
-| `externals/` | `@microsoft/sp-*` (SPFx library) facades. The strategy (currently: manifest lists + shim preloads) is hidden behind `SpfxExternals` |
+| `externals/` | SPFx library facades (`@microsoft/sp-*` and any package shipping an SPFx library manifest, discovered like SPFx's own externals scan). ESM importers get a top-level-await facade (`loadComponentById(id, version)` via the `libraryLoader` runtime); `require()` importers in pre-bundled deps get a sync facade plus one `await preloadLibraries([...])` per chunk. The debug manifest lists only `@microsoft/sp-loader` |
 | `localization/` | `*Strings` virtual modules from `loc/<locale>.js` |
 | `styles/` | SPFx CSS modules naming, `~` Sass imports, theme tokens via the `themedStyles` runtime |
 | `transforms/` | source-level compatibility: `DEBUG` / `process.env.NODE_ENV` defines |
 | `server/` | HTTPS (Rushstack dev certificate), port/origin, watch ignores, warmup, React dedupe, debug URL, project-model changes → full reload |
-| `runtime/` | browser code as TS (own `tsconfig.json`: DOM, no Node), built to `lib/runtime`: `componentShim.ts` (classic script), `themedStyles.ts` (ES module). `contracts.ts` holds the types shared with Node |
+| `runtime/` | browser code as TS (own `tsconfig.json`: DOM, no Node), built to `lib/runtime`: `componentShim.ts` and `libraryLoader.ts` (classic scripts, concatenated into the bundle shim), `themedStyles.ts` (ES module). `contracts.ts` holds the types shared with Node |
 | `utils/` | small helpers (JSONC, paths, runtime source loading, Vite helpers) |
 
 Conventions:

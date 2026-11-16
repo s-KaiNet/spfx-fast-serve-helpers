@@ -1,41 +1,54 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { runInNewContext } from 'node:vm';
 import { init, parse } from 'es-module-lexer';
-import { isIdentifier, isObject } from '../utils/guards.js';
+import { isIdentifier, isObject, type JsonObject } from '../utils/guards.js';
 
-export async function readExportNames(root: string, packageName: string): Promise<string[]> {
+const EVALUATION_TIMEOUT_MS = 2000;
+
+export async function readExportNames(packageDir: string): Promise<string[]> {
   await init();
-  const requireFromRoot = createRequire(path.join(root, 'package.json'));
+  const packageJson = readPackageJson(packageDir);
+  const esmEntry = resolveEntry(packageDir, esmEntryField(packageJson));
   const names = new Set<string>();
-  const esmEntry = findEsmEntry(requireFromRoot, packageName);
   if (esmEntry) collectEsmExports(esmEntry, names, new Set());
   if (names.size === 0) {
-    const exported: unknown = requireFromRoot(packageName);
-    if (isObject(exported)) Object.keys(exported).forEach((name) => names.add(name));
+    const scriptEntry = esmEntry ?? resolveEntry(packageDir, typeof packageJson.main === 'string' ? packageJson.main : 'index.js');
+    if (scriptEntry) evaluateScriptExports(scriptEntry).forEach((name) => names.add(name));
   }
   names.delete('default');
   return [...names].filter(isIdentifier).toSorted();
 }
 
-function findEsmEntry(requireFromRoot: NodeJS.Require, packageName: string): string | undefined {
-  let packageJsonFile: string;
-  try {
-    packageJsonFile = requireFromRoot.resolve(`${packageName}/package.json`);
-  } catch {
-    return undefined;
-  }
-  const json: unknown = JSON.parse(readFileSync(packageJsonFile, 'utf8'));
-  if (!isObject(json)) return undefined;
-  const exportsField = isObject(json.exports) ? json.exports['.'] : undefined;
-  const entry = typeof json.module === 'string' ? json.module : isObject(exportsField) ? exportsField.import : undefined;
-  return typeof entry === 'string' ? path.join(path.dirname(packageJsonFile), entry) : undefined;
+function readPackageJson(packageDir: string): JsonObject {
+  const json: unknown = JSON.parse(readFileSync(path.join(packageDir, 'package.json'), 'utf8'));
+  return isObject(json) ? json : {};
+}
+
+function esmEntryField(packageJson: JsonObject): string | undefined {
+  if (typeof packageJson.module === 'string') return packageJson.module;
+  const rootExport = isObject(packageJson.exports) ? packageJson.exports['.'] : undefined;
+  if (!isObject(rootExport)) return undefined;
+  const importCondition = rootExport.import;
+  if (typeof importCondition === 'string') return importCondition;
+  return isObject(importCondition) && typeof importCondition.default === 'string' ? importCondition.default : undefined;
+}
+
+function resolveEntry(packageDir: string, entry: string | undefined): string | undefined {
+  if (entry === undefined) return undefined;
+  const file = path.join(packageDir, entry);
+  return [file, `${file}.js`, path.join(file, 'index.js')].find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
 }
 
 function collectEsmExports(file: string, names: Set<string>, seen: Set<string>): void {
   if (seen.has(file) || !existsSync(file)) return;
   seen.add(file);
-  const [, exports] = parse(readFileSync(file, 'utf8'), file);
+  let exports;
+  try {
+    [, exports] = parse(readFileSync(file, 'utf8'), file);
+  } catch {
+    return;
+  }
   for (const exported of exports) {
     if (exported.type !== 'reexport-all') {
       names.add(exported.name);
@@ -44,4 +57,20 @@ function collectEsmExports(file: string, names: Set<string>, seen: Set<string>):
       collectEsmExports(path.extname(target) ? target : `${target}.js`, names, seen);
     }
   }
+}
+
+function evaluateScriptExports(file: string): string[] {
+  const module: { exports: unknown } = { exports: {} };
+  const define = Object.assign(
+    (...args: unknown[]) => {
+      const factory = args.find((arg): arg is () => unknown => typeof arg === 'function');
+      module.exports = factory ? factory() : args.find(isObject);
+    },
+    { amd: true },
+  );
+  runInNewContext(readFileSync(file, 'utf8'), { module, exports: module.exports, define }, {
+    filename: file,
+    timeout: EVALUATION_TIMEOUT_MS,
+  });
+  return isObject(module.exports) || typeof module.exports === 'function' ? Object.keys(module.exports) : [];
 }

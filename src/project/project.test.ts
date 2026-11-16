@@ -39,10 +39,28 @@ describe('createProject', () => {
     expect(project.serveConfig()).toEqual({ port: 4400, initialPage: 'https://{tenantDomain}/_layouts/workbench.aspx' });
   });
 
-  it('finds SPFx library components among the dependencies', () => {
+  it('finds SPFx libraries like SPFx does: transitively through packages that ship manifests', () => {
     const { project } = fixtureProject();
+    const modules = path.join(root, 'node_modules/@microsoft');
     expect([...project.libraries().values()]).toEqual([
-      { packageName: '@microsoft/sp-core-library', id: '7263c7d0-1d6a-45ec-8d85-d4d1d234171b', version: '1.24.1' },
+      {
+        packageName: '@microsoft/sp-core-library',
+        id: '7263c7d0-1d6a-45ec-8d85-d4d1d234171b',
+        version: '1.24.1',
+        packageDir: path.join(modules, 'sp-core-library'),
+      },
+      {
+        packageName: '@microsoft/sp-lodash-subset',
+        id: '73e1dc6c-8441-42cc-ad47-4bd3659f8a3a',
+        version: '1.24.1',
+        packageDir: path.join(modules, 'sp-lodash-subset'),
+      },
+      {
+        packageName: '@microsoft/sp-loader',
+        id: '1c6c9123-7aac-41f3-a376-3caea41ed83f',
+        version: '1.24.1',
+        packageDir: path.join(modules, 'sp-loader'),
+      },
     ]);
   });
 

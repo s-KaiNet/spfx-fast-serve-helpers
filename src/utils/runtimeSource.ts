@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { transformWithOxc } from 'vite';
 
-export type RuntimeFile = 'componentShim' | 'themedStyles';
+export type RuntimeFile = 'componentShim' | 'libraryLoader' | 'themedStyles';
 
 const cache = new Map<RuntimeFile, Promise<string>>();
 

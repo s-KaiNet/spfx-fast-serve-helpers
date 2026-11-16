@@ -120,7 +120,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
   }
 
   const libraries = (): Map<string, SpfxLibrary> =>
-    cached('libraries', () => findSpfxLibraries(root, Object.keys(packageJson().dependencies)));
+    cached('libraries', () => findSpfxLibraries(root));
 
   const localizedResources = (locale: string): Map<string, LocalizedResource> =>
     cached(`loc:${locale}`, () => {

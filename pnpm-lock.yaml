@@ -191,6 +191,9 @@ importers:
       oxlint-tsgolint:
         specifier: ^7.0.2007
         version: 7.0.2007
+      rolldown:
+        specifier: 1.2.19
+        version: 1.2.19
       typescript:
         specifier: ^7.0.2
         version: 7.0.2

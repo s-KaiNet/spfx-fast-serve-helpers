@@ -1,6 +1,5 @@
 import type { Plugin } from 'vite';
 import type { ServeContext } from '../context.js';
-import type { ShimExternalsConfig } from '../runtime/contracts.js';
 import { sendJavaScript } from '../utils/vite.js';
 import { renderBundleEntry } from './entry.js';
 import { parseBundleEntryPath, parseBundleShimPath } from './paths.js';
@@ -12,7 +11,7 @@ export { createServedBundles } from './servedBundles.js';
 
 export interface LoaderPluginOptions {
   bundles: () => SpfxBundle[];
-  externals: () => ShimExternalsConfig;
+  shimPrelude: () => Promise<string>;
 }
 
 const VIRTUAL_ENTRY_PREFIX = '\0spfx-entry:';
@@ -40,12 +39,12 @@ export function loaderPlugin(context: ServeContext, options: LoaderPluginOptions
           next();
           return;
         }
-        renderShim(createShimConfig(bundle, context.options.origin, options.externals())).then(
-          (code) => {
+        options
+          .shimPrelude()
+          .then((prelude) => renderShim(createShimConfig(bundle, context.options.origin), prelude))
+          .then((code) => {
             sendJavaScript(res, code);
-          },
-          next,
-        );
+          }, next);
       });
     },
 
