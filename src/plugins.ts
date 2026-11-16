@@ -7,7 +7,7 @@ import { localizationPlugin } from './localization/index.js';
 import { manifestsPlugin } from './manifests/index.js';
 import type { HttpsCredentials } from './server/certificate.js';
 import { serverPlugin } from './server/index.js';
-import { libraryCssPlugin, stylesPlugin } from './styles/index.js';
+import { libraryCssPlugin, scssTypingsPlugin, stylesPlugin } from './styles/index.js';
 import { transformPlugins } from './transforms/index.js';
 
 export function fastServePlugins(context: ServeContext, https: HttpsCredentials): PluginOption[] {
@@ -26,6 +26,7 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
     localizationPlugin(context),
     libraryCssPlugin(context),
     stylesPlugin(),
+    scssTypingsPlugin(context),
     ...transformPlugins(context),
     react(),
   ];

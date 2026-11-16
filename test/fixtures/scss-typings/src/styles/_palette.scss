@@ -1,0 +1,4 @@
+$accent: #0078d4;
+@mixin accentBorder {
+  border: 1px solid $accent;
+}
