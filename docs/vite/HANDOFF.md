@@ -1,6 +1,6 @@
 # Handoff: Vite dev server for SPFx (SPFx 1.22+ / Heft)
 
-Status on 2026-11-17: **P0 items 1–17 and P1 are done** (§6); next-phase items are tracked in §6 "Next" (extensions done). #17 (project tsconfig applied to the Oxc transform) is the latest, see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
+Status on 2026-11-17: **P0 items 1–17 and P1 are done** (§6); next-phase items are tracked in §6 "Next" (extensions and ACEs done). #17 (project tsconfig applied to the Oxc transform) is the latest, see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
 
 Read this file first. Every claim below links to a detailed report in `research/`.
 
@@ -20,7 +20,7 @@ Decisions the user made:
 | Topic | Decision |
 |---|---|
 | Scope | dev server only, never production builds |
-| v1 component types | **web parts only**; extensions, ACEs and library components later (extensions added in the next phase) |
+| v1 component types | **web parts only**; extensions, ACEs and library components later (extensions and ACEs added in the next phase) |
 | React | a separate **development copy of React in dev is OK** (needed for Fast Refresh; the tenant ships production React) |
 | v1 options | `port`, `pageUrl` (with `{tenantDomain}`), `locale`. HTTPS is automatic (SPFx dev cert), not an option |
 | Not in v1 | CORS/allowedOrigins, `debug` flag, eslint, error overlay, `hotRefresh` flag (HMR is always on), logging levels, type checking |
@@ -191,7 +191,7 @@ Heft findings (P1):
 - occasional page-load hang: **skipped by the user** (2026-11-17). Findings: only reproduced with the build before `207e9ef` (8 of 64 loads on spfx-bench); the current build had 0 of 64, but 42 of those ran with Chrome's net log on, which also hid the hang on the old build. Server traces show the `react-dom` response fully sent in ~100 ms while Chrome never received headers: a stall inside Chrome on the HTTP/2 connection. Old build over HTTP/1.1: 0 of 30 hangs (median 8.08 s vs 7.73 s on HTTP/2). If it comes back, serving HTTP/1.1 is the likely fix (Vite 8 always uses HTTP/2 with HTTPS). Harness and traces: `/tmp/n2`;
 - `const enum` / decorator checks with clear errors (ambient enum ReferenceError, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`). **Done:** ambient enums and `.d.ts`-only imports at transform/resolve time (`transforms/constEnums`), kept metadata type imports removed with a warning (`transforms/typeOnlyNames`), missing exports explained by the shim at load time;
 - extensions (Application Customizer, ListView Command Set, Field/Form Customizer) with `serve.json` `serveConfigurations` → query params. **Done** (`research/extensions/`): `componentType: "Extension"` served with the web part machinery (mixed bundles too); `--config <name>` (alias `--serve-config`, or `"serveConfiguration"` in `fast-serve.json`, default `default`, unknown name = error) builds heft's query (`loadSPFX=true`, `customActions`/`fieldCustomizers` JSON, form customizer params, no `debug=true`); page: `pageUrl` option > configuration `pageUrl` > `default.pageUrl` > `initialPage`; start-up warnings for ids/types/placeholders that don't fit; relative `./` icons served from `src`. Live on mastaq: Application Customizer (HMR, reload on class edit), Command Set, Form Customizer (HMR) work. The Field Customizer is never instantiated by SharePoint on this tenant, with `heft start` too (module loaded, `onInit` not called);
-- ACEs.
+- ACEs. **Done** (`research/aces/`): `componentType: "AdaptiveCardExtension"` is served with the web part machinery (heft processes ACE manifests exactly like web part manifests: `preconfiguredEntries` titles and `iconImageUrl`); `@microsoft/sp-adaptive-card-extension-base` is a regular SPFx library facade; quick view JSON templates (`import`/`require`) and images go through Vite and the existing `require()` transform. No ACE-specific debug URL: ACEs load with the web part query on any page with a toolbox. Microsoft now documents a test page; the SharePoint Online workbench is retired on 2026-12-01. Every edit to an ACE, its card/quick views or templates reloads the page (views are classes registered in `onInit`). Live on mastaq (hosted workbench, nothing saved): generator Generic Card (Basic card view + quick view, plus an imported PNG icon) renders, the quick view opens (Preview mode), card view and quick view template edits reload with the change, the lazily loaded property pane opens, a compile error shows in the card's error box.
 
 Ignored by the user: warmup waiting 30 s when nothing is pre-bundled; the one-time error after adding a `config.json` external mid-session. Nothing is pushed or published until the user says so.
 

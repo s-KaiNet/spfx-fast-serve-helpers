@@ -11,7 +11,7 @@
 
 ## What reloads the page (by design)
 
-- Edits to the **web part class** (`*WebPart.ts`) or an **extension class** (`*ApplicationCustomizer.ts`, `*CommandSet.ts`, `*FieldCustomizer.ts`, `*FormCustomizer.ts`) and to anything only that class imports (services, helpers). SharePoint created the instance, so it can't be swapped in place.
+- Edits to the **web part class** (`*WebPart.ts`) or an **extension class** (`*ApplicationCustomizer.ts`, `*CommandSet.ts`, `*FieldCustomizer.ts`, `*FormCustomizer.ts`) or an **Adaptive Card Extension class** (`*AdaptiveCardExtension.ts`, see [below](#adaptive-card-extensions)) and to anything only that class imports (services, helpers). SharePoint created the instance, so it can't be swapped in place.
 - Edits to files that export **components and other values** (constants, hooks, helpers). Fast Refresh skips such files, so the update bubbles up to the web part class. Type-only exports (`interface`, `type`) are fine.
 - Edits to `config/config.json`, `config/serve.json`, `package.json`, `tsconfig.json` or a component manifest. A changed `serve.json` serve configuration only changes the printed URL after a restart of `fast-serve`.
 - A **new npm dependency** used for the first time: Vite pre-bundles it and reloads the page once.
@@ -54,6 +54,16 @@ Extensions follow the same rules: React components they render update in place, 
 - Don't render from module level or keep the React root in a module variable: a hot update would run it again and render a second copy.
 - Commands (`items` in the command set manifest) and the serve configuration's `properties` are read when the page loads: edit them, then reload (a manifest edit reloads by itself).
 - In dev all bundles share one module graph, so an extension and a web part that import the same module share one instance; in production each bundle has its own copy.
+
+## Adaptive Card Extensions
+
+An ACE has no React tree to refresh: SharePoint renders its card and quick views from what the ACE class and its views return. The views are classes registered in `onInit` (`this.cardNavigator.register(...)`, `this.quickViewNavigator.register(...)`), and their modules are only imported by the ACE class, so every edit reloads the page:
+
+- card view (`cardViewParameters`, `onCardSelection`) and quick view (`data`, `template`, `onAction`) classes;
+- quick view JSON templates (`template/QuickViewTemplate.json`) and loc strings;
+- the ACE class itself, and the property pane class it loads lazily.
+
+After the reload the card shows the change. On the SharePoint Online workbench the unsaved card stays on the canvas across reloads; a quick view that was open closes, so open it again (in Preview mode). Images imported in a view (`import logo from '../assets/logo.png'`) are served from `src`, and manifest icons with a relative path (`"iconImageUrl": "./assets/icon.png"` in `preconfiguredEntries`) too.
 
 ## When something looks stale
 

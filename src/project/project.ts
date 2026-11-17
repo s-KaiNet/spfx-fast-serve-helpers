@@ -54,7 +54,7 @@ export interface SpfxProject {
   invalidate(file: string): ProjectChange | undefined;
 }
 
-const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension']);
+const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension']);
 
 export function createProject(root: string, logger: ProjectLogger): SpfxProject {
   const files = {

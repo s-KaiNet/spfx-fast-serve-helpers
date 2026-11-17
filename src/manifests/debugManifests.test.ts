@@ -171,6 +171,61 @@ describe('buildDebugManifests with extensions', () => {
   });
 });
 
+describe('buildDebugManifests with an Adaptive Card Extension', () => {
+  const aceBundle: SpfxBundle = {
+    name: 'hello-adaptive-card-extension',
+    components: [
+      {
+        bundleName: 'hello-adaptive-card-extension',
+        manifestFile: '/p/src/adaptiveCardExtensions/hello/HelloAdaptiveCardExtension.manifest.json',
+        entryFile: '/p/src/adaptiveCardExtensions/hello/HelloAdaptiveCardExtension.ts',
+        manifest: {
+          id: 'ace',
+          alias: 'HelloAdaptiveCardExtension',
+          componentType: 'AdaptiveCardExtension',
+          version: '0.0.1',
+          supportedHosts: ['Dashboard'],
+          preconfiguredEntries: [
+            { title: { default: 'Hello' }, iconImageUrl: './assets/MicrosoftLogo.png', cardSize: 'Medium', properties: { title: 'Hello' } },
+          ],
+        },
+      },
+    ],
+  };
+
+  it('serves it like a web part: card entries kept, relative icons on the dev server', () => {
+    const [manifest] = buildDebugManifests({
+      root: '/p',
+      bundles: [aceBundle],
+      origin: 'https://localhost:4321',
+      bundleScriptPath: (name) => `@spfx/bundle/${name}.js`,
+      scriptResources: {},
+    });
+    expect(manifest).toEqual({
+      id: 'ace',
+      alias: 'HelloAdaptiveCardExtension',
+      componentType: 'AdaptiveCardExtension',
+      version: '0.0.1',
+      supportedHosts: ['Dashboard'],
+      preconfiguredEntries: [
+        {
+          title: { default: 'Hello' },
+          iconImageUrl: 'https://localhost:4321/src/adaptiveCardExtensions/hello/assets/MicrosoftLogo.png',
+          cardSize: 'Medium',
+          properties: { title: 'Hello' },
+        },
+      ],
+      loaderConfig: {
+        internalModuleBaseUrls: ['https://localhost:4321/'],
+        entryModuleId: 'hello-adaptive-card-extension',
+        scriptResources: {
+          'hello-adaptive-card-extension': { type: 'path', path: '@spfx/bundle/hello-adaptive-card-extension.js' },
+        },
+      },
+    });
+  });
+});
+
 describe('renderManifestsModule', () => {
   it('renders an AMD module whose getManifests() returns the manifests', () => {
     const manifests = buildDebugManifests({

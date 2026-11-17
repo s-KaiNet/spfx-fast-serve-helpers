@@ -2,7 +2,7 @@
 
 > **Work in progress.** Vite-based rewrite for SharePoint Framework **1.24.x** (Heft) projects.
 
-A dev-server-only replacement for `heft start`: the server starts fast, HMR with React Fast Refresh works, and your web parts and extensions run inside a real SharePoint page. Production builds and packaging stay on Heft (`heft build` / `heft package-solution`).
+A dev-server-only replacement for `heft start`: the server starts fast, HMR with React Fast Refresh works, and your web parts, extensions and Adaptive Card Extensions run inside a real SharePoint page. Production builds and packaging stay on Heft (`heft build` / `heft package-solution`).
 
 Design notes, decisions and status: [docs/vite/HANDOFF.md](docs/vite/HANDOFF.md).
 
@@ -49,7 +49,13 @@ It prints the page to open, e.g.
 
 Open that URL and click **Load debug scripts**. If no page is configured, append the printed query to any SharePoint page URL: `?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true`. The web part must already be on the page (add it from the toolbox while `fast-serve` runs, then save the page).
 
-Web parts and extensions (Application Customizers, ListView Command Sets, Field Customizers, Form Customizers) are served; Adaptive Card Extensions and library components are not yet. Stop the server with Ctrl+C.
+Web parts, extensions (Application Customizers, ListView Command Sets, Field Customizers, Form Customizers) and Adaptive Card Extensions are served; library components are not yet. Stop the server with Ctrl+C.
+
+### Adaptive Card Extensions
+
+ACEs load with the same debug query as web parts, so nothing needs configuring: open a test page with the printed query, edit it and add the card from the toolbox (it's listed under its manifest title). Microsoft's [ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension) uses a SharePoint page now, because the SharePoint Online workbench (`/_layouts/15/workbench.aspx`, still the generator's `initialPage`) is retired on December 1, 2026. Until then the workbench works too, and it doesn't need saving: it keeps the unsaved canvas across reloads, which makes it convenient for trying a card without touching a real page. Card interaction (buttons, quick views) is disabled in edit mode: switch to **Preview** on the workbench, or save the page and leave edit mode.
+
+`@microsoft/sp-adaptive-card-extension-base` comes from the page like every SPFx library. Quick view templates (`import template from './template/QuickViewTemplate.json'`, or `require(...)`) and images (`import logo from '../assets/logo.png'`) are served by Vite. Card views and quick views are classes the ACE registers in `onInit`, so editing them, their JSON templates or the ACE class reloads the page ([details](docs/hmr.md#adaptive-card-extensions)).
 
 ### Extensions and serve configurations
 
@@ -128,7 +134,7 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 ## HMR: do's and don'ts
 
 - Updates in place, keeping React state: function components in `.tsx` files that export only components; `.module.scss` / `.scss` / `.css`; new imports.
-- Reloads the page: edits to the web part or extension class and to what only it imports; files that export components **and** other values; `config/*.json`, `package.json`, `tsconfig.json`, manifests.
+- Reloads the page: edits to the web part, extension or Adaptive Card Extension class and to what only it imports (for ACEs that includes card views, quick views and their JSON templates); files that export components **and** other values; `config/*.json`, `package.json`, `tsconfig.json`, manifests.
 - Do setup (icons, PnPjs, listeners) in `onInit`, not at module level: module-level code runs again on every hot update.
 
 Details and examples: [docs/hmr.md](docs/hmr.md).
@@ -146,14 +152,14 @@ Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A
 | "Error loading debug manifests" after you stopped `fast-serve` | the debug query sticks to the browser tab (`sessionStorage`). Open the page in a new tab, without the query |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` is running. Stop it, or use `--port` / `"port"` |
 | `Unsupported SPFx version` | install the `spfx-fast-serve-helpers` version matching your SPFx version (see Requirements) |
-| `No web parts or extensions found` | check `config/config.json` bundles (Adaptive Card Extensions and library components aren't served yet) |
+| `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served yet) |
 | `Serve configuration "x" not found` | the `--config` name isn't in `config/serve.json` `serveConfigurations`; the message lists the names |
 | web part shows `[fast-serve] Failed to load bundle …: <error> in src/…:line:col` | a syntax or transform error: details are in the `fast-serve` terminal. Fix the file and the page reloads |
 | `… older than … used by the project` | your project uses a newer SPFx version than your tenant serves. It would fail in production too: use the SPFx version your tenant supports |
 
 ## Limitations (v1)
 
-- Web parts and extensions only: no Adaptive Card Extensions or library components yet.
+- Web parts, extensions and Adaptive Card Extensions only: no library components yet.
 - Extensions: a localized command title in a manifest (`"title": { "id": "$…" }`) isn't resolved (heft fills it from the loc file); use `"default"` texts. Relative icon paths (`"iconImageUrl": "./icons/x.png"`) are served from `src`; `"icons/x.png"` without `./` is passed through, as heft does, and resolves against the dev server root.
 - Dev server only: no production build, no type checking and no linting (run `tsc --noEmit` / ESLint / `heft build` separately).
 - No error overlay; errors show in the web part, the browser console and the terminal. The terminal only gets browser errors that come from your code: uncaught errors, unhandled rejections and `console.error` calls whose stack trace includes a project module (`https://localhost:<port>/src/...`, not `node_modules`) or the `fast-serve` loader. SharePoint's own errors and third-party noise (for example `@pnp/telemetry-js` "Failed to fetch") stay in the browser console, and so do rejections without a stack (`Promise.reject('text')`).

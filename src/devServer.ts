@@ -22,10 +22,7 @@ export async function startDevServer({ root, cli = {}, logger = createConsoleLog
   const project = createProject(projectRoot, logger);
   const options = resolveOptions({ cli, file: loadOptionsFile(projectRoot), defaults: project.serveConfig() });
   if (project.components().length === 0) {
-    throw new Error(
-      'No web parts or extensions found in config/config.json bundles ' +
-        '(Adaptive Card Extensions and library components are not supported yet).',
-    );
+    throw new Error('No web parts, extensions or Adaptive Card Extensions found in config/config.json bundles (library components are not supported yet).');
   }
   if (options.serveConfiguration) {
     const { name, ...configuration } = options.serveConfiguration;
@@ -76,12 +73,14 @@ function printReady({ options, project, logger }: ServeContext, elapsedMs: numbe
 }
 
 function componentLines(components: readonly SpfxComponent[]): string[] {
-  const webParts = components.filter((component) => component.manifest.componentType === 'WebPart');
-  const extensions = components.filter((component) => component.manifest.componentType === 'Extension');
+  const ofType = (componentType: string) => components.filter((component) => component.manifest.componentType === componentType);
   return [
-    ...(webParts.length > 0 ? [`web parts: ${webParts.map(({ manifest }) => manifest.alias).join(', ')}`] : []),
-    ...(extensions.length > 0
-      ? [`extensions: ${extensions.map(({ manifest }) => `${manifest.alias} (${manifest.extensionType ?? 'Extension'})`).join(', ')}`]
-      : []),
+    ...componentLine('web parts', ofType('WebPart'), ({ manifest }) => manifest.alias),
+    ...componentLine('extensions', ofType('Extension'), ({ manifest }) => `${manifest.alias} (${manifest.extensionType ?? 'Extension'})`),
+    ...componentLine('Adaptive Card Extensions', ofType('AdaptiveCardExtension'), ({ manifest }) => manifest.alias),
   ];
+}
+
+function componentLine(label: string, members: readonly SpfxComponent[], describe: (component: SpfxComponent) => string): string[] {
+  return members.length > 0 ? [`${label}: ${members.map(describe).join(', ')}`] : [];
 }

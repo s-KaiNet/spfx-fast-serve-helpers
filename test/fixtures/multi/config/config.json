@@ -16,6 +16,10 @@
           "manifest": "./src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.manifest.json"
         },
         {
+          "entrypoint": "./lib/libraries/tools/index.js",
+          "manifest": "./src/libraries/tools/ToolsLibrary.manifest.json"
+        },
+        {
           "entrypoint": "./lib/webparts/second/SecondWebPart.js",
           "manifest": "./src/webparts/second/SecondWebPart.manifest.json"
         }

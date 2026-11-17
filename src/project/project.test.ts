@@ -14,11 +14,11 @@ function fixtureProject() {
 }
 
 describe('createProject', () => {
-  it('reads web part and extension bundles and skips unsupported component types', () => {
+  it('reads web part, Adaptive Card Extension and extension bundles and skips unsupported component types', () => {
     const { project, warnings } = fixtureProject();
     const bundles = project.bundles();
-    expect(bundles.map(({ name }) => name)).toEqual(['hello-web-part', 'banner-application-customizer']);
-    const [bundle, extensionBundle] = bundles;
+    expect(bundles.map(({ name }) => name)).toEqual(['hello-web-part', 'card-adaptive-card-extension', 'banner-application-customizer']);
+    const [bundle, aceBundle, extensionBundle] = bundles;
     expect(bundle?.name).toBe('hello-web-part');
     expect(bundle?.components).toHaveLength(1);
     const component = bundle?.components[0];
@@ -39,7 +39,14 @@ describe('createProject', () => {
       version: '1.2.3',
     });
     expect(extensionBundle?.components[0]?.entryFile).toBe(path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.ts'));
-    expect(warnings).toEqual(['CardAdaptiveCardExtension: componentType "AdaptiveCardExtension" is not supported yet, skipped']);
+    expect(aceBundle?.components[0]?.manifest).toMatchObject({
+      id: '88888888-2222-3333-4444-555555555555',
+      alias: 'CardAdaptiveCardExtension',
+      componentType: 'AdaptiveCardExtension',
+      version: '1.2.3',
+    });
+    expect(aceBundle?.components[0]?.entryFile).toBe(path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.ts'));
+    expect(warnings).toEqual(['ToolsLibrary: componentType "Library" is not supported yet, skipped']);
   });
 
   it('rejects an extension manifest without extensionType', () => {
@@ -193,6 +200,7 @@ describe('createProject', () => {
       path.join(root, 'config/config.json'),
       path.join(root, 'config/serve.json'),
       path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'),
+      path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.manifest.json'),
       path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.manifest.json'),
       path.join(root, 'tsconfig.json'),
       path.join(root, 'tsconfig.base.json'),

@@ -18,6 +18,14 @@
         }
       ]
     },
+    "tools-library": {
+      "components": [
+        {
+          "entrypoint": "./lib/libraries/tools/index.js",
+          "manifest": "./src/libraries/tools/ToolsLibrary.manifest.json"
+        }
+      ]
+    },
     "banner-application-customizer": {
       "components": [
         {
