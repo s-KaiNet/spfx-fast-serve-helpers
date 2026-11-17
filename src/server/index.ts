@@ -6,16 +6,23 @@ import { tsconfigTransformChanged } from '../transforms/tsconfig/index.js';
 import { errorMessage } from '../utils/errors.js';
 import { toPosix } from '../utils/paths.js';
 import type { HttpsCredentials } from './certificate.js';
+import type { StartupWarmup } from './warmup.js';
 
 export { loadDevCertificate } from './certificate.js';
 export { debugPageUrl, debugQuery } from './debugUrl.js';
 export { createViteLogger } from './viteLogger.js';
+export { createStartupWarmup, type StartupWarmup } from './warmup.js';
 
 const SPFX_BUILD_OUTPUT_FOLDERS = ['lib', 'lib-commonjs', 'lib-esm', 'lib-dts', 'dist', 'temp', 'release', 'sharepoint', 'teams', 'jest-output', '.heft'];
 
 const FAST_SERVE_PACKAGE_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
-export function serverPlugin(context: ServeContext, https: HttpsCredentials): Plugin {
+export interface ServerPluginOptions {
+  warmup: StartupWarmup;
+  warmupUrls: () => string[];
+}
+
+export function serverPlugin(context: ServeContext, https: HttpsCredentials, { warmup, warmupUrls }: ServerPluginOptions): Plugin {
   const { root, options, project, logger } = context;
   const rootGlob = toPosix(root);
 
@@ -35,9 +42,6 @@ export function serverPlugin(context: ServeContext, https: HttpsCredentials): Pl
 
         headers: { 'Access-Control-Allow-Private-Network': 'true' },
         watch: { ignored: SPFX_BUILD_OUTPUT_FOLDERS.map((folder) => `${rootGlob}/${folder}/**`) },
-        warmup: {
-          clientFiles: ['./src/**/*.{ts,tsx,js,jsx}', '!./src/**/*.d.ts', '!./src/**/*.{test,spec}.*', '!./src/**/__tests__/**'],
-        },
         fs: { allow: [searchForWorkspaceRoot(root), FAST_SERVE_PACKAGE_ROOT] },
 
         forwardConsole: { unhandledErrors: true, logLevels: ['error'] },
@@ -48,6 +52,11 @@ export function serverPlugin(context: ServeContext, https: HttpsCredentials): Pl
     }),
 
     configureServer(server) {
+      server.httpServer?.once('listening', () => {
+        warmup.run(server.environments.client, warmupUrls()).catch((error: unknown) => {
+          logger.warn(`startup warmup failed: ${errorMessage(error)}`);
+        });
+      });
       const onFileEvent = (file: string) => {
         const change = project.invalidate(file);
         if (!change) return;

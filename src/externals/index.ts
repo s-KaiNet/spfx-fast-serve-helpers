@@ -5,7 +5,7 @@ import type { ScriptResource } from '../manifests/index.js';
 import type { ConfigExternal, SpfxLibrary } from '../project/index.js';
 import type { LibraryLoaderConfig, SpfxLibraryReference } from '../runtime/contracts.js';
 import { readRuntimeScript } from '../utils/runtimeSource.js';
-import { isStyleRequest, sendJavaScript } from '../utils/vite.js';
+import { BARE_SPECIFIER_FILTER, isStyleRequest, sendJavaScript } from '../utils/vite.js';
 import { readExportNames } from './exportNames.js';
 import {
   renderChunkPreload,
@@ -33,6 +33,8 @@ const FACADE_PREFIXES = {
   external: '\0spfx-external:',
   externalCommonJs: '\0spfx-external-cjs:',
 } as const;
+
+const FACADE_ID_FILTER = /spfx-(?:library|external)(?:-cjs)?:/;
 
 type FacadeKind = keyof typeof FACADE_PREFIXES;
 
@@ -98,8 +100,11 @@ export function createExternals(context: ServeContext): SpfxExternals {
 
   const prebundlePlugin: Rolldown.Plugin = {
     name: 'fast-serve:externals-prebundle',
-    resolveId: (source, _importer, { kind }) => facadeId(source, kind === 'require-call'),
-    load: loadFacade,
+    resolveId: {
+      filter: { id: BARE_SPECIFIER_FILTER },
+      handler: (source, _importer, { kind }) => facadeId(source, kind === 'require-call'),
+    },
+    load: { filter: { id: FACADE_ID_FILTER }, handler: loadFacade },
     renderChunk(code, chunk) {
       const facades = chunk.moduleIds.flatMap((id) => parseFacadeId(id) ?? []);
       const libraries = uniqueByName(

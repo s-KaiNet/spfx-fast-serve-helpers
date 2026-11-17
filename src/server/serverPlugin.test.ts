@@ -1,15 +1,12 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import picomatch from 'picomatch';
-import { glob } from 'tinyglobby';
 import type { UserConfig } from 'vite';
 import { describe, expect, it } from 'vitest';
 import type { ServeContext } from '../context.js';
 import { createProject } from '../project/index.js';
 import { toPosix } from '../utils/paths.js';
-import { serverPlugin } from './index.js';
+import { createStartupWarmup, serverPlugin } from './index.js';
 
 const root = fileURLToPath(new URL('../../test/fixtures/basic/', import.meta.url)).replace(/[\\/]$/, '');
 const https = { cert: 'test-cert', key: 'test-key' };
@@ -22,7 +19,7 @@ function serverConfig(): UserConfig {
     logger,
     options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined },
   };
-  return (serverPlugin(context, https).config as () => UserConfig)();
+  return (serverPlugin(context, https, { warmup: createStartupWarmup(), warmupUrls: () => [] }).config as () => UserConfig)();
 }
 
 function projectFile(relativePath: string): string {
@@ -63,36 +60,8 @@ describe('server plugin config', () => {
     expect(sources.filter((file) => isIgnored(projectFile(file)))).toEqual([]);
   });
 
-  it('warms up source scripts without declarations and tests', async () => {
-    const patterns = asStrings(serverConfig().server?.warmup?.clientFiles);
-    const project = mkdtempSync(path.join(tmpdir(), 'fast-serve-warmup-'));
-    try {
-      const files = [
-        'src/webparts/hello/HelloWebPart.ts',
-        'src/webparts/hello/components/Hello.tsx',
-        'src/webparts/hello/legacy.js',
-        'src/webparts/hello/Widget.jsx',
-        'src/webparts/hello/Hello.module.scss',
-        'src/types/env.d.ts',
-        'src/webparts/hello/Hello.test.tsx',
-        'src/webparts/hello/Hello.spec.ts',
-        'src/webparts/hello/__tests__/Hello.tsx',
-        'lib/webparts/hello/HelloWebPart.js',
-      ];
-      for (const file of files) {
-        mkdirSync(path.dirname(path.join(project, file)), { recursive: true });
-        writeFileSync(path.join(project, file), '');
-      }
-      const warmedUp = await glob(patterns, { cwd: project, expandDirectories: false });
-      expect(warmedUp.toSorted()).toEqual([
-        'src/webparts/hello/HelloWebPart.ts',
-        'src/webparts/hello/Widget.jsx',
-        'src/webparts/hello/components/Hello.tsx',
-        'src/webparts/hello/legacy.js',
-      ]);
-    } finally {
-      rmSync(project, { recursive: true, force: true });
-    }
+  it('leaves warmup to the startup entry-graph warmup instead of warming every source file', () => {
+    expect(serverConfig().server?.warmup).toBeUndefined();
   });
 
   it('allows serving files from the workspace and this package', () => {

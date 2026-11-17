@@ -7,7 +7,7 @@ import { createServerErrorLog, recordErrorsMiddleware, serverStatusMiddleware } 
 import { createShimConfig, renderShim } from './shim.js';
 import type { SpfxBundle } from '../project/index.js';
 
-export { bundleShimPath } from './paths.js';
+export { bundleEntryPath, bundleShimPath } from './paths.js';
 
 export interface LoaderPluginOptions {
   bundles: () => SpfxBundle[];

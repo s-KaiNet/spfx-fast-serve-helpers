@@ -2,6 +2,8 @@ import type { ServerResponse } from 'node:http';
 
 const STYLE_REQUEST = /\.(css|scss|sass|less|styl|stylus|pcss|postcss)(\?|$)/;
 
+export const BARE_SPECIFIER_FILTER = /^[\w@]/;
+
 export function isStyleRequest(id: string | undefined): boolean {
   return id !== undefined && STYLE_REQUEST.test(id);
 }

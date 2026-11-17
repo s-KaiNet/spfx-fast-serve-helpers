@@ -175,3 +175,33 @@ describe('pre-bundling', () => {
     expect(code).toContain('function loadStyles(');
   });
 });
+
+type Handler = (...args: unknown[]) => unknown;
+
+interface FilteredHook {
+  filter: { id: RegExp };
+  handler: Handler;
+}
+
+describe('pre-bundle plugin hooks', () => {
+  const [prebundle] = prebundlePlugins([libraryCssPlugin(createContext())]);
+  const resolveHook = prebundle?.resolveId as unknown as FilteredHook;
+  const loadHook = prebundle?.load as unknown as FilteredHook;
+  const importer = path.join(controlsDir, 'peoplepicker/PeoplePickerComponent.js');
+
+  it('only runs for style specifiers and compiled library style modules', () => {
+    expect(['./X.module.scss', './x.css?inline', '../y.sass'].every((id) => resolveHook.filter.id.test(id))).toBe(true);
+    expect(['./X', 'react', '@pnp/sp', './x.scss.ts'].some((id) => resolveHook.filter.id.test(id))).toBe(false);
+    const id = resolveHook.handler('./PeoplePickerComponent.module.scss', importer) as string;
+    expect(loadHook.filter.id.test(id)).toBe(true);
+    expect(loadHook.filter.id.test(importer)).toBe(false);
+  });
+
+  it('imports load-themed-styles by absolute path, so the virtual module needs no importer-relative resolution', async () => {
+    const id = resolveHook.handler('./PeoplePickerComponent.module.scss', importer) as string;
+    const { code } = (await loadHook.handler(id)) as { code: string };
+    const specifier = /from "([^"]*load-themed-styles[^"]*)"/.exec(code)?.[1] ?? '';
+    expect(path.isAbsolute(specifier)).toBe(true);
+    expect(readFileSync(specifier, 'utf8')).toContain('loadStyles');
+  });
+});

@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { Plugin, Rolldown } from 'vite';
 import type { ServeContext } from '../context.js';
 import { toPosix } from '../utils/paths.js';
-import { isStyleRequest } from '../utils/vite.js';
+import { BARE_SPECIFIER_FILTER, isStyleRequest } from '../utils/vite.js';
 import { readLocFile, renderLocModule, type LocFile } from './locModule.js';
 
 const VIRTUAL_PREFIX = '\0spfx-loc:';
@@ -23,7 +23,10 @@ export function localizationPlugin(context: ServeContext): Plugin {
 
   const prebundlePlugin: Rolldown.Plugin = {
     name: 'fast-serve:localization-prebundle',
-    resolveId: (source) => (resources().has(source) ? { id: source, external: true } : null),
+    resolveId: {
+      filter: { id: BARE_SPECIFIER_FILTER },
+      handler: (source) => (resources().has(source) ? { id: source, external: true } : null),
+    },
   };
 
   return {
