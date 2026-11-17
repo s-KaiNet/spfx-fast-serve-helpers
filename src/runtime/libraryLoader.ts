@@ -75,20 +75,44 @@ function createLibraryLoader(config: LibraryLoaderConfig): LibraryLoaderGlobal {
   let scopedRequire: LibraryScopedRequire | undefined;
   let componentLoader: Promise<SpComponentLoaderModule['SPComponentLoader']> | undefined;
 
-  const getComponentLoader = () =>
-    (componentLoader ??= new Promise((resolve, reject) => {
+  const requireScoped = (moduleName: string) =>
+    new Promise<unknown>((resolve, reject) => {
       if (!scopedRequire) {
         reject(new Error('the bundle shim has not received the RequireJS require yet'));
         return;
       }
-      scopedRequire(
-        [config.componentLoaderModule],
-        (loaderModule) => {
-          resolve((loaderModule as SpComponentLoaderModule).SPComponentLoader);
+      scopedRequire([moduleName], resolve, reject);
+    });
+
+  const getComponentLoader = () =>
+    (componentLoader ??= requireScoped(config.componentLoaderModule).then(
+      (loaderModule) => (loaderModule as SpComponentLoaderModule).SPComponentLoader,
+    ));
+
+  const pendingExternals = new Map<string, Promise<unknown>>();
+  const loadedExternals = new Map<string, unknown>();
+
+  const loadExternal = (name: string): Promise<unknown> => {
+    let request = pendingExternals.get(name);
+    if (!request) {
+      request = requireScoped(name).then(
+        (externalModule) => {
+          loadedExternals.set(name, externalModule);
+          return externalModule;
         },
-        reject,
+        (error: unknown) => {
+          const failure = new Error(
+            `[fast-serve] Cannot load "${name}" from config/config.json "externals": ${describeLoadError(error)}`,
+            { cause: error },
+          );
+          console.error(failure);
+          throw failure;
+        },
       );
-    }));
+      pendingExternals.set(name, request);
+    }
+    return request;
+  };
 
   const loadLibrary = (library: LibraryReference): Promise<unknown> => {
     let request = pending.get(library.name);
@@ -127,6 +151,14 @@ function createLibraryLoader(config: LibraryLoaderConfig): LibraryLoaderGlobal {
         throw new Error(`[fast-serve] SPFx library ${describeLibrary(library)} was required before it was preloaded.`);
       }
       return loaded.get(library.name);
+    },
+    loadExternal,
+    preloadExternals: (names) => Promise.all(names.map(loadExternal)),
+    loadedExternal(name) {
+      if (!loadedExternals.has(name)) {
+        throw new Error(`[fast-serve] config/config.json external "${name}" was required before it was preloaded.`);
+      }
+      return loadedExternals.get(name);
     },
   };
 }

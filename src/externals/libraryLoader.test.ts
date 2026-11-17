@@ -87,3 +87,34 @@ describe('library loader runtime', () => {
     await expect(fastServe.loadLibrary(core)).rejects.toThrow('from SharePoint: {"code":42}');
   });
 });
+
+describe('config.json externals in the library loader runtime', () => {
+  it('requires each external once with the component-scoped require', async () => {
+    const jquery = { fn: { jquery: '3.7.1' } };
+    const { fastServe, scopedRequire } = await installLibraryLoader(() => Promise.resolve({}));
+    scopedRequire.mockImplementation((names, onLoad) => {
+      onLoad(names[0] === 'jquery' ? jquery : undefined);
+    });
+
+    expect(() => fastServe.loadedExternal('jquery')).toThrow(
+      '[fast-serve] config/config.json external "jquery" was required before it was preloaded.',
+    );
+    await fastServe.preloadExternals(['jquery']);
+    expect(await fastServe.loadExternal('jquery')).toBe(jquery);
+    expect(fastServe.loadedExternal('jquery')).toBe(jquery);
+    expect(scopedRequire).toHaveBeenCalledTimes(1);
+    expect(scopedRequire.mock.calls[0]?.[0]).toEqual(['jquery']);
+  });
+
+  it('reports RequireJS failures with the external name', async () => {
+    const { fastServe, scopedRequire, console } = await installLibraryLoader(() => Promise.resolve({}));
+    scopedRequire.mockImplementation((_names, _onLoad, onError) => {
+      onError({ message: 'Script error for "x/jquery"' });
+    });
+
+    await expect(fastServe.loadExternal('jquery')).rejects.toThrow(
+      '[fast-serve] Cannot load "jquery" from config/config.json "externals": Script error for "x/jquery"',
+    );
+    expect(console.error).toHaveBeenCalledTimes(1);
+  });
+});

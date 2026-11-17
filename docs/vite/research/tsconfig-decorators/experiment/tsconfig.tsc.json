@@ -1,0 +1,5 @@
+{
+  "extends": "/home/sergei/Projects/spfx-rea/tsconfig.json",
+  "compilerOptions": { "outDir": "/tmp/deco-exp/tsc-out", "rootDir": "/home/sergei/Projects/spfx-rea/src/decoexp", "declaration": false, "inlineSources": false, "declarationMap": false, "sourceMap": false, "noUnusedLocals": false, "noUnusedParameters": false, "strictPropertyInitialization": false, "types": [] },
+  "include": ["/home/sergei/Projects/spfx-rea/src/decoexp/*.ts", "/home/sergei/Projects/spfx-rea/src/decoexp/enums/*.ts"]
+}

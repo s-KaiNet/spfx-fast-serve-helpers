@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -136,7 +136,68 @@ describe('createProject', () => {
       path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'),
       path.join(root, 'tsconfig.json'),
       path.join(root, 'tsconfig.base.json'),
+      path.join(root, 'assets/legacy-plugin.js'),
     ]);
+  });
+
+  it('reads config.json externals like heft: URLs, local files, globals, SPFx libraries first', () => {
+    const { project, warnings } = fixtureProject();
+    expect([...project.configExternals().values()]).toEqual([
+      {
+        name: 'jquery',
+        source: { type: 'url', url: 'https://code.jquery.com/jquery-3.7.1.min.js' },
+        packageDir: path.join(root, 'node_modules/jquery'),
+      },
+      {
+        name: 'legacy-plugin',
+        source: { type: 'file', file: path.join(root, 'assets/legacy-plugin.js') },
+        globalName: 'LegacyPlugin',
+        globalDependencies: ['jquery'],
+      },
+    ]);
+    expect(warnings).toEqual([
+      'config/config.json externals "@microsoft/sp-core-library" is ignored: it is an SPFx library, loaded from SharePoint like in heft',
+      `config/config.json externals "missing-file": ${path.join(root, 'assets/missing.js').split(path.sep).join('/')} does not exist (paths are relative to the project root), skipped`,
+      'config/config.json externals "orphan-plugin": global dependency "not-defined" is not a usable external ' +
+        '(it must be a valid, non-circular entry in "externals" and must not be an SPFx library), skipped',
+    ]);
+  });
+
+  it('reloads the model when a local external file changes', () => {
+    const { project } = fixtureProject();
+    const externals = project.configExternals();
+    expect(project.invalidate(path.join(root, 'assets/legacy-plugin.js'))).toBe('model');
+    expect(project.configExternals()).not.toBe(externals);
+    expect(project.configExternals()).toEqual(externals);
+  });
+
+  it('skips externals whose global dependencies form a cycle', () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
+    try {
+      const warnings: string[] = [];
+      mkdirSync(path.join(projectRoot, 'config'));
+      writeFileSync(
+        path.join(projectRoot, 'config/config.json'),
+        JSON.stringify({
+          externals: {
+            a: { path: 'https://x.invalid/a.js', globalName: 'A', globalDependencies: ['b'] },
+            b: { path: 'https://x.invalid/b.js', globalName: 'B', globalDependencies: ['a'] },
+            c: { path: 'https://x.invalid/c.js' },
+            d: { globalName: 'D' },
+          },
+        }),
+      );
+      writeFileSync(path.join(projectRoot, 'package.json'), '{ "version": "1.0.0" }');
+      const project = createProject(projectRoot, { warn: (message) => warnings.push(message) });
+      expect([...project.configExternals().keys()]).toEqual(['c']);
+      expect(warnings).toEqual([
+        'config/config.json externals "d": needs a path string or { "path", "globalName" }, skipped',
+        expect.stringContaining('"b": global dependency "a"'),
+        expect.stringContaining('"a": global dependency "b"'),
+      ]);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   it('explains a missing config/config.json', () => {

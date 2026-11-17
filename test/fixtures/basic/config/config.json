@@ -19,7 +19,21 @@
       ]
     }
   },
-  "externals": {},
+  "externals": {
+    "jquery": "https://code.jquery.com/jquery-3.7.1.min.js",
+    "legacy-plugin": {
+      "path": "./assets/legacy-plugin.js",
+      "globalName": "LegacyPlugin",
+      "globalDependencies": ["jquery"]
+    },
+    "@microsoft/sp-core-library": "https://example.invalid/sp-core-library.js",
+    "missing-file": "./assets/missing.js",
+    "orphan-plugin": {
+      "path": "https://example.invalid/orphan.js",
+      "globalName": "Orphan",
+      "globalDependencies": ["not-defined"]
+    }
+  },
   "localizedResources": {
     "HelloWebPartStrings": "lib/webparts/hello/loc/{locale}.js",
     "ControlStrings": "node_modules/@pnp/controls/lib/loc/{locale}.js",

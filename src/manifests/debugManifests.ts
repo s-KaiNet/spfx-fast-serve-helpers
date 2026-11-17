@@ -1,7 +1,7 @@
 import type { ComponentManifest, SpfxBundle } from '../project/index.js';
 
 export type ScriptResource =
-  | { type: 'path'; path: string }
+  | { type: 'path'; path: string; globalName?: string; globalDependencies?: string[] }
   | { type: 'component'; id: string; version: string };
 
 export interface DebugManifest extends ComponentManifest {

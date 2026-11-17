@@ -65,7 +65,7 @@ function readManifestSafely(file: string): unknown {
   }
 }
 
-function findPackageDirectory(packageName: string, fromDir: string): string | undefined {
+export function findPackageDirectory(packageName: string, fromDir: string): string | undefined {
   for (let dir = fromDir; ; dir = path.dirname(dir)) {
     const candidate = path.join(dir, 'node_modules', packageName);
     if (existsSync(path.join(candidate, 'package.json'))) return realpathSync(candidate);

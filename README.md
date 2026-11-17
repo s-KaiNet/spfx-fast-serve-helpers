@@ -121,7 +121,8 @@ Watch out:
 - Web parts only: no extensions (Application Customizers, Command Sets, Field/Form Customizers), Adaptive Card Extensions or library components yet.
 - Dev server only: no production build, no type checking and no linting (run `tsc --noEmit` / ESLint / `heft build` separately).
 - No error overlay; errors show in the web part, the browser console and the terminal.
-- `config/config.json` `externals` are not supported yet.
+- `config/config.json` `externals` (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like in heft, never bundled from `node_modules`. Named imports from an external (`import { ajax } from 'jquery'`) only work when a package with the same name is installed (its export names are used); otherwise use the default import.
+- `localizedResources` loc files can be JavaScript or TypeScript. Write them as `define([], function () { return { ... }; });`: `export default` / `export =` work in `fast-serve`, but heft copies the compiled file as is and SharePoint can't load an ES module there (`fast-serve` warns).
 - `localhost` only (no tunnels, containers or WSL-specific setup); no Teams hosts.
 - The page is loaded from `localhost` module by module, so a cold page load of a very large project is slower than `heft start`; edits are much faster.
 

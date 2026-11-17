@@ -1,13 +1,25 @@
-import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import type { Plugin, Rolldown } from 'vite';
 import type { ServeContext } from '../context.js';
+import { toPosix } from '../utils/paths.js';
 import { isStyleRequest } from '../utils/vite.js';
-import { evaluateLocFile, renderLocModule } from './locModule.js';
+import { readLocFile, renderLocModule, type LocFile } from './locModule.js';
 
 const VIRTUAL_PREFIX = '\0spfx-loc:';
 
 export function localizationPlugin(context: ServeContext): Plugin {
   const resources = () => context.project.localizedResources(context.options.locale);
+  const warnedModuleLocFiles = new Set<string>();
+
+  const warnAboutHeftIncompatibleFormat = (name: string, file: string, locFile: LocFile) => {
+    if (locFile.format === 'amd' || warnedModuleLocFiles.has(file)) return;
+    warnedModuleLocFiles.add(file);
+    context.logger.warn(
+      `${name}: ${toPosix(path.relative(context.root, file))} is an ES/CommonJS module. fast-serve loads it, but heft copies ` +
+        'the compiled lib/ file into dist/ as is and SharePoint loads it with RequireJS, which needs ' +
+        '`define([], function () { return { ... }; });`',
+    );
+  };
 
   const prebundlePlugin: Rolldown.Plugin = {
     name: 'fast-serve:localization-prebundle',
@@ -22,12 +34,15 @@ export function localizationPlugin(context: ServeContext): Plugin {
       if (isStyleRequest(importer) || !resources().has(source)) return null;
       return VIRTUAL_PREFIX + source;
     },
-    load(id) {
+    async load(id) {
       if (!id.startsWith(VIRTUAL_PREFIX)) return null;
       const resource = resources().get(id.slice(VIRTUAL_PREFIX.length));
       if (!resource) return null;
       this.addWatchFile(resource.file);
-      return renderLocModule(evaluateLocFile(readFileSync(resource.file, 'utf8'), resource.file));
+      const locFile = await readLocFile(resource.file);
+      for (const file of locFile.files) this.addWatchFile(file);
+      warnAboutHeftIncompatibleFormat(resource.name, resource.file, locFile);
+      return renderLocModule(locFile.strings);
     },
   };
 }

@@ -7,8 +7,10 @@ import { bundleExportNames } from './exportNames.js';
 import { findSpfxLibraries } from './libraries.js';
 import { findSourceFile, LOC_EXTENSIONS, SOURCE_EXTENSIONS } from './sourcePaths.js';
 import { hasPathResolution, readTsconfigPaths, type TsconfigPaths } from './tsconfigPaths.js';
+import { readConfigExternals } from './configExternals.js';
 import type {
   ComponentManifest,
+  ConfigExternal,
   LocalizedResource,
   PackageJson,
   ServeConfig,
@@ -35,6 +37,8 @@ export interface SpfxProject {
   components(): SpfxComponent[];
 
   libraries(): Map<string, SpfxLibrary>;
+
+  configExternals(): Map<string, ConfigExternal>;
 
   localizedResources(locale: string): Map<string, LocalizedResource>;
 
@@ -96,9 +100,6 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
   const bundles = (): SpfxBundle[] =>
     cached('bundles', () => {
       const config = buildConfig();
-      if (isObject(config.externals) && Object.keys(config.externals).length > 0) {
-        logger.warn('config/config.json "externals" are not supported yet and are ignored');
-      }
       const result: SpfxBundle[] = [];
       for (const [name, bundle] of Object.entries(isObject(config.bundles) ? config.bundles : {})) {
         const entries = isObject(bundle) && Array.isArray(bundle.components) ? bundle.components : [];
@@ -136,6 +137,12 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
   const libraries = (): Map<string, SpfxLibrary> =>
     cached('libraries', () => findSpfxLibraries(root));
 
+  const configExternals = (): Map<string, ConfigExternal> =>
+    cached('externals', () => readConfigExternals(root, buildConfig().externals, libraries(), logger));
+
+  const localFileExternals = (): string[] =>
+    [...configExternals().values()].flatMap(({ source }) => (source.type === 'file' ? [source.file] : []));
+
   const localizedResources = (locale: string): Map<string, LocalizedResource> =>
     cached(`loc:${locale}`, () => {
       const config = buildConfig();
@@ -151,7 +158,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
   function resolveLocalizedResource(name: string, pattern: string, locale: string): LocalizedResource | undefined {
     const candidates = locale === DEFAULT_LOCALE ? [locale] : [locale, DEFAULT_LOCALE];
     for (const candidate of candidates) {
-      const file = findSourceFile(root, pattern.replace('{locale}', candidate), LOC_EXTENSIONS);
+      const file = findSourceFile(root, pattern.replaceAll('{locale}', candidate), LOC_EXTENSIONS);
       if (!file) continue;
       if (candidate !== locale) logger.warn(`${name}: no "${locale}" strings, using ${candidate}`);
       return { name, file, locale: candidate };
@@ -182,12 +189,20 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     bundles,
     components,
     libraries,
+    configExternals,
     localizedResources,
     tsconfigPaths: () => {
       const paths = tsconfigPaths();
       return paths && hasPathResolution(paths) ? paths : undefined;
     },
-    modelFiles: () => [files.packageJson, files.config, files.serve, ...components().map((c) => c.manifestFile), ...tsconfigFiles()],
+    modelFiles: () => [
+      files.packageJson,
+      files.config,
+      files.serve,
+      ...components().map((c) => c.manifestFile),
+      ...tsconfigFiles(),
+      ...localFileExternals(),
+    ],
     invalidate(file) {
       const changed = path.resolve(file);
       if (tsconfigFiles().includes(changed)) {
@@ -200,6 +215,10 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
       }
       if (changed === files.serve) {
         cache.delete('serve');
+        return 'model';
+      }
+      if (localFileExternals().includes(changed)) {
+        cache.delete('externals');
         return 'model';
       }
       if (changed.endsWith('.manifest.json') && isInside(sourceDir, changed)) {

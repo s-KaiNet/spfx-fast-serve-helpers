@@ -37,6 +37,12 @@ export interface FastServeGlobal {
   preloadLibraries(libraries: readonly SpfxLibraryReference[]): Promise<unknown>;
 
   loadedLibrary(library: SpfxLibraryReference): unknown;
+
+  loadExternal(name: string): Promise<unknown>;
+
+  preloadExternals(names: readonly string[]): Promise<unknown>;
+
+  loadedExternal(name: string): unknown;
 }
 
 export interface LastServerError {

@@ -47,3 +47,14 @@ export interface LocalizedResource {
   file: string;
   locale: string;
 }
+
+export type ConfigExternalSource = { type: 'url'; url: string } | { type: 'file'; file: string };
+
+export interface ConfigExternal {
+  name: string;
+  source: ConfigExternalSource;
+  globalName?: string;
+  globalDependencies?: string[];
+
+  packageDir?: string;
+}
