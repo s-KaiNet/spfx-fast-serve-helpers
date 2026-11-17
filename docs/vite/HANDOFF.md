@@ -185,9 +185,17 @@ Heft findings (P1):
 - Loc files: TypeScript `define([], …)` works; `export default` builds but breaks under RequireJS; `export =` fails with TS1203.
 - `fast-serve` lists every external in every manifest (one shared RequireJS `require`).
 
-### Later (after v1)
-- Extensions (Application Customizer, ListView Command Set, Field/Form Customizer) with `serve.json` `serveConfigurations` → query params;
-- ACEs;
+### Next (agreed 2026-11-17)
+- VS Code debugging: verify the `docs/debugging.md` `launch.json` with F5 in real VS Code;
+- terminal noise: don't forward SharePoint's own errors (edit-mode `summarizer-worker`) and PnP telemetry "Failed to fetch";
+- occasional page-load hang (`react-dom` request stuck pending; 27 of 116 loads in the P1 perf runs);
+- `const enum` / decorator checks with clear errors (ambient enum ReferenceError, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`);
+- extensions (Application Customizer, ListView Command Set, Field/Form Customizer) with `serve.json` `serveConfigurations` → query params;
+- ACEs.
+
+Ignored by the user: warmup waiting 30 s when nothing is pre-bundled; the one-time error after adding a `config.json` external mid-session. Nothing is pushed or published until the user says so.
+
+### Later (not planned now)
 - library components (own server, or alias to src);
 - ngrok/tunnel;
 - Docker/WSL;
