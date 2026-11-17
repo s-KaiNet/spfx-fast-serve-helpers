@@ -10,6 +10,7 @@ import type { StartupWarmup } from './warmup.js';
 
 export { loadDevCertificate } from './certificate.js';
 export { debugPageUrl, debugQuery } from './debugUrl.js';
+export { serveConfigurationWarnings } from './serveConfigurationWarnings.js';
 export { createViteLogger } from './viteLogger.js';
 export { createStartupWarmup, type StartupWarmup } from './warmup.js';
 

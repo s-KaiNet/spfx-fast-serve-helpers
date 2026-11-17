@@ -18,6 +18,7 @@ const bundle: SpfxBundle = {
 describe('buildDebugManifests', () => {
   it('points the loader at the dev server', () => {
     const manifests = buildDebugManifests({
+      root: '/p',
       bundles: [bundle],
       origin: 'https://localhost:4321',
       bundleScriptPath: (name) => `@spfx/bundle/${name}.js`,
@@ -66,6 +67,7 @@ describe('buildDebugManifests with several components in one bundle', () => {
 
   it('points every component at the same bundle script and picks its export', () => {
     const manifests = buildDebugManifests({
+      root: '/p',
       bundles: [sharedBundle],
       origin: 'https://localhost:4321',
       bundleScriptPath: (name) => `@spfx/bundle/${name}.js`,
@@ -85,9 +87,94 @@ describe('buildDebugManifests with several components in one bundle', () => {
   });
 });
 
+describe('buildDebugManifests with extensions', () => {
+  const extensionsBundle: SpfxBundle = {
+    name: 'mixed-bundle',
+    components: [
+      {
+        bundleName: 'mixed-bundle',
+        manifestFile: '/p/src/webparts/hello/Hello.manifest.json',
+        entryFile: '/p/src/webparts/hello/Hello.ts',
+        exportName: 'a',
+        manifest: {
+          id: 'hello',
+          alias: 'HelloWebPart',
+          componentType: 'WebPart',
+          version: '0.0.1',
+          preconfiguredEntries: [{ title: { default: 'Hello' }, iconImageUrl: './assets/hello icon.png' }, { title: { default: 'Font' } }],
+        },
+      },
+      {
+        bundleName: 'mixed-bundle',
+        manifestFile: '/p/src/extensions/banner/Banner.manifest.json',
+        entryFile: '/p/src/extensions/banner/Banner.ts',
+        exportName: 'b',
+        manifest: { id: 'banner', alias: 'BannerApplicationCustomizer', componentType: 'Extension', extensionType: 'ApplicationCustomizer', version: '0.0.1' },
+      },
+      {
+        bundleName: 'mixed-bundle',
+        manifestFile: '/p/src/extensions/commands/Commands.manifest.json',
+        entryFile: '/p/src/extensions/commands/Commands.ts',
+        exportName: 'c',
+        manifest: {
+          id: 'commands',
+          alias: 'CommandsCommandSet',
+          componentType: 'Extension',
+          extensionType: 'ListViewCommandSet',
+          version: '0.0.1',
+          items: {
+            COMMAND_1: { title: { default: 'One' }, iconImageUrl: '../commands/icons/one.png', type: 'command' },
+            COMMAND_2: { title: { default: 'Two' }, iconImageUrl: 'icons/two.png', type: 'command' },
+            COMMAND_3: { title: { default: 'Three' }, iconImageUrl: 'https://cdn/three.png', type: 'command' },
+          },
+        },
+      },
+    ],
+  };
+  const manifests = buildDebugManifests({
+    root: '/p',
+    bundles: [extensionsBundle],
+    origin: 'https://localhost:4321',
+    bundleScriptPath: (name) => `@spfx/bundle/${name}.js`,
+    scriptResources: {},
+  });
+
+  it('passes extension manifests through with the shared bundle and export names', () => {
+    const sharedLoaderConfig = {
+      internalModuleBaseUrls: ['https://localhost:4321/'],
+      entryModuleId: 'mixed-bundle',
+      scriptResources: { 'mixed-bundle': { type: 'path', path: '@spfx/bundle/mixed-bundle.js' } },
+    };
+    expect(manifests.map(({ alias, componentType, extensionType, loaderConfig }) => ({ alias, componentType, extensionType, loaderConfig }))).toEqual([
+      { alias: 'HelloWebPart', componentType: 'WebPart', extensionType: undefined, loaderConfig: { ...sharedLoaderConfig, exportName: 'a' } },
+      {
+        alias: 'BannerApplicationCustomizer',
+        componentType: 'Extension',
+        extensionType: 'ApplicationCustomizer',
+        loaderConfig: { ...sharedLoaderConfig, exportName: 'b' },
+      },
+      { alias: 'CommandsCommandSet', componentType: 'Extension', extensionType: 'ListViewCommandSet', loaderConfig: { ...sharedLoaderConfig, exportName: 'c' } },
+    ]);
+  });
+
+  it('points relative icon file paths at the dev server, like heft copies them to the CDN', () => {
+    expect(manifests[0]?.preconfiguredEntries).toEqual([
+      { title: { default: 'Hello' }, iconImageUrl: 'https://localhost:4321/src/webparts/hello/assets/hello%20icon.png' },
+      { title: { default: 'Font' } },
+    ]);
+    expect(manifests[2]?.items).toEqual({
+      COMMAND_1: { title: { default: 'One' }, iconImageUrl: 'https://localhost:4321/src/extensions/commands/icons/one.png', type: 'command' },
+      COMMAND_2: { title: { default: 'Two' }, iconImageUrl: 'icons/two.png', type: 'command' },
+      COMMAND_3: { title: { default: 'Three' }, iconImageUrl: 'https://cdn/three.png', type: 'command' },
+    });
+    expect(extensionsBundle.components[2]?.manifest.items).toMatchObject({ COMMAND_1: { iconImageUrl: '../commands/icons/one.png' } });
+  });
+});
+
 describe('renderManifestsModule', () => {
   it('renders an AMD module whose getManifests() returns the manifests', () => {
     const manifests = buildDebugManifests({
+      root: '/p',
       bundles: [bundle],
       origin: 'https://localhost:4321',
       bundleScriptPath: (name) => `${name}.js`,

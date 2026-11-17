@@ -2,3 +2,4 @@ export { createProject, DEFAULT_LOCALE, type ProjectChange, type ProjectLogger, 
 export { aliasCandidates, matchesPathAlias, type PathMapping, type TsconfigPaths } from './tsconfigPaths.js';
 export type * from './types.js';
 export { assertSupportedSpfxVersion, findSpfxVersion, type SpfxVersionSource } from './spfxVersion.js';
+export { CUSTOM_ACTION_LOCATIONS } from './serveConfigurations.js';

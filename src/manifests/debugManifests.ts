@@ -1,4 +1,5 @@
 import type { ComponentManifest, SpfxBundle } from '../project/index.js';
+import { withDevIconUrls } from './iconUrls.js';
 
 export type ScriptResource =
   | { type: 'path'; path: string; globalName?: string; globalDependencies?: string[] }
@@ -14,6 +15,8 @@ export interface DebugManifest extends ComponentManifest {
 }
 
 export interface DebugManifestsInput {
+  root: string;
+
   bundles: readonly SpfxBundle[];
 
   origin: string;
@@ -25,8 +28,8 @@ export interface DebugManifestsInput {
 
 export function buildDebugManifests(input: DebugManifestsInput): DebugManifest[] {
   return input.bundles.flatMap((bundle) =>
-    bundle.components.map(({ manifest, exportName }) => ({
-      ...manifest,
+    bundle.components.map(({ manifest, manifestFile, exportName }) => ({
+      ...withDevIconUrls(manifest, { root: input.root, origin: input.origin, manifestFile }),
       loaderConfig: {
         internalModuleBaseUrls: [`${input.origin}/`],
         entryModuleId: bundle.name,

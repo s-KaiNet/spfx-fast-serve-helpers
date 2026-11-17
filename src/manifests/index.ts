@@ -26,6 +26,7 @@ export function manifestsPlugin(context: ServeContext, options: ManifestsPluginO
         }
         try {
           const manifests = buildDebugManifests({
+            root: context.root,
             bundles: options.bundles(),
             origin: context.options.origin,
             bundleScriptPath: options.bundleScriptPath,

@@ -8,12 +8,31 @@ export interface PackageJson {
 export interface ServeConfig {
   port?: number;
   initialPage?: string;
+  serveConfigurations?: Record<string, ServeConfiguration>;
+}
+
+export interface ServeConfiguration {
+  pageUrl?: string;
+  customActions?: Record<string, CustomAction>;
+  fieldCustomizers?: Record<string, FieldCustomizer>;
+  formCustomizer?: Record<string, unknown>;
+}
+
+export interface CustomAction {
+  location: string;
+  properties?: Record<string, unknown>;
+}
+
+export interface FieldCustomizer {
+  id: string;
+  properties?: Record<string, unknown>;
 }
 
 export interface ComponentManifest {
   id: string;
   alias: string;
   componentType: string;
+  extensionType?: string;
   version: string;
   [key: string]: unknown;
 }

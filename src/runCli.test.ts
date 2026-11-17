@@ -39,6 +39,11 @@ describe('runCli', () => {
     expect(result.startServer).toHaveBeenCalledWith({ port: 4400, pageUrl: 'https://t/p.aspx', locale: 'de-de' });
   });
 
+  it('selects a serve configuration with --config or --serve-config', async () => {
+    expect((await run(['--config', 'rating'])).startServer).toHaveBeenCalledWith({ serveConfiguration: 'rating' });
+    expect((await run(['--serve-config', 'banner'])).startServer).toHaveBeenCalledWith({ serveConfiguration: 'banner' });
+  });
+
   it('reports start errors', async () => {
     const result = await run([], vi.fn().mockRejectedValue(new Error('boom')));
     expect(result).toMatchObject({ code: 1, err: '[fast-serve] boom\n' });

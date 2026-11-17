@@ -10,6 +10,14 @@
         }
       ]
     },
+    "card-adaptive-card-extension": {
+      "components": [
+        {
+          "entrypoint": "./lib/adaptiveCardExtensions/card/CardAdaptiveCardExtension.js",
+          "manifest": "./src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.manifest.json"
+        }
+      ]
+    },
     "banner-application-customizer": {
       "components": [
         {

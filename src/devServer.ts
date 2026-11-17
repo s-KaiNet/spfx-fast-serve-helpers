@@ -5,8 +5,8 @@ import type { ServeContext } from './context.js';
 import { createConsoleLogger, type Logger } from './logger.js';
 import { packageName, packageVersion } from './packageInfo.js';
 import { fastServePlugins } from './plugins.js';
-import { assertSupportedSpfxVersion, createProject, findSpfxVersion } from './project/index.js';
-import { createViteLogger, debugPageUrl, debugQuery, loadDevCertificate } from './server/index.js';
+import { assertSupportedSpfxVersion, createProject, findSpfxVersion, type SpfxComponent } from './project/index.js';
+import { createViteLogger, debugPageUrl, debugQuery, loadDevCertificate, serveConfigurationWarnings } from './server/index.js';
 
 export interface StartDevServerOptions {
   root: string;
@@ -23,9 +23,13 @@ export async function startDevServer({ root, cli = {}, logger = createConsoleLog
   const options = resolveOptions({ cli, file: loadOptionsFile(projectRoot), defaults: project.serveConfig() });
   if (project.components().length === 0) {
     throw new Error(
-      'No web parts found in config/config.json bundles. fast-serve serves web parts only for now ' +
-        '(extensions, Adaptive Card Extensions and library components are not supported yet).',
+      'No web parts or extensions found in config/config.json bundles ' +
+        '(Adaptive Card Extensions and library components are not supported yet).',
     );
+  }
+  if (options.serveConfiguration) {
+    const { name, ...configuration } = options.serveConfiguration;
+    for (const warning of serveConfigurationWarnings(name, configuration, project.components())) logger.warn(warning);
   }
   const context: ServeContext = { root: projectRoot, options, project, logger };
 
@@ -55,14 +59,29 @@ function explainListenError(error: unknown, port: number): unknown {
 }
 
 function printReady({ options, project, logger }: ServeContext, elapsedMs: number): void {
-  const names = project.components().map((component) => component.manifest.alias).join(', ');
-  const lines = [`ready in ${elapsedMs} ms at ${options.origin}`, `web parts: ${names}`];
+  const lines = [`ready in ${elapsedMs} ms at ${options.origin}`, ...componentLines(project.components())];
+  const { serveConfiguration } = options;
+  if (serveConfiguration) lines.push(`serve configuration: ${serveConfiguration.name}`);
+  if (serveConfiguration && options.replacedServeConfigurationPage !== undefined) {
+    lines.push(`the "pageUrl" option replaces the page of serve configuration "${serveConfiguration.name}" (${options.replacedServeConfigurationPage})`);
+  }
   if (options.pageUrl) {
-    lines.push(`open: ${debugPageUrl(options.pageUrl, options.origin)}`);
+    lines.push(`open: ${debugPageUrl(options.pageUrl, options.origin, serveConfiguration)}`);
   } else {
     if (options.pageUrlTemplate) lines.push(`set ${TENANT_DOMAIN_ENV} to resolve the page URL "${options.pageUrlTemplate}"`);
-    lines.push(`append to your SharePoint page URL: ?${debugQuery(options.origin)}`);
+    lines.push(`append to your SharePoint page URL: ?${debugQuery(options.origin, serveConfiguration)}`);
   }
   lines.push('the debug query sticks to the browser tab: after stopping fast-serve, open the page in a new tab');
   for (const line of lines) logger.info(line);
+}
+
+function componentLines(components: readonly SpfxComponent[]): string[] {
+  const webParts = components.filter((component) => component.manifest.componentType === 'WebPart');
+  const extensions = components.filter((component) => component.manifest.componentType === 'Extension');
+  return [
+    ...(webParts.length > 0 ? [`web parts: ${webParts.map(({ manifest }) => manifest.alias).join(', ')}`] : []),
+    ...(extensions.length > 0
+      ? [`extensions: ${extensions.map(({ manifest }) => `${manifest.alias} (${manifest.extensionType ?? 'Extension'})`).join(', ')}`]
+      : []),
+  ];
 }

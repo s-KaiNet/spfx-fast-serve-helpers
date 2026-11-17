@@ -9,6 +9,7 @@ import { findSourceFile, LOC_EXTENSIONS, SOURCE_EXTENSIONS } from './sourcePaths
 import { loadTsconfig, mergedCompilerOptions, type LoadedTsconfig } from './tsconfig.js';
 import { hasPathResolution, tsconfigPathsOf, type TsconfigPaths } from './tsconfigPaths.js';
 import { readConfigExternals } from './configExternals.js';
+import { readServeConfigurations } from './serveConfigurations.js';
 import type {
   ComponentManifest,
   ConfigExternal,
@@ -53,7 +54,7 @@ export interface SpfxProject {
   invalidate(file: string): ProjectChange | undefined;
 }
 
-const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart']);
+const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension']);
 
 export function createProject(root: string, logger: ProjectLogger): SpfxProject {
   const files = {
@@ -95,9 +96,11 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     cached('serve', () => {
       const json = readOptionalJsoncFile(files.serve);
       if (!isObject(json)) return {};
+      const serveConfigurations = readServeConfigurations(json.serveConfigurations);
       return {
         port: typeof json.port === 'number' ? json.port : undefined,
         initialPage: typeof json.initialPage === 'string' ? json.initialPage : undefined,
+        ...(serveConfigurations === undefined ? {} : { serveConfigurations }),
       };
     });
 
@@ -267,6 +270,9 @@ function readManifest(file: string, packageVersion: string): ComponentManifest {
   }
   const alias = typeof json.alias === 'string' ? json.alias : json.id;
   const version = typeof json.version === 'string' && json.version !== '*' ? json.version : packageVersion;
+  if (json.componentType === 'Extension' && typeof json.extensionType !== 'string') {
+    throw new Error(`${toPosix(file)}: an "Extension" manifest needs "extensionType"`);
+  }
   return { ...json, id: json.id, alias, componentType: json.componentType, version };
 }
 

@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { DEFAULT_PORT, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/options.js';
+import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/options.js';
 import { DEFAULT_LOCALE } from './project/index.js';
 import { packageName, packageVersion } from './packageInfo.js';
 import { errorMessage } from './utils/errors.js';
@@ -21,11 +21,16 @@ Options:
       --page-url <url>   SharePoint page to open with the debug query
                          (default: config/serve.json "initialPage"; {tenantDomain} = $${TENANT_DOMAIN_ENV})
       --locale <locale>  Locale of localized strings (default: ${DEFAULT_LOCALE})
+      --config <name>    config/serve.json "serveConfigurations" entry: its page and the
+                         extension query parameters (customActions, fieldCustomizers,
+                         formCustomizer) (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
   -h, --help             Show this help
   -v, --version          Show the version
 
-The same options can be set in ${OPTIONS_FILE}: { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}" }.
-Command-line flags win over the file.
+The same options can be set in ${OPTIONS_FILE}:
+{ "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}" }.
+Command-line flags win over the file. A page URL from the flag or the file replaces the page
+of every serve configuration.
 `;
 
 export async function runCli(args: string[], io: CliIo): Promise<number> {
@@ -39,6 +44,8 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
         port: { type: 'string', short: 'p' },
         'page-url': { type: 'string' },
         locale: { type: 'string' },
+        config: { type: 'string' },
+        'serve-config': { type: 'string' },
       },
       strict: true,
       allowPositionals: false,
@@ -62,6 +69,8 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
     if (values.port !== undefined) options.port = parsePort(values.port);
     if (values['page-url'] !== undefined) options.pageUrl = values['page-url'];
     if (values.locale !== undefined) options.locale = values.locale;
+    const serveConfiguration = values.config ?? values['serve-config'];
+    if (serveConfiguration !== undefined) options.serveConfiguration = serveConfiguration;
     await io.startServer(options);
     return 0;
   } catch (error) {

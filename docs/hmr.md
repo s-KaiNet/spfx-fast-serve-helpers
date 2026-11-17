@@ -11,9 +11,9 @@
 
 ## What reloads the page (by design)
 
-- Edits to the **web part class** (`*WebPart.ts`) and to anything only the web part class imports (services, helpers). SharePoint created the web part instance, so it can't be swapped in place.
+- Edits to the **web part class** (`*WebPart.ts`) or an **extension class** (`*ApplicationCustomizer.ts`, `*CommandSet.ts`, `*FieldCustomizer.ts`, `*FormCustomizer.ts`) and to anything only that class imports (services, helpers). SharePoint created the instance, so it can't be swapped in place.
 - Edits to files that export **components and other values** (constants, hooks, helpers). Fast Refresh skips such files, so the update bubbles up to the web part class. Type-only exports (`interface`, `type`) are fine.
-- Edits to `config/config.json`, `config/serve.json`, `package.json`, `tsconfig.json` or a web part manifest.
+- Edits to `config/config.json`, `config/serve.json`, `package.json`, `tsconfig.json` or a component manifest. A changed `serve.json` serve configuration only changes the printed URL after a restart of `fast-serve`.
 - A **new npm dependency** used for the first time: Vite pre-bundles it and reloads the page once.
 
 ## Do
@@ -42,6 +42,18 @@
 - Don't rely on modules being shared, or not shared, between bundles. In dev all bundles share one module graph; in production each bundle has its own copy.
 - Don't mix runtime values into component files "just for now": every edit of such a file reloads the page.
 - Don't expect the page theme to be watched: switching the site theme while the page is open doesn't recolor theme tokens. Reload the page.
+
+## Extensions
+
+Extensions follow the same rules: React components they render update in place, the extension class reloads the page.
+
+- **Application Customizer:** render a React component into the placeholder (`this.context.placeholderProvider.tryCreateContent(PlaceholderName.Top)`) once, with `createRoot(placeholder.domElement)`. Edits to that component and its styles update in place, with state kept. Keep the root in a field and unmount it in `onDispose`.
+- **Field Customizer:** `onRenderCell` creates one React root per cell. Edits to the cell component re-render every cell in place. Edits to the customizer class reload the page; so do `onRenderCell` changes.
+- **Form Customizer:** the form component updates in place. The SPFx template's form component is a class component, so it is re-mounted on every edit: unsaved form input is lost. Use a function component to keep it.
+- **ListView Command Set:** a command set has no UI of its own (commands come from the manifest, dialogs from `@microsoft/sp-dialog`), so most edits are to the class and reload the page. Put dialog content in a React component file to edit it in place while the dialog is open.
+- Don't render from module level or keep the React root in a module variable: a hot update would run it again and render a second copy.
+- Commands (`items` in the command set manifest) and the serve configuration's `properties` are read when the page loads: edit them, then reload (a manifest edit reloads by itself).
+- In dev all bundles share one module graph, so an extension and a web part that import the same module share one instance; in production each bundle has its own copy.
 
 ## When something looks stale
 

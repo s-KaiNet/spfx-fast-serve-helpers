@@ -6,7 +6,7 @@ import { createProject } from './project.js';
 const root = fileURLToPath(new URL('../../test/fixtures/multi', import.meta.url));
 
 describe('bundles with several components', () => {
-  it('gives every component an export name, counting unsupported components like SPFx does', () => {
+  it('gives web parts and extensions in one bundle export names, counting unsupported components like SPFx does', () => {
     const warnings: string[] = [];
     const bundles = createProject(root, { warn: (message) => warnings.push(message) }).bundles();
     const shared = bundles.find((bundle) => bundle.name === 'shared-bundle');
@@ -14,9 +14,10 @@ describe('bundles with several components', () => {
       shared?.components.map(({ manifest, exportName, entryFile }) => ({ alias: manifest.alias, exportName, entryFile })),
     ).toEqual([
       { alias: 'FirstWebPart', exportName: 'a', entryFile: path.join(root, 'src/webparts/first/FirstWebPart.ts') },
-      { alias: 'SecondWebPart', exportName: 'c', entryFile: path.join(root, 'src/webparts/second/SecondWebPart.ts') },
+      { alias: 'BannerApplicationCustomizer', exportName: 'b', entryFile: path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.ts') },
+      { alias: 'SecondWebPart', exportName: 'd', entryFile: path.join(root, 'src/webparts/second/SecondWebPart.ts') },
     ]);
-    expect(warnings).toEqual(['BannerApplicationCustomizer: componentType "Extension" is not supported yet, skipped']);
+    expect(warnings).toEqual(['CardAdaptiveCardExtension: componentType "AdaptiveCardExtension" is not supported yet, skipped']);
   });
 
   it('leaves single-component bundles without an export name', () => {

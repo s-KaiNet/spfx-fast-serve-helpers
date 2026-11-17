@@ -17,7 +17,7 @@ function serverConfig(): UserConfig {
     root,
     project: createProject(root, logger),
     logger,
-    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined },
+    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, replacedServeConfigurationPage: undefined },
   };
   return (serverPlugin(context, https, { warmup: createStartupWarmup(), warmupUrls: () => [] }).config as () => UserConfig)();
 }

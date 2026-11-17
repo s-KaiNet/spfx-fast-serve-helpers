@@ -25,7 +25,7 @@
      "serve": "fast-serve"
    }
    ```
-4. Optionally set the page to open in `config/fast-serve.json`. Without it, `fast-serve` uses `config/serve.json` (`port`, `initialPage`), like `heft start`:
+4. Optionally set the page to open in `config/fast-serve.json`. Without it, `fast-serve` uses `config/serve.json` (`port`, the `serveConfigurations` page and extension parameters, `initialPage`), like `heft start`. `heft start --serve-config <name>` becomes `fast-serve --config <name>`. Leave `pageUrl` unset in projects with list extensions: it replaces the page of every serve configuration:
    ```json
    { "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx" }
    ```
@@ -51,7 +51,7 @@ Old settings (`fast-serve/config.json` `serve` section or CLI flags) and what re
 | `openUrl` | `pageUrl` (`--page-url`). The URL is printed with the debug query, not opened |
 | `locale` | `locale` (`--locale`) |
 | `hotRefresh` | always on: HMR with React Fast Refresh |
-| `config` (serve configuration) | not yet: only web parts are served, extensions come later |
+| `config` (serve configuration) | `--config <name>` (or `"serveConfiguration"` in `config/fast-serve.json`): the `config/serve.json` `serveConfigurations` entry, as in heft (`--serve-config`) |
 | `isLibraryComponent` | not supported yet |
 | `fullScreenErrors` | no overlay: errors show in the web part, the browser console and the terminal |
 | `eslint` | not included: run ESLint separately |

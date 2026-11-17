@@ -2,7 +2,7 @@
 
 > **Work in progress.** Vite-based rewrite for SharePoint Framework **1.24.x** (Heft) projects.
 
-A dev-server-only replacement for `heft start`: the server starts fast, HMR with React Fast Refresh works, and your web part runs inside a real SharePoint page. Production builds and packaging stay on Heft (`heft build` / `heft package-solution`).
+A dev-server-only replacement for `heft start`: the server starts fast, HMR with React Fast Refresh works, and your web parts and extensions run inside a real SharePoint page. Production builds and packaging stay on Heft (`heft build` / `heft package-solution`).
 
 Design notes, decisions and status: [docs/vite/HANDOFF.md](docs/vite/HANDOFF.md).
 
@@ -49,24 +49,62 @@ It prints the page to open, e.g.
 
 Open that URL and click **Load debug scripts**. If no page is configured, append the printed query to any SharePoint page URL: `?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true`. The web part must already be on the page (add it from the toolbox while `fast-serve` runs, then save the page).
 
-Only web parts are supported for now. Stop the server with Ctrl+C.
+Web parts and extensions (Application Customizers, ListView Command Sets, Field Customizers, Form Customizers) are served; Adaptive Card Extensions and library components are not yet. Stop the server with Ctrl+C.
+
+### Extensions and serve configurations
+
+Extensions are loaded through query parameters, the same ones `heft start` uses. They come from the `serveConfigurations` in `config/serve.json`, which the SPFx generator writes for every extension:
+
+```jsonc
+"serveConfigurations": {
+  "default": {
+    "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/home.aspx",
+    "customActions": {
+      "f1e9c965-12f5-4beb-9103-7640ed381a72": { "location": "ClientSideExtension.ApplicationCustomizer", "properties": { "testMessage": "Hello" } }
+    }
+  },
+  "rating": {
+    "pageUrl": "https://{tenantDomain}/sites/dev/Lists/Tasks/AllItems.aspx",
+    "fieldCustomizers": { "Title": { "id": "21fe7eba-88c8-4a4b-ad68-52b7d32f1607", "properties": { "sampleText": "Value" } } }
+  },
+  "feedback_EditForm": {
+    "pageUrl": "https://{tenantDomain}/sites/dev/_layouts/15/SPListForm.aspx",
+    "formCustomizer": { "componentId": "29b61138-a710-4379-b616-98f496c16e4f", "PageType": 6, "RootFolder": "/sites/dev/Lists/Tasks", "ID": 1 }
+  }
+}
+```
+
+`fast-serve` uses `default`, or the one you pick with `--config <name>` (`--serve-config` works too, like in heft), and prints its page with the query:
+
+```
+npm run serve -- --config rating
+[fast-serve] serve configuration: rating
+[fast-serve] open: https://contoso.sharepoint.com/sites/dev/Lists/Tasks/AllItems.aspx?debugManifestsFile=…&noredir=true&loadSPFX=true&fieldCustomizers=%7B%22Title%22…
+```
+
+- `customActions` (Application Customizers, Command Sets), `fieldCustomizers` and `formCustomizer` become `loadSPFX=true` plus `customActions=<json>`, `fieldCustomizers=<json>`, or the form parameters (`componentId`, `PageType`, `RootFolder`, `ID`, `ContentTypeID`, `properties=<json>`). As in heft, `debug=true` is left out then: the list pages fail to load the debug scripts with both.
+- Without `pageUrl` the configuration uses the page of `default`, then `initialPage`. `{tenantDomain}` works as everywhere.
+- A `pageUrl` option (`--page-url` or `config/fast-serve.json`) replaces the page of every configuration (`fast-serve` says so when it starts). Leave it unset when you switch between list configurations.
+- At start `fast-serve` warns about configurations that don't fit the project: an id that isn't one of your extensions, a field customizer used as a command set, the generator's placeholders (`InternalFieldName`, `/sites/mySite/Lists/MyList`).
+- The configuration is read at start: restart `fast-serve` after editing `serve.json` to get the new URL.
 
 ### Options
 
 Zero config works. Options, by precedence:
 
-1. command-line flags: `fast-serve --port 4400 --page-url https://contoso.sharepoint.com/sites/dev/SitePages/test.aspx --locale de-de`
+1. command-line flags: `fast-serve --port 4400 --page-url https://contoso.sharepoint.com/sites/dev/SitePages/test.aspx --locale de-de --config rating`
 2. `config/fast-serve.json` (optional, JSON with comments):
    ```json
-   { "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us" }
+   { "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default" }
    ```
-3. SPFx defaults: `config/serve.json` `port` and `initialPage`, then port `4321` and locale `en-us`.
+3. SPFx defaults: `config/serve.json` `port`, the page of the serve configuration (`serveConfigurations.<name>.pageUrl`, then `serveConfigurations.default.pageUrl`) or `initialPage`, then port `4321` and locale `en-us`.
 
 | Option | Flag | Meaning |
 |---|---|---|
 | `port` | `-p, --port` | HTTPS port on `localhost` |
 | `pageUrl` | `--page-url` | page printed with the debug query. `{tenantDomain}` is replaced with the `SPFX_SERVE_TENANT_DOMAIN` environment variable (e.g. `contoso.sharepoint.com`) |
 | `locale` | `--locale` | locale of `localizedResources` strings (falls back to `en-us` per resource) |
+| `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` `serveConfigurations` entry to use (default: `default`); an unknown name stops with the list of names |
 
 HTTPS is always on, with the SPFx development certificate. There is no `vite.config` to write: `fast-serve` configures Vite itself.
 
@@ -90,7 +128,7 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 ## HMR: do's and don'ts
 
 - Updates in place, keeping React state: function components in `.tsx` files that export only components; `.module.scss` / `.scss` / `.css`; new imports.
-- Reloads the page: edits to the web part class and to what only it imports; files that export components **and** other values; `config/*.json`, `package.json`, `tsconfig.json`, manifests.
+- Reloads the page: edits to the web part or extension class and to what only it imports; files that export components **and** other values; `config/*.json`, `package.json`, `tsconfig.json`, manifests.
 - Do setup (icons, PnPjs, listeners) in `onInit`, not at module level: module-level code runs again on every hot update.
 
 Details and examples: [docs/hmr.md](docs/hmr.md).
@@ -108,13 +146,15 @@ Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A
 | "Error loading debug manifests" after you stopped `fast-serve` | the debug query sticks to the browser tab (`sessionStorage`). Open the page in a new tab, without the query |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` is running. Stop it, or use `--port` / `"port"` |
 | `Unsupported SPFx version` | install the `spfx-fast-serve-helpers` version matching your SPFx version (see Requirements) |
-| `No web parts found` | only web parts are served for now; check `config/config.json` bundles |
+| `No web parts or extensions found` | check `config/config.json` bundles (Adaptive Card Extensions and library components aren't served yet) |
+| `Serve configuration "x" not found` | the `--config` name isn't in `config/serve.json` `serveConfigurations`; the message lists the names |
 | web part shows `[fast-serve] Failed to load bundle …: <error> in src/…:line:col` | a syntax or transform error: details are in the `fast-serve` terminal. Fix the file and the page reloads |
 | `… older than … used by the project` | your project uses a newer SPFx version than your tenant serves. It would fail in production too: use the SPFx version your tenant supports |
 
 ## Limitations (v1)
 
-- Web parts only: no extensions (Application Customizers, Command Sets, Field/Form Customizers), Adaptive Card Extensions or library components yet.
+- Web parts and extensions only: no Adaptive Card Extensions or library components yet.
+- Extensions: a localized command title in a manifest (`"title": { "id": "$…" }`) isn't resolved (heft fills it from the loc file); use `"default"` texts. Relative icon paths (`"iconImageUrl": "./icons/x.png"`) are served from `src`; `"icons/x.png"` without `./` is passed through, as heft does, and resolves against the dev server root.
 - Dev server only: no production build, no type checking and no linting (run `tsc --noEmit` / ESLint / `heft build` separately).
 - No error overlay; errors show in the web part, the browser console and the terminal. The terminal only gets browser errors that come from your code: uncaught errors, unhandled rejections and `console.error` calls whose stack trace includes a project module (`https://localhost:<port>/src/...`, not `node_modules`) or the `fast-serve` loader. SharePoint's own errors and third-party noise (for example `@pnp/telemetry-js` "Failed to fetch") stay in the browser console, and so do rejections without a stack (`Promise.reject('text')`).
 - `config/config.json` `externals` (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like in heft, never bundled from `node_modules`. Named imports from an external (`import { ajax } from 'jquery'`) only work when a package with the same name is installed (its export names are used); otherwise use the default import.

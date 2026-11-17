@@ -14,11 +14,11 @@ function fixtureProject() {
 }
 
 describe('createProject', () => {
-  it('reads web part bundles and skips unsupported component types', () => {
+  it('reads web part and extension bundles and skips unsupported component types', () => {
     const { project, warnings } = fixtureProject();
     const bundles = project.bundles();
-    expect(bundles).toHaveLength(1);
-    const [bundle] = bundles;
+    expect(bundles.map(({ name }) => name)).toEqual(['hello-web-part', 'banner-application-customizer']);
+    const [bundle, extensionBundle] = bundles;
     expect(bundle?.name).toBe('hello-web-part');
     expect(bundle?.components).toHaveLength(1);
     const component = bundle?.components[0];
@@ -32,7 +32,47 @@ describe('createProject', () => {
       version: '1.2.3',
       preconfiguredEntries: [{ title: { default: 'Hello // not a comment' } }],
     });
-    expect(warnings).toEqual(['BannerApplicationCustomizer: componentType "Extension" is not supported yet, skipped']);
+    expect(extensionBundle?.components[0]?.manifest).toMatchObject({
+      alias: 'BannerApplicationCustomizer',
+      componentType: 'Extension',
+      extensionType: 'ApplicationCustomizer',
+      version: '1.2.3',
+    });
+    expect(extensionBundle?.components[0]?.entryFile).toBe(path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.ts'));
+    expect(warnings).toEqual(['CardAdaptiveCardExtension: componentType "AdaptiveCardExtension" is not supported yet, skipped']);
+  });
+
+  it('rejects an extension manifest without extensionType', () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
+    try {
+      mkdirSync(path.join(projectRoot, 'config'));
+      mkdirSync(path.join(projectRoot, 'src'));
+      writeFileSync(path.join(projectRoot, 'package.json'), '{ "version": "1.0.0" }');
+      writeFileSync(path.join(projectRoot, 'src/Ext.manifest.json'), '{ "id": "x", "componentType": "Extension" }');
+      writeFileSync(
+        path.join(projectRoot, 'config/config.json'),
+        JSON.stringify({ bundles: { ext: { components: [{ entrypoint: './lib/Ext.js', manifest: './src/Ext.manifest.json' }] } } }),
+      );
+      expect(() => createProject(projectRoot, { warn: () => undefined }).bundles()).toThrow(/an "Extension" manifest needs "extensionType"/);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('reads serve.json serveConfigurations', () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
+    try {
+      mkdirSync(path.join(projectRoot, 'config'));
+      const serveConfigurations = {
+        default: { pageUrl: 'https://{tenantDomain}/SitePages/a.aspx', customActions: { 'f1e9c965-12f5-4beb-9103-7640ed381a72': { location: 'ClientSideExtension.ApplicationCustomizer', properties: { testMessage: 'Hi' } } } },
+        rating: { pageUrl: 'https://t/Lists/L/AllItems.aspx', fieldCustomizers: { Title: { id: '21fe7eba-88c8-4a4b-ad68-52b7d32f1607' } } },
+        form: { pageUrl: 'https://t/_layouts/15/SPListForm.aspx', formCustomizer: { componentId: 'c', PageType: 8, RootFolder: '/sites/s/Lists/L' } },
+      };
+      writeFileSync(path.join(projectRoot, 'config/serve.json'), JSON.stringify({ port: 4321, serveConfigurations }));
+      expect(createProject(projectRoot, { warn: () => undefined }).serveConfig()).toEqual({ port: 4321, initialPage: undefined, serveConfigurations });
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   it('reads package.json and serve.json', () => {
@@ -153,6 +193,7 @@ describe('createProject', () => {
       path.join(root, 'config/config.json'),
       path.join(root, 'config/serve.json'),
       path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'),
+      path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.manifest.json'),
       path.join(root, 'tsconfig.json'),
       path.join(root, 'tsconfig.base.json'),
       path.join(root, 'assets/legacy-plugin.js'),

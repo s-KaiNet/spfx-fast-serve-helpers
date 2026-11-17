@@ -12,6 +12,10 @@
           "manifest": "./src/extensions/banner/BannerApplicationCustomizer.manifest.json"
         },
         {
+          "entrypoint": "./lib/adaptiveCardExtensions/card/CardAdaptiveCardExtension.js",
+          "manifest": "./src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.manifest.json"
+        },
+        {
           "entrypoint": "./lib/webparts/second/SecondWebPart.js",
           "manifest": "./src/webparts/second/SecondWebPart.manifest.json"
         }
