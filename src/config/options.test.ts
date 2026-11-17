@@ -13,7 +13,7 @@ describe('resolveOptions', () => {
       pageUrl: undefined,
       pageUrlTemplate: undefined,
       serveConfiguration: undefined,
-      replacedServeConfigurationPage: undefined,
+      warnings: [],
     });
   });
 
@@ -70,17 +70,17 @@ describe('resolveOptions', () => {
       expect(resolveOptions({ defaults, cli: { serveConfiguration: 'noPage' } }, env).pageUrl).toBe('https://contoso.sharepoint.com/SitePages/home.aspx');
     });
 
-    it('lets a pageUrl option replace the page of the configuration', () => {
-      const options = resolveOptions({ defaults, file: { pageUrl: 'https://t/file.aspx' }, cli: { serveConfiguration: 'rating' } }, env);
-      expect(options).toMatchObject({
-        pageUrl: 'https://t/file.aspx',
+    it('takes a named configuration page first, then the pageUrl option instead of default and initialPage', () => {
+      const file = { pageUrl: 'https://t/file.aspx' };
+      expect(resolveOptions({ defaults, file, cli: { serveConfiguration: 'rating' } }, env)).toMatchObject({
+        pageUrl: 'https://t/Lists/L/AllItems.aspx',
         serveConfiguration: { name: 'rating' },
-        replacedServeConfigurationPage: 'https://t/Lists/L/AllItems.aspx',
       });
-      expect(
-        resolveOptions({ defaults, file: { pageUrl: 'https://contoso.sharepoint.com/SitePages/home.aspx' } }, env).replacedServeConfigurationPage,
-      ).toBeUndefined();
-      expect(resolveOptions({ defaults, cli: { pageUrl: 'https://t/cli.aspx' } }, env).pageUrl).toBe('https://t/cli.aspx');
+      expect(resolveOptions({ defaults, file, cli: { serveConfiguration: 'noPage' } }, env).pageUrl).toBe(file.pageUrl);
+      expect(resolveOptions({ defaults, file }, env).pageUrl).toBe(file.pageUrl);
+      expect(resolveOptions({ defaults, file, cli: { serveConfiguration: 'default' } }, env).pageUrl).toBe(file.pageUrl);
+      expect(resolveOptions({ defaults, file, cli: { pageUrl: 'https://t/cli.aspx' } }, env).pageUrl).toBe('https://t/cli.aspx');
+      expect(resolveOptions({ defaults: { initialPage: defaults.initialPage }, file }, env).pageUrl).toBe(file.pageUrl);
     });
 
     it('has no configuration without "default" unless one is selected', () => {
@@ -88,11 +88,17 @@ describe('resolveOptions', () => {
       expect(resolveOptions({ defaults: withoutDefault }, env)).toMatchObject({ pageUrl: defaults.initialPage, serveConfiguration: undefined });
     });
 
-    it('rejects an unknown configuration name', () => {
-      expect(() => resolveOptions({ defaults, cli: { serveConfiguration: 'nope' } }, env)).toThrow(
-        'Serve configuration "nope" not found in config/serve.json "serveConfigurations" (available: default, rating, noPage)',
-      );
-      expect(() => resolveOptions({ cli: { serveConfiguration: 'nope' } }, env)).toThrow(/\(the file has none\)/);
+    it('warns about an unknown configuration name and falls back to "default" like heft', () => {
+      expect(resolveOptions({ defaults, cli: { serveConfiguration: 'nope' } }, env)).toMatchObject({
+        pageUrl: 'https://contoso.sharepoint.com/SitePages/home.aspx',
+        serveConfiguration: { name: 'default', ...serveConfigurations.default },
+        warnings: ['serve configuration "nope" not found in config/serve.json "serveConfigurations" (available: default, rating, noPage), using "default"'],
+      });
+      expect(resolveOptions({ defaults: { initialPage: defaults.initialPage }, cli: { serveConfiguration: 'nope' } }, env)).toMatchObject({
+        pageUrl: defaults.initialPage,
+        serveConfiguration: undefined,
+        warnings: ['serve configuration "nope" not found in config/serve.json "serveConfigurations" (the file has none)'],
+      });
     });
   });
 

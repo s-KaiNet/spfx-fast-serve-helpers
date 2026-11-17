@@ -25,8 +25,8 @@ Heft (`SPFxDebugPageUrlUtilities.getServeInitialPageFromConfiguration` + `buildQ
 ## fast-serve implementation
 
 - `project/serveConfigurations.ts` reads and validates the entries (`config/serve.json: "serveConfigurations.x.customActions.<id>.location" must be …`).
-- `config/options.ts`: `--config` / `--serve-config` / `"serveConfiguration"` in `fast-serve.json`; default `default`; an unknown explicit name is an error with the list of names (heft only warns and falls back, which silently opens the wrong page). Page precedence: `--page-url` > `fast-serve.json` `pageUrl` > configuration `pageUrl` > `default.pageUrl` > `initialPage`. When a `pageUrl` option replaces a configuration's page, the start log says so.
-- `server/debugUrl.ts` builds the query like heft, but keeps the page URL's own query (appends).
+- `config/options.ts`: `--config` / `--serve-config` / `"serveConfiguration"` in `fast-serve.json`; default `default`; an unknown name warns with the list of names and falls back to `default`, like heft (user decision 2026-11-17, "match heft"). Page precedence (heft's chain with the `pageUrl` option in place of its fallbacks): named configuration `pageUrl` (not `default`) > `--page-url` > `fast-serve.json` `pageUrl` > `default.pageUrl` > `initialPage`.
+- `server/debugUrl.ts` builds the query like heft and replaces the page URL's own query (the hash is kept), like heft's `url.search = params`.
 - `server/serveConfigurationWarnings.ts`: unknown component ids, extension type vs location/kind mismatches, unknown locations, generator placeholders (`InternalFieldName`, `/sites/mySite/Lists/MyList`).
 - Manifests/loader/entry: extensions use the same bundle shim, entry and `exportName` machinery as web parts; mixed bundles work. Relative `./` icon paths in command set `items` and web part `preconfiguredEntries` become absolute dev server URLs (`https://localhost:4321/src/.../x.png`). Localized `{ "id": "$…" }` titles are not resolved (not done for web parts either).
 

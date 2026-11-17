@@ -19,7 +19,8 @@ Usage: fast-serve [options]
 Options:
   -p, --port <port>      HTTPS port (default: config/serve.json "port", else ${DEFAULT_PORT})
       --page-url <url>   SharePoint page to open with the debug query
-                         (default: config/serve.json "initialPage"; {tenantDomain} = $${TENANT_DOMAIN_ENV})
+                         (default: config/serve.json serve configuration page, then "initialPage";
+                         {tenantDomain} = $${TENANT_DOMAIN_ENV})
       --locale <locale>  Locale of localized strings (default: ${DEFAULT_LOCALE})
       --config <name>    config/serve.json "serveConfigurations" entry: its page and the
                          extension query parameters (customActions, fieldCustomizers,
@@ -29,8 +30,8 @@ Options:
 
 The same options can be set in ${OPTIONS_FILE}:
 { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}" }.
-Command-line flags win over the file. A page URL from the flag or the file replaces the page
-of every serve configuration.
+Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
+(unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 `;
 
 export async function runCli(args: string[], io: CliIo): Promise<number> {

@@ -34,8 +34,9 @@ function formCustomizerParameterValue(name: string, value: unknown): string {
 
 export function debugPageUrl(pageUrl: string, origin: string, serveConfiguration?: ServeConfiguration): string {
   const hashIndex = pageUrl.indexOf('#');
-  const base = hashIndex === -1 ? pageUrl : pageUrl.slice(0, hashIndex);
+  const withoutHash = hashIndex === -1 ? pageUrl : pageUrl.slice(0, hashIndex);
   const hash = hashIndex === -1 ? '' : pageUrl.slice(hashIndex);
-  const separator = base.includes('?') ? (base.endsWith('?') || base.endsWith('&') ? '' : '&') : '?';
-  return `${base}${separator}${debugQuery(origin, serveConfiguration)}${hash}`;
+  const queryIndex = withoutHash.indexOf('?');
+  const base = queryIndex === -1 ? withoutHash : withoutHash.slice(0, queryIndex);
+  return `${base}?${debugQuery(origin, serveConfiguration)}${hash}`;
 }

@@ -25,7 +25,7 @@
      "serve": "fast-serve"
    }
    ```
-4. Optionally set the page to open in `config/fast-serve.json`. Without it, `fast-serve` uses `config/serve.json` (`port`, the `serveConfigurations` page and extension parameters, `initialPage`), like `heft start`. `heft start --serve-config <name>` becomes `fast-serve --config <name>`. Leave `pageUrl` unset in projects with list extensions: it replaces the page of every serve configuration:
+4. Optionally set the page to open in `config/fast-serve.json`. Without it, `fast-serve` uses `config/serve.json` (`port`, the `serveConfigurations` page and extension parameters, `initialPage`), like `heft start`. `heft start --serve-config <name>` becomes `fast-serve --config <name>`. A serve configuration's own `pageUrl` wins over this `pageUrl` (the option replaces `serveConfigurations.default.pageUrl` and `initialPage`), so `--config <list configuration>` still opens its list:
    ```json
    { "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx" }
    ```
@@ -53,7 +53,7 @@ Old settings (`fast-serve/config.json` `serve` section or CLI flags) and what re
 | `hotRefresh` | always on: HMR with React Fast Refresh |
 | `config` (serve configuration) | `--config <name>` (or `"serveConfiguration"` in `config/fast-serve.json`): the `config/serve.json` `serveConfigurations` entry, as in heft (`--serve-config`) |
 | `isLibraryComponent` | not supported yet |
-| `fullScreenErrors` | no overlay: errors show in the web part, the browser console and the terminal |
+| `fullScreenErrors` | not configurable: compile errors show in Vite's error overlay, the web part and the terminal |
 | `eslint` | not included: run ESLint separately |
 | `loggingLevel`, `debug`, `memory`, `reactProfiling` | removed |
 | `containers` | not supported yet (Docker/WSL) |

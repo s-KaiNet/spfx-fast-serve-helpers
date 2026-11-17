@@ -24,6 +24,7 @@ export async function startDevServer({ root, cli = {}, logger = createConsoleLog
   if (project.components().length === 0) {
     throw new Error('No web parts, extensions or Adaptive Card Extensions found in config/config.json bundles (library components are not supported yet).');
   }
+  for (const warning of options.warnings) logger.warn(warning);
   if (options.serveConfiguration) {
     const { name, ...configuration } = options.serveConfiguration;
     for (const warning of serveConfigurationWarnings(name, configuration, project.components())) logger.warn(warning);
@@ -59,9 +60,6 @@ function printReady({ options, project, logger }: ServeContext, elapsedMs: numbe
   const lines = [`ready in ${elapsedMs} ms at ${options.origin}`, ...componentLines(project.components())];
   const { serveConfiguration } = options;
   if (serveConfiguration) lines.push(`serve configuration: ${serveConfiguration.name}`);
-  if (serveConfiguration && options.replacedServeConfigurationPage !== undefined) {
-    lines.push(`the "pageUrl" option replaces the page of serve configuration "${serveConfiguration.name}" (${options.replacedServeConfigurationPage})`);
-  }
   if (options.pageUrl) {
     lines.push(`open: ${debugPageUrl(options.pageUrl, options.origin, serveConfiguration)}`);
   } else {

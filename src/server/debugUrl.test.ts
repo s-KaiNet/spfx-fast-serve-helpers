@@ -13,7 +13,7 @@ describe('debug URL', () => {
 
   it('appends to page URLs with or without a query and hash', () => {
     expect(debugPageUrl('https://t.sharepoint.com/SitePages/a.aspx', origin)).toBe(`https://t.sharepoint.com/SitePages/a.aspx?${query}`);
-    expect(debugPageUrl('https://t/a.aspx?x=1#top', origin)).toBe(`https://t/a.aspx?x=1&${query}#top`);
+    expect(debugPageUrl('https://t/a.aspx?x=1#top', origin)).toBe(`https://t/a.aspx?${query}#top`);
   });
 
   it('adds loadSPFX and customActions without debug=true, like heft', () => {

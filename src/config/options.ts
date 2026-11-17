@@ -29,7 +29,7 @@ export interface ResolvedOptions {
 
   serveConfiguration: SelectedServeConfiguration | undefined;
 
-  replacedServeConfigurationPage: string | undefined;
+  warnings: string[];
 }
 
 export interface OptionDefaults {
@@ -53,39 +53,42 @@ export function resolveOptions(
   validatePort(port);
   const locale = (cli.locale ?? file.locale ?? DEFAULT_LOCALE).trim().toLowerCase();
   if (!/^[a-z]{2,3}(-[a-z0-9]+)*$/.test(locale)) throw new Error(`Invalid locale "${locale}" (expected e.g. "en-us")`);
-  const serveConfiguration = selectServeConfiguration(defaults.serveConfigurations, cli.serveConfiguration ?? file.serveConfiguration);
-  const pageUrlOption = cli.pageUrl ?? file.pageUrl;
+  const warnings: string[] = [];
+  const serveConfiguration = selectServeConfiguration(defaults.serveConfigurations, cli.serveConfiguration ?? file.serveConfiguration, warnings);
+  const namedConfigurationPage = serveConfiguration?.name === DEFAULT_SERVE_CONFIGURATION ? undefined : serveConfiguration?.pageUrl;
   const pageUrlTemplate =
-    pageUrlOption ?? serveConfiguration?.pageUrl ?? defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl ?? defaults.initialPage;
-  const resolvePage = (template: string) => substituteTenantDomain(template, env[TENANT_DOMAIN_ENV]);
-  const pageUrl = pageUrlTemplate === undefined ? undefined : resolvePage(pageUrlTemplate);
-  const configurationPage = serveConfiguration?.pageUrl;
-  const replacedServeConfigurationPage =
-    pageUrlOption !== undefined && configurationPage !== undefined && resolvePage(configurationPage) !== pageUrl ? configurationPage : undefined;
+    namedConfigurationPage ??
+    cli.pageUrl ??
+    file.pageUrl ??
+    defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl ??
+    defaults.initialPage;
   return {
     port,
     origin: `https://localhost:${port}`,
     locale,
-    pageUrl,
+    pageUrl: pageUrlTemplate === undefined ? undefined : substituteTenantDomain(pageUrlTemplate, env[TENANT_DOMAIN_ENV]),
     pageUrlTemplate,
     serveConfiguration,
-    replacedServeConfigurationPage,
+    warnings,
   };
 }
 
 function selectServeConfiguration(
   configurations: Record<string, ServeConfiguration> | undefined,
   requestedName: string | undefined,
+  warnings: string[],
 ): SelectedServeConfiguration | undefined {
-  const name = requestedName ?? DEFAULT_SERVE_CONFIGURATION;
-  const configuration = configurations?.[name];
-  if (configuration) return { name, ...configuration };
+  const configuration = configurations?.[requestedName ?? DEFAULT_SERVE_CONFIGURATION];
+  if (configuration) return { name: requestedName ?? DEFAULT_SERVE_CONFIGURATION, ...configuration };
   if (requestedName === undefined) return undefined;
   const available = Object.keys(configurations ?? {});
-  throw new Error(
-    `Serve configuration "${requestedName}" not found in config/serve.json "serveConfigurations"` +
-      (available.length > 0 ? ` (available: ${available.join(', ')})` : ' (the file has none)'),
+  const fallback = configurations?.[DEFAULT_SERVE_CONFIGURATION];
+  warnings.push(
+    `serve configuration "${requestedName}" not found in config/serve.json "serveConfigurations"` +
+      (available.length > 0 ? ` (available: ${available.join(', ')})` : ' (the file has none)') +
+      (fallback ? `, using "${DEFAULT_SERVE_CONFIGURATION}"` : ''),
   );
+  return fallback ? { name: DEFAULT_SERVE_CONFIGURATION, ...fallback } : undefined;
 }
 
 function substituteTenantDomain(template: string, tenantDomain: string | undefined): string | undefined {
