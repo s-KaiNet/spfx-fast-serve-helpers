@@ -1,14 +1,17 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
 import { runInNewContext } from 'node:vm';
 import { createServer, type ViteDevServer } from 'vite';
 import { afterEach, describe, expect, it } from 'vitest';
+import { resolveOptions } from '../config/options.js';
 import type { BrowserErrorReport } from '../runtime/contracts.js';
 import { readRuntimeSource } from '../utils/runtimeSource.js';
-import { codeFrame, formatBrowserError } from './format.js';
-import { BROWSER_ERROR_EVENT, describeBrowserError } from './index.js';
+import { createRequire } from 'node:module';
+import { codeFrame, formatBrowserError, overlayError } from './format.js';
+import { BROWSER_ERROR_EVENT, browserErrorsPlugin, describeBrowserError, errorSignature, showsOverlay } from './index.js';
+import { rewriteOverlayHint } from './overlayHint.js';
 import { frameSource, parseStackFrames, referencesProjectCode } from './stackFrames.js';
 
 const ORIGIN = 'https://localhost:4321';
@@ -108,6 +111,59 @@ describe('formatBrowserError', () => {
   });
 });
 
+describe('overlayError', () => {
+  const frames = [
+    { method: 'HelloWorld', location: 'src/HelloWorld.tsx', sourceFile: '/p/src/HelloWorld.tsx', line: 2, column: 5 },
+    { method: 'render', location: 'src/HelloWorldWebPart.ts', sourceFile: '/p/src/HelloWorldWebPart.ts', line: 9, column: 1 },
+  ];
+
+  it('gives Vite\'s overlay the message, the source location, a code frame and the project frames', () => {
+    const error = overlayError(report({ name: 'ReferenceError', message: 'printText is not defined' }), frames, (file) => (file === '/p/src/HelloWorld.tsx' ? 'a\nb(printText)\nc' : undefined));
+    expect(error).toEqual({
+      message: '[Unhandled error] ReferenceError: printText is not defined',
+      loc: { file: '/p/src/HelloWorld.tsx', line: 2, column: 5 },
+      frame: ['1 | a', '2 | b(printText)', '  |     ^', '3 | c'].join('\n'),
+      stack: ['    at HelloWorld (/p/src/HelloWorld.tsx:2:5)', '    at render (/p/src/HelloWorldWebPart.ts:9:1)'].join('\n'),
+    });
+  });
+
+  it('shows the served location when a frame has no source file, and only the message without frames', () => {
+    const served = [{ method: '', location: '@spfx/bundle/hello.js', line: 4, column: 2 }];
+    expect(overlayError(report({ kind: 'unhandled-rejection', message: 'x' }), served, () => undefined)).toEqual({
+      message: '[Unhandled rejection] Error: x',
+      loc: { file: '@spfx/bundle/hello.js', line: 4, column: 2 },
+      stack: '    at (@spfx/bundle/hello.js:4:2)',
+    });
+    expect(overlayError(report({}), [], () => undefined)).toEqual({ message: '[Unhandled error] Error: boom', stack: '' });
+  });
+
+  it('is shown for uncaught errors and rejections, not for console.error calls', () => {
+    expect(showsOverlay(report({ kind: 'error' }))).toBe(true);
+    expect(showsOverlay(report({ kind: 'unhandled-rejection' }))).toBe(true);
+    expect(showsOverlay(report({ kind: 'console-error' }))).toBe(false);
+  });
+
+  it('treats React\'s repeated reports of one render error as the same error', () => {
+    const replayed = errorSignature(report({ name: 'ReferenceError', message: 'printText is not defined' }), frames);
+    expect(errorSignature(report({ name: 'ReferenceError', message: 'printText is not defined' }), frames.slice(0, 1))).toBe(replayed);
+    expect(errorSignature(report({ kind: 'unhandled-rejection', name: 'ReferenceError', message: 'printText is not defined' }), frames)).toBe(replayed);
+    expect(errorSignature(report({ kind: 'console-error', name: 'ReferenceError', message: 'printText is not defined' }), frames)).not.toBe(replayed);
+    expect(errorSignature(report({ name: 'ReferenceError', message: 'printText is not defined' }), frames.slice(1))).not.toBe(replayed);
+  });
+});
+
+describe('overlay hint', () => {
+  it('points the hint of Vite\'s overlay at config/fast-serve.json', () => {
+    const clientFile = createRequire(import.meta.url).resolve('vite').replace(/dist[\\/]node[\\/]index\.js$/, 'dist/client/client.mjs');
+    const client = readFileSync(clientFile, 'utf8');
+    expect(client).toContain('const hmrConfigName = __HMR_CONFIG_NAME__;');
+    expect(client).toContain('h("code", { part: "config-option-name" }, "server.hmr.overlay")');
+    const rewritten = rewriteOverlayHint(client);
+    expect(rewritten).toContain('const hmrConfigName = "config/fast-serve.json";');
+    expect(rewritten).toContain('h("code", { part: "config-option-name" }, "overlay")');
+  });
+});
+
 describe('describeBrowserError in Vite', () => {
   let projectRoot: string | undefined;
   let server: ViteDevServer | undefined;
@@ -141,6 +197,27 @@ describe('describeBrowserError in Vite', () => {
     expect(output).toContain('> 6 |   return props.a.toUpperCase();');
     expect(output).not.toContain('sharepoint.com');
     expect(output).not.toContain('react-dom');
+  });
+
+  it('serves Vite\'s client with the fast-serve overlay hint and the overlay option', async () => {
+    projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-browser-errors-'));
+    const clientCode = async (overlay: boolean) => {
+      server = await createServer({
+        root: projectRoot,
+        configFile: false,
+        logLevel: 'silent',
+        server: { middlewareMode: true, ws: false },
+        plugins: browserErrorsPlugin({ root: projectRoot ?? tmpdir(), options: resolveOptions({ cli: { overlay } }, {}) }),
+      });
+      const code = (await server.environments.client.transformRequest('/@vite/client'))?.code ?? '';
+      await server.close();
+      return code;
+    };
+    const enabled = await clientCode(true);
+    expect(enabled).toContain('const hmrConfigName = "config/fast-serve.json";');
+    expect(enabled).toContain('"overlay")');
+    expect(enabled).toContain('const enableOverlay = true;');
+    expect(await clientCode(false)).toContain('const enableOverlay = false;');
   });
 });
 

@@ -44,6 +44,10 @@ describe('runCli', () => {
     expect((await run(['--serve-config', 'banner'])).startServer).toHaveBeenCalledWith({ serveConfiguration: 'banner' });
   });
 
+  it('turns the error overlay off with --no-overlay', async () => {
+    expect((await run(['--no-overlay'])).startServer).toHaveBeenCalledWith({ overlay: false });
+  });
+
   it('reports start errors', async () => {
     const result = await run([], vi.fn().mockRejectedValue(new Error('boom')));
     expect(result).toMatchObject({ code: 1, err: '[fast-serve] boom\n' });

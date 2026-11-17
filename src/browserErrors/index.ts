@@ -7,7 +7,8 @@ import type { ServeContext } from '../context.js';
 import type { BrowserErrorReport } from '../runtime/contracts.js';
 import { isInside, toPosix } from '../utils/paths.js';
 import { readRuntimeSource, runtimeFilePath } from '../utils/runtimeSource.js';
-import { type DisplayFrame, formatBrowserError } from './format.js';
+import { type DisplayFrame, formatBrowserError, overlayError } from './format.js';
+import { overlayHintPlugin } from './overlayHint.js';
 import { frameSource, isOwnCode, parseStackFrames, referencesProjectCode, type StackFrame } from './stackFrames.js';
 
 export const BROWSER_ERROR_EVENT = 'fast-serve:browser-error';
@@ -19,11 +20,11 @@ const REPEAT_SUPPRESSION_MS = 2000;
 const MAX_FRAMES = 12;
 const VITE_REQUEST_PARAMS = ['t', 'v', 'import'];
 
-export function browserErrorsPlugin({ root, options }: Pick<ServeContext, 'root' | 'options'>): Plugin {
-  return {
+export function browserErrorsPlugin({ root, options }: Pick<ServeContext, 'root' | 'options'>): Plugin[] {
+  const reportsPlugin: Plugin = {
     name: 'fast-serve:browser-errors',
     apply: 'serve',
-    config: () => ({ server: { forwardConsole: false } }),
+    config: () => ({ server: { forwardConsole: false, hmr: { overlay: options.overlay } } }),
 
     resolveId: (source) => (source === BROWSER_ERRORS_ID ? RESOLVED_BROWSER_ERRORS_ID : null),
     load(id) {
@@ -35,23 +36,39 @@ export function browserErrorsPlugin({ root, options }: Pick<ServeContext, 'root'
     configureServer(server) {
       const environment = server.environments.client;
       const isRepeated = createRepeatFilter(REPEAT_SUPPRESSION_MS);
-      environment.hot.on(BROWSER_ERROR_EVENT, (payload: unknown) => {
+      environment.hot.on(BROWSER_ERROR_EVENT, (payload: unknown, client) => {
         if (!isBrowserErrorReport(payload) || !referencesProjectCode([payload.stack, payload.callStack], options.origin)) return;
-        void describeBrowserError(environment, root, options.origin, payload).then((output) => {
-          if (!isRepeated(output)) environment.logger.error(output, { timestamp: true });
+        void mapBrowserErrorFrames(environment, root, options.origin, payload).then((frames) => {
+          if (isRepeated(errorSignature(payload, frames))) return;
+          environment.logger.error(formatBrowserError(payload, frames, readSourceFile), { timestamp: true });
+          if (options.overlay && showsOverlay(payload)) client.send({ type: 'error', err: overlayError(payload, frames, readSourceFile) });
         });
       });
     },
   };
+  return [reportsPlugin, overlayHintPlugin()];
 }
 
 export async function describeBrowserError(environment: DevEnvironment, root: string, origin: string, report: BrowserErrorReport): Promise<string> {
+  return formatBrowserError(report, await mapBrowserErrorFrames(environment, root, origin, report), readSourceFile);
+}
+
+export async function mapBrowserErrorFrames(environment: DevEnvironment, root: string, origin: string, report: BrowserErrorReport): Promise<DisplayFrame[]> {
   const stack = report.stack || report.callStack;
   const servedFrames = parseStackFrames(stack).filter((frame) => frameSource(frame.url, origin) !== 'other');
   const lastOwnFrame = servedFrames.findLastIndex((frame) => isOwnCode(frameSource(frame.url, origin)));
   const shownFrames = servedFrames.slice(0, lastOwnFrame >= 0 ? lastOwnFrame + 1 : MAX_FRAMES).slice(0, MAX_FRAMES);
-  const frames = await Promise.all(shownFrames.map((frame) => displayFrame(environment, root, frame)));
-  return formatBrowserError(report, frames, readSourceFile);
+  return Promise.all(shownFrames.map((frame) => displayFrame(environment, root, frame)));
+}
+
+export function showsOverlay(report: BrowserErrorReport): boolean {
+  return report.kind !== 'console-error';
+}
+
+export function errorSignature(report: BrowserErrorReport, frames: readonly DisplayFrame[]): string {
+  const [first] = frames;
+  const location = first ? `${first.location}:${first.line}:${first.column}` : '';
+  return [report.kind === 'console-error' ? 'console' : 'uncaught', report.name, report.message, location].join('\n');
 }
 
 async function displayFrame(environment: DevEnvironment, root: string, frame: StackFrame): Promise<DisplayFrame> {
@@ -87,13 +104,13 @@ function readSourceFile(file: string): string | undefined {
   }
 }
 
-function createRepeatFilter(windowMs: number): (output: string) => boolean {
-  let lastOutput = '';
+function createRepeatFilter(windowMs: number): (signature: string) => boolean {
+  let lastSignature = '';
   let lastAt = 0;
-  return (output) => {
+  return (signature) => {
     const now = Date.now();
-    const repeated = output === lastOutput && now - lastAt < windowMs;
-    lastOutput = output;
+    const repeated = signature === lastSignature && now - lastAt < windowMs;
+    lastSignature = signature;
     lastAt = now;
     return repeated;
   };

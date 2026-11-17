@@ -13,6 +13,7 @@ describe('resolveOptions', () => {
       pageUrl: undefined,
       pageUrlTemplate: undefined,
       serveConfiguration: undefined,
+      overlay: true,
       warnings: [],
     });
   });
@@ -28,6 +29,11 @@ describe('resolveOptions', () => {
       pageUrl: file.pageUrl,
       locale: 'fr-fr',
     });
+  });
+
+  it('turns the error overlay off from the CLI or the options file', () => {
+    expect(resolveOptions({ file: { overlay: false } }, {}).overlay).toBe(false);
+    expect(resolveOptions({ file: { overlay: true }, cli: { overlay: false } }, {}).overlay).toBe(false);
   });
 
   it('substitutes {tenantDomain} from SPFX_SERVE_TENANT_DOMAIN', () => {
@@ -123,12 +129,13 @@ describe('loadOptionsFile', () => {
   });
 
   it('reads JSON with comments', () => {
-    const root = projectWith('{ "$schema": "x", // comment\n "port": 4500, "pageUrl": "https://x/y", "locale": "nl-nl", "serveConfiguration": "rating", }');
-    expect(loadOptionsFile(root)).toEqual({ port: 4500, pageUrl: 'https://x/y', locale: 'nl-nl', serveConfiguration: 'rating' });
+    const root = projectWith('{ "$schema": "x", // comment\n "port": 4500, "pageUrl": "https://x/y", "locale": "nl-nl", "serveConfiguration": "rating", "overlay": false, }');
+    expect(loadOptionsFile(root)).toEqual({ port: 4500, pageUrl: 'https://x/y', locale: 'nl-nl', serveConfiguration: 'rating', overlay: false });
   });
 
   it('rejects unknown options and wrong types', () => {
     expect(() => loadOptionsFile(projectWith('{ "open": true }'))).toThrow(/unknown option.*"open"/);
     expect(() => loadOptionsFile(projectWith('{ "port": "4321" }'))).toThrow(/"port"/);
+    expect(() => loadOptionsFile(projectWith('{ "overlay": "no" }'))).toThrow(/"overlay"/);
   });
 });

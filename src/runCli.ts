@@ -25,11 +25,13 @@ Options:
       --config <name>    config/serve.json "serveConfigurations" entry: its page and the
                          extension query parameters (customActions, fieldCustomizers,
                          formCustomizer) (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
+      --no-overlay       Don't show compile and runtime errors in an overlay over the page
+                         (they still go to the terminal and the browser console)
   -h, --help             Show this help
   -v, --version          Show the version
 
 The same options can be set in ${OPTIONS_FILE}:
-{ "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}" }.
+{ "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true }.
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 `;
@@ -47,6 +49,7 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
         locale: { type: 'string' },
         config: { type: 'string' },
         'serve-config': { type: 'string' },
+        'no-overlay': { type: 'boolean' },
       },
       strict: true,
       allowPositionals: false,
@@ -72,6 +75,7 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
     if (values.locale !== undefined) options.locale = values.locale;
     const serveConfiguration = values.config ?? values['serve-config'];
     if (serveConfiguration !== undefined) options.serveConfiguration = serveConfiguration;
+    if (values['no-overlay']) options.overlay = false;
     await io.startServer(options);
     return 0;
   } catch (error) {

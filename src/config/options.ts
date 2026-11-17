@@ -11,6 +11,8 @@ export interface FastServeOptions {
   locale?: string;
 
   serveConfiguration?: string;
+
+  overlay?: boolean;
 }
 
 export interface SelectedServeConfiguration extends ServeConfiguration {
@@ -28,6 +30,8 @@ export interface ResolvedOptions {
   pageUrlTemplate: string | undefined;
 
   serveConfiguration: SelectedServeConfiguration | undefined;
+
+  overlay: boolean;
 
   warnings: string[];
 }
@@ -69,6 +73,7 @@ export function resolveOptions(
     pageUrl: pageUrlTemplate === undefined ? undefined : substituteTenantDomain(pageUrlTemplate, env[TENANT_DOMAIN_ENV]),
     pageUrlTemplate,
     serveConfiguration,
+    overlay: cli.overlay ?? file.overlay ?? true,
     warnings,
   };
 }
@@ -119,7 +124,8 @@ export function loadOptionsFile(root: string): FastServeOptions {
     else if (key === 'pageUrl' && typeof value === 'string') options.pageUrl = value;
     else if (key === 'locale' && typeof value === 'string') options.locale = value;
     else if (key === 'serveConfiguration' && typeof value === 'string') options.serveConfiguration = value;
-    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration)`);
+    else if (key === 'overlay' && typeof value === 'boolean') options.overlay = value;
+    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay)`);
   }
   return options;
 }

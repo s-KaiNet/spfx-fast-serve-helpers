@@ -69,4 +69,5 @@ After the reload the card shows the change. On the SharePoint Online workbench t
 
 - If the update went through but the UI didn't change, the state may come from an `onInit` result or a module-level singleton that didn't run again. Reload the page.
 - Hooks order changes (adding or removing a `useState`) re-mount the component: that's Fast Refresh resetting state on purpose.
-- If the web part failed to load (for example a syntax error when the page loaded), it shows the error and the page reloads by itself after the next file change. A syntax error during a hot update is reported in the browser console and the `fast-serve` terminal; saving the fixed file applies the update.
+- If the web part failed to load (for example a syntax error when the page loaded), it shows the error and the page reloads by itself after the next file change. A syntax error during a hot update shows in Vite's error overlay, the browser console and the `fast-serve` terminal; saving the fixed file applies the update.
+- A runtime error from your code (for example a component that throws while rendering) shows in the error overlay; saving the fix hot-updates the component and clears the overlay. If the error happened while the page loaded, the first edit reloads the page instead.

@@ -31,7 +31,7 @@ function createFixtureExternals() {
     root,
     project: createProject(root, logger),
     logger,
-    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, warnings: [] },
+    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, overlay: true, warnings: [] },
   };
   return { externals: createExternals(context), warnings };
 }

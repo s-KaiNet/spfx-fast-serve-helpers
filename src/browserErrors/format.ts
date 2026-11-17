@@ -16,8 +16,18 @@ const HEADERS: Record<BrowserErrorReport['kind'], string> = {
 };
 
 const CODE_FRAME_CONTEXT_LINES = 2;
+const LINE_MARKER_WIDTH = 2;
 
-export function formatBrowserError(report: BrowserErrorReport, frames: readonly DisplayFrame[], readSource: (file: string) => string | undefined): string {
+export interface OverlayError {
+  message: string;
+  stack: string;
+  frame?: string;
+  loc?: { file: string; line: number; column: number };
+}
+
+type SourceReader = (file: string) => string | undefined;
+
+export function formatBrowserError(report: BrowserErrorReport, frames: readonly DisplayFrame[], readSource: SourceReader): string {
   const title = report.kind === 'console-error' ? report.message : `${styleText('bold', report.name)}: ${report.message}`;
   const lines = [styleText('red', `${HEADERS[report.kind]} ${title}`)];
   let codeFrameShown = false;
@@ -29,6 +39,30 @@ export function formatBrowserError(report: BrowserErrorReport, frames: readonly 
     codeFrameShown = true;
   }
   return lines.join('\n');
+}
+
+export function overlayError(report: BrowserErrorReport, frames: readonly DisplayFrame[], readSource: SourceReader): OverlayError {
+  const title = report.kind === 'console-error' ? report.message : `${report.name}: ${report.message}`;
+  const stack = frames.map((frame) => `    at ${[frame.method, `(${frameLocation(frame)})`].filter(Boolean).join(' ')}`).join('\n');
+  const error: OverlayError = { message: `${HEADERS[report.kind]} ${title}`, stack };
+  const located = frames.find((frame) => frame.sourceFile !== undefined) ?? frames[0];
+  if (!located) return error;
+  const source = located.sourceFile === undefined ? undefined : readSource(located.sourceFile);
+  return {
+    ...error,
+    loc: { file: located.sourceFile ?? located.location, line: located.line, column: located.column },
+    ...(source === undefined ? {} : { frame: unmarkedCodeFrame(source, located.line, located.column) }),
+  };
+}
+
+function unmarkedCodeFrame(source: string, line: number, column: number): string {
+  return codeFrame(source, line, column)
+    .map((frameLine) => frameLine.slice(LINE_MARKER_WIDTH))
+    .join('\n');
+}
+
+function frameLocation(frame: DisplayFrame): string {
+  return `${frame.sourceFile ?? frame.location}:${frame.line}:${frame.column}`;
 }
 
 export function codeFrame(source: string, line: number, column: number): string[] {

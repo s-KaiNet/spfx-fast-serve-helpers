@@ -120,6 +120,7 @@ The page is the exception: a named serve configuration's own `pageUrl` wins over
 | `pageUrl` | `--page-url` | page printed with the debug query, unless the selected serve configuration (other than `default`) has its own `pageUrl`. `{tenantDomain}` is replaced with the `SPFX_SERVE_TENANT_DOMAIN` environment variable (e.g. `contoso.sharepoint.com`) |
 | `locale` | `--locale` | locale of `localizedResources` strings (falls back to `en-us` per resource) |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` `serveConfigurations` entry to use (default: `default`); an unknown name warns with the list of names and uses `default` |
+| `overlay` | `--no-overlay` | `false` turns off the error overlay over the page (see [Errors](#errors)); errors still go to the terminal and the browser console (default: `true`) |
 
 HTTPS is always on, with the SPFx development certificate. There is no `vite.config` to write: `fast-serve` configures Vite itself.
 
@@ -152,6 +153,19 @@ Details and examples: [docs/hmr.md](docs/hmr.md).
 
 Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A `launch.json` for Edge/Chrome that opens the SharePoint page with the debug query: [docs/debugging.md](docs/debugging.md).
 
+## Errors
+
+Errors show in Vite's error overlay over the SharePoint page and in the terminal:
+
+- compile errors (syntax or transform errors in a file you edit), and in the web part's error box when the bundle fails to load;
+- runtime errors from your code: uncaught errors (a `ReferenceError` in a component's render, an error thrown in an event handler) and unhandled promise rejections. The overlay and the terminal show the message, the location in your source (`src/...tsx:line:col`, through source maps), a code frame and the stack trimmed to your code.
+
+Press Esc or click outside to dismiss the overlay; a hot update clears it, and a newer error replaces it. If the overlay is still open at the first edit after the page loaded (an error during the page load), the page reloads instead of hot-updating, as Vite does. A render error that React reports several times (React 18 replays a failed render in development) shows once. The overlay's hint points at the `overlay` option: `"overlay": false` in `config/fast-serve.json` or `--no-overlay` turns it off for compile and runtime errors.
+
+Only errors from your code are shown: their stack trace has a project module (`https://localhost:<port>/src/...`, not `node_modules`) or the `fast-serve` loader. SharePoint's own errors and third-party noise (for example `@pnp/telemetry-js` "Failed to fetch") stay in the browser console, and so do rejections without a stack (`Promise.reject('text')`). `console.error` calls from your code go to the terminal with a code frame but don't open the overlay: the code that logs an error has handled it (React's "The above error occurred in the <X> component" is one of these).
+
+The browser reports the position it has for a stack frame, which isn't always the exact expression: for an undefined name inside JSX children (`{escape(name)}! {printText()}`) Chrome can point at an earlier expression on the same line.
+
 ## Troubleshooting
 
 | Symptom | What to do |
@@ -171,7 +185,6 @@ Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A
 - Web parts, extensions and Adaptive Card Extensions only: no library components yet.
 - Extensions: a localized command title in a manifest (`"title": { "id": "$…" }`) isn't resolved (heft fills it from the loc file); use `"default"` texts. Relative icon paths (`"iconImageUrl": "./icons/x.png"`) are served from `src`; `"icons/x.png"` without `./` is passed through, as heft does, and resolves against the dev server root.
 - Dev server only: no production build, no type checking and no linting (run `tsc --noEmit` / ESLint / `heft build` separately).
-- Compile errors (syntax or transform errors in a file you edit) show in Vite's error overlay over the SharePoint page, in the web part's error box when the bundle fails to load, and in the terminal; press Esc or fix the file to dismiss the overlay (the overlay's hint about `vite.config.js` doesn't apply: `fast-serve` has no Vite config). Runtime errors show in the browser console and the terminal. The terminal only gets browser errors that come from your code: uncaught errors, unhandled rejections and `console.error` calls whose stack trace includes a project module (`https://localhost:<port>/src/...`, not `node_modules`) or the `fast-serve` loader. SharePoint's own errors and third-party noise (for example `@pnp/telemetry-js` "Failed to fetch") stay in the browser console, and so do rejections without a stack (`Promise.reject('text')`).
 - `config/config.json` `externals` (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like in heft, never bundled from `node_modules`. Named imports from an external (`import { ajax } from 'jquery'`) only work when a package with the same name is installed (its export names are used); otherwise use the default import.
 - `localizedResources` loc files can be JavaScript or TypeScript. Write them as `define([], function () { return { ... }; });`: `export default` / `export =` work in `fast-serve`, but heft copies the compiled file as is and SharePoint can't load an ES module there (`fast-serve` warns).
 - A `const enum` declared only in a `.d.ts` file or in a dependency (for example `IconNames` from `@fluentui/font-icons-mdl2`) doesn't work: each file is compiled on its own, so the enum can't be inlined and there is no JavaScript object to import. Use a regular `enum`, or string values. An exported `const enum` in your own `.ts` files works. `fast-serve` explains these cases instead of the browser's cryptic error:

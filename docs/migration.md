@@ -53,7 +53,7 @@ Old settings (`fast-serve/config.json` `serve` section or CLI flags) and what re
 | `hotRefresh` | always on: HMR with React Fast Refresh |
 | `config` (serve configuration) | `--config <name>` (or `"serveConfiguration"` in `config/fast-serve.json`): the `config/serve.json` `serveConfigurations` entry, as in heft (`--serve-config`) |
 | `isLibraryComponent` | not supported yet |
-| `fullScreenErrors` | not configurable: compile errors show in Vite's error overlay, the web part and the terminal |
+| `fullScreenErrors` | `overlay` (`--no-overlay` to turn it off): compile errors and runtime errors from your code show in Vite's error overlay and the terminal |
 | `eslint` | not included: run ESLint separately |
 | `loggingLevel`, `debug`, `memory`, `reactProfiling` | removed |
 | `containers` | not supported yet (Docker/WSL) |
