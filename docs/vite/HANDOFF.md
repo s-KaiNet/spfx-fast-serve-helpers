@@ -188,7 +188,7 @@ Heft findings (P1):
 ### Next (agreed 2026-11-17)
 - VS Code debugging: verify the `docs/debugging.md` `launch.json` with F5 in real VS Code;
 - terminal noise: don't forward SharePoint's own errors (edit-mode `summarizer-worker`) and PnP telemetry "Failed to fetch". **Done:** `browserErrors/` replaces `server.forwardConsole`: only errors whose stack has a project module or loader frame reach the terminal;
-- occasional page-load hang (`react-dom` request stuck pending; 27 of 116 loads in the P1 perf runs);
+- occasional page-load hang: **skipped by the user** (2026-11-17). Findings: only reproduced with the build before `207e9ef` (8 of 64 loads on spfx-bench); the current build had 0 of 64, but 42 of those ran with Chrome's net log on, which also hid the hang on the old build. Server traces show the `react-dom` response fully sent in ~100 ms while Chrome never received headers: a stall inside Chrome on the HTTP/2 connection. Old build over HTTP/1.1: 0 of 30 hangs (median 8.08 s vs 7.73 s on HTTP/2). If it comes back, serving HTTP/1.1 is the likely fix (Vite 8 always uses HTTP/2 with HTTPS). Harness and traces: `/tmp/n2`;
 - `const enum` / decorator checks with clear errors (ambient enum ReferenceError, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`). **Done:** ambient enums and `.d.ts`-only imports at transform/resolve time (`transforms/constEnums`), kept metadata type imports removed with a warning (`transforms/typeOnlyNames`), missing exports explained by the shim at load time;
 - extensions (Application Customizer, ListView Command Set, Field/Form Customizer) with `serve.json` `serveConfigurations` → query params;
 - ACEs.
