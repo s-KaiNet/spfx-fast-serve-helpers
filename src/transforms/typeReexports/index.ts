@@ -4,6 +4,7 @@ import { init } from 'es-module-lexer';
 import type { DevEnvironment, Plugin } from 'vite';
 import type { ServeContext } from '../../context.js';
 import { isInside, toPosix, toRootUrl } from '../../utils/paths.js';
+import { withoutQuery } from '../../utils/vite.js';
 import { isProjectScript, NODE_MODULES_ID, PROJECT_SCRIPT_ID } from '../projectSource.js';
 import { formatTypeReexportMessage } from './message.js';
 import { collectRuntimeExports, findValueReexports, groupBy, removeReexports, type ValueReexport } from './reexports.js';
@@ -118,12 +119,12 @@ async function readRuntimeExports(environment: DevEnvironment, request: string, 
 
 export function checkableRequest(root: string, id: string): string | undefined {
   if (id.startsWith(VIRTUAL_ID_PREFIX)) return id;
-  const file = stripQuery(id);
+  const file = withoutQuery(id);
   return path.isAbsolute(file) && isInside(root, file) && !NODE_MODULES_ID.test(file) ? toRootUrl(root, file) : undefined;
 }
 
 function checkableStarRequest(source: string): string | undefined {
-  const url = stripQuery(source);
+  const url = withoutQuery(source);
   if (url.startsWith(VIRTUAL_URL_PREFIX)) return VIRTUAL_ID_PREFIX + url.slice(VIRTUAL_URL_PREFIX.length);
   if (!url.startsWith('/') || url.startsWith('/@') || url.includes('/node_modules/')) return undefined;
   return url;
@@ -131,7 +132,7 @@ function checkableStarRequest(source: string): string | undefined {
 
 function readSource(id: string, fallback: string): string {
   try {
-    return readFileSync(stripQuery(id), 'utf8');
+    return readFileSync(withoutQuery(id), 'utf8');
   } catch {
     return fallback;
   }
@@ -139,10 +140,5 @@ function readSource(id: string, fallback: string): string {
 
 function displayTarget(root: string, id: string): string {
   if (id.startsWith(VIRTUAL_ID_PREFIX)) return id.slice(VIRTUAL_ID_PREFIX.length);
-  return toPosix(path.relative(root, stripQuery(id)));
-}
-
-function stripQuery(id: string): string {
-  const queryStart = id.indexOf('?');
-  return queryStart === -1 ? id : id.slice(0, queryStart);
+  return toPosix(path.relative(root, withoutQuery(id)));
 }

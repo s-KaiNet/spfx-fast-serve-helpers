@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { isStyleRequest } from '../../utils/vite.js';
+import { isStyleRequest, withoutQuery } from '../../utils/vite.js';
 
 const STYLE_SPECIFIER = /\.(scss|sass|css)$/;
 const CSS_MODULE_FILE = /\.module(?:\.scss)?\.css$/i;
@@ -20,8 +20,4 @@ export function isCssModuleFile(file: string): boolean {
 
 function isPathSpecifier(specifier: string): boolean {
   return specifier.startsWith('.') || path.isAbsolute(specifier);
-}
-
-function withoutQuery(id: string): string {
-  return id.split('?', 1)[0] ?? id;
 }

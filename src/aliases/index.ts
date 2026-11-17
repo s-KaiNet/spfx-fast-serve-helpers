@@ -2,13 +2,14 @@ import type { Plugin } from 'vite';
 import type { ServeContext } from '../context.js';
 import { aliasCandidates } from '../project/index.js';
 import { isProjectScript } from '../transforms/projectSource.js';
+import { withoutQuery } from '../utils/vite.js';
 
 export function tsconfigPathsPlugin({ root, project }: ServeContext): Plugin {
   return {
     name: 'fast-serve:tsconfig-paths',
     enforce: 'pre',
     async resolveId(source, importer, options) {
-      if (!importer || !isProjectScript(root, stripQuery(importer))) return null;
+      if (!importer || !isProjectScript(root, withoutQuery(importer))) return null;
       const paths = project.tsconfigPaths();
       if (!paths) return null;
       const queryStart = source.indexOf('?');
@@ -26,9 +27,4 @@ async function firstResolved<T>(candidates: readonly string[], resolveCandidate:
   const [candidate, ...rest] = candidates;
   if (candidate === undefined) return null;
   return (await resolveCandidate(candidate)) ?? firstResolved(rest, resolveCandidate);
-}
-
-function stripQuery(id: string): string {
-  const queryStart = id.indexOf('?');
-  return queryStart === -1 ? id : id.slice(0, queryStart);
 }

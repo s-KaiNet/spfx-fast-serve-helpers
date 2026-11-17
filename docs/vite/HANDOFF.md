@@ -1,6 +1,6 @@
 # Handoff: Vite dev server for SPFx (SPFx 1.22+ / Heft)
 
-Status on 2026-11-17: **P0 items 1–17 are done; P1 in progress** (§6). #17 (project tsconfig applied to the Oxc transform) is the latest, see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
+Status on 2026-11-17: **P0 items 1–17 and P1 are done** (§6). #17 (project tsconfig applied to the Oxc transform) is the latest, see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
 
 Read this file first. Every claim below links to a detailed report in `research/`.
 
@@ -173,10 +173,12 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
 | TS loc files | ✅ |
 | docs: migration, HMR do's and don'ts, VS Code `launch.json` (`docs/*.md`) | ✅ |
 | cleanups from the P0 review: shared runtime `describeError`, one default locale, server/defines tests, no source maps in the package, `require()` of `paths` aliases | ✅ |
-| warmup timing; PnP web part ~1 s slower than the PoC; second web part rendered on a page | open |
+| warmup timing: Vite warmup off; the entry graph is warmed after the first pre-bundling (`server/warmup.ts`), SCSS typings start after it; cold start → optimizer done 4.5 s → 1.9 s | ✅ |
+| PnP web part slower than the PoC: cause was warmup flooding + unfiltered pre-bundle plugin hooks; cold PnP load 6.97 s → 4.48 s (PoC ~3.8 s) | ✅ |
+| second web part rendered on a page: added to the `spfx-rea.aspx` draft (not published), renders and hot-updates | ✅ |
 | docs: legacy decorators supported, `emitDecoratorMetadata` limits, `const enum` from `.d.ts` / dependencies not supported (use a regular `enum`) (research/tsconfig-decorators) | ✅ (README) |
 
-Cut from P1 by the user: `config/sass.json` in the Vite Sass compile, locale switch, theme setter hook, `@pnp/spfx-property-controls` 3.13 already-hashed CSS, the occasional page-load hang. Deferred to later by the user: `const enum` / decorator checks with clear errors (ReferenceError for an ambient enum, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`); only the docs are in P1.
+Cut from P1 by the user: `config/sass.json` in the Vite Sass compile, locale switch, theme setter hook, `@pnp/spfx-property-controls` 3.13 already-hashed CSS, the occasional page-load hang (moved to later; seen in 27 of 116 loads during the P1 perf runs, 0 of ~30 in the P1 acceptance). Deferred to later by the user: `const enum` / decorator checks with clear errors (ReferenceError for an ambient enum, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`); only the docs are in P1.
 
 Heft findings (P1):
 - `config.json` `externals` go into the manifest as `{ type: "path", path, globalName?, globalDependencies? }`: URLs as is, local files copied to `dist/`.
