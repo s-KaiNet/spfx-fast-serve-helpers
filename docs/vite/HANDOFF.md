@@ -1,6 +1,8 @@
 # Handoff: Vite dev server for SPFx (SPFx 1.22+ / Heft)
 
-Status on 2026-11-16: **discovery done, nothing built in this repo yet.**
+Status on 2026-11-17: **P0 items 1–16 are implemented** (branch `vite`, commits `ee3b60b`…`85a4705`). New finding: P0 #17 (project tsconfig not applied), see `research/tsconfig-decorators/`.
+
+Original status (2026-11-16): discovery done, nothing built in this repo yet.
 The user must approve before implementation starts. The next step is to agree the v1 scope (§6) and the package shape (§8) with the user, then build.
 
 Read this file first. Every claim below links to a detailed report in `research/`.
@@ -43,6 +45,7 @@ Decisions the user made:
 | `research/vite-serve-plan/README.md` | the original plan: parity list (P0/P1/P2 tables), architecture proposal, easy-to-miss items, future improvements. §6 below updates it |
 | `research/tla-externals/` | research: on-demand `sp-*` via top-level await (live-verified), with prototype and Rolldown tests |
 | `research/benchmark/` | Vite vs `heft start` on 250/1000 generated modules: report, raw results, generator and harness |
+| `research/tsconfig-decorators/` | research: project tsconfig not applied by Vite 8/Oxc; legacy decorators, class fields, `emitDecoratorMetadata`, `const enum`; fix config and experiment files |
 | `research/pnp-scss/` | research: SPFx libraries importing `.module.scss` that only ship `.module.scss.css`, with a working fix prototype |
 | `research/vite-serve-plan/generate-spfx-webpack-config.cjs` | calls Heft's `WebpackConfigurationGenerator` from plain Node (no build) to get entries/externals |
 
@@ -161,6 +164,7 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
 | 14 | Options: `port`, `pageUrl` (`{tenantDomain}`/`SPFX_SERVE_TENANT_DOMAIN`), `locale` | 🟡 |
 | 15 | SPFx version check / version-locked package (`~1.24.0`, like spfx-fast-serve) | ❌ |
 | 16 | Install friction: `@vitejs/plugin-react` 6 optional Babel-8 peers clash with Jest's Babel 7 under npm (`--legacy-peer-deps`). Resolve React/plugins from the project (pnpm) | ❌ |
+| 17 | **Project tsconfig not applied** (found 2026-11-17): legacy decorators reach the browser untransformed, class fields without initializers reset base-class values. Pass a whitelist of compiler options via `oxc.tsconfig` | 🔬 research/tsconfig-decorators |
 
 ### P1
 - tsconfig `paths` aliases;
@@ -170,7 +174,7 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
 - `config.json` `externals` (local files);
 - TS loc files;
 - locale switch;
-- `const enum` / legacy decorators checks;
+- `const enum` in `.d.ts` / dependencies: clear error + docs; `emitDecoratorMetadata` limits (type imports without `type`, primitives) in docs (research/tsconfig-decorators);
 - docs (migration, HMR do's and don'ts, VS Code `launch.json`);
 - `@pnp/spfx-property-controls` 3.13 ships already-hashed CSS (`X.module.scss.js` → `require('./X.module.css')`). Load it as global CSS. Likely broken under heft too (inferred).
 
