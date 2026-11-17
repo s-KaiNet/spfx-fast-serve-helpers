@@ -4,8 +4,9 @@ import path from 'node:path';
 import { toPosix } from '../../utils/paths.js';
 import { createCssClassNameGenerator, type CssClassNameGenerator } from './cssClassName.js';
 import { isCssModuleFile } from './resolveLibraryCss.js';
+import { errorMessage } from '../../utils/errors.js';
 
-export const SP_CSS_LOADER_PACKAGE = '@microsoft/sp-css-loader';
+const SP_CSS_LOADER_PACKAGE = '@microsoft/sp-css-loader';
 const SPFX_HEFT_PLUGINS_PACKAGE = '@microsoft/spfx-heft-plugins';
 
 interface SpCssLoaderOptions {
@@ -56,7 +57,7 @@ export function createLibraryCssCompiler({ root, warn }: LibraryCssCompilerOptio
         getOptions: () => options,
         getResolve: () => (directory, request) => Promise.resolve(path.resolve(directory, request)),
         emitWarning: (warning) => {
-          warn(`${file}: ${warning instanceof Error ? warning.message : String(warning)}`);
+          warn(`${file}: ${errorMessage(warning)}`);
         },
         async: () => (error, result) => {
           if (error) reject(error);

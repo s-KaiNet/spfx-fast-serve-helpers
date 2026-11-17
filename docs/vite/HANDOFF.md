@@ -1,9 +1,6 @@
 # Handoff: Vite dev server for SPFx (SPFx 1.22+ / Heft)
 
-Status on 2026-11-17: **P0 items 1–16 are implemented** (branch `vite`, commits `ee3b60b`…`85a4705`). New finding: P0 #17 (project tsconfig not applied), see `research/tsconfig-decorators/`.
-
-Original status (2026-11-16): discovery done, nothing built in this repo yet.
-The user must approve before implementation starts. The next step is to agree the v1 scope (§6) and the package shape (§8) with the user, then build.
+Status on 2026-11-17: **P0 items 1–16 are done and committed; P1 in progress** (§6). Open P0 finding: #17 (project tsconfig not applied), see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
 
 Read this file first. Every claim below links to a detailed report in `research/`.
 
@@ -82,7 +79,7 @@ Tenant pages (`https://mastaq.sharepoint.com/sites/dev/`):
 4. **Theme tokens:** the CSS modules' `updateStyle` import is swapped for `themed-styles-runtime.js`, which:
    - resolves `"[theme:x, default:y]"` from `window.__themeState__.theme`;
    - lets Vite still own the `<style>` tags, so CSS HMR works;
-   - re-resolves on theme change (polling every 500 ms for now; should become a setter hook).
+   - (PoC only) re-resolved on theme change by polling. **Removed in P1 by user decision:** tokens resolve once per style insert/hot update; no theme monitoring.
 5. React/ReactDOM come from node_modules (development build). Fast Refresh keeps state.
 
 Live-verified in the PoC:
@@ -143,7 +140,7 @@ Why not the alternatives (user asked):
 
 ## 6. Current priority list (supersedes the status columns in research/vite-serve-plan)
 
-Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
+Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known. The P0 status column is the pre-implementation state: items 1–16 are now implemented (`git log`, `src/README.md`).
 
 ### P0 (v1, web parts)
 | # | Item | Status / solution |
@@ -166,17 +163,25 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
 | 16 | Install friction: `@vitejs/plugin-react` 6 optional Babel-8 peers clash with Jest's Babel 7 under npm (`--legacy-peer-deps`). Resolve React/plugins from the project (pnpm) | ❌ |
 | 17 | **Project tsconfig not applied** (found 2026-11-17): legacy decorators reach the browser untransformed, class fields without initializers reset base-class values. Pass a whitelist of compiler options via `oxc.tsconfig` | 🔬 research/tsconfig-decorators |
 
-### P1
-- tsconfig `paths` aliases;
-- `config/sass.json` settings (`silenceDeprecations`);
-- static-asset typings;
-- theme change via a setter hook instead of polling;
-- `config.json` `externals` (local files);
-- TS loc files;
-- locale switch;
-- `const enum` in `.d.ts` / dependencies: clear error + docs; `emitDecoratorMetadata` limits (type imports without `type`, primitives) in docs (research/tsconfig-decorators);
-- docs (migration, HMR do's and don'ts, VS Code `launch.json`);
-- `@pnp/spfx-property-controls` 3.13 ships already-hashed CSS (`X.module.scss.js` → `require('./X.module.css')`). Load it as global CSS. Likely broken under heft too (inferred).
+### P1 (status 2026-11-17)
+| Item | Status |
+|---|---|
+| tsconfig `paths` aliases (own resolver: Vite's `resolve.tsconfigPaths` ignores a rig-extended `include`) | ✅ |
+| static-asset typings (`temp/static-asset-ts`, like heft) | ✅ |
+| remove theme-change monitoring (polling) | ✅ |
+| `config.json` `externals` (URLs and local files) | ✅ |
+| TS loc files | ✅ |
+| docs: migration, HMR do's and don'ts, VS Code `launch.json` (`docs/*.md`) | ✅ |
+| cleanups from the P0 review: shared runtime `describeError`, one default locale, server/defines tests, no source maps in the package, `require()` of `paths` aliases | ✅ |
+| warmup timing; PnP web part ~1 s slower than the PoC; second web part rendered on a page | open |
+| `const enum` in `.d.ts` / dependencies: clear error + docs; `emitDecoratorMetadata` limits in docs (research/tsconfig-decorators) | open |
+
+Cut from P1 by the user: `config/sass.json` in the Vite Sass compile, locale switch, theme setter hook, `@pnp/spfx-property-controls` 3.13 already-hashed CSS, the occasional page-load hang, `const enum` / decorator checks (the docs/error row above came later with the P0 #17 research: confirm with the user).
+
+Heft findings (P1):
+- `config.json` `externals` go into the manifest as `{ type: "path", path, globalName?, globalDependencies? }`: URLs as is, local files copied to `dist/`.
+- Loc files: TypeScript `define([], …)` works; `export default` builds but breaks under RequireJS; `export =` fails with TS1203.
+- `fast-serve` lists every external in every manifest (one shared RequireJS `require`).
 
 ### Later (after v1)
 - Extensions (Application Customizer, ListView Command Set, Field/Form Customizer) with `serve.json` `serveConfigurations` → query params;
@@ -195,7 +200,7 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
   - module-level side effects (`initializeIcons`, PnPjs singletons) re-run.
 
   Advise `onInit` for setup and function components in component-only files.
-- In dev, all bundles share one ESM graph (one module instance). In prod each bundle has its own copy. Document it.
+- In dev, all bundles share one ESM graph (one module instance). In prod each bundle has its own copy (documented in docs/migration.md and docs/hmr.md).
 - The debug URL is sticky in `sessionStorage["spfx-debug"]`: opening the page without the query in the same tab retries localhost (CSP error).
 - The dev cert must be trusted (`npx heft trust-dev-cert`); Chrome/Edge Local Network Access prompt.
 - Vite needs `server.origin` (absolute asset URLs) and `optimizeDeps.entries` (no index.html).

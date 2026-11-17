@@ -9,20 +9,6 @@ interface SpComponentLoaderModule {
 
 declare const __SPFX_LIBRARY_LOADER__: LibraryLoaderConfig;
 
-function describeLoadError(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === 'object' && error !== null) {
-    const { message } = error as { message?: unknown };
-    if (typeof message === 'string') return message;
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return Object.prototype.toString.call(error);
-    }
-  }
-  return String(error);
-}
-
 interface RequireJsContexts {
   s?: { contexts?: Record<string, { defined?: Record<string, unknown> } | undefined> };
 }
@@ -102,7 +88,7 @@ function createLibraryLoader(config: LibraryLoaderConfig): LibraryLoaderGlobal {
         },
         (error: unknown) => {
           const failure = new Error(
-            `[fast-serve] Cannot load "${name}" from config/config.json "externals": ${describeLoadError(error)}`,
+            `[fast-serve] Cannot load "${name}" from config/config.json "externals": ${describeError(error)}`,
             { cause: error },
           );
           console.error(failure);
@@ -125,7 +111,7 @@ function createLibraryLoader(config: LibraryLoaderConfig): LibraryLoaderGlobal {
             return libraryModule;
           },
           (error: unknown) => {
-            const loadError = describeLoadError(error);
+            const loadError = describeError(error);
             const versionHint = olderPageVersionHint(library, loadError);
             const reason = versionHint === '' ? loadError : `${versionHint} SharePoint error: ${loadError}`;
             const failure = new Error(`[fast-serve] Cannot load SPFx library ${describeLibrary(library)} from SharePoint: ${reason}`, {

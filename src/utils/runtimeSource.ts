@@ -2,7 +2,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { transformWithOxc } from 'vite';
 
-export type RuntimeFile = 'componentShim' | 'libraryLoader' | 'themedStyles';
+export type RuntimeScript = 'componentShim' | 'libraryLoader';
+export type RuntimeFile = RuntimeScript | 'describeError' | 'themedStyles';
+
+const SCRIPT_HELPERS: readonly RuntimeFile[] = ['describeError'];
 
 const cache = new Map<RuntimeFile, Promise<string>>();
 
@@ -13,6 +16,11 @@ export function readRuntimeSource(name: RuntimeFile): Promise<string> {
     cache.set(name, source);
   }
   return source;
+}
+
+export async function readRuntimeScript(name: RuntimeScript): Promise<string> {
+  const sources = await Promise.all([...SCRIPT_HELPERS, name].map(readRuntimeSource));
+  return sources.map((source) => source.trim()).join('\n');
 }
 
 export function runtimeFilePath(name: RuntimeFile): string {

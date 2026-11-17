@@ -25,20 +25,6 @@ const STATUS_POLL_MS = 1000;
 const UNREACHABLE_POLL_MAX_MS = 30_000;
 const UNREACHABLE_GIVE_UP_MS = 10 * 60_000;
 
-function describeShimError(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === 'object' && error !== null) {
-    const { message } = error as { message?: unknown };
-    if (typeof message === 'string') return message;
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return Object.prototype.toString.call(error);
-    }
-  }
-  return String(error);
-}
-
 async function fetchServerStatus(): Promise<ShimServerStatus | undefined> {
   try {
     const response = await fetch(shimConfig.origin + shimConfig.statusPath, { cache: 'no-store' });
@@ -96,7 +82,7 @@ function formatServerError(serverError: ShimLastServerError): string {
 const FAST_SERVE_PREFIX = '[fast-serve] ';
 
 async function toBundleLoadError(error: unknown): Promise<Error> {
-  let reason = describeShimError(error);
+  let reason = describeError(error);
   if (reason.startsWith(FAST_SERVE_PREFIX)) reason = reason.slice(FAST_SERVE_PREFIX.length);
   const status = await fetchServerStatus();
   if (MODULE_FETCH_FAILURE.test(reason)) {

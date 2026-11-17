@@ -1,5 +1,6 @@
 import { CertificateManager } from '@rushstack/debug-certificate-manager';
 import { ConsoleTerminalProvider, Terminal } from '@rushstack/terminal';
+import { errorMessage } from '../utils/errors.js';
 
 export interface HttpsCredentials {
   cert: string;
@@ -14,7 +15,7 @@ export async function loadDevCertificate(): Promise<HttpsCredentials> {
   } catch (error) {
     throw new Error(
       'No valid SPFx development certificate found. Run "npx heft trust-dev-cert" in the project once.\n' +
-        `  (${error instanceof Error ? error.message : String(error)})`,
+        `  (${errorMessage(error)})`,
       { cause: error },
     );
   }

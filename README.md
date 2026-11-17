@@ -12,6 +12,10 @@ Design notes, decisions and status: [docs/vite/HANDOFF.md](docs/vite/HANDOFF.md)
 - Node.js versions supported by SPFx 1.24: 22 (from 22.14), 24 or 26.
 - The SPFx development certificate, trusted once per machine (the same one `heft start` uses).
 
+## Migrating
+
+From `heft start` (SPFx 1.22+) or from the classic spfx-fast-serve (SPFx 1.21 and earlier): [docs/migration.md](docs/migration.md), including what's different in development.
+
 ## Install
 
 ```sh
@@ -68,7 +72,7 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 
 ### TypeScript paths, static assets and theme colors
 
-- **`paths` aliases.** `compilerOptions.paths` and `baseUrl` in `tsconfig.json` (including the files it `extends`) resolve imports in `src` the way `tsc` does: exact keys first, then the longest matching wildcard, targets in order, then `baseUrl`, then `node_modules`. Editing `tsconfig.json` (or a file it extends inside the project) reloads the page with the new aliases.
+- **`paths` aliases.** `compilerOptions.paths` and `baseUrl` in `tsconfig.json` (including the files it `extends`) resolve imports in `src` the way `tsc` does: exact keys first, then the longest matching wildcard, targets in order, then `baseUrl`, then `node_modules`. Editing `tsconfig.json` (or a file it extends inside the project) reloads the page with the new aliases. `require('@alias/logo.png')` through an explicit `paths` key works like a relative `require` (a catch-all `"*"` key or `baseUrl` alone doesn't make a `require()` an alias).
 - **Static assets.** `import logo from './assets/logo.png'` (or `require('./assets/logo.png')`) gives an absolute URL on the dev server, e.g. `https://localhost:4321/src/webparts/hello/assets/logo.png`. Typings come from the SPFx build rig: Heft's `static-asset-typings` task writes `temp/static-asset-ts/**/*.d.ts` for the extensions in the rig's `config/static-asset-typings.json` (`.gif`, `.jpg`, `.jpeg`, `.png`, `.svg`, `.webp`), and the rig's `tsconfig` reads them through `rootDirs`. `fast-serve` writes the same files when it starts and when you add an asset, so new assets are typed without a `heft build`. For other extensions (e.g. `.woff`, `.mp4`) add your own declaration, exactly as `heft build` needs it:
   ```ts
   declare module '*.mp4' {
@@ -84,24 +88,15 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 
 ## HMR: do's and don'ts
 
-What updates in place, keeping React state:
+- Updates in place, keeping React state: function components in `.tsx` files that export only components; `.module.scss` / `.scss` / `.css`; new imports.
+- Reloads the page: edits to the web part class and to what only it imports; files that export components **and** other values; `config/*.json`, `package.json`, `tsconfig.json`, manifests.
+- Do setup (icons, PnPjs, listeners) in `onInit`, not at module level: module-level code runs again on every hot update.
 
-- function components in `.tsx` files that export only components;
-- `.module.scss` / `.scss` edits;
-- new imports, including new `@microsoft/sp-*` packages.
+Details and examples: [docs/hmr.md](docs/hmr.md).
 
-What reloads the page (by design):
+## Debugging in VS Code
 
-- edits to the web part class (`*WebPart.ts`) and to anything only the web part class imports (services, helpers);
-- edits to files that export components **and** other values such as constants or hooks (type-only exports are fine): Fast Refresh skips them, the update bubbles up and ends in a reload. Keep components in component-only files;
-- edits to `config/config.json`, `config/serve.json`, `package.json`, `tsconfig.json` or a web part manifest.
-
-Watch out:
-
-- module-level side effects (`initializeIcons()`, PnPjs `spfi()` singletons, global listeners) run again on every hot update of that module. Do setup in `onInit` of the web part instead;
-- class components are re-mounted (state lost) on update; prefer function components;
-- in dev, all bundles share one module graph (one instance of each module). In production each bundle has its own copy, so don't rely on shared module state between bundles;
-- React is the development build from your project, while production uses the React that SharePoint ships.
+Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A `launch.json` for Edge/Chrome that opens the SharePoint page with the debug query: [docs/debugging.md](docs/debugging.md).
 
 ## Troubleshooting
 

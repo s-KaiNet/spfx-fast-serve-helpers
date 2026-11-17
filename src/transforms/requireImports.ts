@@ -1,6 +1,7 @@
 import { MagicString } from 'magic-string';
 import { parseSync, Visitor, type ESTree, type Plugin } from 'vite';
 import type { ServeContext } from '../context.js';
+import { matchesPathAlias } from '../project/index.js';
 import { isStyleRequest } from '../utils/vite.js';
 import { isProjectScript, NODE_MODULES_ID, PROJECT_SCRIPT_ID } from './projectSource.js';
 
@@ -22,21 +23,29 @@ export interface RewrittenModule {
   readonly map: ReturnType<MagicString['generateMap']>;
 }
 
-export function requireImportsPlugin({ root }: Pick<ServeContext, 'root'>): Plugin {
+export type IsPathAlias = (specifier: string) => boolean;
+
+const NO_PATH_ALIASES: IsPathAlias = () => false;
+
+export function requireImportsPlugin({ root, project }: Pick<ServeContext, 'root' | 'project'>): Plugin {
+  const isPathAlias: IsPathAlias = (specifier) => {
+    const paths = project.tsconfigPaths();
+    return paths !== undefined && matchesPathAlias(paths, specifier);
+  };
   return {
     name: 'fast-serve:require-imports',
     apply: 'serve',
     transform: {
       filter: { id: { include: PROJECT_SCRIPT_ID, exclude: NODE_MODULES_ID }, code: REQUIRE_CALL },
-      handler: (code, id) => (isProjectScript(root, id) ? rewriteRelativeRequires(code, id) : null),
+      handler: (code, id) => (isProjectScript(root, id) ? rewriteLocalRequires(code, id, isPathAlias) : null),
     },
   };
 }
 
-export function rewriteRelativeRequires(code: string, id: string): RewrittenModule | null {
+export function rewriteLocalRequires(code: string, id: string, isPathAlias: IsPathAlias = NO_PATH_ALIASES): RewrittenModule | null {
   const { program, errors } = parseSync(id, code, { lang: 'js', sourceType: 'module' });
   if (errors.length > 0) return null;
-  const calls = findRelativeRequireCalls(program);
+  const calls = findLocalRequireCalls(program, isPathAlias);
   if (calls.length === 0) return null;
 
   const hoisted = new Map<string, HoistedImport>();
@@ -54,22 +63,22 @@ export function rewriteRelativeRequires(code: string, id: string): RewrittenModu
   return { code: output.toString(), map: output.generateMap({ hires: 'boundary', source: id, includeContent: true }) };
 }
 
-function findRelativeRequireCalls(program: ESTree.Program): { node: ESTree.CallExpression; specifier: string }[] {
+function findLocalRequireCalls(program: ESTree.Program, isPathAlias: IsPathAlias): { node: ESTree.CallExpression; specifier: string }[] {
   const calls: { node: ESTree.CallExpression; specifier: string }[] = [];
   new Visitor({
     CallExpression(node) {
-      const specifier = relativeRequireSpecifier(node);
-      if (specifier !== undefined) calls.push({ node, specifier });
+      const specifier = requireSpecifier(node);
+      if (specifier !== undefined && (RELATIVE_SPECIFIER.test(specifier) || isPathAlias(specifier))) calls.push({ node, specifier });
     },
   }).visit(program);
   return calls;
 }
 
-function relativeRequireSpecifier(node: ESTree.CallExpression): string | undefined {
+function requireSpecifier(node: ESTree.CallExpression): string | undefined {
   const [argument, ...rest] = node.arguments;
   if (node.callee.type !== 'Identifier' || node.callee.name !== 'require' || rest.length > 0) return undefined;
   if (argument?.type !== 'Literal' || typeof argument.value !== 'string') return undefined;
-  return RELATIVE_SPECIFIER.test(argument.value) ? argument.value : undefined;
+  return argument.value;
 }
 
 function requiredKind(specifier: string): RequiredKind {

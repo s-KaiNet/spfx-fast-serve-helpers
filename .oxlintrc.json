@@ -150,6 +150,10 @@
       }
     },
     {
+      "files": ["src/runtime/describeError.ts"],
+      "rules": { "no-unused-vars": "off" }
+    },
+    {
       "files": ["**/*.test.ts"],
       "plugins": ["vitest"],
       "rules": {

@@ -1,6 +1,6 @@
 import type { SpfxBundle } from '../project/index.js';
 import type { BundleShimConfig } from '../runtime/contracts.js';
-import { readRuntimeSource } from '../utils/runtimeSource.js';
+import { readRuntimeScript } from '../utils/runtimeSource.js';
 import { bundleEntryPath } from './paths.js';
 import { SERVER_STATUS_PATH } from './serverErrors.js';
 
@@ -19,7 +19,7 @@ export function createShimConfig(bundle: SpfxBundle, origin: string): BundleShim
 }
 
 export async function renderShim(config: BundleShimConfig, prelude: string): Promise<string> {
-  const runtime = await readRuntimeSource('componentShim');
+  const runtime = await readRuntimeScript('componentShim');
   return [
     prelude.trim(),
     '(function () {',

@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { aliasCandidates, hasPathResolution, readTsconfigPaths } from './tsconfigPaths.js';
+import { aliasCandidates, hasPathResolution, matchesPathAlias, readTsconfigPaths } from './tsconfigPaths.js';
 
 const roots: string[] = [];
 
@@ -52,6 +52,15 @@ describe('tsconfig paths', () => {
     expect(candidatesFor(root, '@c/Card')).toEqual(['components/Card']);
     expect(candidatesFor(root, 'icons/home.svg')).toEqual(['assets/icons/home.svg']);
     expect(candidatesFor(root, 'react')).toEqual(['fallback/react']);
+  });
+
+  it('treats explicit paths keys as aliases, but not the catch-all "*" or baseUrl-only resolution', () => {
+    const root = project({
+      'tsconfig.json': { compilerOptions: { baseUrl: '.', paths: { '*': ['fallback/*'], '@assets/*': ['src/assets/*'], 'icons/*.svg': ['src/icons/*.svg'], '@logo': ['src/logo.png'] } } },
+    });
+    const paths = readTsconfigPaths(path.join(root, 'tsconfig.json'));
+    expect(['@assets/logo.png', 'icons/home.svg', '@logo'].filter((specifier) => matchesPathAlias(paths, specifier))).toEqual(['@assets/logo.png', 'icons/home.svg', '@logo']);
+    expect(['react', 'src/assets/logo.png', './logo.png', 'icons/home.png'].filter((specifier) => matchesPathAlias(paths, specifier))).toEqual([]);
   });
 
   it('resolves bare specifiers against baseUrl when there are no paths', () => {

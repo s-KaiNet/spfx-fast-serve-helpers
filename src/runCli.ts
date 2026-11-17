@@ -1,6 +1,8 @@
 import { parseArgs } from 'node:util';
-import { OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/options.js';
+import { DEFAULT_PORT, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/options.js';
+import { DEFAULT_LOCALE } from './project/index.js';
 import { packageName, packageVersion } from './packageInfo.js';
+import { errorMessage } from './utils/errors.js';
 
 export interface CliIo {
   out(text: string): void;
@@ -15,14 +17,14 @@ Vite dev server for SharePoint Framework 1.24.x projects. Run it in the project 
 Usage: fast-serve [options]
 
 Options:
-  -p, --port <port>      HTTPS port (default: config/serve.json "port", else 4321)
+  -p, --port <port>      HTTPS port (default: config/serve.json "port", else ${DEFAULT_PORT})
       --page-url <url>   SharePoint page to open with the debug query
                          (default: config/serve.json "initialPage"; {tenantDomain} = $${TENANT_DOMAIN_ENV})
-      --locale <locale>  Locale of localized strings (default: en-us)
+      --locale <locale>  Locale of localized strings (default: ${DEFAULT_LOCALE})
   -h, --help             Show this help
   -v, --version          Show the version
 
-The same options can be set in ${OPTIONS_FILE}: { "port": 4321, "pageUrl": "…", "locale": "en-us" }.
+The same options can be set in ${OPTIONS_FILE}: { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}" }.
 Command-line flags win over the file.
 `;
 
@@ -66,8 +68,4 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
     io.err(`[fast-serve] ${errorMessage(error)}\n`);
     return 1;
   }
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

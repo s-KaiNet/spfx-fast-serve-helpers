@@ -18,6 +18,7 @@ import type {
   SpfxComponent,
   SpfxLibrary,
 } from './types.js';
+import { errorMessage } from '../utils/errors.js';
 
 export const DEFAULT_LOCALE = 'en-us';
 
@@ -173,7 +174,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
       try {
         return readTsconfigPaths(files.tsconfig);
       } catch (error) {
-        logger.warn(`tsconfig.json "paths" and "baseUrl" are ignored: ${error instanceof Error ? error.message : String(error)}`);
+        logger.warn(`tsconfig.json "paths" and "baseUrl" are ignored: ${errorMessage(error)}`);
         return undefined;
       }
     });

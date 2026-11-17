@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { DEFAULT_LOCALE } from '../project/index.js';
 import { isObject } from '../utils/guards.js';
 import { readOptionalJsoncFile } from '../utils/jsonc.js';
 
@@ -38,7 +39,7 @@ export function resolveOptions(
   const { cli = {}, file = {}, defaults = {} } = sources;
   const port = cli.port ?? file.port ?? defaults.port ?? DEFAULT_PORT;
   validatePort(port);
-  const locale = (cli.locale ?? file.locale ?? 'en-us').trim().toLowerCase();
+  const locale = (cli.locale ?? file.locale ?? DEFAULT_LOCALE).trim().toLowerCase();
   if (!/^[a-z]{2,3}(-[a-z0-9]+)*$/.test(locale)) throw new Error(`Invalid locale "${locale}" (expected e.g. "en-us")`);
   const pageUrlTemplate = cli.pageUrl ?? file.pageUrl ?? defaults.initialPage;
   return {

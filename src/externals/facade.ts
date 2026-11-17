@@ -1,6 +1,6 @@
 import type { SpfxLibraryReference } from '../runtime/contracts.js';
 
-export const FAST_SERVE_GLOBAL = '__spfxFastServe';
+const FAST_SERVE_GLOBAL = '__spfxFastServe';
 
 const LIBRARY_LOADER = `window.${FAST_SERVE_GLOBAL}`;
 const MISSING_LOADER_ERROR = JSON.stringify(

@@ -53,12 +53,12 @@ function declaredDependencies(root: string): Map<string, string> {
   return result;
 }
 
-export interface MinorVersion {
+interface MinorVersion {
   major: number;
   minor: number;
 }
 
-export function parseMinorVersion(version: string): MinorVersion | undefined {
+function parseMinorVersion(version: string): MinorVersion | undefined {
   const match = /^(\d+)\.(\d+)\.\d+/.exec(version.trim());
   if (!match) return undefined;
   return { major: Number(match[1]), minor: Number(match[2]) };

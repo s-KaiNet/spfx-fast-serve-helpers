@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { Terminal, TerminalProviderSeverity, type ITerminal, type ITerminalProvider } from '@rushstack/terminal';
 import type { Logger } from '../logger.js';
+import { errorMessage } from './errors.js';
 
 const CONFIG_FILE_PACKAGE = '@rushstack/heft-config-file';
 const RIG_PACKAGE = '@rushstack/rig-package';
@@ -86,7 +87,7 @@ interface FormattedError {
 
 export function heftErrorMessage(error: unknown): string {
   if (isFormattedError(error)) return error.getFormattedErrorMessage();
-  return error instanceof Error ? error.message : String(error);
+  return errorMessage(error);
 }
 
 function isFormattedError(error: unknown): error is FormattedError {

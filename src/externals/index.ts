@@ -4,7 +4,7 @@ import type { ServeContext } from '../context.js';
 import type { ScriptResource } from '../manifests/index.js';
 import type { ConfigExternal, SpfxLibrary } from '../project/index.js';
 import type { LibraryLoaderConfig, SpfxLibraryReference } from '../runtime/contracts.js';
-import { readRuntimeSource } from '../utils/runtimeSource.js';
+import { readRuntimeScript } from '../utils/runtimeSource.js';
 import { isStyleRequest, sendJavaScript } from '../utils/vite.js';
 import { readExportNames } from './exportNames.js';
 import {
@@ -25,7 +25,7 @@ export interface SpfxExternals {
 
 const COMPONENT_LOADER_PACKAGE = '@microsoft/sp-loader';
 
-export const CONFIG_EXTERNALS_PATH = '/@spfx/external/';
+const CONFIG_EXTERNALS_PATH = '/@spfx/external/';
 
 const FACADE_PREFIXES = {
   library: '\0spfx-library:',
@@ -41,7 +41,7 @@ interface FacadeId {
   name: string;
 }
 
-export function configExternalPath(external: ConfigExternal): string {
+function configExternalPath(external: ConfigExternal): string {
   return `${CONFIG_EXTERNALS_PATH}${encodeURIComponent(external.name)}.js`;
 }
 
@@ -143,7 +143,7 @@ export function createExternals(context: ServeContext): SpfxExternals {
 
     async shimPrelude() {
       const config: LibraryLoaderConfig = { componentLoaderModule: COMPONENT_LOADER_PACKAGE };
-      const runtime = await readRuntimeSource('libraryLoader');
+      const runtime = await readRuntimeScript('libraryLoader');
       return ['(function () {', `var __SPFX_LIBRARY_LOADER__ = ${JSON.stringify(config)};`, runtime.trim(), '})();'].join('\n');
     },
 

@@ -5,6 +5,7 @@ import { glob } from 'tinyglobby';
 import type { Logger } from '../../logger.js';
 import { isInside, toPosix } from '../../utils/paths.js';
 import { createHeftSassTypings, type HeftSassTypings } from './heftSass.js';
+import { errorMessage } from '../../utils/errors.js';
 
 export interface ScssTypings {
   generateAll(): Promise<void>;
@@ -25,7 +26,7 @@ export function createScssTypings({ root, logger }: ScssTypingsOptions): ScssTyp
 
   const ready = () =>
     (heftSass ??= createHeftSassTypings(root, logger).catch((error: unknown) => {
-      logger.warn(`SCSS typings are not generated: ${error instanceof Error ? error.message : String(error)}`);
+      logger.warn(`SCSS typings are not generated: ${errorMessage(error)}`);
       return undefined;
     }));
 
@@ -36,7 +37,7 @@ export function createScssTypings({ root, logger }: ScssTypingsOptions): ScssTyp
         if (typings) await task(typings);
       })
       .catch((error: unknown) => {
-        logger.error(`SCSS typings: ${error instanceof Error ? error.message : String(error)}`);
+        logger.error(`SCSS typings: ${errorMessage(error)}`);
       });
     return tail;
   }

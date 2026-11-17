@@ -52,6 +52,16 @@ export function aliasCandidates(paths: TsconfigPaths, specifier: string): string
   return candidates;
 }
 
+export function matchesPathAlias(paths: TsconfigPaths, specifier: string): boolean {
+  if (!isBareSpecifier(specifier)) return false;
+  const mapping = bestMapping(paths.mappings, specifier);
+  return mapping !== undefined && !isCatchAll(mapping);
+}
+
+function isCatchAll(mapping: PathMapping): boolean {
+  return mapping.wildcard && mapping.prefix === '' && mapping.suffix === '';
+}
+
 function readSettings(file: string, files: string[]): ResolutionSettings {
   if (files.includes(file)) throw new Error(`Circular "extends" in ${file}`);
   files.push(file);

@@ -1,12 +1,12 @@
 import { runInNewContext } from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
 import type { FastServeGlobal, ScopedRequire, SpfxLibraryReference } from '../runtime/contracts.js';
-import { readRuntimeSource } from '../utils/runtimeSource.js';
+import { readRuntimeScript } from '../utils/runtimeSource.js';
 
 const core: SpfxLibraryReference = { name: '@microsoft/sp-core-library', id: 'core-id', version: '1.24.1' };
 
 async function installLibraryLoader(loadComponentById: (id: string, version?: string) => Promise<unknown>) {
-  const runtime = await readRuntimeSource('libraryLoader');
+  const runtime = await readRuntimeScript('libraryLoader');
   const window: { __spfxFastServe?: FastServeGlobal } = {};
   const console = { error: vi.fn<(error: unknown) => void>() };
   runInNewContext(`var __SPFX_LIBRARY_LOADER__ = { componentLoaderModule: "@microsoft/sp-loader" };\n${runtime}`, {

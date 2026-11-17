@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { errorMessage } from './errors.js';
 
-export function stripJsonComments(text: string): string {
+function stripJsonComments(text: string): string {
   let out = '';
   for (let i = 0; i < text.length; i++) {
     const char = text.charAt(i);
@@ -23,7 +24,7 @@ export function stripJsonComments(text: string): string {
   return out.replaceAll(/,(\s*[}\]])/g, '$1');
 }
 
-export function parseJsonc(text: string): unknown {
+function parseJsonc(text: string): unknown {
   return JSON.parse(stripJsonComments(text));
 }
 
@@ -32,7 +33,7 @@ export function readJsoncFile(file: string): unknown {
   try {
     return parseJsonc(text);
   } catch (error) {
-    throw new Error(`Cannot parse ${file}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+    throw new Error(`Cannot parse ${file}: ${errorMessage(error)}`, { cause: error });
   }
 }
 
