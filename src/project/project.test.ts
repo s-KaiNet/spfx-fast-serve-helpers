@@ -109,6 +109,25 @@ describe('createProject', () => {
     expect(project.bundles()).toBe(bundles);
   });
 
+  it('merges compiler options through extends and re-reads them after a tsconfig change', () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
+    try {
+      const project = createProject(projectRoot, { warn: () => undefined });
+      expect(project.tsconfigCompilerOptions()).toEqual({});
+      writeFileSync(path.join(projectRoot, 'base.json'), '{ "compilerOptions": { "experimentalDecorators": true, "target": "es5" } }');
+      writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "extends": "./base.json", "compilerOptions": { "target": "es2022" } }');
+      expect(project.invalidate(path.join(projectRoot, 'tsconfig.json'))).toBe('tsconfig');
+      const options = project.tsconfigCompilerOptions();
+      expect(options).toEqual({ experimentalDecorators: true, target: 'es2022' });
+      expect(project.tsconfigCompilerOptions()).toBe(options);
+      writeFileSync(path.join(projectRoot, 'base.json'), '{ "compilerOptions": { "emitDecoratorMetadata": true } }');
+      expect(project.invalidate(path.join(projectRoot, 'base.json'))).toBe('tsconfig');
+      expect(project.tsconfigCompilerOptions()).toEqual({ emitDecoratorMetadata: true, target: 'es2022' });
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
   it('has no aliases without tsconfig paths or baseUrl, and warns about an unreadable tsconfig', () => {
     const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
     try {
@@ -121,7 +140,7 @@ describe('createProject', () => {
       writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "extends": "./missing.json" }');
       project.invalidate(path.join(projectRoot, 'tsconfig.json'));
       expect(project.tsconfigPaths()).toBeUndefined();
-      expect(warnings).toEqual([expect.stringMatching(/^tsconfig\.json "paths" and "baseUrl" are ignored: .*missing\.json/)]);
+      expect(warnings).toEqual([expect.stringMatching(/^tsconfig\.json is ignored: .*missing\.json/)]);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }

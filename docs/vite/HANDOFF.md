@@ -1,6 +1,6 @@
 # Handoff: Vite dev server for SPFx (SPFx 1.22+ / Heft)
 
-Status on 2026-11-17: **P0 items 1–16 are done and committed; P1 in progress** (§6). Open P0 finding: #17 (project tsconfig not applied), see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
+Status on 2026-11-17: **P0 items 1–17 are done; P1 in progress** (§6). #17 (project tsconfig applied to the Oxc transform) is the latest, see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
 
 Read this file first. Every claim below links to a detailed report in `research/`.
 
@@ -140,7 +140,7 @@ Why not the alternatives (user asked):
 
 ## 6. Current priority list (supersedes the status columns in research/vite-serve-plan)
 
-Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known. The P0 status column is the pre-implementation state: items 1–16 are now implemented (`git log`, `src/README.md`).
+Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known. The P0 status column is the pre-implementation state: items 1–17 are now implemented (`git log`, `src/README.md`).
 
 ### P0 (v1, web parts)
 | # | Item | Status / solution |
@@ -161,7 +161,7 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
 | 14 | Options: `port`, `pageUrl` (`{tenantDomain}`/`SPFX_SERVE_TENANT_DOMAIN`), `locale` | 🟡 |
 | 15 | SPFx version check / version-locked package (`~1.24.0`, like spfx-fast-serve) | ❌ |
 | 16 | Install friction: `@vitejs/plugin-react` 6 optional Babel-8 peers clash with Jest's Babel 7 under npm (`--legacy-peer-deps`). Resolve React/plugins from the project (pnpm) | ❌ |
-| 17 | **Project tsconfig not applied** (found 2026-11-17): legacy decorators reach the browser untransformed, class fields without initializers reset base-class values. Pass a whitelist of compiler options via `oxc.tsconfig` | 🔬 research/tsconfig-decorators |
+| 17 | **Project tsconfig not applied** (found 2026-11-17): legacy decorators reach the browser untransformed, class fields without initializers reset base-class values. Pass a whitelist of compiler options via `oxc.tsconfig` | 🔬 research/tsconfig-decorators. **Done:** `transforms/tsconfig` passes `experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, `target`, `strict`, `strictNullChecks` (read through `extends` by the shared `project/tsconfig.ts` loader) as an inline `oxc.tsconfig`, so Oxc's automatic lookup is off; a change of these options restarts the server. Verified live in spfx-rea: decorator/field results identical to `heft build` output |
 
 ### P1 (status 2026-11-17)
 | Item | Status |
@@ -174,9 +174,9 @@ Legend: ✅ in PoC · 🟡 partial · ❌ missing · 🔬 researched, fix known.
 | docs: migration, HMR do's and don'ts, VS Code `launch.json` (`docs/*.md`) | ✅ |
 | cleanups from the P0 review: shared runtime `describeError`, one default locale, server/defines tests, no source maps in the package, `require()` of `paths` aliases | ✅ |
 | warmup timing; PnP web part ~1 s slower than the PoC; second web part rendered on a page | open |
-| `const enum` in `.d.ts` / dependencies: clear error + docs; `emitDecoratorMetadata` limits in docs (research/tsconfig-decorators) | open |
+| docs: legacy decorators supported, `emitDecoratorMetadata` limits, `const enum` from `.d.ts` / dependencies not supported (use a regular `enum`) (research/tsconfig-decorators) | ✅ (README) |
 
-Cut from P1 by the user: `config/sass.json` in the Vite Sass compile, locale switch, theme setter hook, `@pnp/spfx-property-controls` 3.13 already-hashed CSS, the occasional page-load hang, `const enum` / decorator checks (the docs/error row above came later with the P0 #17 research: confirm with the user).
+Cut from P1 by the user: `config/sass.json` in the Vite Sass compile, locale switch, theme setter hook, `@pnp/spfx-property-controls` 3.13 already-hashed CSS, the occasional page-load hang. Deferred to later by the user: `const enum` / decorator checks with clear errors (ReferenceError for an ambient enum, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`); only the docs are in P1.
 
 Heft findings (P1):
 - `config.json` `externals` go into the manifest as `{ type: "path", path, globalName?, globalDependencies? }`: URLs as is, local files copied to `dist/`.

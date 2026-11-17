@@ -2,6 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { searchForWorkspaceRoot, type Plugin } from 'vite';
 import type { ServeContext } from '../context.js';
+import { tsconfigTransformChanged } from '../transforms/tsconfig/index.js';
+import { errorMessage } from '../utils/errors.js';
 import { toPosix } from '../utils/paths.js';
 import type { HttpsCredentials } from './certificate.js';
 
@@ -49,7 +51,15 @@ export function serverPlugin(context: ServeContext, https: HttpsCredentials): Pl
       const onFileEvent = (file: string) => {
         const change = project.invalidate(file);
         if (!change) return;
-        logger.info(`${toPosix(path.relative(root, file))} changed, reloading the page`);
+        const changedFile = toPosix(path.relative(root, file));
+        if (change === 'tsconfig' && tsconfigTransformChanged(server, project)) {
+          logger.info(`${changedFile} changed the TypeScript transform options, restarting the dev server`);
+          server.restart().catch((error: unknown) => {
+            logger.error(`restart failed: ${errorMessage(error)}`);
+          });
+          return;
+        }
+        logger.info(`${changedFile} changed, reloading the page`);
         if (change === 'tsconfig') {
           for (const environment of Object.values(server.environments)) environment.moduleGraph.invalidateAll();
         }

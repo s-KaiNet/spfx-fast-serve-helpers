@@ -6,7 +6,8 @@ import { isInside, toPosix } from '../utils/paths.js';
 import { bundleExportNames } from './exportNames.js';
 import { findSpfxLibraries } from './libraries.js';
 import { findSourceFile, LOC_EXTENSIONS, SOURCE_EXTENSIONS } from './sourcePaths.js';
-import { hasPathResolution, readTsconfigPaths, type TsconfigPaths } from './tsconfigPaths.js';
+import { loadTsconfig, mergedCompilerOptions, type LoadedTsconfig } from './tsconfig.js';
+import { hasPathResolution, tsconfigPathsOf, type TsconfigPaths } from './tsconfigPaths.js';
 import { readConfigExternals } from './configExternals.js';
 import type {
   ComponentManifest,
@@ -44,6 +45,8 @@ export interface SpfxProject {
   localizedResources(locale: string): Map<string, LocalizedResource>;
 
   tsconfigPaths(): TsconfigPaths | undefined;
+
+  tsconfigCompilerOptions(): JsonObject;
 
   modelFiles(): string[];
 
@@ -168,18 +171,24 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     return undefined;
   }
 
-  const tsconfigPaths = (): TsconfigPaths | undefined =>
+  const tsconfig = (): LoadedTsconfig | undefined =>
     cached('tsconfig', () => {
       if (!existsSync(files.tsconfig)) return undefined;
       try {
-        return readTsconfigPaths(files.tsconfig);
+        return loadTsconfig(files.tsconfig);
       } catch (error) {
-        logger.warn(`tsconfig.json "paths" and "baseUrl" are ignored: ${errorMessage(error)}`);
+        logger.warn(`tsconfig.json is ignored: ${errorMessage(error)}`);
         return undefined;
       }
     });
 
-  const tsconfigFiles = (): readonly string[] => tsconfigPaths()?.files ?? [files.tsconfig];
+  const tsconfigPaths = (): TsconfigPaths | undefined =>
+    cached('tsconfigPaths', () => {
+      const loaded = tsconfig();
+      return loaded && tsconfigPathsOf(loaded);
+    });
+
+  const tsconfigFiles = (): readonly string[] => tsconfig()?.files ?? [files.tsconfig];
 
   const components = (): SpfxComponent[] => bundles().flatMap((bundle) => bundle.components);
 
@@ -196,6 +205,11 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
       const paths = tsconfigPaths();
       return paths && hasPathResolution(paths) ? paths : undefined;
     },
+    tsconfigCompilerOptions: () =>
+      cached('tsconfigCompilerOptions', () => {
+        const loaded = tsconfig();
+        return loaded ? mergedCompilerOptions(loaded) : {};
+      }),
     modelFiles: () => [
       files.packageJson,
       files.config,
@@ -207,7 +221,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     invalidate(file) {
       const changed = path.resolve(file);
       if (tsconfigFiles().includes(changed)) {
-        cache.delete('tsconfig');
+        for (const key of ['tsconfig', 'tsconfigPaths', 'tsconfigCompilerOptions']) cache.delete(key);
         return 'tsconfig';
       }
       if (changed === files.packageJson || changed === files.config) {

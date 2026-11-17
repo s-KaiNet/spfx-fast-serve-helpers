@@ -1,8 +1,6 @@
-import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { isObject } from '../utils/guards.js';
-import { readJsoncFile } from '../utils/jsonc.js';
+import { loadTsconfig, type LoadedTsconfig } from './tsconfig.js';
 
 export interface PathMapping {
   readonly prefix: string;
@@ -24,14 +22,27 @@ interface ResolutionSettings {
 }
 
 export function readTsconfigPaths(tsconfigFile: string): TsconfigPaths {
-  const files: string[] = [];
-  const settings = readSettings(path.resolve(tsconfigFile), files);
+  return tsconfigPathsOf(loadTsconfig(tsconfigFile));
+}
+
+export function tsconfigPathsOf(tsconfig: LoadedTsconfig): TsconfigPaths {
+  const settings = resolutionSettings(tsconfig);
   return {
-    files,
+    files: tsconfig.files,
     ...(settings.baseUrl === undefined ? {} : { baseUrl: settings.baseUrl }),
-    pathsBase: settings.baseUrl ?? settings.paths?.declaredIn ?? path.dirname(path.resolve(tsconfigFile)),
+    pathsBase: settings.baseUrl ?? settings.paths?.declaredIn ?? path.dirname(tsconfig.file),
     mappings: settings.paths?.mappings ?? [],
   };
+}
+
+function resolutionSettings({ layers }: LoadedTsconfig): ResolutionSettings {
+  const settings: ResolutionSettings = {};
+  for (const { file, compilerOptions } of layers) {
+    const directory = path.dirname(file);
+    if (typeof compilerOptions.baseUrl === 'string') settings.baseUrl = path.resolve(directory, compilerOptions.baseUrl);
+    if (isObject(compilerOptions.paths)) settings.paths = { mappings: parseMappings(compilerOptions.paths), declaredIn: directory };
+  }
+  return settings;
 }
 
 export function hasPathResolution(paths: TsconfigPaths): boolean {
@@ -60,46 +71,6 @@ export function matchesPathAlias(paths: TsconfigPaths, specifier: string): boole
 
 function isCatchAll(mapping: PathMapping): boolean {
   return mapping.wildcard && mapping.prefix === '' && mapping.suffix === '';
-}
-
-function readSettings(file: string, files: string[]): ResolutionSettings {
-  if (files.includes(file)) throw new Error(`Circular "extends" in ${file}`);
-  files.push(file);
-  const json = readJsoncFile(file);
-  if (!isObject(json)) return {};
-  const directory = path.dirname(file);
-  const settings: ResolutionSettings = {};
-  for (const extended of extendsList(json.extends)) {
-    Object.assign(settings, readSettings(resolveExtends(extended, file), files));
-  }
-  const compilerOptions = isObject(json.compilerOptions) ? json.compilerOptions : {};
-  if (typeof compilerOptions.baseUrl === 'string') settings.baseUrl = path.resolve(directory, compilerOptions.baseUrl);
-  if (isObject(compilerOptions.paths)) settings.paths = { mappings: parseMappings(compilerOptions.paths), declaredIn: directory };
-  return settings;
-}
-
-function extendsList(value: unknown): string[] {
-  if (typeof value === 'string') return [value];
-  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
-}
-
-function resolveExtends(extended: string, fromFile: string): string {
-  if (path.isAbsolute(extended) || /^\.\.?(?:[\\/]|$)/.test(extended)) {
-    const file = path.resolve(path.dirname(fromFile), extended);
-    if (existsSync(file)) return file;
-    if (!file.endsWith('.json') && existsSync(`${file}.json`)) return `${file}.json`;
-    throw new Error(`${fromFile} extends "${extended}", which does not exist`);
-  }
-  const requireFromConfig = createRequire(fromFile);
-  for (const request of [extended, `${extended}.json`, `${extended}/tsconfig.json`]) {
-    try {
-      const resolved = requireFromConfig.resolve(request);
-      if (resolved.endsWith('.json')) return resolved;
-    } catch {
-      continue;
-    }
-  }
-  throw new Error(`${fromFile} extends "${extended}", which cannot be resolved`);
 }
 
 function parseMappings(paths: Record<string, unknown>): PathMapping[] {
