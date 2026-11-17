@@ -1,0 +1,4 @@
+59c59
+< export function assertSupportedSpfxVersion(found, fastServe) {
+---
+> export function assertSupportedSpfxVersion(found, fastServe) { if (found.kind === "installed" && found.version.startsWith("1.23.")) return;
