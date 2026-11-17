@@ -21,6 +21,7 @@ type ShimLastServerError = import('./contracts.js').LastServerError;
 type ShimServerStatus = import('./contracts.js').ServerStatus;
 
 const MODULE_FETCH_FAILURE = /dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
+const MISSING_EXPORT = /does not provide an export named '([^']+)'|import not found: ([\w$]+)/;
 const STATUS_POLL_MS = 1000;
 const UNREACHABLE_POLL_MAX_MS = 30_000;
 const UNREACHABLE_GIVE_UP_MS = 10 * 60_000;
@@ -80,21 +81,35 @@ function formatServerError(serverError: ShimLastServerError): string {
 }
 
 const FAST_SERVE_PREFIX = '[fast-serve] ';
+const REPORTED_IN_TERMINAL = Symbol.for('fast-serve.reported-in-terminal');
+
+function missingExportHint(name: string): string {
+  return (
+    `. "${name}" has no runtime value in that module: it is probably a TypeScript-only declaration imported without \`type\` ` +
+    '(an interface, a type, or a `const enum` that only exists in .d.ts files, which heft inlines but fast-serve compiles file by file). ' +
+    `Use \`import type { ${name} }\` for types; for a \`const enum\` from a dependency use its literal values, or declare a regular \`enum\` in your own code`
+  );
+}
 
 async function toBundleLoadError(error: unknown): Promise<Error> {
   let reason = describeError(error);
   if (reason.startsWith(FAST_SERVE_PREFIX)) reason = reason.slice(FAST_SERVE_PREFIX.length);
   const status = await fetchServerStatus();
+  const serverError = MODULE_FETCH_FAILURE.test(reason) ? status?.error : undefined;
   if (MODULE_FETCH_FAILURE.test(reason)) {
-    reason = status?.error
-      ? formatServerError(status.error)
+    reason = serverError
+      ? formatServerError(serverError)
       : `${reason}. A module failed to compile (syntax or transform error) or the dev server is not reachable: check the fast-serve terminal`;
   }
+  const missingExport = MISSING_EXPORT.exec(reason);
+  if (missingExport) reason += missingExportHint(missingExport[1] ?? missingExport[2] ?? '');
   if (status) {
     reloadAfterNextFileChange(status.fileRevision);
     reason += ' (the page reloads after the next file change)';
   }
-  return new Error(`[fast-serve] Failed to load bundle "${shimConfig.bundleName}" from ${shimConfig.origin}: ${reason}`, { cause: error });
+  const bundleError = new Error(`[fast-serve] Failed to load bundle "${shimConfig.bundleName}" from ${shimConfig.origin}: ${reason}`, { cause: error });
+  if (serverError) Object.defineProperty(bundleError, REPORTED_IN_TERMINAL, { value: true });
+  return bundleError;
 }
 
 const SHAREPOINT_UNREADABLE_ERROR = '[object Object]';
@@ -122,8 +137,10 @@ function revealErrorInWebPartErrorBoxes(message: string): void {
 const shimLoaderPlugin: RequireJsLoaderPlugin = {
   load(entryPath, scopedRequire, onload) {
     shimHost.__spfxFastServe.useScopedRequire(scopedRequire);
+    const browserErrorsForwarding = import(shimConfig.origin + shimConfig.browserErrorsPath).catch(() => undefined);
     import(shimConfig.origin + entryPath).then(onload, async (error: unknown) => {
       const bundleError = await toBundleLoadError(error);
+      await browserErrorsForwarding;
       console.error(bundleError);
       revealErrorInWebPartErrorBoxes(bundleError.message);
       onload.error(bundleError);

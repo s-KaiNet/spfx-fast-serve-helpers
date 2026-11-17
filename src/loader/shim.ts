@@ -1,3 +1,4 @@
+import { BROWSER_ERRORS_URL } from '../browserErrors/index.js';
 import type { SpfxBundle } from '../project/index.js';
 import type { BundleShimConfig } from '../runtime/contracts.js';
 import { readRuntimeScript } from '../utils/runtimeSource.js';
@@ -10,6 +11,7 @@ export function createShimConfig(bundle: SpfxBundle, origin: string): BundleShim
     origin,
     entryPath: bundleEntryPath(bundle.name),
     statusPath: SERVER_STATUS_PATH,
+    browserErrorsPath: BROWSER_ERRORS_URL,
     components: bundle.components.map(({ manifest }) => ({
       id: manifest.id,
       alias: manifest.alias,

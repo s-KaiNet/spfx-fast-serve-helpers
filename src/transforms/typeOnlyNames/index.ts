@@ -6,10 +6,12 @@ import type { ServeContext } from '../../context.js';
 import { isInside, toPosix, toRootUrl } from '../../utils/paths.js';
 import { withoutQuery } from '../../utils/vite.js';
 import { isProjectScript, NODE_MODULES_ID, PROJECT_SCRIPT_ID } from '../projectSource.js';
-import { formatTypeReexportMessage } from './message.js';
-import { collectRuntimeExports, findValueReexports, groupBy, removeReexports, type ValueReexport } from './reexports.js';
+import { formatMetadataImportMessage, formatTypeReexportMessage } from './message.js';
+import { findMetadataTypeImports } from './metadataImports.js';
+import { collectRuntimeExports, findValueReexports, groupBy, removeReexports } from './reexports.js';
 
 const EXPORT_LIST = /\bexport\s*\{/;
+const TYPE_NAME_CANDIDATES = /\bexport\s*\{|typeof [\w$]+ === "undefined" \? Object : /;
 const VIRTUAL_ID_PREFIX = '\0';
 const VIRTUAL_URL_PREFIX = '/@id/__x00__';
 
@@ -20,27 +22,41 @@ export interface RuntimeExports {
 
 const UNKNOWN_EXPORTS: RuntimeExports = { names: new Set(), complete: false };
 
-export function typeReexportGuardPlugin({ root, logger }: Pick<ServeContext, 'root' | 'logger'>): Plugin {
+interface ImportedName {
+  readonly importedName: string;
+  readonly from: string;
+}
+
+interface MissingName<T extends ImportedName> {
+  readonly entry: T;
+  readonly target: string;
+}
+
+type Severity = 'error' | 'warn';
+
+export function typeOnlyNamesGuardPlugin({ root, logger }: Pick<ServeContext, 'root' | 'logger'>): Plugin {
   const modulesBeingChecked = new Set<string>();
   const reportedMessages = new Map<string, string>();
 
-  const report = (id: string, message: string) => {
-    if (reportedMessages.get(id) === message) return;
-    reportedMessages.set(id, message);
-    logger.error(message);
+  const report = (id: string, messages: readonly { severity: Severity; message: string }[]) => {
+    const key = messages.map(({ message }) => message).join('\n');
+    if (reportedMessages.get(id) === key) return;
+    reportedMessages.set(id, key);
+    for (const { severity, message } of messages) logger[severity](message);
   };
 
   return {
-    name: 'fast-serve:type-reexports',
+    name: 'fast-serve:type-only-names',
     apply: 'serve',
     transform: {
-      filter: { id: { include: PROJECT_SCRIPT_ID, exclude: NODE_MODULES_ID }, code: EXPORT_LIST },
+      filter: { id: { include: PROJECT_SCRIPT_ID, exclude: NODE_MODULES_ID }, code: TYPE_NAME_CANDIDATES },
       async handler(code, id) {
         const environment = this.environment;
         if (environment.mode !== 'dev' || !isProjectScript(root, id)) return null;
         await init();
-        const reexports = findValueReexports(code);
-        if (reexports.length === 0) {
+        const reexports = EXPORT_LIST.test(code) ? findValueReexports(code) : [];
+        const metadataImports = findMetadataTypeImports(code);
+        if (reexports.length === 0 && metadataImports.length === 0) {
           reportedMessages.delete(id);
           return null;
         }
@@ -48,22 +64,32 @@ export function typeReexportGuardPlugin({ root, logger }: Pick<ServeContext, 'ro
         const importerUrl = toRootUrl(root, id);
         modulesBeingChecked.add(importerUrl);
         try {
-          const missing = await findMissingReexports(root, reexports, {
+          const lookup: NameLookup = {
             resolve: (from) => this.resolve(from, id),
             runtimeExportsOf: (request) => readRuntimeExports(environment, request, modulesBeingChecked),
-          });
-          if (missing.length === 0) {
+          };
+          const [missingReexports, missingImports] = await Promise.all([findMissingNames(root, reexports, lookup), findMissingNames(root, metadataImports, lookup)]);
+          if (missingReexports.length === 0 && missingImports.length === 0) {
             reportedMessages.delete(id);
             return null;
           }
-          const described = missing.map(({ reexport, target }) => ({ name: reexport.importedName, from: reexport.from, target }));
-          const message = formatTypeReexportMessage(root, id, readSource(id, code), described);
-          report(id, message);
+          const source = readSource(id, code);
+          const describe = <T extends ImportedName>(missing: readonly MissingName<T>[]) =>
+            missing.map(({ entry, target }) => ({ name: entry.importedName, from: entry.from, target }));
+          const messages: { severity: Severity; message: string; browserConsole: string }[] = [];
+          if (missingReexports.length > 0) {
+            messages.push({ severity: 'error', message: formatTypeReexportMessage(root, id, source, describe(missingReexports)), browserConsole: 'console.error' });
+          }
+          if (missingImports.length > 0) {
+            messages.push({ severity: 'warn', message: formatMetadataImportMessage(root, id, source, describe(missingImports)), browserConsole: 'console.warn' });
+          }
+          report(id, messages);
           const output = removeReexports(
             code,
-            missing.map(({ reexport }) => reexport),
+            missingReexports.map(({ entry }) => entry),
+            missingImports.map(({ entry }) => entry),
           );
-          output.prepend(`console.error(${JSON.stringify(`[fast-serve] ${message}`)});\n`);
+          output.prepend(messages.map(({ browserConsole, message }) => `${browserConsole}(${JSON.stringify(`[fast-serve] ${message}`)});\n`).join(''));
           return { code: output.toString(), map: output.generateMap({ hires: 'boundary', source: id, includeContent: true }) };
         } finally {
           modulesBeingChecked.delete(importerUrl);
@@ -71,24 +97,23 @@ export function typeReexportGuardPlugin({ root, logger }: Pick<ServeContext, 'ro
       },
     },
   };
-
 }
 
-interface ReexportLookup {
+interface NameLookup {
   resolve(from: string): Promise<{ id: string; external: boolean | 'absolute' | 'relative' } | null>;
   runtimeExportsOf(request: string): Promise<RuntimeExports>;
 }
 
-async function findMissingReexports(root: string, reexports: readonly ValueReexport[], lookup: ReexportLookup): Promise<{ reexport: ValueReexport; target: string }[]> {
+async function findMissingNames<T extends ImportedName>(root: string, entries: readonly T[], lookup: NameLookup): Promise<MissingName<T>[]> {
   const groups = await Promise.all(
-    [...groupBy(reexports, (reexport) => reexport.from)].map(async ([from, group]) => {
+    [...groupBy(entries, (entry) => entry.from)].map(async ([from, group]) => {
       const resolved = await lookup.resolve(from);
       const request = resolved && !resolved.external ? checkableRequest(root, resolved.id) : undefined;
       if (!resolved || !request) return [];
       const provided = await lookup.runtimeExportsOf(request);
       if (!provided.complete) return [];
       const target = displayTarget(root, resolved.id);
-      return group.filter((reexport) => !provided.names.has(reexport.importedName)).map((reexport) => ({ reexport, target }));
+      return group.filter((entry) => !provided.names.has(entry.importedName)).map((entry) => ({ entry, target }));
     }),
   );
   return groups.flat();

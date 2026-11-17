@@ -187,9 +187,9 @@ Heft findings (P1):
 
 ### Next (agreed 2026-11-17)
 - VS Code debugging: verify the `docs/debugging.md` `launch.json` with F5 in real VS Code;
-- terminal noise: don't forward SharePoint's own errors (edit-mode `summarizer-worker`) and PnP telemetry "Failed to fetch";
+- terminal noise: don't forward SharePoint's own errors (edit-mode `summarizer-worker`) and PnP telemetry "Failed to fetch". **Done:** `browserErrors/` replaces `server.forwardConsole`: only errors whose stack has a project module or loader frame reach the terminal;
 - occasional page-load hang (`react-dom` request stuck pending; 27 of 116 loads in the P1 perf runs);
-- `const enum` / decorator checks with clear errors (ambient enum ReferenceError, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`);
+- `const enum` / decorator checks with clear errors (ambient enum ReferenceError, unresolved `.d.ts` import, missing export from a dependency, type imports kept by `emitDecoratorMetadata`). **Done:** ambient enums and `.d.ts`-only imports at transform/resolve time (`transforms/constEnums`), kept metadata type imports removed with a warning (`transforms/typeOnlyNames`), missing exports explained by the shim at load time;
 - extensions (Application Customizer, ListView Command Set, Field/Form Customizer) with `serve.json` `serveConfigurations` → query params;
 - ACEs.
 

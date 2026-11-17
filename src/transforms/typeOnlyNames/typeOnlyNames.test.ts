@@ -1,11 +1,13 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { init } from 'es-module-lexer';
 import { createServer, type Plugin, type ViteDevServer } from 'vite';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { checkableRequest, typeReexportGuardPlugin } from './index.js';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { checkableRequest, typeOnlyNamesGuardPlugin } from './index.js';
 import { formatTypeReexportMessage, locateExportedName } from './message.js';
+import { findMetadataTypeImports } from './metadataImports.js';
 import { collectRuntimeExports, findValueReexports, removeReexports } from './reexports.js';
 
 beforeAll(async () => {
@@ -49,6 +51,13 @@ describe('removeReexports', () => {
     const code = 'import Def, { IImp as Local, val } from "./other";\nexport { Local, val };\nexport default Def;\n';
     expect(rewrite(code, ['IImp'])).toBe('import Def, { val } from "./other";\nexport { val };\nexport default Def;\n');
   });
+
+  it('removes imported types referenced by decorator metadata together with re-exported ones from the same import', () => {
+    const code = 'import { IA, IB, val } from "./types";\nexport { IA };\nx(typeof IB === "undefined" ? Object : IB);\n';
+    const reexports = findValueReexports(code).filter((reexport) => reexport.importedName === 'IA');
+    const importedTypes = findMetadataTypeImports(code);
+    expect(removeReexports(code, reexports, importedTypes).toString()).toBe('import { val } from "./types";\nexport { };\nx(typeof IB === "undefined" ? Object : IB);\n');
+  });
 });
 
 describe('collectRuntimeExports', () => {
@@ -84,7 +93,7 @@ describe('formatTypeReexportMessage', () => {
   });
 });
 
-describe('typeReexportGuardPlugin in Vite', () => {
+describe('typeOnlyNamesGuardPlugin in Vite', () => {
   let projectRoot: string | undefined;
   let server: ViteDevServer | undefined;
   let errors: string[] = [];
@@ -109,7 +118,7 @@ describe('typeReexportGuardPlugin in Vite', () => {
       configFile: false,
       logLevel: 'silent',
       server: { middlewareMode: true, ws: false },
-      plugins: [...plugins, typeReexportGuardPlugin({ root: projectRoot, logger })],
+      plugins: [...plugins, typeOnlyNamesGuardPlugin({ root: projectRoot, logger })],
     });
     return server;
   }
@@ -188,5 +197,70 @@ describe('typeReexportGuardPlugin in Vite', () => {
     const vite = await serve({ 'src/index.ts': "export { Version, IPropertyPaneConfiguration } from 'sp-lib';\n" }, [virtualLibrary]);
     await vite.environments.client.transformRequest('/src/index.ts');
     expect(errors[0]).toMatch(/"IPropertyPaneConfiguration" is not a runtime export of sp-lib/);
+  });
+});
+
+describe('findMetadataTypeImports', () => {
+  it('lists named imports referenced by emitted decorator metadata', () => {
+    const code = [
+      'import { Injectable } from "./container";',
+      'import { HttpClient, ILogger as Logger, Mode } from "./types";',
+      'import Def, { Id } from "./ids";',
+      '_decorateMetadata("design:type", typeof Logger === "undefined" ? Object : Logger);',
+      '_decorateMetadata("design:paramtypes", [typeof HttpClient === "undefined" ? Object : HttpClient, typeof Id === "undefined" ? Object : Id]);',
+    ].join('\n');
+    expect(findMetadataTypeImports(code).map(({ importedName, localName, from }) => [importedName, localName, from])).toEqual([
+      ['HttpClient', 'HttpClient', './types'],
+      ['ILogger', 'Logger', './types'],
+      ['Id', 'Id', './ids'],
+    ]);
+    expect(findMetadataTypeImports('import { a } from "./a";\nconsole.log(typeof a);')).toEqual([]);
+  });
+});
+
+describe('type-only imports kept by emitDecoratorMetadata', () => {
+  const root = fileURLToPath(new URL('../../../test/fixtures/ts-only-names/', import.meta.url)).replace(/[\\/]$/, '');
+  let server: ViteDevServer;
+  const warnings: string[] = [];
+  const errors: string[] = [];
+
+  beforeAll(async () => {
+    const logger = { info: () => undefined, warn: (message: string) => warnings.push(message), error: (message: string) => errors.push(message) };
+    server = await createServer({
+      root,
+      configFile: false,
+      logLevel: 'silent',
+      server: { middlewareMode: true, ws: false, watch: null },
+      oxc: { decorator: { legacy: true, emitDecoratorMetadata: true } },
+      plugins: [typeOnlyNamesGuardPlugin({ root, logger })],
+    });
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  afterEach(() => {
+    warnings.length = 0;
+    errors.length = 0;
+  });
+
+  it('removes interfaces and type aliases from the import, so their metadata is Object as with tsc, and suggests import type', async () => {
+    const result = await server.environments.client.transformRequest('/src/meta/consumer.ts');
+    expect(result?.code).toContain('import { HttpClient, Mode } from "/src/meta/types.ts";');
+    expect(result?.code).toContain('typeof ILogger === "undefined" ? Object : ILogger');
+    expect(errors).toEqual([]);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('TypeScript types are imported without `type` in src/meta/consumer.ts, and emitDecoratorMetadata references them');
+    expect(warnings[0]).toContain('  src/meta/consumer.ts:2:22: "ILogger" is not a runtime export of src/meta/types.ts (probably an interface or a type).');
+    expect(warnings[0]).toContain('  src/meta/consumer.ts:2:31: "Id" is not a runtime export of src/meta/types.ts');
+    expect(warnings[0]).toContain("  import type { ILogger, Id } from './types';");
+    expect(result?.code.startsWith(`console.warn(${JSON.stringify(`[fast-serve] ${warnings[0]}`)});`)).toBe(true);
+  });
+
+  it('leaves modules that import types with import type alone', async () => {
+    const result = await server.environments.client.transformRequest('/src/meta/consumerTyped.ts');
+    expect(result?.code).not.toContain('console.warn');
+    expect(warnings).toEqual([]);
   });
 });

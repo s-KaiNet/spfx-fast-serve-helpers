@@ -40,15 +40,23 @@ export function collectRuntimeExports(code: string): { names: Set<string>; starS
   return { names, starSources };
 }
 
-export function removeReexports(code: string, reexports: readonly ValueReexport[]): MagicString {
+export interface ImportedTypeName {
+  readonly importedName: string;
+  readonly importStart: number;
+}
+
+export function removeReexports(code: string, reexports: readonly ValueReexport[], importedTypes: readonly ImportedTypeName[] = []): MagicString {
   const output = new MagicString(code);
   for (const [exportStart, group] of groupBy(reexports, (reexport) => reexport.exportStart)) {
     const exportedNames = new Set(group.map((reexport) => reexport.exportedName));
     removeSpecifiers(output, code, EXPORT_LIST, exportStart, (specifier) => exportedNames.has(specifier.binding));
   }
-  const bindingReexports = reexports.filter((reexport) => reexport.bindingImportStart !== undefined);
-  for (const [importStart, group] of groupBy(bindingReexports, (reexport) => reexport.bindingImportStart ?? -1)) {
-    const importedNames = new Set(group.map((reexport) => reexport.importedName));
+  const removedImports: ImportedTypeName[] = [
+    ...reexports.flatMap(({ importedName, bindingImportStart }) => (bindingImportStart === undefined ? [] : [{ importedName, importStart: bindingImportStart }])),
+    ...importedTypes,
+  ];
+  for (const [importStart, group] of groupBy(removedImports, (entry) => entry.importStart)) {
+    const importedNames = new Set(group.map((entry) => entry.importedName));
     removeSpecifiers(output, code, IMPORT_LIST, importStart, (specifier) => importedNames.has(specifier.source));
   }
   return output;

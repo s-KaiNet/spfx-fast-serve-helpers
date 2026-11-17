@@ -43,8 +43,6 @@ export function serverPlugin(context: ServeContext, https: HttpsCredentials, { w
         headers: { 'Access-Control-Allow-Private-Network': 'true' },
         watch: { ignored: SPFX_BUILD_OUTPUT_FOLDERS.map((folder) => `${rootGlob}/${folder}/**`) },
         fs: { allow: [searchForWorkspaceRoot(root), FAST_SERVE_PACKAGE_ROOT] },
-
-        forwardConsole: { unhandledErrors: true, logLevels: ['error'] },
       },
       resolve: {
         dedupe: ['react', 'react-dom'],

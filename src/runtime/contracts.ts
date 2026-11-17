@@ -7,6 +7,8 @@ export interface BundleShimConfig {
 
   statusPath: string;
 
+  browserErrorsPath: string;
+
   components: ShimComponent[];
 }
 
@@ -56,4 +58,16 @@ export interface ServerStatus {
   error: LastServerError | null;
 
   fileRevision: number;
+}
+
+export type BrowserErrorKind = 'error' | 'unhandled-rejection' | 'console-error';
+
+export interface BrowserErrorReport {
+  kind: BrowserErrorKind;
+  name: string;
+  message: string;
+
+  stack: string;
+
+  callStack: string;
 }

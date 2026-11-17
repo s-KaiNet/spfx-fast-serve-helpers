@@ -1,3 +1,4 @@
+import { BROWSER_ERRORS_ID } from '../browserErrors/index.js';
 import type { SpfxBundle, SpfxComponent } from '../project/index.js';
 import { toRootUrl } from '../utils/paths.js';
 
@@ -5,6 +6,7 @@ export function renderBundleEntry(root: string, bundle: SpfxBundle): string {
   if (bundle.components.length === 0) throw new Error(`Bundle "${bundle.name}" has no supported components`);
 
   return [
+    `import ${JSON.stringify(BROWSER_ERRORS_ID)};`,
     "import '@vitejs/plugin-react/preamble';",
     ...bundle.components.flatMap((component) => componentExports(root, component)),
     'if (import.meta.hot) import.meta.hot.accept(() => location.reload());',

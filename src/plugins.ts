@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react';
 import type { PluginOption } from 'vite';
 import { tsconfigPathsPlugin } from './aliases/index.js';
 import { assetTypingsPlugin } from './assets/index.js';
+import { browserErrorsPlugin } from './browserErrors/index.js';
 import type { ServeContext } from './context.js';
 import { createExternals } from './externals/index.js';
 import { bundleEntryPath, bundleShimPath, loaderPlugin } from './loader/index.js';
@@ -25,6 +26,7 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
       scriptResources: () => externals.manifestScriptResources(),
     }),
     loaderPlugin(context, { bundles, shimPrelude: () => externals.shimPrelude() }),
+    browserErrorsPlugin(context),
     externals.plugin,
     tsconfigPathsPlugin(context),
     localizationPlugin(context),

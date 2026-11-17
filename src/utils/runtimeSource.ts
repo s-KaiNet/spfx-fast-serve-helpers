@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { transformWithOxc } from 'vite';
 
 export type RuntimeScript = 'componentShim' | 'libraryLoader';
-export type RuntimeFile = RuntimeScript | 'describeError' | 'themedStyles';
+export type RuntimeFile = RuntimeScript | 'describeError' | 'themedStyles' | 'browserErrors';
 
 const SCRIPT_HELPERS: readonly RuntimeFile[] = ['describeError'];
 

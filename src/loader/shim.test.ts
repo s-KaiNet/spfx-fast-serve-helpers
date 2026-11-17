@@ -1,5 +1,6 @@
 import { runInNewContext } from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
+import { BROWSER_ERRORS_ID, BROWSER_ERRORS_URL } from '../browserErrors/index.js';
 import type { SpfxBundle } from '../project/index.js';
 import { renderBundleEntry } from './entry.js';
 import { bundleEntryPath, bundleShimPath, parseBundleEntryPath, parseBundleShimPath } from './paths.js';
@@ -95,8 +96,13 @@ async function evaluateShim(shimBundle: SpfxBundle = bundle, extraGlobals: Recor
   const define = (id: string, deps: string[], factory: Factory) => modules.set(id, { deps, factory });
   const window: { scopedRequire?: unknown } = {};
   const page = fakeSharePointPage();
-  const importEntry = () => Promise.reject(importError ?? new Error('no module loader in tests'));
-  runInNewContext(code.replace('import(shimConfig.origin', 'importEntry(shimConfig.origin'), {
+  const importedUrls: string[] = [];
+  const importModule = (url: string) => {
+    importedUrls.push(url);
+    if (url.endsWith(BROWSER_ERRORS_URL)) return Promise.resolve({});
+    return Promise.reject(importError ?? new Error('no module loader in tests'));
+  };
+  runInNewContext(code.replaceAll('import(shimConfig.origin', 'importModule(shimConfig.origin'), {
     define,
     window,
     console,
@@ -106,11 +112,11 @@ async function evaluateShim(shimBundle: SpfxBundle = bundle, extraGlobals: Recor
     String,
     Object,
     setTimeout,
-    importEntry,
+    importModule,
     ...page.globals,
     ...extraGlobals,
   });
-  return { code, modules, window, page };
+  return { code, modules, window, page, importedUrls };
 }
 
 interface LoaderPlugin {
@@ -118,7 +124,7 @@ interface LoaderPlugin {
 }
 
 async function failingLoad(extraGlobals: Record<string, unknown>, importError: Error) {
-  const { modules, page } = await evaluateShim(bundle, extraGlobals, importError);
+  const { modules, page, importedUrls } = await evaluateShim(bundle, extraGlobals, importError);
   const plugin = modules.get('spfx-fast-serve-loader:hello-web-part')?.factory() as LoaderPlugin | undefined;
   if (!plugin) throw new Error('loader plugin not defined');
   const onload = Object.assign(vi.fn<(value: unknown) => void>(), { error: vi.fn<(error: unknown) => void>() });
@@ -128,7 +134,7 @@ async function failingLoad(extraGlobals: Record<string, unknown>, importError: E
     expect(onload.error).toHaveBeenCalled();
   });
   const [failure] = onload.error.mock.calls[0] ?? [];
-  return { message: failure instanceof Error ? failure.message : String(failure), page };
+  return { message: failure instanceof Error ? failure.message : String(failure), failure, page, importedUrls };
 }
 
 describe('renderShim', () => {
@@ -196,12 +202,14 @@ describe('bundle load failures', () => {
     const location = { reload: vi.fn<() => void>() };
     vi.useFakeTimers({ toFake: ['setTimeout'] });
     try {
-      const { message } = await failingLoad({ fetch, location, setTimeout }, fetchFailure);
+      const { message, failure } = await failingLoad({ fetch, location, setTimeout, Symbol }, fetchFailure);
+      const reportedInTerminal = (failure as Record<symbol, unknown>)[Symbol.for('fast-serve.reported-in-terminal')];
       expect(message).toBe(
         '[fast-serve] Failed to load bundle "hello-web-part" from https://localhost:4321: [PARSE_ERROR] Unexpected token in src/a.tsx:15:18. ' +
           'See the fast-serve terminal for details (the page reloads after the next file change)',
       );
       expect(fetch).toHaveBeenCalledWith('https://localhost:4321/@spfx/status', { cache: 'no-store' });
+      expect(reportedInTerminal).toBe(true);
       await vi.advanceTimersByTimeAsync(1000);
       expect(location.reload).not.toHaveBeenCalled();
       await vi.advanceTimersByTimeAsync(1000);
@@ -270,12 +278,25 @@ describe('bundle load failures', () => {
     expect(message).toContain('check the fast-serve terminal');
     expect(message).not.toContain('reloads');
   });
+
+  it('explains a missing export as a TypeScript-only name and loads the error forwarding first', async () => {
+    const fetch = vi.fn<() => Promise<unknown>>(() => Promise.reject(new TypeError('Failed to fetch')));
+    const linkError = new SyntaxError(
+      "The requested module '/node_modules/.vite/deps/@fluentui_font-icons-mdl2.js?v=1' does not provide an export named 'IconNames'",
+    );
+    const { message, importedUrls, failure } = await failingLoad({ fetch, Symbol }, linkError);
+    expect(Object.getOwnPropertySymbols(failure)).toEqual([]);
+    expect(message).toContain("does not provide an export named 'IconNames'. \"IconNames\" has no runtime value in that module");
+    expect(message).toContain('`import type { IconNames }`');
+    expect(message).toContain('`const enum` from a dependency');
+    expect(importedUrls).toEqual([`https://localhost:4321${BROWSER_ERRORS_URL}`, 'https://localhost:4321/@spfx/entry/hello-web-part']);
+  });
 });
 
 describe('renderBundleEntry', () => {
-  it('imports the Fast Refresh preamble first and reloads on unaccepted updates', () => {
+  it('imports the browser error forwarding and the Fast Refresh preamble first and reloads on unaccepted updates', () => {
     const code = renderBundleEntry('/p', bundle);
-    expect(code.split('\n')[0]).toBe("import '@vitejs/plugin-react/preamble';");
+    expect(code.split('\n').slice(0, 2)).toEqual([`import ${JSON.stringify(BROWSER_ERRORS_ID)};`, "import '@vitejs/plugin-react/preamble';"]);
     expect(code).toContain('export * from "/src/webparts/hello/HelloWebPart.ts";');
     expect(code).toContain('export { default } from "/src/webparts/hello/HelloWebPart.ts";');
     expect(code).toContain('import.meta.hot.accept(() => location.reload())');
@@ -285,6 +306,7 @@ describe('renderBundleEntry', () => {
 describe('renderBundleEntry with several components', () => {
   it('re-exports each component under its export name and keeps the reload fallback', () => {
     expect(renderBundleEntry('/p', sharedBundle).split('\n')).toEqual([
+      `import ${JSON.stringify(BROWSER_ERRORS_ID)};`,
       "import '@vitejs/plugin-react/preamble';",
       'export * as a from "/src/webparts/first/FirstWebPart.ts";',
       'export * as b from "/src/webparts/second/SecondWebPart.ts";',
