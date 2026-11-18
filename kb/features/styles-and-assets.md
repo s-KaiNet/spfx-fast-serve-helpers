@@ -67,6 +67,7 @@ Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-styl
 - [Source pipeline](../architecture/source-pipeline.md)
 - [HMR and Fast Refresh](hmr-and-fast-refresh.md)
 - [TypeScript source compatibility](typescript-compatibility.md)
+- [Scope cuts and features dropped on purpose](../decisions/scope-cuts.md)
 
 ## Evidence
 

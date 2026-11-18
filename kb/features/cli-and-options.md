@@ -111,6 +111,7 @@ Warnings that don't stop the server: an unknown serve configuration name, serve 
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [Architecture overview](../architecture/overview.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
+- [Zero-config CLI without a public Vite plugin API](../decisions/zero-config-cli.md)
 
 ## Evidence
 

@@ -43,6 +43,19 @@ User- and developer-visible behavior of `fast-serve`.
 
 Accepted technical decisions and their rationale.
 
+- [Dev server only; Heft keeps builds, checks and packaging](decisions/dev-server-only.md): never production builds; no type checking, linting or other non-dev options; only typings written, into heft's `temp/` folders with heft's own logic. Tags: decision, scope, heft. Status: current.
+- [Zero-config CLI without a public Vite plugin API](decisions/zero-config-cli.md): `fast-serve` owns the Vite config, `exports` only `./package.json`, small option set with fixed precedence, automatic HTTPS. Tags: decision, cli, configuration, vite. Status: current.
+- [Version policy: package follows the SPFx minor](decisions/version-policy.md): `spfx-fast-serve-helpers@~1.24.0` for SPFx 1.24.x only, startup version check, 1.22/1.23 unsupported (1.23 researched, undecided). Tags: decision, versioning, spfx. Status: current.
+- [Development React from the project for Fast Refresh](decisions/development-react.md): development React/react-dom from the project, deduplicated, instead of the page's production React. Tags: decision, react, react-fast-refresh. Status: current.
+- [On-demand SPFx library facades with top-level await](decisions/on-demand-library-facades.md): `loadComponentById` facades (TLA + CJS sync + per-chunk preload) over preloading or listing libraries in the manifest; measured rationale. Tags: decision, externals, top-level-await, spfx-libraries. Status: current.
+- [Unbundled dev server and entry-graph warmup](decisions/unbundled-dev-and-warmup.md): no `experimental.bundledDev`; Vite `server.warmup` off, entry graph warmed after first pre-bundling, typings after it, filtered pre-bundle hooks. Tags: decision, performance, vite, warmup. Status: current.
+- [Build from scratch with semantic modules](decisions/semantic-architecture.md): no port of the old structure; feature components, Vite-free project model, artifacts rendered on request, TS browser runtime. Tags: decision, architecture. Status: current.
+- [Match heft behavior for serve configurations and the debug URL](decisions/match-heft-serve-behavior.md): unknown `--config` falls back to `default`, heft's page order, query replacement, no `debug=true` for extensions. Tags: decision, extensions, serve-configurations, heft. Status: current.
+- [TypeScript handling without tsc](decisions/typescript-handling.md): own tsconfig-paths resolver, compiler-option whitelist to Oxc with lookup off, type re-export guard that warns and removes, explained `const enum` limits. Tags: decision, typescript, tsconfig, oxc. Status: current.
+- [Error reporting: project errors only, overlay for runtime errors](decisions/error-reporting.md): stack-frame rule for terminal forwarding, overlay for uncaught errors and rejections (not `console.error`), `overlay` opt-out. Tags: decision, errors, overlay, terminal. Status: current.
+- [Scope cuts and features dropped on purpose](decisions/scope-cuts.md): theme-change monitoring, `config/sass.json` in Vite's Sass compile, locale switch, `@pnp/spfx-property-controls` 3.13 CSS. Tags: decision, scope, theming, styles, localization. Status: needs-clarification.
+- [Package toolchain and code conventions](decisions/toolchain-and-conventions.md): pnpm, TypeScript 7, type-aware oxlint instead of ESLint/typescript-eslint, no code comments, no source maps in the package, approval-first process. Tags: decision, toolchain, typescript, oxlint, pnpm. Status: current.
+
 ## Limitations
 
 Known limitations, gotchas, problems and open issues.

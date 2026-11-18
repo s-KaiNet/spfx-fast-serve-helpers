@@ -55,7 +55,7 @@ How a single project module passes through these components is described in [Sou
 - **Generated artifacts are derived, never stored**: manifests, shims and entries are rendered from the current model on each request, so a model invalidation is enough to change them.
 - **Browser runtime code shares only type contracts with Node code.** It is built with a DOM-only TypeScript config; classic-script parts are concatenated into the bundle shim, ES-module parts are served as virtual modules.
 - Plugins that run inside dependency pre-bundling declare hook filters, so Rolldown only calls into JavaScript for matching module ids (unfiltered hooks made pre-bundling about twice as slow).
-- The design deliberately does not mirror the old webpack-based spfx-fast-serve-helpers structure.
+- The design deliberately does not mirror the old webpack-based spfx-fast-serve-helpers structure (see [Build from scratch with semantic modules](../decisions/semantic-architecture.md)).
 
 ### Reused from the user's project vs shipped with the package
 
@@ -79,6 +79,7 @@ Runtime requirement: Node `>=22.14 <23`, `>=24 <25` or `>=26 <27`; ESM package w
 - [SPFx libraries and externals at runtime](spfx-libraries-and-externals.md)
 - [Source pipeline](source-pipeline.md)
 - [CLI, options and startup](../features/cli-and-options.md)
+- [Zero-config CLI without a public Vite plugin API](../decisions/zero-config-cli.md)
 
 ## Evidence
 

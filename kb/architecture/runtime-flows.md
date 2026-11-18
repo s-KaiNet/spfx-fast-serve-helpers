@@ -67,6 +67,7 @@ All bundles share one ESM module graph in dev (one instance of a shared module),
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
 - [Errors and diagnostics](../features/errors-and-diagnostics.md)
 - [HMR and Fast Refresh](../features/hmr-and-fast-refresh.md)
+- [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)
 
 ## Evidence
 

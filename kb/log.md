@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 03:50 | ingest | decisions category populated
+
+- Changed: `kb/decisions/dev-server-only.md`, `kb/decisions/zero-config-cli.md`, `kb/decisions/version-policy.md`, `kb/decisions/development-react.md`, `kb/decisions/on-demand-library-facades.md`, `kb/decisions/unbundled-dev-and-warmup.md`, `kb/decisions/semantic-architecture.md`, `kb/decisions/match-heft-serve-behavior.md`, `kb/decisions/typescript-handling.md`, `kb/decisions/error-reporting.md`, `kb/decisions/scope-cuts.md`, `kb/decisions/toolchain-and-conventions.md`, `kb/index.md`, links in concept, architecture and feature pages
+- Outcome: accepted decisions with context, rationale and consequences (scope, CLI shape, versioning, React, library loading, performance, architecture, heft parity, TypeScript, errors, scope cuts, toolchain); locale-switch cut needs clarification
+
 ## 2026-11-18 03:20 | ingest | features category populated
 
 - Changed: `kb/features/cli-and-options.md`, `kb/features/serving-components.md`, `kb/features/hmr-and-fast-refresh.md`, `kb/features/styles-and-assets.md`, `kb/features/typescript-compatibility.md`, `kb/features/localization.md`, `kb/features/library-imports-and-externals.md`, `kb/features/errors-and-diagnostics.md`, `kb/index.md`, links in architecture and concept pages

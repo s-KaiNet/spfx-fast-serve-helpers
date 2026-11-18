@@ -48,7 +48,7 @@ tags:
 
 ### Why on-demand loading
 
-On-demand facades were chosen over preloading the libraries in the shim: the component was ready about 300 ms sooner than with preloading, already-loaded libraries cost about 1 ms each, unused libraries are never fetched, and new SPFx imports no longer force a reload. The rationale belongs to the decisions category.
+On-demand facades were chosen over preloading the libraries in the shim: the component was ready about 300 ms sooner than with preloading, already-loaded libraries cost about 1 ms each, unused libraries are never fetched, and new SPFx imports no longer force a reload. The decision and its alternatives are recorded in [On-demand SPFx library facades with top-level await](../decisions/on-demand-library-facades.md).
 
 ## Links
 

@@ -88,6 +88,7 @@ Malformed entries (for example `serveConfigurations` not an object, or an empty 
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
+- [Match heft behavior for serve configurations and the debug URL](../decisions/match-heft-serve-behavior.md)
 
 ## Evidence
 

@@ -53,6 +53,8 @@ tags:
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [HMR and Fast Refresh](hmr-and-fast-refresh.md)
 - [Errors and diagnostics](errors-and-diagnostics.md)
+- [Development React from the project for Fast Refresh](../decisions/development-react.md)
+- [On-demand SPFx library facades with top-level await](../decisions/on-demand-library-facades.md)
 
 ## Evidence
 

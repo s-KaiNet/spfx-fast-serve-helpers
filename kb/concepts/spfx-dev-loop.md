@@ -62,6 +62,8 @@ SPFx 1.22+ projects build with Heft. `heft start` is the classic development loo
 - [HMR, Fast Refresh and Vite terms](hmr-and-vite-terms.md)
 - [Glossary](glossary.md)
 - [Architecture overview](../architecture/overview.md)
+- [Dev server only; Heft keeps builds, checks and packaging](../decisions/dev-server-only.md)
+- [Version policy: package follows the SPFx minor](../decisions/version-policy.md)
 
 ## Evidence
 
