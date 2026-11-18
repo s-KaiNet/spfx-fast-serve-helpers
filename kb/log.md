@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 02:05 | ingest | concepts category populated
+
+- Changed: `kb/concepts/spfx-dev-loop.md`, `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/component-manifests-and-loader.md`, `kb/concepts/spfx-component-types.md`, `kb/concepts/styles-localization-assets.md`, `kb/concepts/hmr-and-vite-terms.md`, `kb/concepts/glossary.md`, `kb/index.md`
+- Outcome: SPFx platform concepts (Heft loop, debug flow, manifests and loader, component types, styles/loc/assets, HMR and Vite terms) and a glossary
+
 ## 2026-11-18 | setup | KB initialized
 
 - Changed: `kb/AGENTS.md`, `kb/index.md`, `kb/log.md`, starter folders
