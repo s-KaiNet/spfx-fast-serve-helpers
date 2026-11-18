@@ -6,6 +6,7 @@ Data flow: **config → project model → generated artifacts → Vite server �
 Entry points:
 
 - `cli.ts`: `fast-serve` bin (thin; process wiring only).
+- `nodeWarnings/`: installed by `cli.ts` before Vite loads; wraps `process.emitWarning` to drop only Node's `UnsupportedWarning: Status message is not supported by HTTP/2` (Vite's 504 with a status message for outdated pre-bundled deps over HTTPS). Every other warning goes through Node's own `emitWarning` unchanged, so its output, the `--trace-warnings` hint and stacks, `--no-warnings`, `--disable-warning` and `NODE_NO_WARNINGS` behave as without fast-serve.
 - `runCli.ts`: argument parsing (testable, no `process` access).
 - `devServer.ts`: `startDevServer()`: SPFx version check → options + project model → `vite.createServer()` (no user `vite.config`). Startup failures (port in use, certificate, no web parts) close the server and are rethrown as readable messages; the CLI exits with code 1.
 - `plugins.ts`: composes the feature modules' Vite plugins.

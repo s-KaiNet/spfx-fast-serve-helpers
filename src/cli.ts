@@ -1,5 +1,8 @@
 #!/usr/bin/env node
+import { hideHttp2StatusMessageWarning } from './nodeWarnings/index.js';
 import { runCli } from './runCli.js';
+
+hideHttp2StatusMessageWarning();
 
 const exitCode = await runCli(process.argv.slice(2), {
   out: (text) => process.stdout.write(text),
