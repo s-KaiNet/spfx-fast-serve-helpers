@@ -42,6 +42,7 @@ Most "nothing loads" problems come from the browser and SharePoint side of the d
 - [CLI, options and startup](../features/cli-and-options.md)
 - [Errors and diagnostics](../features/errors-and-diagnostics.md)
 - [Known issues and fragile points](known-issues.md)
+- [VS Code debugging and remote development](../operations/debugging-and-remote-development.md)
 
 ## Evidence
 

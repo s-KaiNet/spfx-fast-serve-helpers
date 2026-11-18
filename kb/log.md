@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 04:50 | ingest | operations category populated
+
+- Changed: `kb/operations/development-workflow.md`, `kb/operations/local-testing-and-consumer-setup.md`, `kb/operations/live-verification.md`, `kb/operations/benchmark-method.md`, `kb/operations/debugging-and-remote-development.md`, `kb/index.md`, links in one decision, two limitation and one feature page
+- Outcome: toolchain and conventions, local tarball testing and consumer setup, test projects and acceptance checklist, live tenant verification with agent-browser, benchmark method, VS Code debugging and SSH-from-Windows setup; tarball naming and SSH verification need clarification
+
 ## 2026-11-18 04:20 | ingest | limitations category populated
 
 - Changed: `kb/limitations/dev-vs-production.md`, `kb/limitations/hmr-gotchas.md`, `kb/limitations/typescript-limits.md`, `kb/limitations/unsupported-scope.md`, `kb/limitations/environment-and-browser-gotchas.md`, `kb/limitations/known-issues.md`, `kb/index.md`, links in concept and feature pages

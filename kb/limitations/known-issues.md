@@ -49,7 +49,7 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 
 ### VS Code F5 (status: open)
 
-- The documented `launch.json` (Edge/Chrome, path mapping from `https://localhost:4321/` to the workspace) is not yet verified with F5 in real VS Code; DevTools source maps work.
+- The documented `launch.json` (Edge/Chrome, path mapping from `https://localhost:4321/` to the workspace) is not yet verified with F5 in real VS Code; DevTools source maps work (setup in [VS Code debugging and remote development](../operations/debugging-and-remote-development.md)).
 
 ## Links
 

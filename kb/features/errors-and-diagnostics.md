@@ -65,7 +65,7 @@ The full list of fatal startup errors is in [CLI, options and startup](cli-and-o
 ### Debugging with source maps
 
 - Every module is served from `https://localhost:<port>/<path in the project>` with an inline source map containing the original TypeScript, so DevTools lists files under `localhost:4321/src/...`.
-- VS Code needs a `launch.json` (`msedge` or `chrome`, `launch` or `attach`) whose `url` is the printed debug page URL, with `pathMapping` and `sourceMapPathOverrides` mapping `https://localhost:4321/` to the workspace folder and `"outFiles": []` (so heft's webpack maps in `lib/`, `dist/`, `temp/` aren't scanned). `fast-serve` must already run; breakpoints bind when modules load, so reload to hit code that already ran. Old `webpack:///` overrides are unused.
+- VS Code needs a `launch.json` (`msedge` or `chrome`, `launch` or `attach`) whose `url` is the printed debug page URL, with `pathMapping` and `sourceMapPathOverrides` mapping `https://localhost:4321/` to the workspace folder and `"outFiles": []` (so heft's webpack maps in `lib/`, `dist/`, `temp/` aren't scanned). `fast-serve` must already run; breakpoints bind when modules load, so reload to hit code that already ran. Old `webpack:///` overrides are unused. Step-by-step setup: [VS Code debugging and remote development](../operations/debugging-and-remote-development.md).
 
 ## Implementation Notes
 
