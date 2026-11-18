@@ -1,16 +1,18 @@
 # SPFx libraries that import `.module.scss` but ship only `.module.scss.css`
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 Benchmark finding F1 ([../benchmark/README.md](../benchmark/README.md)). Tools: SPFx 1.24.1, Vite 8.3.8, Rolldown 1.2.19, `@pnp/spfx-controls-react` 3.25.0. Date: 2026-11-16.
 
 Files in this folder:
 
 | File | What it is |
 |---|---|
-| [spfx-lib-css.mjs](spfx-lib-css.mjs) | Prototype fix: a Vite plugin plus a Rolldown plugin for `optimizeDeps` |
-| [vite.config.mjs](vite.config.mjs) | Copy of the bench config. The bench's `.scss.css` hack is replaced by the prototype; only the sp-*/loc externals (F2) are kept. `NO_LIBCSS=1` turns the prototype off |
-| [compare-dist.mjs](compare-dist.mjs) | Compiles all 64 pnp `.module.scss.css` files and compares them with the heft bundle `spfx-bench/dist/bench-pnp-web-part.js` |
-| [check-normal-path.mjs](check-normal-path.mjs) | Sends a pnp module through Vite's normal transform path (no pre-bundling) |
-| [check-property-controls.mjs](check-property-controls.mjs) | Shows what SPFx's module rule does to `@pnp/spfx-property-controls` CSS |
+| spfx-lib-css.mjs | Prototype fix: a Vite plugin plus a Rolldown plugin for `optimizeDeps` |
+| vite.config.mjs | Copy of the bench config. The bench's `.scss.css` hack is replaced by the prototype; only the sp-*/loc externals (F2) are kept. `NO_LIBCSS=1` turns the prototype off |
+| compare-dist.mjs | Compiles all 64 pnp `.module.scss.css` files and compares them with the heft bundle `spfx-bench/dist/bench-pnp-web-part.js` |
+| check-normal-path.mjs | Sends a pnp module through Vite's normal transform path (no pre-bundling) |
+| check-property-controls.mjs | Shows what SPFx's module rule does to `@pnp/spfx-property-controls` CSS |
 | `vite-baseline.log`, `vite-run1.log`, `vite-live.log`, `live-benchpnp.png` | Evidence |
 
 Legend: **O** = observed (ran it), **S** = read in shipped code, **I** = inferred.
@@ -68,7 +70,7 @@ Plugins in `optimizeDeps.rolldownOptions.plugins` run **before** Vite's dep plug
 4. **Class names:** `DEFAULT_GENERATE_CSS_CLASS_NAME = name + '_' + hmacSha1(key = absolute css path, data = css).hex.slice(0, 8)`. The hash is cached per file. Because the key is the absolute path, hashes differ between machines. The only thing that matters is that the CSS and the JS class map agree.
 5. **Theme tokens:** they are left in the CSS string. `load-themed-styles` replaces them at runtime from `window.__themeState__.theme` and re-applies them when `loadTheme()` runs.
 
-## 4. Proposed fix (prototype: [spfx-lib-css.mjs](spfx-lib-css.mjs))
+## 4. Proposed fix (prototype: spfx-lib-css.mjs)
 Copy SPFx in both paths, **using sp-css-loader itself**. It is always installed as a dependency of `@microsoft/spfx-heft-plugins`. The prototype calls it with a minimal loader context and the same `generateCssClassName`.
 
 ```js

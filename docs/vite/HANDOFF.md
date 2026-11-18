@@ -2,7 +2,7 @@
 
 Status on 2026-11-17: **P0 items 1–17 and P1 are done** (§6); next-phase items are tracked in §6 "Next" (all done or skipped; accepted in the N5 review). #17 (project tsconfig applied to the Oxc transform) is the latest, see `research/tsconfig-decorators/`. The package is `spfx-fast-serve-helpers` 1.24.0 (SPFx 1.24.x), a zero-config `fast-serve` CLI; user docs in `README.md` and `docs/*.md`, code layout in `src/README.md`.
 
-Read this file first. Every claim below links to a detailed report in `research/`.
+Read this file first. Every claim below links to a detailed report in `research/`. Experiment files, raw results and captures were removed in a cleanup; they are in git history at commit `dd4da8d`.
 
 ---
 
@@ -35,9 +35,7 @@ Decisions the user made:
 
 | Path | What |
 |---|---|
-| `poc/plugin/` | working PoC Vite plugin (copied from `/home/sergei/Projects/spfx-rea/tools/vite-plugin-spfx-serve`; the original still powers `npm run serve` there) |
-| `poc/vite.config.mjs` | how the PoC is wired in a project |
-| `poc/HelloWorld.functional.example.tsx` | the HelloWorld component converted to a function component (Fast Refresh works best with function components) |
+| (removed) `poc/` | the original PoC plugin, replaced by `src/`; in git history at `dd4da8d` (original: `/home/sergei/Projects/spfx-rea/tools/vite-plugin-spfx-serve`) |
 | `research/spfx-pipeline/` | reverse-engineered SPFx 1.24 build → serve → runtime-loader contract. **Start with `index.md` and `07-vite-integration-notes.md`** |
 | `research/vite-serve-plan/README.md` | the original plan: parity list (P0/P1/P2 tables), architecture proposal, easy-to-miss items, future improvements. §6 below updates it |
 | `research/tla-externals/` | research: on-demand `sp-*` via top-level await (live-verified), with prototype and Rolldown tests |

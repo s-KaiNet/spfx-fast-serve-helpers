@@ -1,5 +1,7 @@
 # 07 — Notes for a Vite-based builder
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 What SharePoint actually requires is narrow. Everything below "contract" is what the runtime (05) checks; the rest of the
 Heft/webpack machinery is replaceable. Items are tagged **O** (observed), **S** (read in code) or **I** (inference / design proposal, not yet tested).
 
@@ -38,7 +40,7 @@ Heft/webpack machinery is replaceable. Items are tagged **O** (observed), **S** 
 Same output as production but unminified with source maps, served from `https://localhost:4321/dist/` + `temp/build/manifests.js`. Reload on rebuild (WebSocket ping script or plain manual reload). Matches what Heft does today functionally (Heft's HMR always ends in a full reload anyway — F13).
 
 ### Option B — real Vite dev server (native ESM, on-demand transforms)
-Feasibility probe (**O**; sources in [artifacts/esm-probe/](artifacts/esm-probe/), served temporarily from `temp/rea-probe/`): inside the debug page,
+Feasibility probe (**O**; sources in artifacts/esm-probe/, served temporarily from `temp/rea-probe/`): inside the debug page,
 
 ```js
 import("https://localhost:4321/temp/rea-probe/esm-probe.js")

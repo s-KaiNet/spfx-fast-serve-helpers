@@ -1,5 +1,7 @@
 # On-demand SPFx externals via top-level await (TLA)
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 Date: 2026-11-15. Tenant: mastaq.sharepoint.com (SPO build odsp-web-prod_2026-10-30.006, every `@microsoft/sp-*` at **1.25.0**).
 Project: SPFx **1.24.1**. Vite 8.3.8, Rolldown 1.2.19, headless Chrome 153.
 
@@ -28,15 +30,15 @@ Conditions:
 
 ## Evidence
 
-Prototype: [proto/](proto/), a copy of the PoC plugin with switches. Run it from the repo root:
+Prototype: proto/, a copy of the PoC plugin with switches. Run it from the repo root:
 `TLA_PROBE=1 [TLA_MANIFEST=used|all|none] [TLA_PRELOAD=1] [TLA_BREAK=<pkg>] node_modules/.bin/vite --config research/tla-externals/proto/vite.config.mjs` (port 4331).
-- [proto/plugin.mjs](proto/plugin.mjs): `renderShim` (the `__spfxVite` runtime with 3 resolve strategies: `scoped`, `byId`, `global`),
+- proto/plugin.mjs: `renderShim` (the `__spfxVite` runtime with 3 resolve strategies: `scoped`, `byId`, `global`),
   `renderExternalModule` (TLA facade), and an `optimizeDeps.rolldownOptions.plugins` entry.
-- [proto/probe.ts](proto/probe.ts) runs after the entry. It uses [fake-spfx-dep](proto/fake-spfx-dep/), a pre-bundled
+- proto/probe.ts runs after the entry. It uses fake-spfx-dep, a pre-bundled
   "third-party" package that imports sp-core-library and sp-http, with an import cycle. It also does dynamic imports and
-  mounts [ProbeCounter.tsx](proto/ProbeCounter.tsx) for HMR.
-- Pre-bundled output of the fake dep: [evidence-fake-spfx-dep.prebundled.js](evidence-fake-spfx-dep.prebundled.js).
-- Rolldown edge cases: [rolldown-tests/run.mjs](rolldown-tests/run.mjs), results in [rolldown-tests/results.txt](rolldown-tests/results.txt).
+  mounts ProbeCounter.tsx for HMR.
+- Pre-bundled output of the fake dep: evidence-fake-spfx-dep.prebundled.js.
+- Rolldown edge cases: rolldown-tests/run.mjs, results in rolldown-tests/results.txt.
 
 ### 1. Works in the page: versions and instances (L)
 
@@ -86,7 +88,7 @@ The PoC error "was not preloaded by SharePoint" is gone. This matches what `Asyn
 - Live: `fake-spfx-dep` was pre-bundled with the facades inlined. The output is flat (scope-hoisted), and the
   facade awaits stay at the top level in import order.
 - The ESM cycle `cycle-a ↔ cycle-b`, where cycle-b awaits a facade, evaluated correctly (`A(B(a),b:function)`).
-- Offline cases ([results.txt](rolldown-tests/results.txt)). Each fake `require` takes 50 ms. 3 s timeout = deadlock detector:
+- Offline cases (results.txt). Each fake `require` takes 50 ms. 3 s timeout = deadlock detector:
 
 | Case | Plain TLA facade | Sync facade for `require()` + one parallel preload per chunk |
 |---|---|---|

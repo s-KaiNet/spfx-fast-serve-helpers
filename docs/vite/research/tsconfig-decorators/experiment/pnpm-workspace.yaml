@@ -1,2 +1,0 @@
-minimumReleaseAgeExclude:
-  - '@oxc-project/runtime@0.159.0'

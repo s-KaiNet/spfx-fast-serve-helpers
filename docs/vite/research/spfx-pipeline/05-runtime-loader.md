@@ -1,6 +1,8 @@
 # 05 — Runtime: how SharePoint loads the component
 
-Sources: live page (agent-browser + raw CDP), sanitized network extracts in [artifacts/network/](artifacts/network/), RequireJS snapshot [artifacts/runtime-requirejs-config.json](artifacts/runtime-requirejs-config.json), and the shipped loader `node_modules/@microsoft/sp-loader/dist/sp-loader-assembly_en-us.js` + `chunk.sp-loader-debug-handlers_*.js` (1.24.1; minified, pretty-printed for reading; the tenant ran 1.25.0 — the behaviour seen live matched the 1.24.1 code paths below).
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
+Sources: live page (agent-browser + raw CDP), sanitized network extracts in artifacts/network/, RequireJS snapshot artifacts/runtime-requirejs-config.json, and the shipped loader `node_modules/@microsoft/sp-loader/dist/sp-loader-assembly_en-us.js` + `chunk.sp-loader-debug-handlers_*.js` (1.24.1; minified, pretty-printed for reading; the tenant ran 1.25.0 — the behaviour seen live matched the 1.24.1 code paths below).
 
 ## 1. Page bootstrap (observed in the HTML of `spfx-rea.aspx`)
 
@@ -62,7 +64,7 @@ requirejs.config({paths}); then requirejs.config({ map: { "<M.id>_<M.version>": 
 if window.__spfxPreloadedModules[moduleId] → define(...) it directly (server-side preloading path)
 ```
 
-Snapshot taken live after the web part rendered ([runtime-requirejs-config.json](artifacts/runtime-requirejs-config.json)):
+Snapshot taken live after the web part rendered (runtime-requirejs-config.json):
 
 ```jsonc
 "paths": {
@@ -94,7 +96,7 @@ This is the crux: **the bundle's bare `define()` dependencies are rewritten per-
 
 ## 6. Timeline (view-mode load with web part on the page, debug on)
 
-From [har-03 extract](artifacts/network/har-03-debug-viewmode-load.requests.json):
+From har-03 extract:
 
 | t (ms) | Request |
 |---:|---|
@@ -109,7 +111,7 @@ From [har-03 extract](artifacts/network/har-03-debug-viewmode-load.requests.json
 | 1586 | `react-dom-client-18-bundle_none_….js` (CDN) |
 | 1888 | `https://localhost:4321/dist/welcome-light_….png` |
 
-Screenshots: [web part added in edit mode](artifacts/03-webpart-added-edit.png), [view mode](artifacts/05-viewmode-webpart-from-localhost.png).
+Screenshots: web part added in edit mode, view mode.
 
 ## 7. Other loader facts noted in code (not exercised)
 

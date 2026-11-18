@@ -1,5 +1,7 @@
 # 03 — Component manifests and `manifests.js`
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 ## Source manifest → emitted manifest
 
 Source: `src/webparts/helloWorld/HelloWorldWebPart.manifest.json` (id `2997f152-d79f-45c7-a7d2-ea768b8f5575`, `version: "*"`, `componentType: WebPart`, `preconfiguredEntries`, `supportedHosts`, …).
@@ -38,7 +40,7 @@ Source: `src/webparts/helloWorld/HelloWorldWebPart.manifest.json` (id `2997f152-
 | `localizedPath` | `paths: {locale: file}`, `defaultPath` | loader picks by page UI culture |
 | `component` | `id`, `version`, optional `failoverPath`, `conditionalOverrides`, `fallbackVersion` | another SPFx component, resolved via the manifest store (same major, ≥ version) |
 
-Production adds hashes to paths; with `_includeIntegrityInManifestPaths` it would emit `{path, integrity:"sha256-…"}` (Microsoft's own manifests in the tenant do this — see [artifacts/network/GetClientSideComponents-react-dom-client.json](artifacts/network/GetClientSideComponents-react-dom-client.json)).
+Production adds hashes to paths; with `_includeIntegrityInManifestPaths` it would emit `{path, integrity:"sha256-…"}` (Microsoft's own manifests in the tenant do this — see artifacts/network/GetClientSideComponents-react-dom-client.json).
 
 ### Debug vs release variant
 

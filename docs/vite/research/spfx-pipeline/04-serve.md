@@ -1,9 +1,11 @@
 # 04 — `heft start` (serve) and how files reach the browser
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 ## Command
 
 `npm start` → `heft start --clean` → alias `build-watch --serve`. Used here: `SPFX_SERVE_TENANT_DOMAIN=mastaq.sharepoint.com npx heft start --nobrowser`.
-Watch mode runs the same `build` phase incrementally (TypeScript watch → webpack), and the webpack task uses **webpack-dev-server** instead of a plain compile ([log](artifacts/heft-start.log.txt)).
+Watch mode runs the same `build` phase incrementally (TypeScript watch → webpack), and the webpack task uses **webpack-dev-server** instead of a plain compile (log).
 
 ## Dev server configuration (`updateServeConfigAsync.js`, dump: [webpack-config-serve.json](artifacts/webpack-config-serve.json))
 
@@ -34,7 +36,7 @@ Because the **whole project root** is served, these URLs all respond 200 (curl):
 ### What is actually served for the bundle
 
 `/dist/hello-world-web-part.js` during serve = **218 KB** vs 50 KB from `heft build`: webpack-dev-server injects
-`webpack-dev-server/client/index.js?protocol=wss&hostname=localhost&port=4321&pathname=/ws&…&hot=true&live-reload=true` and `webpack/hot/dev-server.js` into the entry, plus the HMR runtime (`__webpack_require__.hmrF → hello-world-web-part.<hash>.hot-update.json`). With `writeToDisk: true` this file also overwrites `dist/` on disk. Saved copies: [served/](artifacts/served/).
+`webpack-dev-server/client/index.js?protocol=wss&hostname=localhost&port=4321&pathname=/ws&…&hot=true&live-reload=true` and `webpack/hot/dev-server.js` into the entry, plus the HMR runtime (`__webpack_require__.hmrF → hello-world-web-part.<hash>.hot-update.json`). With `writeToDisk: true` this file also overwrites `dist/` on disk. Saved copies: served/.
 
 ### Debug query string
 
@@ -48,7 +50,7 @@ Because the **whole project root** is served, these URLs all respond 200 (curl):
 
 ## Live behaviour on the page (observed)
 
-1. First load with the query string → full-screen dialog **"Allow debug scripts?"** ([screenshot](artifacts/01-debug-prompt.png)). After "Load debug scripts", the decision + URL is persisted in `sessionStorage["spfx-debug"] = {"liveReload":false,"manifestsFileUrl":"https://localhost:4321/temp/build/manifests.js","hasLogged3pDebug":false}` (no prompt on later loads in the same tab session).
+1. First load with the query string → full-screen dialog **"Allow debug scripts?"** (screenshot). After "Load debug scripts", the decision + URL is persisted in `sessionStorage["spfx-debug"] = {"liveReload":false,"manifestsFileUrl":"https://localhost:4321/temp/build/manifests.js","hasLogged3pDebug":false}` (no prompt on later loads in the same tab session).
 2. `manifests.js` is loaded **as a script through RequireJS** (initiator type `script`), not fetch.
 3. Adding the web part from the toolbox loaded only `hello-world-web-part.js`, `HelloWorldWebPartStrings_en-us.js` and the PNG from localhost; everything else from `res-1.cdn.office.net`.
 4. The injected WDS client connected: console `[webpack-dev-server] Server started: Hot Module Replacement enabled, Live Reloading enabled` / `[HMR] Waiting for update signal from WDS...`.
@@ -61,6 +63,6 @@ Because the **whole project root** is served, these URLs all respond 200 (curl):
 |---|---|---|
 | **Certificate** | `net::ERR_CERT_AUTHORITY_INVALID`, dialog "Error loading debug manifests." | rushstack CA not trusted by the browser. Real setup: `heft trust-dev-cert`. In this research: Chrome started with `--ignore-certificate-errors` (agent-browser's `--ignore-https-errors` flag did not take effect for this profile launch). |
 | **Local Network Access** (Chrome 142+; tested 153 headless) | request to `https://localhost:4321` stuck pending, no response | public→loopback request needs LNA permission (interactive Chrome shows a permission prompt). Research launch used `--disable-features=LocalNetworkAccessChecks` + CDP `Browser.grantPermissions` for `local-network-access`/`loopback-network`. The server already sends `Access-Control-Allow-Private-Network: true`. |
-| **CSP** | `blockedReason: "csp"`, `script-src-elem` violation for `https://localhost:4321/temp/build/manifests.js` | SharePoint emits `script-src … 'self' … https://localhost:* http://localhost:* …` **only when the page is requested with the debug query params**; without them localhost is absent ([with](artifacts/network/csp-with-debug-params.txt) / [without](artifacts/network/csp-without-debug-params.txt)). Because `sessionStorage["spfx-debug"]` keeps the manifests URL, opening the page *without* the query string in the same tab still tries to load `manifests.js` and fails with "Error loading debug manifests" ([screenshot](artifacts/04-no-debug-params.png)). Always keep the query string. |
+| **CSP** | `blockedReason: "csp"`, `script-src-elem` violation for `https://localhost:4321/temp/build/manifests.js` | SharePoint emits `script-src … 'self' … https://localhost:* http://localhost:* …` **only when the page is requested with the debug query params**; without them localhost is absent (with / without). Because `sessionStorage["spfx-debug"]` keeps the manifests URL, opening the page *without* the query string in the same tab still tries to load `manifests.js` and fails with "Error loading debug manifests" (screenshot). Always keep the query string. |
 
 CSP details useful for a Vite dev server: `script-src` includes `'unsafe-eval'`, nonce/hashes (no `'unsafe-inline'`), `https://localhost:*`, `http://localhost:*` (any port, **http allowed**); `worker-src blob: 'self'`; there is **no `connect-src`/`style-src`/`img-src`** directive → WebSocket/HMR/fetch/CSS/images from localhost are not CSP-restricted. Only `localhost` is listed (not `127.0.0.1`).

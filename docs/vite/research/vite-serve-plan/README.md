@@ -1,9 +1,11 @@
 # From PoC to a reusable package: parity list, architecture, gaps
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 > **Current status, decisions and the updated P0/P1 list are in [../../HANDOFF.md](../../HANDOFF.md).** This file is the original plan. Some statuses here are out of date: localized resources from node_modules do work, and the `sp-*` design is now on-demand top-level-await facades.
 
 Date: 2026-11-15. Inputs:
-- the current PoC ([tools/vite-plugin-spfx-serve](../../poc/plugin/));
+- the current PoC (tools/vite-plugin-spfx-serve);
 - [spfx-fast-serve-helpers](https://github.com/s-KaiNet/spfx-fast-serve-helpers), branch `v1.21`, the latest;
 - [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve): README, docs/FAQ, LibraryComponents, `samples/advanced`;
 - the SPFx 1.24 Heft pipeline research ([../spfx-pipeline](../spfx-pipeline/index.md));

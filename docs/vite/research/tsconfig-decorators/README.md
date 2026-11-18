@@ -1,7 +1,9 @@
 # Research: tsconfig, legacy decorators, class fields and `const enum` under fast-serve
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 Date: 2026-11-17. Discovery only; nothing in `src/` was changed. Vite 8.3.8 (Oxc transform), SPFx 1.24.1, Chrome 153.
-The experiment files are in [`experiment/`](experiment/) (runner, probes, fixtures, tsc vs Oxc outputs).
+The experiment files are in `experiment/` (runner, probes, fixtures, tsc vs Oxc outputs).
 
 ## Summary
 

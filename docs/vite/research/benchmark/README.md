@@ -1,8 +1,10 @@
 # Benchmark: unbundled Vite dev server vs `heft start` on a large SPFx solution
 
+> Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
+
 Date: 2026-11-15/16. Bench project: [/home/sergei/Projects/spfx-bench](bench-project-tools/) (full project: `/home/sergei/Projects/spfx-bench`) (not in this repo).
 Vite mode: the normal unbundled dev server, **no `experimental.bundledDev`**, with the unmodified PoC plugin
-[tools/vite-plugin-spfx-serve](../../poc/plugin/) imported from this repo.
+tools/vite-plugin-spfx-serve imported from this repo.
 
 **Short answer.** At 1000 modules, unbundled Vite is far better for the edit loop: it starts in 0.3 s instead of 22.6 s, and an edit shows up in 30–60 ms instead of about 5 s.
 Page loads are worse: 8.5 s cold and 5.8 s on F5, against 3.3 s and 2.6 s for heft. Most of that time goes to the browser working through the module request waterfall (about 1180 requests, 15.7 MB). Vite's transforms take only 2.6 s cold and 0.4 s warm, and SharePoint's own share (about 1.3 s) is the same for both servers.
