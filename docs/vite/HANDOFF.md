@@ -43,7 +43,7 @@ Read this file first, then [README.md](../../README.md) (user docs), [src/README
 | [research/aces/](research/aces/README.md) | Adaptive Card Extensions |
 | [research/spfx-1.23/](research/spfx-1.23/README.md) | supporting SPFx 1.23 (discovery only) |
 | [research/benchmark/](research/benchmark/README.md) | PoC-era Vite vs `heft start` benchmark; generator and CDP harness in `bench-project-tools/` |
-| `research/library-components/` | library components research (in progress in another thread) |
+| `research/library-components/` | library components: how classic spfx-fast-serve and heft do it, options, recommended one-command option B |
 
 Test projects on this machine (not in the repo); both depend on `spfx-fast-serve-helpers` through `file:../gh/src/spfx-fast-serve-helpers/spfx-fast-serve-helpers-1.24.0.tgz` (build with `pnpm build && pnpm pack`, then reinstall in the project; the current tarball is named after the version in `package.json`):
 - `/home/sergei/Projects/spfx-rea`: SPFx 1.24.1, `npm run serve` = `fast-serve`, `config/fast-serve.json` `pageUrl` = the draft page below. Bundle `hello-world-web-part` holds HelloWorld (function component), SecondWebPart and the Banner Application Customizer (mixed bundle); separate bundles for a Command Set, a Field Customizer (`rating`), a Form Customizer (`feedback`) and an ACE (`hello`). `config/serve.json` has `default`, `banner`, `commands`, `rating` and `feedback_NewForm/EditForm/ViewForm` configurations. Leftovers from the PoC era: `tools/vite-plugin-spfx-serve/` and `vite.config.mjs` (unused; Vite is no longer a dev dependency there).
