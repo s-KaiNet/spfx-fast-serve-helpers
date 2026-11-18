@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-Everything that involves the SharePoint page (manifest loading, the bundle shim, SPFx libraries, HMR, overlay, extensions, ACEs) is verified live on the dev tenant by an agent driving a headless Chrome through agent-browser. Chrome is started manually with a saved, logged-in profile and flags that accept the dev certificate and skip Local Network Access checks; agent-browser connects over CDP. This page is the procedure, the useful checks, how to prove a hot update, and the cleanup rules.
+Everything that involves the SharePoint page (manifest loading, the bundle shim, SPFx libraries, HMR, overlay, extensions, ACEs) is verified live on the dev tenant by an agent driving a headless Chrome through agent-browser. Chrome is started manually with a saved, logged-in profile and flags that accept the dev certificate and skip Local Network Access checks; agent-browser connects over CDP. This page is the procedure, the useful checks, how to prove a hot update, and the cleanup rules. The procedure is packaged as the `spfx-debugging` agent skill, configured through environment variables in a git-ignored `.env` file.
 
 ## Current Knowledge
 

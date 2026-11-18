@@ -5,3 +5,6 @@ node_modules/
 
 # Test fixtures ship a tiny fake node_modules
 !test/fixtures/*/node_modules/
+
+.env
+!.env.example

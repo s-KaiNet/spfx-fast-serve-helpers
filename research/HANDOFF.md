@@ -173,48 +173,11 @@ A feature is one module returning Vite plugin(s) (each contributing its own conf
 
 ## 9. Live debugging with agent-browser (how everything was verified)
 
-Prereqs:
-- `fast-serve` (or heft) runs on `https://localhost:<port>` in the test project (reinstall the tarball after changing `src/`);
-- the dev cert is in `~/.rushstack/` (`rushstack-serve.pem/.key`).
+Use the [`spfx-debugging` skill](../.agents/skills/spfx-debugging/SKILL.md): headless Chrome on the saved, logged-in profile (`scripts/start-chrome.sh`), agent-browser over `--cdp`, debug URLs for web parts/extensions/ACEs, checks, the HMR test, pitfalls and cleanup. Configuration is only in the git-ignored `.env` in the repo root (keys in [.env.example](../.env.example)): `SPFX_DEBUG_BROWSER_PROFILE`, `SPFX_DEBUG_PAGE_URL`, `SPFX_DEBUG_WORKBENCH_URL`, `SPFX_DEBUG_LIST_URL`, `SPFX_DEBUG_CHROME`, `SPFX_DEBUG_CDP_PORT`, `SPFX_DEBUG_DEV_SERVER_PORT`, `SPFX_SERVE_TENANT_DOMAIN`.
 
-**Browser profile.** The saved, logged-in profile is `/home/sergei/.agent-browser-profiles/mastaq-sharepoint` (see the `agent-browser-profile` skill).
-- Always run agent-browser as `env -u XDG_RUNTIME_DIR agent-browser ...` (a socket-path quirk on this host).
-- **Only one Chrome per profile:** check `pgrep -af mastaq-sharepoint` first. Never delete lock files, never use a fresh profile (that loses the login).
-- If Microsoft asks to log in, let the user sign in through `env -u XDG_RUNTIME_DIR agent-browser dashboard start` (http://localhost:4848). Never ask for credentials.
-
-**Start Chrome yourself.** This works reliably; agent-browser's `--args` did not apply the cert/LNA flags.
-```bash
-/home/sergei/.agent-browser/browsers/chrome-153.0.8010.36/chrome --headless=new --no-sandbox \
-  --user-data-dir=/home/sergei/.agent-browser-profiles/mastaq-sharepoint \
-  --ignore-certificate-errors --disable-features=LocalNetworkAccessChecks,Translate \
-  --remote-debugging-port=9333 --window-size=1280,900 about:blank &
-AB="env -u XDG_RUNTIME_DIR agent-browser --session vite-dev --cdp 9333"
-$AB open 'https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true'
-```
-- Without those flags you get "Error loading debug manifests" (`ERR_CERT_AUTHORITY_INVALID` or LNA block).
-- First visit: the "Allow debug scripts?" dialog. Click "Load debug scripts" (`$AB snapshot -i`, then `$AB click @eN`).
-- Extensions: use the URL `fast-serve --config <name>` prints (`loadSPFX=true&customActions=…`, no `debug=true`).
-
-**Useful checks:**
-```bash
-$AB console | grep -iE "error|vite|fast-serve"            # "[vite] connected." = HMR client up
-$AB eval '(()=>{const s=document.querySelector("[class*=helloWorld_]");return s?s.innerText.slice(0,80):"not found"})()'
-$AB eval 'Object.keys(window.require.s.contexts._.defined).filter(k=>/_\d+\.\d+\.\d+$/.test(k))'   # loaded SPFx modules/versions
-$AB eval 'window.__themeState__.theme.themePrimary'        # theme the tokens resolve against
-$AB eval '(()=>{const r=performance.getEntriesByType("resource").filter(e=>e.name.startsWith("https://localhost"));return r.length})()'
-$AB screenshot /tmp/shot.png
-```
-
-**Testing HMR:** set a marker (`window.__mark="alive"`), click a state counter, edit a file, then poll the DOM. If the marker survives and the counter value is unchanged, it was a hot update, not a reload. Always restore the edited files afterwards.
-
-**Programmatic CDP:** the benchmark harness ([browser.mjs](benchmark/bench-project-tools/tools/bench/browser.mjs), [lib.mjs](benchmark/bench-project-tools/tools/bench/lib.mjs)) shows raw CDP usage for timings, network and console capture.
-
-**Cleanup:** `$AB close`, kill your Chrome (`pgrep -f remote-debugging-port=9333`) and your dev server. Never kill processes you didn't start. Don't save or publish tenant pages.
-
-**Pitfalls:**
-- Opening the page without the debug query in a tab that had it → "Error loading debug manifests" (sessionStorage stickiness). Use a new tab, or clear `sessionStorage["spfx-debug"]`.
-- The server must listen on `localhost`, not `127.0.0.1`: CSP allows `localhost:*`.
-- HAR files contain auth cookies: keep them outside repos.
+- Prereqs: `fast-serve` (or heft) on `https://localhost:<port>` in the test project (reinstall the tarball after changing `src/`); dev cert in `~/.rushstack/`.
+- One Chrome per profile, never delete lock files, never a fresh profile; the user signs in via `agent-browser dashboard start`. View only: don't save or publish tenant pages.
+- Raw CDP for timings, network and console capture: the benchmark harness ([browser.mjs](benchmark/bench-project-tools/tools/bench/browser.mjs), [lib.mjs](benchmark/bench-project-tools/tools/bench/lib.mjs)).
 
 ## 10. Next steps (ask the user before starting)
 
