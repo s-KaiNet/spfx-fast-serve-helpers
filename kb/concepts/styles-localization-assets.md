@@ -47,6 +47,7 @@ SPFx injects component styles from JavaScript, scopes CSS module class names wit
 
 ## Links
 
+- [Source pipeline](../architecture/source-pipeline.md)
 - [Component manifests and the SharePoint loader](component-manifests-and-loader.md)
 - [HMR, Fast Refresh and Vite terms](hmr-and-vite-terms.md)
 - [SPFx development loop and what fast-serve replaces](spfx-dev-loop.md)

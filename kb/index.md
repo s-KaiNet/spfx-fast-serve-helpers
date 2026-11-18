@@ -21,6 +21,11 @@ SPFx platform concepts and project terms.
 
 System shape, data flow, modules and runtime contracts.
 
+- [Architecture overview](architecture/overview.md): data flow config → project model → generated artifacts → Vite server → browser runtime, components and responsibilities, dependency rules, what is reused from the project vs shipped. Tags: architecture, vite, data-flow. Status: current.
+- [Startup and request flows](architecture/runtime-flows.md): startup sequence (version check, certificate, listen, pre-bundle, warmup, typings), page load → manifests → bundle shim → entry → render, edit/HMR, project changes and failure paths. Tags: architecture, startup, hmr, errors. Status: current.
+- [SPFx libraries and externals at runtime](architecture/spfx-libraries-and-externals.md): on-demand top-level-await facades, sync facades + per-chunk preload in pre-bundles, `loadComponentById`, `config.json` externals via scoped RequireJS, what the debug manifest lists. Tags: architecture, externals, top-level-await, pre-bundling. Status: current.
+- [Source pipeline](architecture/source-pipeline.md): resolution (aliases, loc, library CSS), project-module transforms, themed styles, pre-bundling customization, generated typings. Tags: architecture, vite, transforms, pre-bundling. Status: current.
+
 ## Features
 
 User- and developer-visible behavior of `fast-serve`.

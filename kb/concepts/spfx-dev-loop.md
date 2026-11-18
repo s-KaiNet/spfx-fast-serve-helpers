@@ -61,6 +61,7 @@ SPFx 1.22+ projects build with Heft. `heft start` is the classic development loo
 - [SPFx component types](spfx-component-types.md)
 - [HMR, Fast Refresh and Vite terms](hmr-and-vite-terms.md)
 - [Glossary](glossary.md)
+- [Architecture overview](../architecture/overview.md)
 
 ## Evidence
 

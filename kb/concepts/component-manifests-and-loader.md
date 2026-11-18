@@ -78,6 +78,8 @@ The emitted manifest carries the source manifest fields (`componentType`, `alias
 - [Styles, localization and assets in SPFx](styles-localization-assets.md)
 - [SPFx development loop and what fast-serve replaces](spfx-dev-loop.md)
 - [Glossary](glossary.md)
+- [SPFx libraries and externals at runtime](../architecture/spfx-libraries-and-externals.md)
+- [Startup and request flows](../architecture/runtime-flows.md)
 
 ## Evidence
 

@@ -54,6 +54,7 @@ tags:
 - [SPFx component types](spfx-component-types.md)
 - [Styles, localization and assets in SPFx](styles-localization-assets.md)
 - [Glossary](glossary.md)
+- [Source pipeline](../architecture/source-pipeline.md)
 
 ## Evidence
 

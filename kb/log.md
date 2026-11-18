@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 02:40 | ingest | architecture category populated
+
+- Changed: `kb/architecture/overview.md`, `kb/architecture/runtime-flows.md`, `kb/architecture/spfx-libraries-and-externals.md`, `kb/architecture/source-pipeline.md`, `kb/index.md`, links in four concept pages
+- Outcome: system shape, components and dependency rules, startup/page-load/HMR/failure flows, on-demand SPFx library loading, source pipeline and pre-bundling customization
+
 ## 2026-11-18 02:05 | ingest | concepts category populated
 
 - Changed: `kb/concepts/spfx-dev-loop.md`, `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/component-manifests-and-loader.md`, `kb/concepts/spfx-component-types.md`, `kb/concepts/styles-localization-assets.md`, `kb/concepts/hmr-and-vite-terms.md`, `kb/concepts/glossary.md`, `kb/index.md`
