@@ -25,11 +25,10 @@ This page traces `fast-serve` end to end: what happens at startup, how a SharePo
 3. **Certificate**: the SPFx/Rushstack dev certificate (the one `heft trust-dev-cert` manages) is loaded for HTTPS.
 4. **Vite server**: created with `configFile: false`, `appType: 'custom'` and the composed plugins; `server.origin` is set so asset URLs are absolute, the host is `localhost` (SharePoint's CSP allows `localhost:*`, not `127.0.0.1`), the port is strict.
 5. **Listen**: a port in use fails with a message suggesting `--port` or `port` in `config/fast-serve.json`; any startup failure closes the server and the CLI exits with code 1. The ready banner lists web parts, extensions and ACEs, the serve configuration and the `open:` URL with the debug query (or the query to append), plus a reminder that the debug query sticks to the tab.
-6. **Pre-bundling**: Vite's dependency optimizer scans from the component entry files (there is no `index.html`) and pre-bundles dependencies, with React always included.
-7. **Entry-graph warmup**: once the server listens, the warmup waits for the optimizer's first run (bounded at 30 s), then transforms the import graph of the bundle entries only. Vite's own `server.warmup` is not used, because it competed with pre-bundling and transformed unused files.
-8. **Typings**: static-asset typings are written at start; Sass typings are regenerated once after the warmup, then on add/change/unlink.
+6. **Pre-bundling**: Vite's dependency optimizer scans from the component entry files (there is no `index.html`) and pre-bundles dependencies in the background, with React always included. The server is ready before pre-bundling finishes.
+7. **Typings**: as soon as the server listens, static-asset and Sass typings are generated; afterwards they follow add/change/unlink.
 
-Startup work is ordered so the first page load is fast: in performance runs the warmup rework cut "cold start → optimizer done" from 4.5 s to 1.9 s.
+Nothing else is compiled ahead: there is no startup warmup, so project files compile when the page first requests them and the first page load after a start is slower than later ones (see [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)).
 
 ### Page load to rendered component
 
@@ -46,7 +45,7 @@ All bundles share one ESM module graph in dev (one instance of a shared module),
 
 - **Source module edit**: Vite's HMR propagates the change up the import graph. React components accept it through Fast Refresh (state kept); style modules are swapped in place, with theme tokens resolved again; facades are not re-evaluated. An update that reaches the bundle entry (component class, files that also export non-components, modules only the class imports) reloads the page.
 - **New imports** during a session (including a new `@microsoft/sp-*` package, even one the page never loaded) hot-update, because facades load libraries on demand. A brand-new npm dependency triggers re-pre-bundling and one reload.
-- **Project-model files** (`package.json`, `config/config.json`, `config/serve.json`, component manifests, the tsconfig chain, local external files): the model invalidates the affected part and the page fully reloads. A tsconfig change also invalidates every transformed module so imports re-resolve; if it changes the transform options passed to Oxc, the server restarts. A changed serve configuration only changes the printed URL after a restart.
+- **Project-model files** (`package.json`, `config/config.json`, `config/serve.json`, component manifests, the tsconfig chain, local external files): the model invalidates the affected part and the page fully reloads. A tsconfig change also invalidates every transformed module so imports re-resolve; if it changes the transform options passed to Oxc, the server restarts. Editing the project's `config/sass.json` restarts the server so the new Sass options apply. A changed serve configuration only changes the printed URL after a restart.
 - Build output folders (`lib`, `lib-commonjs`, `lib-esm`, `lib-dts`, `dist`, `temp`, `release`, `sharepoint`, `teams`, `jest-output`, `.heft`) are not watched.
 
 ### Failure flow
@@ -67,7 +66,7 @@ All bundles share one ESM module graph in dev (one instance of a shared module),
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
 - [Errors and diagnostics](../features/errors-and-diagnostics.md)
 - [HMR and Fast Refresh](../features/hmr-and-fast-refresh.md)
-- [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)
+- [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)
 
 ## Evidence
 

@@ -32,6 +32,7 @@ Which external packages and versions `fast-serve` depends on or assumes, why eac
 
 - Vite and the React plugin being package dependencies is what lets consumers install without `--legacy-peer-deps`.
 - Heft packages (`@microsoft/sp-css-loader`, `@rushstack/heft-sass-plugin`, `@rushstack/heft-static-asset-typings-plugin`, `@rushstack/heft-config-file`, `@rushstack/rig-package`) are **loaded from the consumer project**; the package only keeps them as dev dependencies pinned to the SPFx 1.24.1 set for tests. That makes the runtime dependencies independent of the SPFx minor.
+- The package ships no Sass compiler: Vite's Sass compile uses the implementation installed with the project's SPFx toolchain (`sass-embedded`), with `silenceDeprecations` taken from the project's `config/sass.json` (see [Styles, theme tokens and asset typings](../features/styles-and-assets.md)).
 - Node `engines`: `>=22.14.0 <23`, `>=24 <25`, `>=26 <27`.
 
 ### Package toolchain

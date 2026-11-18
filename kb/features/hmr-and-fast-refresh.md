@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-HMR with React Fast Refresh is always on. Saving a file sends the changed module to the page; React components and styles update in place with state kept, while edits that reach the component class SharePoint instantiated (web part, extension or ACE class) reload the page. Project configuration changes reload the page, and a few tsconfig changes restart the dev server. There is no option to turn HMR off.
+HMR with React Fast Refresh is always on. Saving a file sends the changed module to the page; React components and styles update in place with state kept, while edits that reach the component class SharePoint instantiated (web part, extension or ACE class) reload the page. Project configuration changes reload the page, and a few tsconfig changes and `config/sass.json` edits restart the dev server. There is no option to turn HMR off.
 
 ## Behavior
 
@@ -37,6 +37,7 @@ HMR with React Fast Refresh is always on. Saving a file sends the changed module
 ### Server restart
 
 - A tsconfig change that alters the compiler options applied to the transform (`experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, `target`, `strict`, `strictNullChecks`) restarts the dev server; other tsconfig edits (such as `paths`) only invalidate modules and reload.
+- Editing the project's `config/sass.json` restarts the dev server so Vite's Sass compile picks up the new `silenceDeprecations`.
 - A changed serve configuration only changes the printed URL after a manual restart.
 
 ### Guidance for project code

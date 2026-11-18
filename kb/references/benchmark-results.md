@@ -19,7 +19,7 @@ Unbundled Vite beats `heft start` by orders of magnitude on server start and edi
 
 ### PoC-era benchmark (1000 generated modules, medians of 3)
 
-Setup: SPFx 1.24.1, heft 1.3.2, webpack 5.105.4, Vite 8.3.8, Chrome 153 headless, a 2-core laptop; worst case where the page loads all ~1000 TS modules and 122 SCSS files. Measured before the on-demand library facades and the warmup rework.
+Setup: SPFx 1.24.1, heft 1.3.2, webpack 5.105.4, Vite 8.3.8, Chrome 153 headless, a 2-core laptop; worst case where the page loads all ~1000 TS modules and 122 SCSS files. Measured before the on-demand library facades and the later startup tuning.
 
 | | `heft start` | Vite (PoC) |
 |---|---|---|
@@ -43,11 +43,12 @@ Setup: SPFx 1.24.1, heft 1.3.2, webpack 5.105.4, Vite 8.3.8, Chrome 153 headless
 - Barrels re-exporting modules the page uses anyway made no measurable difference; only barrels pulling in unused modules cost requests.
 - Vite's CPU cost moves to the first page load (~5 CPU-s at 1000 modules); idle and edit CPU are near zero.
 
-Conclusion: rely on HMR rather than F5 on very large projects; bundled dev mode is the known remedy for load time but was ruled out (see [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md) and [Dev vs production differences](../limitations/dev-vs-production.md)).
+Conclusion: rely on HMR rather than F5 on very large projects; bundled dev mode is the known remedy for load time but was ruled out (see [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md) and [Dev vs production differences](../limitations/dev-vs-production.md)).
 
 ### Package tuning results
 
-- **Warmup rework** (Vite `server.warmup` off, entry graph warmed after the first pre-bundling, Sass typings after it): cold start → optimizer done 4.5 s → 1.9 s; cold load of the PnP-heavy web part 6.97 s → 4.48 s (PoC ~3.8 s). The cause was warmup flooding plus unfiltered pre-bundle plugin hooks.
+- **Startup tuning**: turning Vite's `server.warmup` off and adding hook filters to the pre-bundle plugins cut cold start → optimizer done from 4.5 s to 1.9 s and the cold load of the PnP-heavy web part from 6.97 s to 4.48 s (PoC ~3.8 s). The cause was warmup flooding plus unfiltered pre-bundle plugin hooks.
+- **Without any warmup** (current; the interim entry-graph warmup was removed): page opened right after start 5.6–6.0 s, opened after 20 s idle 4.2 s, reload with a warm server 4.4–4.6 s, `ready in` about 400 ms (single runs, both bench web parts rendered). The entry-graph warmup only helped the idle case.
 - **On-demand library facades**: the web part was ready ~300 ms sooner than with the PoC's preload; resolving an already-loaded library costs ~1 ms; listing libraries in the debug manifest costs ~400 ms because the loader resolves them before running the shim; the per-chunk preload in pre-bundles turned 154 ms of sequential awaits into 52 ms. See [On-demand SPFx library facades](../decisions/on-demand-library-facades.md).
 - **Acceptance**: 32 loads of the benchmark page, median 5.5 s, no hangs. The full harness has not been re-run against the package.
 
@@ -64,7 +65,7 @@ Conclusion: rely on HMR rather than F5 on very large projects; bundled dev mode 
 ## Links
 
 - [Benchmark method](../operations/benchmark-method.md)
-- [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)
+- [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)
 - [Known issues and fragile points](../limitations/known-issues.md)
 - [Vite 8, Oxc and Rolldown facts](vite-oxc-rolldown.md)
 

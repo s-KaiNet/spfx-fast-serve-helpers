@@ -42,6 +42,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 ### Styles at runtime
 
 - CSS modules use SPFx-style names (`<local>_<8-char hash>`) and camelCase locals; CSS source maps are on in dev.
+- Vite's Sass compile receives only `silenceDeprecations` from the project's merged `config/sass.json`, as heft does; editing that file restarts the server (see [Styles, theme tokens and asset typings](../features/styles-and-assets.md)).
 - Vite keeps owning the `<style>` tags (so CSS HMR works), but its style-insertion import is swapped for the themed-styles runtime, which resolves `"[theme:x, default:y]"` tokens from the page's `window.__themeState__.theme` once per insert or hot update. The theme is not watched.
 
 ### Dependency pre-bundling customization
@@ -53,7 +54,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 
 ### Generated typings
 
-- **Sass typings** (`temp/sass-ts/**/*.d.ts`) are produced with heft's own Sass processor and the project's rig-aware `config/sass.json`, so output is byte-identical to `heft build`; regenerated on add/change/unlink and once after the startup warmup.
+- **Sass typings** (`temp/sass-ts/**/*.d.ts`) are produced with heft's own Sass processor and the project's rig-aware `config/sass.json`, so output is byte-identical to `heft build`; generated when the server starts listening, then on add/change/unlink.
 - **Static-asset typings** (`temp/static-asset-ts/**/*.d.ts`) follow the project's rig-aware `config/static-asset-typings.json`, byte-identical to heft's task; written at start and on add, removed on unlink.
 
 ## Links

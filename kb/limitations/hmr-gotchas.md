@@ -29,7 +29,7 @@ HMR with React Fast Refresh only updates in place what an HMR boundary accepts. 
 | Class components | Fast Refresh re-mounts class components | state lost (for example the Form Customizer template's class-based form loses unsaved input) | use named function components |
 | Hook order change | Fast Refresh resets on purpose | component re-mounts | — |
 | Overlay open at the first edit | Vite's rule when an error overlay was opened during page load | first edit is a full reload instead of a hot update | none needed |
-| Manifests, `serve.json`, `config.json`, `package.json`, tsconfig | read at page load or into the project model | full reload (tsconfig transform options restart the server); a changed serve configuration changes the printed URL only after a restart | restart `fast-serve` after editing `serve.json` |
+| Manifests, `serve.json`, `config.json`, `package.json`, tsconfig | read at page load or into the project model | full reload (tsconfig transform options restart the server; `config/sass.json` edits always restart it); a changed serve configuration changes the printed URL only after a restart | restart `fast-serve` after editing `serve.json` |
 | Site theme switch | theme tokens resolve once per style insert or hot update; no theme watching | colors don't follow a theme change | reload the page |
 | First use of a new dependency | Vite pre-bundles it | one full reload | — |
 

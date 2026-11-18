@@ -74,6 +74,7 @@ So `--config commands` opens that configuration's list page even when `config/fa
 - `open:` is the page with the debug query, which replaces the page URL's own query (a `#hash` is kept). Without a page, the banner prints `append to your SharePoint page URL: ?debugManifestsFile=…`.
 - A final reminder that the debug query sticks to the browser tab: after stopping `fast-serve`, open the page in a new tab (see [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)).
 - The URL is printed, never opened automatically.
+- The server is ready at once: dependencies are pre-bundled in the background and project files compile when the page first requests them (there is no startup warmup), so the first page load after a start takes longer than later ones. Sass and static-asset typings are regenerated right after the server starts listening.
 
 ### Startup failures (exit code 1)
 

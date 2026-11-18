@@ -48,7 +48,7 @@ Short definitions of SPFx, SharePoint, Vite and project terms used across the KB
 | `spfx-debug` | the `sessionStorage` key that makes debug mode sticky for a tab | [debug flow](sharepoint-debug-flow.md) |
 | SPFx library | any package shipping an SPFx library manifest (`@microsoft/sp-*`, ACE base, built library components) | [manifests and loader](component-manifests-and-loader.md) |
 | Theme token | `"[theme:name, default:value]"` in CSS, resolved from the page theme by `loadStyles` | [styles, localization, assets](styles-localization-assets.md) |
-| Warmup | transforming the entry import graph before the browser asks for it | [HMR](hmr-and-vite-terms.md) |
+| Warmup | transforming modules before the browser asks for them; not used by `fast-serve` | [HMR](hmr-and-vite-terms.md) |
 
 ## Links
 

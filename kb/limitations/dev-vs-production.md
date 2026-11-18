@@ -32,11 +32,11 @@ tags:
 
 ### Page-load performance on very large projects
 
-- Every source module is a separate request from the SharePoint page to `localhost`. With ~1000 generated modules the proof-of-concept benchmark measured ~1180 localhost requests against 6 for `heft start`; cold page load 8.5 s vs 3.3 s and F5 reload 5.8 s vs 2.6 s. At 250 modules F5 was 3.6 s vs 2.4 s. SharePoint itself is ~1.1–1.4 s of every load.
-- The bottleneck is the browser fetching and evaluating modules, not server transforms (a warm crawl takes 0.4 s while the load still takes ~6 s).
-- Later package work (entry-graph warmup after pre-bundling, filtered pre-bundle hooks, on-demand library facades) cut the bench project's cold load from ~7 s to ~4.5 s, and a 32-load acceptance run had a median of 5.5 s with no hangs; the full benchmark harness was not re-run against the package.
-- Server start (~0.3–1.2 s vs ~22 s) and edit-to-DOM (tens of ms vs ~4–5 s rebuild and reload) are far faster, so the trade-off is intentional: rely on HMR rather than F5. Vite's bundled dev mode was rejected (see [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)).
-- Severity: low for typical projects, noticeable for projects with many hundreds of modules on the page.
+- Every source module is a separate request from the SharePoint page to `localhost`. With ~1000 generated modules a cold page load took 8.5 s against 3.3 s for `heft start` (about 1180 requests against 6); SharePoint itself is ~1.1–1.4 s of every load.
+- The bottleneck is the browser fetching and evaluating modules, not server transforms.
+- Nothing is compiled ahead of the page (no startup warmup), so the first load after a start is the slowest one.
+- Server start (well under 2 s vs ~22 s) and edit-to-DOM (tens of ms vs ~4–5 s rebuild and reload) are far faster, so the trade-off is intentional: rely on HMR rather than F5. Vite's bundled dev mode was rejected (see [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)).
+- Severity: low for typical projects, noticeable for projects with many hundreds of modules on the page. Measured numbers, including the package's current load times, are in [Benchmark results and performance conclusions](../references/benchmark-results.md).
 
 ## Links
 
@@ -46,6 +46,7 @@ tags:
 - [SPFx library imports and config.json externals](../features/library-imports-and-externals.md)
 - [Localized strings](../features/localization.md)
 - [HMR gotchas](hmr-gotchas.md)
+- [Benchmark results and performance conclusions](../references/benchmark-results.md)
 
 ## Evidence
 

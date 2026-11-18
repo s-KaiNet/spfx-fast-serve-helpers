@@ -56,7 +56,7 @@ tags:
 
 ### Warmup
 
-- `server.warmup.clientFiles` for all of `src` saved about 1.3 s on a cold load in the PoC benchmark, at ~3 s of CPU after "ready", but in the package it competed with the first pre-bundling and transformed unused files; `fast-serve` warms the entry graph after the optimizer instead (see [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)).
+- `server.warmup.clientFiles` for all of `src` saved about 1.3 s on a cold load in the PoC benchmark, at ~3 s of CPU after "ready", but in the package it competed with the first pre-bundling and transformed unused files. A later warmup of only the entry import graph transformed Sass partials as root stylesheets (they are `asset` entries in Vite's module graph), which fails with "Undefined variable"; `fast-serve` therefore uses no warmup (see [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)).
 
 ### Error overlay and Fast Refresh
 

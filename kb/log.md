@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 06:30 | status+reconcile | final consistency check
+
+- Changed: `kb/decisions/unbundled-dev-without-warmup.md` (renamed from the warmup decision), `kb/decisions/scope-cuts.md`, `kb/architecture/runtime-flows.md`, `kb/architecture/source-pipeline.md`, `kb/architecture/overview.md`, `kb/features/styles-and-assets.md`, `kb/features/hmr-and-fast-refresh.md`, `kb/features/cli-and-options.md`, `kb/limitations/dev-vs-production.md`, `kb/limitations/hmr-gotchas.md`, `kb/limitations/known-issues.md`, `kb/concepts/hmr-and-vite-terms.md`, `kb/concepts/glossary.md`, `kb/references/vite-oxc-rolldown.md`, `kb/references/benchmark-results.md`, `kb/references/dependencies-and-external-docs.md`, `kb/operations/benchmark-method.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: startup warmup removed everywhere (files compile on request, typings when the server listens); `config/sass.json` `silenceDeprecations` now applied to Vite's Sass compile with restart on edit, no longer listed as a scope cut; benchmark script paths removed; duplicated performance and page-load-hang details folded into their canonical pages; structure checks clean (index, links, frontmatter)
+
 ## 2026-11-18 05:50 | ingest | references category populated
 
 - Changed: `kb/references/spfx-heft-pipeline.md`, `kb/references/vite-oxc-rolldown.md`, `kb/references/benchmark-results.md`, `kb/references/dependencies-and-external-docs.md`, `kb/index.md`, links in one concept, three decision and one operation page
@@ -33,7 +38,7 @@ Entry format:
 
 ## 2026-11-18 03:50 | ingest | decisions category populated
 
-- Changed: `kb/decisions/dev-server-only.md`, `kb/decisions/zero-config-cli.md`, `kb/decisions/version-policy.md`, `kb/decisions/development-react.md`, `kb/decisions/on-demand-library-facades.md`, `kb/decisions/unbundled-dev-and-warmup.md`, `kb/decisions/semantic-architecture.md`, `kb/decisions/match-heft-serve-behavior.md`, `kb/decisions/typescript-handling.md`, `kb/decisions/error-reporting.md`, `kb/decisions/scope-cuts.md`, `kb/decisions/toolchain-and-conventions.md`, `kb/index.md`, links in concept, architecture and feature pages
+- Changed: `kb/decisions/dev-server-only.md`, `kb/decisions/zero-config-cli.md`, `kb/decisions/version-policy.md`, `kb/decisions/development-react.md`, `kb/decisions/on-demand-library-facades.md`, `kb/decisions/unbundled-dev-without-warmup.md`, `kb/decisions/semantic-architecture.md`, `kb/decisions/match-heft-serve-behavior.md`, `kb/decisions/typescript-handling.md`, `kb/decisions/error-reporting.md`, `kb/decisions/scope-cuts.md`, `kb/decisions/toolchain-and-conventions.md`, `kb/index.md`, links in concept, architecture and feature pages
 - Outcome: accepted decisions with context, rationale and consequences (scope, CLI shape, versioning, React, library loading, performance, architecture, heft parity, TypeScript, errors, scope cuts, toolchain); locale-switch cut needs clarification
 
 ## 2026-11-18 03:20 | ingest | features category populated

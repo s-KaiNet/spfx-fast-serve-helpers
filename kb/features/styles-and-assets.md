@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-style class names, theme tokens resolve against the SharePoint page's theme, and CSS-only styles shipped by SPFx libraries (`.module.scss.css`, as in PnP controls) are compiled with the project's own `@microsoft/sp-css-loader`. Static assets are served as dev server URLs. `fast-serve` keeps `temp/sass-ts` and `temp/static-asset-ts` typings up to date exactly as `heft build` would, so new style classes and assets are typed without a build.
+Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-style class names, theme tokens resolve against the SharePoint page's theme, and CSS-only styles shipped by SPFx libraries (`.module.scss.css`, as in PnP controls) are compiled with the project's own `@microsoft/sp-css-loader`. Sass `silenceDeprecations` from `config/sass.json` applies as in heft. Static assets are served as dev server URLs. `fast-serve` keeps `temp/sass-ts` and `temp/static-asset-ts` typings up to date exactly as `heft build` would, so new style classes and assets are typed without a build.
 
 ## Behavior
 
@@ -24,6 +24,7 @@ Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-styl
 - `.module.scss`, `.scss` and `.css` are compiled by Vite (Sass for SCSS). CSS modules get SPFx-style names, `<local>_<8-character hash>`, and camelCase locals, so `styles.helloWorld` works as with heft.
 - `~` prefixes in Sass imports (`@import '~@fluentui/...'`) work, as with webpack's Sass loader.
 - CSS source maps are on.
+- **Sass deprecations**: `silenceDeprecations` from `config/sass.json`, merged through `extends` with the SPFx rig (whose default silences `mixed-decls`, `import`, `global-builtin` and `color-functions`), is passed to Vite's Sass compile like in heft, so for example the `@import` warnings of Fluent UI's `References.scss` aren't printed. Without the setting nothing is silenced. The other `config/sass.json` settings are used only for the typings. Editing the project's `config/sass.json` restarts the dev server.
 - Style edits hot-swap without re-rendering (see [HMR and Fast Refresh](hmr-and-fast-refresh.md)).
 
 ### Theme tokens
@@ -40,7 +41,7 @@ Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-styl
 ### Sass typings
 
 - `temp/sass-ts/**/*.d.ts` are produced with heft's own Sass processor (`@rushstack/heft-sass-plugin`, resolved through the project and its SPFx rig) and the project's rig-aware `config/sass.json`, so they are byte-identical to `heft build`.
-- Generated once after the startup warmup, then on SCSS add, change and unlink. Problems are warnings (`SCSS typings are not generated: …`), never fatal.
+- Generated as soon as the server starts listening, then on SCSS add, change and unlink. Problems are warnings (`SCSS typings are not generated: …`), never fatal.
 
 ### Static assets
 
@@ -57,7 +58,6 @@ Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-styl
 
 ## Edge Cases
 
-- Vite's own Sass compile does not read `config/sass.json` (only the typings do); that integration was cut.
 - `@pnp/spfx-property-controls` 3.13 ships CSS that is already hashed; handling it was cut.
 - Only the files `fast-serve` writes in `temp/` are typings; it produces no `lib/` or `dist/` output.
 

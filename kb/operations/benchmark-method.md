@@ -19,7 +19,7 @@ Performance of `fast-serve` against `heft start` is measured on the large genera
 
 ### Setup
 
-- The benchmark project (see [Local testing and consumer setup](local-testing-and-consumer-setup.md)) is generated with `node tools/generate.mjs --modules N [--barrels on|off]` (250, 1000 or 2000 modules); it has its own solution and web part ids, port 4341, and both `heft build` and `heft build --clean` pass.
+- The benchmark project (see [Local testing and consumer setup](local-testing-and-consumer-setup.md)) is produced by a generator script with a configurable module count (250, 1000 or 2000 modules, barrels on or off); it has its own solution and web part ids, port 4341, and both `heft build` and `heft build --clean` pass.
 - Page: the draft `SitePages/spfx-bench.aspx` on the dev site with both benchmark web parts. Browser: Chrome headless with the saved tenant profile, CDP on a dedicated port.
 - Report medians of 3 runs (5 for server start); note machine load, since other work on the machine adds noise.
 
@@ -36,20 +36,12 @@ Performance of `fast-serve` against `heft start` is measured on the large genera
 
 ### Reproduce
 
-```bash
-cd /home/sergei/Projects/spfx-bench
-node tools/generate.mjs --modules 1000
-node tools/bench/start.mjs 3 heft,vite
-node tools/bench/crawl.mjs 3
-node tools/bench/run.mjs sp-baseline|vite|heft|vite-warmup|vite-loads|vite-nohold 3
-node tools/bench/summarize.mjs
-```
-
-The browser runs need Chrome with the tenant profile on the harness's CDP port. The harness still runs the PoC-era Vite setup for its `vite` targets; benchmarking the package means pointing it at `npm run fast-serve` instead. The generator and harness are also preserved in this repository next to the benchmark report.
+The generator and the harness live in the benchmark project and are preserved in this repository next to the benchmark report. A full run regenerates the project (1000 modules by default), measures server start for heft and Vite, runs the crawl, runs the page-load and edit scenarios per target (SharePoint baseline, Vite, heft and variants) with 3 repetitions, and summarizes the medians. The browser runs need Chrome with the tenant profile on the harness's CDP port. The harness still runs the PoC-era Vite setup for its Vite targets; benchmarking the package means pointing it at the project's `npm run fast-serve` script instead.
 
 ### Lighter checks used for the package
 
 - Startup timing from the CLI's ready banner and the pre-bundling ("optimizer done") moment, cold.
+- Page load opened right after start, after the server has been idle, and as a reload with a warm server (the comparison used to decide against a startup warmup).
 - Repeated live page loads of the benchmark page (for example 32 loads, median and hang count) to check reliability.
 - Timing the on-demand SPFx library loading in the browser (time to web part ready, per-library await cost).
 
@@ -59,7 +51,7 @@ Results and their interpretation belong to the [benchmark reference](../referenc
 
 - [Local testing and consumer setup](local-testing-and-consumer-setup.md)
 - [Live verification on a SharePoint tenant](live-verification.md)
-- [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)
+- [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)
 - [On-demand SPFx library facades with top-level await](../decisions/on-demand-library-facades.md)
 - [Dev vs production differences](../limitations/dev-vs-production.md)
 - [Benchmark results and performance conclusions](../references/benchmark-results.md)

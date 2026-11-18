@@ -39,11 +39,11 @@ Startup, page load, edit and failure paths are traced in [Startup and request fl
 | Externals | facades for SPFx libraries and `config.json` externals in both the normal and the pre-bundling pipeline; the `scriptResources` the manifests list; local external files at `/@spfx/external/<name>.js` |
 | Aliases | tsconfig `paths`/`baseUrl` resolution for project scripts |
 | Localization | `*Strings` imports → modules built from `loc/<locale>` files |
-| Styles | SPFx CSS module naming, `~` Sass imports, theme tokens, library `.module.scss.css` compilation, Sass typings |
+| Styles | SPFx CSS module naming, `~` Sass imports, `config/sass.json` `silenceDeprecations` for Sass, theme tokens, library `.module.scss.css` compilation, Sass typings |
 | Assets | static-asset typings |
 | Transforms | source compatibility: tsconfig options for Oxc, defines, `require()` → imports, type-only name and `const enum` checks |
 | Browser errors | browser errors → terminal (source-mapped, code frame) and Vite's overlay; overlay hint |
-| Server | HTTPS certificate, port/origin, CORS and Private Network headers, watch ignores, startup warmup, React dedupe, project-change reloads/restarts, debug URL and serve configuration warnings |
+| Server | HTTPS certificate, port/origin, CORS and Private Network headers, watch ignores, React dedupe, project-change reloads/restarts, debug URL and serve configuration warnings |
 | Browser runtime | the browser-side code of the loader, externals, styles and browser-errors components, built separately for the DOM |
 
 How a single project module passes through these components is described in [Source pipeline](source-pipeline.md); SPFx library loading in [SPFx libraries and externals at runtime](spfx-libraries-and-externals.md).
@@ -65,7 +65,7 @@ Resolved from the project at runtime, so output matches the project's own Heft t
 
 - **React and react-dom** from the project's `node_modules`, in their development build (Fast Refresh needs it), deduplicated and pre-bundled; the tenant's production React is not used for project code.
 - **`@microsoft/sp-css-loader`** (directly or through `@microsoft/spfx-heft-plugins`) to compile libraries' `.module.scss.css` files with SPFx class-name hashing.
-- **Heft plugins** found through the project and its SPFx build rig: `@rushstack/heft-sass-plugin`'s Sass processor for `temp/sass-ts` typings, the static-asset typings logic, `@rushstack/heft-config-file` and `@rushstack/rig-package` to read rig-aware `config/sass.json` and `config/static-asset-typings.json`.
+- **Heft plugins** found through the project and its SPFx build rig: `@rushstack/heft-sass-plugin`'s Sass processor for `temp/sass-ts` typings, the static-asset typings logic, `@rushstack/heft-config-file` and `@rushstack/rig-package` to read rig-aware `config/sass.json` (typings settings and `silenceDeprecations`) and `config/static-asset-typings.json`.
 - **SPFx library packages** (`@microsoft/sp-*` and any package shipping an SPFx library manifest): only their manifest ids/versions and export names are read; the code itself always comes from the SharePoint page.
 
 Runtime requirement: Node `>=22.14 <23`, `>=24 <25` or `>=26 <27`; ESM package with the `fast-serve` bin; `package.json` `exports` exposes only `./package.json`.

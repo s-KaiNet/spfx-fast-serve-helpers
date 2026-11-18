@@ -26,9 +26,7 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 
 ### Occasional page-load hang (status: skipped)
 
-- Reproduced 8 of 64 loads only in an earlier build, before browser error forwarding was restricted to project errors; a later 32-load acceptance run had no hangs.
-- Finding: a stall inside Chrome on the HTTP/2 connection — the server sent `react-dom` within ~100 ms, Chrome never received the headers.
-- Vite 8 always serves HTTP/2 when HTTPS is on. If the hang returns, serving HTTP/1.1 is the likely fix (resume notes in [Deferred work](../roadmap/deferred-work.md)). Severity: low (not reproduced), high if it returns (page never finishes loading; reload helps).
+- A pre-bundled `react-dom` chunk occasionally stalled inside Chrome on the HTTP/2 connection in an earlier build; the 32-load acceptance run had no hangs. Severity: low while not reproduced, high if it returns (the page never finishes loading; a reload helps). Findings and how to resume (HTTP/1.1 as the likely fix) are kept in [Deferred work](../roadmap/deferred-work.md).
 
 ### Terminal error forwarding gaps (status: by design)
 

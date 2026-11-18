@@ -19,9 +19,9 @@ tags:
 
 ### Status
 
-- All planned phases are done: the web part core (manifests, bundle shim, on-demand SPFx library facades, styles, localization, typings, certificate, warmup, options, version check), the follow-up phase (tsconfig `paths`, static-asset typings, `config.json` externals, TypeScript loc files, docs, performance) and the "Next" phase (project-only error forwarding, `const enum`/decorator checks, extensions with `serveConfigurations`, runtime errors in Vite's overlay with the `overlay` option, ACEs).
+- All planned phases are done: the web part core (manifests, bundle shim, on-demand SPFx library facades, styles, localization, typings, certificate, options, version check), the follow-up phase (tsconfig `paths`, static-asset typings, `config.json` externals, TypeScript loc files, docs, performance) and the "Next" phase (project-only error forwarding, `const enum`/decorator checks, extensions with `serveConfigurations`, runtime errors in Vite's overlay with the `overlay` option, ACEs, removal of the startup warmup, `config/sass.json` `silenceDeprecations` in Vite's Sass compile).
 - Release acceptance was run on a fresh tarball in both test projects on the test tenant and passed; the overlay work was verified live afterwards (see [Local testing and consumer setup](../operations/local-testing-and-consumer-setup.md)).
-- Cut by the user: theme-change monitoring, `config/sass.json` in Vite's Sass compile, locale switch, the `@pnp/spfx-property-controls` 3.13 already-hashed CSS case (see [Scope cuts](../decisions/scope-cuts.md)).
+- Cut by the user: theme-change monitoring, locale switch, the `@pnp/spfx-property-controls` 3.13 already-hashed CSS case (see [Scope cuts](../decisions/scope-cuts.md)).
 
 ### Pending user actions
 
