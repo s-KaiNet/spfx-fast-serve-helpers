@@ -53,7 +53,7 @@ HMR with React Fast Refresh is always on. Saving a file sends the changed module
 - Vite's HMR and `@vitejs/plugin-react` provide the mechanics; React and react-dom are the project's development builds. The generated bundle entry accepts any update that reaches it by reloading the page, which is what makes "class edit → reload" work.
 - Styles stay in Vite's `<style>` handling, with style insertion routed through the themed-styles runtime, so CSS HMR works and theme tokens re-resolve per update.
 - SPFx library facades are not re-evaluated by HMR; project-model files invalidate the affected part of the model before reloading. See [Startup and request flows](../architecture/runtime-flows.md).
-- Re-mounting a web part instead of reloading the page is not implemented (roadmap).
+- Re-mounting a web part instead of reloading the page is not implemented (see [Deferred work](../roadmap/deferred-work.md)).
 
 ## Edge Cases
 

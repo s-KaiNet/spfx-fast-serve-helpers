@@ -42,6 +42,7 @@ The package keeps the classic name `spfx-fast-serve-helpers`, and its version fo
 - [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
 - [CLI, options and startup](../features/cli-and-options.md)
 - [Dev server only; Heft keeps builds, checks and packaging](dev-server-only.md)
+- [SPFx 1.23 support (roadmap)](../roadmap/spfx-1-23-support.md)
 
 ## Evidence
 

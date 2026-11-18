@@ -25,12 +25,12 @@ tags:
 - **Hook components from SPFx libraries loaded as components** (from the app catalog, or the heft/classic way from a library's `dist/`) fail with React error #321 "Invalid hook call": the library uses the tenant's production React while the consumer renders with the project's development React. Verified live with a library built from `dist/`; inferred for app-catalog libraries (none was deployed for testing). Class exports and non-React code work.
 - **A linked (local) SPFx library breaks the consumer today**: the export names of the library's ES-module `main` aren't read, so the page fails with "does not provide an export named …". If the library was never built, it isn't recognized as a library and its `lib/` is bundled (or resolution fails): behavior depends on build state.
 - **Linked library styles**: library `.module.scss.css` loaded outside pre-bundling goes through the themed-styles loader, which can't remove styles, so each edit adds a second `<style>` and leaves stale rules (the new rules still apply). Irrelevant for packages in `node_modules`, which don't change.
-- Planned direction: serve local libraries from source in the consumer's graph (see the roadmap category).
+- Planned direction: serve local libraries from source in the consumer's graph (see [Library components](../roadmap/library-components.md)).
 
 ### SPFx versions (severity: blocking, by design)
 
 - Only SPFx 1.24.x (`@microsoft/sp-core-library` `>=1.24.0 <1.25.0`); the installed `major.minor` is checked at start and a mismatch exits with `Unsupported SPFx version`.
-- SPFx 1.22 and 1.23 are not supported: upgrade first. SPFx ≤ 1.21 uses the classic spfx-fast-serve. 1.23 support was researched but not decided (see [Version policy](../decisions/version-policy.md)).
+- SPFx 1.22 and 1.23 are not supported: upgrade first. SPFx ≤ 1.21 uses the classic spfx-fast-serve. 1.23 support was researched but not decided (see [Version policy](../decisions/version-policy.md) and [SPFx 1.23 support](../roadmap/spfx-1-23-support.md)).
 
 ### Extensions and manifests
 

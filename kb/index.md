@@ -81,6 +81,11 @@ Development workflow, toolchain, testing, live verification, packaging.
 
 Planned, researched and deferred work.
 
+- [Roadmap overview and pending actions](roadmap/overview.md): status of `1.24.0-beta.0`, pending user actions (VS Code F5, push/publish decision, library and 1.23 decisions), ordered next steps, nothing pushed or published. Tags: roadmap, status, release. Status: current.
+- [SPFx 1.23 support](roadmap/spfx-1-23-support.md): feasible, recommended one package for `>=1.23 <1.25` with a per-minor profile (~2–3 days); CSS module rule gap, React 17 notes, packaging options, plan. Tags: roadmap, versioning, spfx, css-modules, react. Status: current.
+- [Library components](roadmap/library-components.md): recommended option B (linked libraries served from source in the consumer graph, effort M), why the heft/classic approach fails (hook error #321), ESM `main` export-name prerequisite, dev/prod differences, untested areas. Tags: roadmap, library-components, react, hmr. Status: current.
+- [Deferred work](roadmap/deferred-work.md): skipped page-load hang and how to resume, tunnels, Docker/WSL, Teams hosts, re-mount instead of reload (idea and limits). Tags: roadmap, hmr, remote-development, teams. Status: current.
+
 ## References
 
 External references and research conclusions (benchmarks, tool versions, platform facts).

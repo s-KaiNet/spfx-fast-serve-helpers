@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 05:20 | ingest | roadmap category populated
+
+- Changed: `kb/roadmap/overview.md`, `kb/roadmap/spfx-1-23-support.md`, `kb/roadmap/library-components.md`, `kb/roadmap/deferred-work.md`, `kb/index.md`, links in three limitation, one decision and one feature page
+- Outcome: project status and pending user actions (F5 check, push/publish undecided), SPFx 1.23 support research and recommended plan, library components option B design, deferred items (page-load hang, tunnels, containers, Teams hosts, re-mount idea)
+
 ## 2026-11-18 04:50 | ingest | operations category populated
 
 - Changed: `kb/operations/development-workflow.md`, `kb/operations/local-testing-and-consumer-setup.md`, `kb/operations/live-verification.md`, `kb/operations/benchmark-method.md`, `kb/operations/debugging-and-remote-development.md`, `kb/index.md`, links in one decision, two limitation and one feature page
