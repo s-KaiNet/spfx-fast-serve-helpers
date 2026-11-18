@@ -51,6 +51,8 @@ Open that URL and click **Load debug scripts**. If no page is configured, append
 
 Web parts, extensions (Application Customizers, ListView Command Sets, Field Customizers, Form Customizers) and Adaptive Card Extensions are served; library components are not yet. Stop the server with Ctrl+C.
 
+The server is ready at once: dependencies are pre-bundled in the background, and your files are compiled when the page first requests them (nothing is compiled ahead), so the first page load after a start takes longer than the next ones. The SCSS typings in `temp/sass-ts` are regenerated right after the server starts listening.
+
 ### Adaptive Card Extensions
 
 ACEs load with the same debug query as web parts, so nothing needs configuring: open a test page with the printed query, edit it and add the card from the toolbox (it's listed under its manifest title). Microsoft's [ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension) uses a SharePoint page now, because the SharePoint Online workbench (`/_layouts/15/workbench.aspx`, still the generator's `initialPage`) is retired on December 1, 2026. Until then the workbench works too, and it doesn't need saving: it keeps the unsaved canvas across reloads, which makes it convenient for trying a card without touching a real page. Card interaction (buttons, quick views) is disabled in edit mode: switch to **Preview** on the workbench, or save the page and leave edit mode.
@@ -139,6 +141,7 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
   ```json
   "paths": { "@assets/*": ["./src/assets/*", "./temp/static-asset-ts/assets/*"] }
   ```
+- **Sass deprecations.** `silenceDeprecations` from `config/sass.json` (merged through `extends` with the SPFx rig, whose default silences `mixed-decls`, `import`, `global-builtin` and `color-functions`) applies to the Sass compiler like in heft, so the `@import` warnings of Fluent UI's `References.scss` aren't printed. Without the setting nothing is silenced. Editing `config/sass.json` restarts the dev server. The other `config/sass.json` settings are used for the typings in `temp/sass-ts` only.
 - **Theme colors.** `"[theme:themePrimary, default: #0078d4]"` tokens in your styles resolve to the page theme when a stylesheet is inserted or hot-updated. Switching the site theme while the page is open does not recolor them: reload the page.
 
 ## HMR: do's and don'ts

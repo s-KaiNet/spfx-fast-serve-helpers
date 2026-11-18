@@ -158,7 +158,7 @@ Server-side cost grows linearly and stays small. The browser waterfall is what g
 
 ## 4. Recommendations
 1. Keep the unbundled dev server as the default for edit-heavy work. Tell users to **rely on HMR and avoid F5**: no edit type in this bench needed a reload.
-2. Turn on `server.warmup` for `src` in the package defaults. It costs about 3 s of background CPU after start and saves about 1.3 s on the first load.
+2. Turn on `server.warmup` for `src` in the package defaults. It costs about 3 s of background CPU after start and saves about 1.3 s on the first load. *(Superseded: the package first used an entry-graph warmup instead, then dropped warmup entirely on 2026-11-18, because it only helped a page opened after the server was idle and compiled Sass partials as root stylesheets; see [HANDOFF §1](../HANDOFF.md#1-goal-and-user-decisions).)*
 3. Reduce the number of modules the browser must fetch. Not measured here; these are the next things to try:
    - pre-bundle stable internal code. Move shared/util folders into a workspace package so `optimizeDeps` bundles them, or consider `optimizeDeps.include` for linked packages;
    - avoid deep import fan-out from leaf components;

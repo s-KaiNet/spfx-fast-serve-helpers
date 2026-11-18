@@ -199,6 +199,7 @@ describe('createProject', () => {
       path.join(root, 'package.json'),
       path.join(root, 'config/config.json'),
       path.join(root, 'config/serve.json'),
+      path.join(root, 'config/sass.json'),
       path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'),
       path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.manifest.json'),
       path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.manifest.json'),

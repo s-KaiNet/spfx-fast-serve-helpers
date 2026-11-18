@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Logger } from '../../logger.js';
-import { createScssTypings } from './scssTypings.js';
+import { loadSassConfiguration } from '../../project/sassConfiguration.js';
+import { createScssTypings as createTypings } from './scssTypings.js';
 
 const fixture = fileURLToPath(new URL('../../../test/fixtures/scss-typings/', import.meta.url));
 const workspace = fileURLToPath(new URL('../../../node_modules/.cache/fast-serve-tests/', import.meta.url));
@@ -39,6 +40,10 @@ function recordingLogger(): Logger & { messages: string[] } {
     messages.push(message);
   };
   return { messages, info: record, warn: record, error: record };
+}
+
+function createScssTypings({ root, logger }: { root: string; logger: Logger }) {
+  return createTypings({ root, logger, sassConfiguration: () => loadSassConfiguration(root, logger) });
 }
 
 const typingsOf = (root: string, sourcePath: string) => path.join(root, 'temp/sass-ts', `${sourcePath}.d.ts`);

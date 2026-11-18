@@ -10,6 +10,7 @@ import { loadTsconfig, mergedCompilerOptions, type LoadedTsconfig } from './tsco
 import { hasPathResolution, tsconfigPathsOf, type TsconfigPaths } from './tsconfigPaths.js';
 import { readConfigExternals } from './configExternals.js';
 import { readServeConfigurations } from './serveConfigurations.js';
+import { loadSassConfiguration, SASS_CONFIG_FILE, type SassConfiguration } from './sassConfiguration.js';
 import type {
   ComponentManifest,
   ConfigExternal,
@@ -28,7 +29,7 @@ export interface ProjectLogger {
   warn: (message: string) => void;
 }
 
-export type ProjectChange = 'model' | 'tsconfig';
+export type ProjectChange = 'model' | 'tsconfig' | 'sass';
 
 export interface SpfxProject {
   readonly root: string;
@@ -49,6 +50,8 @@ export interface SpfxProject {
 
   tsconfigCompilerOptions(): JsonObject;
 
+  sassConfiguration(): Promise<SassConfiguration>;
+
   modelFiles(): string[];
 
   invalidate(file: string): ProjectChange | undefined;
@@ -62,6 +65,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     config: path.join(root, 'config', 'config.json'),
     serve: path.join(root, 'config', 'serve.json'),
     tsconfig: path.join(root, 'tsconfig.json'),
+    sass: path.join(root, SASS_CONFIG_FILE),
   };
   const sourceDir = path.join(root, 'src');
   const cache = new Map<string, unknown>();
@@ -213,10 +217,12 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
         const loaded = tsconfig();
         return loaded ? mergedCompilerOptions(loaded) : {};
       }),
+    sassConfiguration: () => cached('sassConfiguration', () => loadSassConfiguration(root, logger)),
     modelFiles: () => [
       files.packageJson,
       files.config,
       files.serve,
+      files.sass,
       ...components().map((c) => c.manifestFile),
       ...tsconfigFiles(),
       ...localFileExternals(),
@@ -230,6 +236,10 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
       if (changed === files.packageJson || changed === files.config) {
         cache.clear();
         return 'model';
+      }
+      if (changed === files.sass) {
+        cache.delete('sassConfiguration');
+        return 'sass';
       }
       if (changed === files.serve) {
         cache.delete('serve');

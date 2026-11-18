@@ -3,6 +3,7 @@ import path from 'node:path';
 import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import type { Logger } from '../../logger.js';
+import type { SassConfiguration } from '../../project/index.js';
 import { isInside, toPosix } from '../../utils/paths.js';
 import { createHeftSassTypings, type HeftSassTypings } from './heftSass.js';
 import { errorMessage } from '../../utils/errors.js';
@@ -17,18 +18,21 @@ export interface ScssTypings {
 export interface ScssTypingsOptions {
   root: string;
   logger: Logger;
+  sassConfiguration: () => Promise<SassConfiguration>;
 }
 
-export function createScssTypings({ root, logger }: ScssTypingsOptions): ScssTypings {
+export function createScssTypings({ root, logger, sassConfiguration }: ScssTypingsOptions): ScssTypings {
   let heftSass: Promise<HeftSassTypings | undefined> | undefined;
   let tail: Promise<void> = Promise.resolve();
   let queuedBatch: Set<string> | undefined;
 
   const ready = () =>
-    (heftSass ??= createHeftSassTypings(root, logger).catch((error: unknown) => {
-      logger.warn(`SCSS typings are not generated: ${errorMessage(error)}`);
-      return undefined;
-    }));
+    (heftSass ??= sassConfiguration()
+      .then((configuration) => createHeftSassTypings(root, logger, configuration))
+      .catch((error: unknown) => {
+        logger.warn(`SCSS typings are not generated: ${errorMessage(error)}`);
+        return undefined;
+      }));
 
   function enqueue(task: (typings: HeftSassTypings) => Promise<void>): Promise<void> {
     tail = tail

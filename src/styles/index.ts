@@ -1,4 +1,6 @@
-import type { Plugin } from 'vite';
+import type { CSSOptions, Plugin } from 'vite';
+import type { ServeContext } from '../context.js';
+import type { SassConfiguration } from '../project/index.js';
 import { readRuntimeSource, runtimeFilePath } from '../utils/runtimeSource.js';
 import { isStyleRequest } from '../utils/vite.js';
 
@@ -12,13 +14,22 @@ const THEMED_STYLES_URL = '/@id/__x00__' + THEMED_STYLES_ID;
 const VITE_STYLE_IMPORT =
   /(import \{ updateStyle as __vite__updateStyle, removeStyle as __vite__removeStyle \} from )"[^"]*"/;
 
-export function stylesPlugin(): Plugin {
+type PreprocessorOptions = NonNullable<CSSOptions['preprocessorOptions']>;
+
+export function sassPreprocessorOptions({ silenceDeprecations }: SassConfiguration): PreprocessorOptions | undefined {
+  if (!silenceDeprecations) return undefined;
+  const sassOptions = { silenceDeprecations: [...silenceDeprecations] };
+  return { scss: sassOptions, sass: sassOptions } as PreprocessorOptions;
+}
+
+export function stylesPlugin({ project }: ServeContext): Plugin {
   return {
     name: 'fast-serve:styles',
-    config: () => ({
+    config: async () => ({
       css: {
         devSourcemap: true,
         modules: { localsConvention: 'camelCase', generateScopedName: '[local]_[hash:base64:8]' },
+        preprocessorOptions: sassPreprocessorOptions(await project.sassConfiguration().catch((): SassConfiguration => ({}))),
       },
       resolve: {
         alias: [{ find: /^~(?=[@\w])/, replacement: '' }],

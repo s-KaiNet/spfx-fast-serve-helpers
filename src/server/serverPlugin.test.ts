@@ -1,25 +1,46 @@
+import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import picomatch from 'picomatch';
 import type { UserConfig } from 'vite';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { ServeContext } from '../context.js';
 import { createProject } from '../project/index.js';
 import { toPosix } from '../utils/paths.js';
-import { createStartupWarmup, serverPlugin } from './index.js';
+import { serverPlugin } from './index.js';
 
 const root = fileURLToPath(new URL('../../test/fixtures/basic/', import.meta.url)).replace(/[\\/]$/, '');
 const https = { cert: 'test-cert', key: 'test-key' };
 
-function serverConfig(): UserConfig {
-  const logger = { info: () => undefined, warn: () => undefined, error: () => undefined };
-  const context: ServeContext = {
+function serveContext(logger: ServeContext['logger'] = { info: () => undefined, warn: () => undefined, error: () => undefined }): ServeContext {
+  return {
     root,
     project: createProject(root, logger),
     logger,
     options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, overlay: true, warnings: [] },
   };
-  return (serverPlugin(context, https, { warmup: createStartupWarmup(), warmupUrls: () => [] }).config as () => UserConfig)();
+}
+
+function serverConfig(): UserConfig {
+  return (serverPlugin(serveContext(), https).config as () => UserConfig)();
+}
+
+function startedServer() {
+  const messages: string[] = [];
+  const record = (message: string) => {
+    messages.push(message);
+  };
+  const watcher = new EventEmitter() as EventEmitter & { add: (files: string[]) => void };
+  watcher.add = () => undefined;
+  const server = {
+    watcher,
+    restart: vi.fn<() => Promise<void>>(() => Promise.resolve()),
+    ws: { send: vi.fn<(payload: unknown) => void>() },
+    environments: {},
+  };
+  const plugin = serverPlugin(serveContext({ info: record, warn: record, error: record }), https);
+  (plugin.configureServer as (server: unknown) => void)(server);
+  return { server, messages };
 }
 
 function projectFile(relativePath: string): string {
@@ -60,7 +81,7 @@ describe('server plugin config', () => {
     expect(sources.filter((file) => isIgnored(projectFile(file)))).toEqual([]);
   });
 
-  it('leaves warmup to the startup entry-graph warmup instead of warming every source file', () => {
+  it('does not warm up source files at startup', () => {
     expect(serverConfig().server?.warmup).toBeUndefined();
   });
 
@@ -68,5 +89,26 @@ describe('server plugin config', () => {
     const allowed = asStrings(serverConfig().server?.fs?.allow).map((folder) => path.resolve(folder));
     expect(allowed.some((folder) => root.startsWith(folder))).toBe(true);
     expect(allowed).toContain(path.resolve(fileURLToPath(new URL('../..', import.meta.url))));
+  });
+});
+
+describe('server plugin project changes', () => {
+  it('restarts the dev server when config/sass.json changes', () => {
+    const { server, messages } = startedServer();
+
+    server.watcher.emit('change', path.join(root, 'config/sass.json'));
+
+    expect(server.restart).toHaveBeenCalledOnce();
+    expect(server.ws.send).not.toHaveBeenCalled();
+    expect(messages).toContain('config/sass.json changed, restarting the dev server');
+  });
+
+  it('reloads the page without a restart when config/serve.json changes', () => {
+    const { server } = startedServer();
+
+    server.watcher.emit('change', path.join(root, 'config/serve.json'));
+
+    expect(server.restart).not.toHaveBeenCalled();
+    expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
   });
 });
