@@ -56,6 +56,7 @@ SPFx components under development run inside a real SharePoint page that is open
 - [SPFx component types](spfx-component-types.md)
 - [Glossary](glossary.md)
 - [CLI, options and startup](../features/cli-and-options.md)
+- [Environment and browser gotchas](../limitations/environment-and-browser-gotchas.md)
 
 ## Evidence
 

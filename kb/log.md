@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 04:20 | ingest | limitations category populated
+
+- Changed: `kb/limitations/dev-vs-production.md`, `kb/limitations/hmr-gotchas.md`, `kb/limitations/typescript-limits.md`, `kb/limitations/unsupported-scope.md`, `kb/limitations/environment-and-browser-gotchas.md`, `kb/limitations/known-issues.md`, `kb/index.md`, links in concept and feature pages
+- Outcome: limitations, gotchas and open issues with causes, workarounds and severity (dev/prod parity and performance, HMR, TypeScript, unsupported scope, environment/browser, known issues); remote/SSH guidance recorded at medium confidence
+
 ## 2026-11-18 03:50 | ingest | decisions category populated
 
 - Changed: `kb/decisions/dev-server-only.md`, `kb/decisions/zero-config-cli.md`, `kb/decisions/version-policy.md`, `kb/decisions/development-react.md`, `kb/decisions/on-demand-library-facades.md`, `kb/decisions/unbundled-dev-and-warmup.md`, `kb/decisions/semantic-architecture.md`, `kb/decisions/match-heft-serve-behavior.md`, `kb/decisions/typescript-handling.md`, `kb/decisions/error-reporting.md`, `kb/decisions/scope-cuts.md`, `kb/decisions/toolchain-and-conventions.md`, `kb/index.md`, links in concept, architecture and feature pages

@@ -88,6 +88,7 @@ The full list of fatal startup errors is in [CLI, options and startup](cli-and-o
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
 - [Error reporting: project errors only, overlay for runtime errors](../decisions/error-reporting.md)
+- [Known issues and fragile points](../limitations/known-issues.md)
 
 ## Evidence
 

@@ -77,6 +77,7 @@ Code written for `heft build` (webpack + tsc) mostly runs unchanged even though 
 - [Styles, theme tokens and asset typings](styles-and-assets.md)
 - [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
 - [TypeScript handling without tsc](../decisions/typescript-handling.md)
+- [TypeScript limits of per-file compilation](../limitations/typescript-limits.md)
 
 ## Evidence
 

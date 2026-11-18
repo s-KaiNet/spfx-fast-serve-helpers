@@ -60,6 +60,13 @@ Accepted technical decisions and their rationale.
 
 Known limitations, gotchas, problems and open issues.
 
+- [Dev vs production differences](limitations/dev-vs-production.md): one shared ES module graph, development React, every external in every manifest, no type checks, ES-module loc files, page-load performance on very large projects. Tags: limitations, production-parity, react, externals, performance. Status: current.
+- [HMR gotchas](limitations/hmr-gotchas.md): mixed exports, services imported by component classes, module-level side effects and state, ACE edits reload, class components, config edits, theme switch. Tags: limitations, hmr, react-fast-refresh, ace. Status: current.
+- [TypeScript limits of per-file compilation](limitations/typescript-limits.md): `const enum` from `.d.ts`/dependencies, `emitDecoratorMetadata` type imports and primitive metadata, type re-exports, `require()`, no type checking. Tags: limitations, typescript, const-enum, decorators. Status: current.
+- [Unsupported scope](limitations/unsupported-scope.md): library components (hook error #321 with libraries loaded as components, linked-library export and CSS issues), SPFx 1.22/1.23, localized command titles, localhost only, workbench retirement. Tags: limitations, library-components, versioning, extensions, react. Status: current.
+- [Environment and browser gotchas](limitations/environment-and-browser-gotchas.md): sticky debug mode, certificate trust, Local Network Access, `localhost` only, port clash, remote/SSH setups. Tags: limitations, debugging, certificate, local-network-access, remote-development. Status: current.
+- [Known issues and fragile points](limitations/known-issues.md): Field Customizer not instantiated on the test tenant, skipped page-load hang (Chrome HTTP/2 stall), error forwarding gaps, overlay hint tied to Vite's client text, VS Code F5 unverified. Tags: limitations, open-issues, errors, overlay, extensions. Status: current.
+
 ## Operations
 
 Development workflow, toolchain, testing, live verification, packaging.

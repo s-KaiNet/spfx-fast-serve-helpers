@@ -70,6 +70,7 @@ HMR with React Fast Refresh is always on. Saving a file sends the changed module
 - [Styles, theme tokens and asset typings](styles-and-assets.md)
 - [Errors and diagnostics](errors-and-diagnostics.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
+- [HMR gotchas](../limitations/hmr-gotchas.md)
 
 ## Evidence
 
