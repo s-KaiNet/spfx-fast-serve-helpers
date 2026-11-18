@@ -126,7 +126,7 @@ Acceptance (N5, 2026-11-17, fresh tarball, live on mastaq; the overlay work was 
 Heft facts found on the way: `config.json` `externals` go into the manifest as `{ type: "path", path, globalName?, globalDependencies? }` (URLs as is, local files copied to `dist/`); loc files: TypeScript `define([], …)` works, `export default` builds but breaks under RequireJS, `export =` fails with TS1203. `fast-serve` lists every external in every manifest (one shared RequireJS `require`).
 
 ### Later (not planned now)
-- library components (own server, or alias to src);
+- library components ([research/library-components](research/library-components/README.md): recommended option B, one command serving linked libraries from source, effort M);
 - SPFx 1.23 support ([research/spfx-1.23](research/spfx-1.23/README.md));
 - ngrok/tunnel; Docker/WSL; Teams hosts;
 - re-mount instead of reload ([research/vite-serve-plan §4.1](research/vite-serve-plan/README.md#41-re-mount-web-parts-instead-of-reloading-the-page)).
