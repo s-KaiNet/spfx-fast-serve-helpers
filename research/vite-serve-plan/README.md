@@ -2,7 +2,7 @@
 
 > Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
 
-> **Current status, decisions and the updated P0/P1 list are in [../../HANDOFF.md](../../HANDOFF.md).** This file is the original plan. Some statuses here are out of date: localized resources from node_modules do work, and the `sp-*` design is now on-demand top-level-await facades.
+> **Current status, decisions and the updated P0/P1 list are in [../../HANDOFF.md](../HANDOFF.md).** This file is the original plan. Some statuses here are out of date: localized resources from node_modules do work, and the `sp-*` design is now on-demand top-level-await facades.
 
 Date: 2026-11-15. Inputs:
 - the current PoC (tools/vite-plugin-spfx-serve);

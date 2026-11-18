@@ -4,7 +4,7 @@
 
 A dev-server-only replacement for `heft start`: the server starts fast, HMR with React Fast Refresh works, and your web parts, extensions and Adaptive Card Extensions run inside a real SharePoint page. Production builds and packaging stay on Heft (`heft build` / `heft package-solution`).
 
-Design notes, decisions and status: [docs/vite/HANDOFF.md](docs/vite/HANDOFF.md).
+Design notes, decisions and status: [research/HANDOFF.md](research/HANDOFF.md).
 
 ## Requirements
 
@@ -14,7 +14,7 @@ Design notes, decisions and status: [docs/vite/HANDOFF.md](docs/vite/HANDOFF.md)
 
 ## Migrating
 
-From `heft start` (SPFx 1.22+) or from the classic spfx-fast-serve (SPFx 1.21 and earlier): [docs/migration.md](docs/migration.md), including what's different in development.
+From `heft start` (SPFx 1.22+) or from the classic spfx-fast-serve (SPFx 1.21 and earlier): [research/migration.md](research/migration.md), including what's different in development.
 
 ## Install
 
@@ -55,7 +55,7 @@ Web parts, extensions (Application Customizers, ListView Command Sets, Field Cus
 
 ACEs load with the same debug query as web parts, so nothing needs configuring: open a test page with the printed query, edit it and add the card from the toolbox (it's listed under its manifest title). Microsoft's [ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension) uses a SharePoint page now, because the SharePoint Online workbench (`/_layouts/15/workbench.aspx`, still the generator's `initialPage`) is retired on December 1, 2026. Until then the workbench works too, and it doesn't need saving: it keeps the unsaved canvas across reloads, which makes it convenient for trying a card without touching a real page. Card interaction (buttons, quick views) is disabled in edit mode: switch to **Preview** on the workbench, or save the page and leave edit mode.
 
-`@microsoft/sp-adaptive-card-extension-base` comes from the page like every SPFx library. Quick view templates (`import template from './template/QuickViewTemplate.json'`, or `require(...)`) and images (`import logo from '../assets/logo.png'`) are served by Vite. Card views and quick views are classes the ACE registers in `onInit`, so editing them, their JSON templates or the ACE class reloads the page ([details](docs/hmr.md#adaptive-card-extensions)).
+`@microsoft/sp-adaptive-card-extension-base` comes from the page like every SPFx library. Quick view templates (`import template from './template/QuickViewTemplate.json'`, or `require(...)`) and images (`import logo from '../assets/logo.png'`) are served by Vite. Card views and quick views are classes the ACE registers in `onInit`, so editing them, their JSON templates or the ACE class reloads the page ([details](research/hmr.md#adaptive-card-extensions)).
 
 ### Extensions and serve configurations
 
@@ -147,11 +147,11 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 - Reloads the page: edits to the web part, extension or Adaptive Card Extension class and to what only it imports (for ACEs that includes card views, quick views and their JSON templates); files that export components **and** other values; `config/*.json`, `package.json`, `tsconfig.json`, manifests.
 - Do setup (icons, PnPjs, listeners) in `onInit`, not at module level: module-level code runs again on every hot update.
 
-Details and examples: [docs/hmr.md](docs/hmr.md).
+Details and examples: [research/hmr.md](research/hmr.md).
 
 ## Debugging in VS Code
 
-Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A `launch.json` for Edge/Chrome that opens the SharePoint page with the debug query: [docs/debugging.md](docs/debugging.md).
+Source maps point to your `src/*.ts(x)` files on `https://localhost:4321/...`. A `launch.json` for Edge/Chrome that opens the SharePoint page with the debug query: [research/debugging.md](research/debugging.md).
 
 ## Errors
 

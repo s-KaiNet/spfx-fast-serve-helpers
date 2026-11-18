@@ -1,7 +1,7 @@
 # Source layout
 
 Data flow: **config → project model → generated artifacts → Vite server → browser runtime**
-(see [docs/vite/HANDOFF.md §8](../docs/vite/HANDOFF.md)).
+(see [research/HANDOFF.md §8](../research/HANDOFF.md)).
 
 Entry points:
 

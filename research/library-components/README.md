@@ -116,7 +116,7 @@ Tests: unit tests with `test/fixtures` (a consumer fixture with a symlinked libr
 
 Risks:
 - React hooks in components of libraries loaded as SPFx components (app catalog, or a future A/library mode): **broken by design** with a dev React. Document; the RequireJS `map` bridge needs research.
-- Dev/prod differences of B (instance per graph, no version resolution, cross-solution singletons): document in `docs/migration.md`.
+- Dev/prod differences of B (instance per graph, no version resolution, cross-solution singletons): document in `research/migration.md`.
 - Library deps resolve from the library's own `node_modules` (only React is deduped): duplicate copies of shared packages, as in prod where the library bundles its own copies.
 - Different tsconfig options in library and consumer (decorators, class fields).
 

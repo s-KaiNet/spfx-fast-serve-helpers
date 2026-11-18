@@ -15,7 +15,7 @@
     "es2024": true,
     "node": true
   },
-  "ignorePatterns": ["lib/**", "docs/**", "coverage/**", "test/fixtures/**", "node_modules/**"],
+  "ignorePatterns": ["lib/**", "research/**", "coverage/**", "test/fixtures/**", "node_modules/**"],
   "rules": {
     "no-underscore-dangle": "off",
     "promise/always-return": "off",
