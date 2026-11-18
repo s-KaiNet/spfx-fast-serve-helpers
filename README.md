@@ -142,6 +142,7 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
   "paths": { "@assets/*": ["./src/assets/*", "./temp/static-asset-ts/assets/*"] }
   ```
 - **Sass deprecations.** `silenceDeprecations` from `config/sass.json` (merged through `extends` with the SPFx rig, whose default silences `mixed-decls`, `import`, `global-builtin` and `color-functions`) applies to the Sass compiler like in heft, so the `@import` warnings of Fluent UI's `References.scss` aren't printed. Without the setting nothing is silenced. Editing `config/sass.json` restarts the dev server. The other `config/sass.json` settings are used for the typings in `temp/sass-ts` only.
+- **Sass `pkg:` URLs.** `@use`, `@forward` and `@import` with `pkg:` URLs (e.g. `@import 'pkg:@fluentui/react/dist/sass/References.scss';`) work, also inside packages, resolved like Sass's Node package importer from the Sass package Vite compiles with (`sass-embedded` or `sass` 1.71+; older versions don't support `pkg:`). That importer follows the package's `exports`, `sass` and `style` fields, while heft looks the path up in the file system, so a bare `pkg:name` import (without a file path) can resolve to a different file than in `heft build`. `~` imports (`@import '~@fluentui/react/dist/sass/References.scss';`) keep working.
 - **Theme colors.** `"[theme:themePrimary, default: #0078d4]"` tokens in your styles resolve to the page theme when a stylesheet is inserted or hot-updated. Switching the site theme while the page is open does not recolor them: reload the page.
 
 ## HMR: do's and don'ts
@@ -208,7 +209,7 @@ pnpm typecheck
 pnpm test
 ```
 
-Source layout: [src/README.md](src/README.md).
+Architecture and source layout: [research/HANDOFF.md §8](research/HANDOFF.md) and the [KB](kb/index.md).
 
 ## License
 

@@ -2,7 +2,7 @@
 
 **Status (2026-11-18):** P0, P1 and the "Next" phase are done (§6); the package `spfx-fast-serve-helpers` `1.24.0-beta.0` is a zero-config `fast-serve` CLI that serves web parts, extensions and Adaptive Card Extensions. Nothing is pushed or published until the user says so. Open: VS Code F5 check, library components and the "Later" list (§6, §10).
 
-Read this file first, then [README.md](../README.md) (user docs), [src/README.md](../src/README.md) (code layout, kept in sync with the code) and [research/migration.md](migration.md), [research/hmr.md](hmr.md), [research/debugging.md](debugging.md). Background research is in the topic folders next to this file (§2). The PoC, experiment files, raw results and captures were removed in commit `3ad70fe`; they are in git history at `dd4da8d`.
+Read this file first, then [README.md](../README.md) (user docs) and [research/migration.md](migration.md), [research/hmr.md](hmr.md), [research/debugging.md](debugging.md). Background research is in the topic folders next to this file (§2). The PoC, experiment files, raw results and captures were removed in commit `3ad70fe`; they are in git history at `dd4da8d`.
 
 ---
 
@@ -34,7 +34,7 @@ Read this file first, then [README.md](../README.md) (user docs), [src/README.md
 
 | Path | What |
 |---|---|
-| `src/` | the package ([src/README.md](../src/README.md)); tests next to the code (`*.test.ts`, vitest), fixtures in `test/fixtures/` |
+| `src/` | the package; tests next to the code (`*.test.ts`, vitest), fixtures in `test/fixtures/` |
 | [README.md](../README.md), `research/{migration,hmr,debugging}.md` | user docs: options, extensions/ACEs, errors, troubleshooting, limitations; migration, HMR, VS Code debugging |
 | [research/spfx-pipeline/](spfx-pipeline/index.md) | reverse-engineered SPFx 1.24 build → serve → runtime-loader contract. Start with `index.md` and [07-vite-integration-notes.md](spfx-pipeline/07-vite-integration-notes.md) |
 | [research/vite-serve-plan/](vite-serve-plan/README.md) | the original plan (parity list, architecture proposal, easy-to-miss items, future improvements); its status columns are superseded by §6. [generate-spfx-webpack-config.cjs](vite-serve-plan/generate-spfx-webpack-config.cjs) gets heft's entries/externals from plain Node |
@@ -68,7 +68,7 @@ Tenant pages (`https://mastaq.sharepoint.com/sites/dev/`), drafts, never publish
 
 ## 4. How fast-serve works
 
-Data flow: **config → project model → generated artifacts → Vite server → browser runtime**. Details per module in [src/README.md](../src/README.md).
+Data flow: **config → project model → generated artifacts → Vite server → browser runtime**.
 
 1. **Start** (`devServer.ts`): SPFx version check → options + project model (`config.json` bundles/components, manifests, `serve.json`, tsconfig, SPFx libraries in `node_modules`) → `vite.createServer()` with the feature plugins (`plugins.ts`). Prints the components and the page URL with the debug query. Dependencies are pre-bundled in the background; nothing else is compiled ahead (no warmup), files compile on the page's requests.
 2. `GET /temp/build/manifests.js` → debug manifests: per component the source manifest (relative `./` icons made absolute) with `loaderConfig.entryModuleId` = bundle name, `scriptResources` = the bundle shim (`/@spfx/bundle/<bundle>.js`), `@microsoft/sp-loader` and `config.json` externals; `exportName` when a bundle has several components.
@@ -110,11 +110,11 @@ Data flow: **config → project model → generated artifacts → Vite server �
 Legend: ✅ done · ⏭️ skipped / cut by the user · ⬜ open.
 
 ### Done
-| Phase | What (details in `src/README.md` and the research) |
+| Phase | What (details in the research) |
 |---|---|
 | P0 | web part manifest/shim/ESM entry/HMR/Fast Refresh; several components per bundle (`exportName`); on-demand `sp-*` facades (TLA, CJS sync facade, per-chunk preload, also in pre-bundling); library `.module.scss.css` via `sp-css-loader`; loc resources out of pre-bundling; React dedupe; `require()` → imports; type-only re-export detection; `.module.scss` typings; clear load/version errors; defines; Rushstack certificate manager; startup warmup; options; SPFx version check; install without `--legacy-peer-deps` (Vite and `@vitejs/plugin-react` are package dependencies, React from the project); project tsconfig options applied to Oxc (#17) |
 | P1 | tsconfig `paths` aliases (own resolver: Vite's `resolve.tsconfigPaths` ignores a rig-extended `include`); static-asset typings; theme polling removed; `config.json` `externals`; TS loc files; docs (migration, HMR, VS Code `launch.json`); cleanups; warmup timing (warmup later removed) and PnP load speed (§5); second web part on a page; decorator / `const enum` docs |
-| Next | browser errors in the terminal only for project code (`browserErrors/`, replaces `server.forwardConsole`); `const enum` / decorator checks with clear errors (`transforms/constEnums`, `transforms/typeOnlyNames`, missing-export hint in the shim); extensions with `serveConfigurations` ([research/extensions](extensions/README.md)); runtime errors in Vite's overlay + `overlay` option; ACEs ([research/aces](aces/README.md)); startup warmup removed; `config/sass.json` `silenceDeprecations` in Vite's Sass compile |
+| Next | browser errors in the terminal only for project code (`browserErrors/`, replaces `server.forwardConsole`); `const enum` / decorator checks with clear errors (`transforms/constEnums`, `transforms/typeOnlyNames`, missing-export hint in the shim); extensions with `serveConfigurations` ([research/extensions](extensions/README.md)); runtime errors in Vite's overlay + `overlay` option; ACEs ([research/aces](aces/README.md)); startup warmup removed; `config/sass.json` `silenceDeprecations` in Vite's Sass compile; Sass `pkg:` URLs (Sass's `NodePackageImporter` from the Sass package Vite loads, `styles/sassOptions.ts`) |
 
 Acceptance (N5, 2026-11-17, fresh tarball, live on mastaq; the overlay work was verified live on 2026-11-18): spfx-rea web parts (render, `[vite] connected.`, theme tokens, TSX hot update with state, SCSS swap, class edit → reload), Application Customizer and Form Customizer (hot update), Command Set via `--config commands`, ACE in the hosted workbench (render, quick view, card view edit → reload), spfx-bench PnP + tree. `npm run build` OK in both projects.
 
@@ -162,14 +162,14 @@ Data flow: **config → project model → generated artifacts → Vite server �
 | `aliases/` | tsconfig `paths`/`baseUrl` resolver |
 | `assets/` | static-asset typings (`temp/static-asset-ts`) |
 | `localization/` | `*Strings` modules |
-| `styles/` | CSS modules naming, themed styles, `config/sass.json` `silenceDeprecations` → Sass options, library CSS (`libraryCss/`), SCSS typings (`scssTypings/`) |
+| `styles/` | CSS modules naming, themed styles, `config/sass.json` `silenceDeprecations` and the `pkg:` importer → Sass options, library CSS (`libraryCss/`), SCSS typings (`scssTypings/`) |
 | `transforms/` | tsconfig → Oxc options, defines, `require()` → imports, `typeOnlyNames/`, `constEnums/` |
 | `browserErrors/` | browser errors → terminal and overlay, overlay hint |
 | `server/` | HTTPS cert, port/origin, debug URL, serve configuration warnings, watch, dedupe, project-change reloads/restarts (no startup warmup) |
 | `runtime/` | browser code as TS (shim, library loader, themed styles, browser errors, shared contracts) |
 | `utils/` | small helpers (JSONC, paths, errors, runtime source loading, Vite and Heft helpers) |
 
-A feature is one module returning Vite plugin(s) (each contributing its own config via `config()`), plus its browser runtime and tests. Conventions in [src/README.md](../src/README.md).
+A feature is one module returning Vite plugin(s) (each contributing its own config via `config()`), plus its browser runtime and tests.
 
 ## 9. Live debugging with agent-browser (how everything was verified)
 
