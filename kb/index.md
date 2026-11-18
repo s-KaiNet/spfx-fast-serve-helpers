@@ -89,3 +89,8 @@ Planned, researched and deferred work.
 ## References
 
 External references and research conclusions (benchmarks, tool versions, platform facts).
+
+- [SPFx 1.24 Heft pipeline (reverse-engineered)](references/spfx-heft-pipeline.md): build phases, generated webpack config, AMD bundle format, export names, CSS class-name hashing, externals, manifest and `manifests.js` shape, loc file forms, typings tasks, `heft start` behavior and bugs, loader/CSP facts. Tags: reference, spfx, heft, webpack, manifests. Status: current.
+- [Vite 8, Oxc and Rolldown facts relied upon](references/vite-oxc-rolldown.md): HTTP/2 with HTTPS, Oxc tsconfig auto-lookup bug and inline `oxc.tsconfig`, `resolve.tsconfigPaths` gap, CSS module detection by id, pre-bundling plugin rules and TLA, warmup, overlay. Tags: reference, vite, oxc, rolldown, typescript. Status: current.
+- [Benchmark results and performance conclusions](references/benchmark-results.md): PoC-era Vite vs `heft start` numbers, what dominates page load, warmup and facade tuning results, acceptance numbers, stall statistics. Tags: reference, benchmark, performance. Status: current.
+- [Dependencies, versions and external docs](references/dependencies-and-external-docs.md): runtime dependencies and why, Heft packages loaded from the project, TypeScript 7 and dropping typescript-eslint, SPFx/React/tenant versions, third-party package shapes, Microsoft docs (ACE tutorial, workbench retirement 2026-12-01), CSP/LNA. Tags: reference, dependencies, versioning, react, typescript. Status: current.

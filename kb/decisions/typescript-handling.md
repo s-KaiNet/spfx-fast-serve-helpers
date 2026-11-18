@@ -49,6 +49,7 @@ Project TypeScript is compiled file by file by Vite's Oxc transform, not by `tsc
 - [TypeScript source compatibility](../features/typescript-compatibility.md)
 - [Source pipeline](../architecture/source-pipeline.md)
 - [Match heft behavior for serve configurations and the debug URL](match-heft-serve-behavior.md)
+- [Vite 8, Oxc and Rolldown facts relied upon](../references/vite-oxc-rolldown.md)
 
 ## Evidence
 

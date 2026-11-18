@@ -73,6 +73,7 @@ The emitted manifest carries the source manifest fields (`componentType`, `alias
 
 ## Links
 
+- [SPFx 1.24 Heft pipeline (reverse-engineered)](../references/spfx-heft-pipeline.md)
 - [SharePoint debug flow](sharepoint-debug-flow.md)
 - [SPFx component types](spfx-component-types.md)
 - [Styles, localization and assets in SPFx](styles-localization-assets.md)

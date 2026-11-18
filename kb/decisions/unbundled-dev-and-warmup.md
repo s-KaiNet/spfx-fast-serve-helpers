@@ -42,6 +42,7 @@ A benchmark against `heft start` (1000 generated modules, live on the tenant) sh
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
 - [Source pipeline](../architecture/source-pipeline.md)
+- [Benchmark results and performance conclusions](../references/benchmark-results.md)
 
 ## Evidence
 

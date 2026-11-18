@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 05:50 | ingest | references category populated
+
+- Changed: `kb/references/spfx-heft-pipeline.md`, `kb/references/vite-oxc-rolldown.md`, `kb/references/benchmark-results.md`, `kb/references/dependencies-and-external-docs.md`, `kb/index.md`, links in one concept, three decision and one operation page
+- Outcome: reverse-engineered heft 1.24 pipeline facts, Vite/Oxc/Rolldown behaviors relied upon, benchmark conclusions, dependency/version facts and external docs
+
 ## 2026-11-18 05:20 | ingest | roadmap category populated
 
 - Changed: `kb/roadmap/overview.md`, `kb/roadmap/spfx-1-23-support.md`, `kb/roadmap/library-components.md`, `kb/roadmap/deferred-work.md`, `kb/index.md`, links in three limitation, one decision and one feature page

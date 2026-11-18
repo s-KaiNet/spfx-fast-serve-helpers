@@ -48,6 +48,7 @@ The package is a Node ESM CLI plus a small amount of browser runtime code. The u
 - [Build from scratch with semantic modules](semantic-architecture.md)
 - [Architecture overview](../architecture/overview.md)
 - [Development workflow and toolchain](../operations/development-workflow.md)
+- [Dependencies, versions and external docs](../references/dependencies-and-external-docs.md)
 
 ## Evidence
 

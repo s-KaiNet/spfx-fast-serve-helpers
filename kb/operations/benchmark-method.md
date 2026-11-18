@@ -53,7 +53,7 @@ The browser runs need Chrome with the tenant profile on the harness's CDP port. 
 - Repeated live page loads of the benchmark page (for example 32 loads, median and hang count) to check reliability.
 - Timing the on-demand SPFx library loading in the browser (time to web part ready, per-library await cost).
 
-Results and their interpretation belong to the benchmark reference and the performance decisions, not to this procedure.
+Results and their interpretation belong to the [benchmark reference](../references/benchmark-results.md) and the performance decisions, not to this procedure.
 
 ## Links
 
@@ -62,6 +62,7 @@ Results and their interpretation belong to the benchmark reference and the perfo
 - [Unbundled dev server and entry-graph warmup](../decisions/unbundled-dev-and-warmup.md)
 - [On-demand SPFx library facades with top-level await](../decisions/on-demand-library-facades.md)
 - [Dev vs production differences](../limitations/dev-vs-production.md)
+- [Benchmark results and performance conclusions](../references/benchmark-results.md)
 
 ## Evidence
 
