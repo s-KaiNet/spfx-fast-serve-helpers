@@ -2,6 +2,7 @@
 set -euo pipefail
 
 profile="${SPFX_DEBUG_BROWSER_PROFILE:-}"
+profile="${profile/#\~/$HOME}"
 cdp_port="${SPFX_DEBUG_CDP_PORT:-9333}"
 pid_file="${TMPDIR:-/tmp}/spfx-debug-chrome-${cdp_port}.pid"
 log_file="${TMPDIR:-/tmp}/spfx-debug-chrome-${cdp_port}.log"
@@ -17,7 +18,7 @@ fi
 
 find_chrome() {
   if [[ -n "${SPFX_DEBUG_CHROME:-}" ]]; then
-    echo "$SPFX_DEBUG_CHROME"
+    echo "${SPFX_DEBUG_CHROME/#\~/$HOME}"
     return
   fi
   local managed
