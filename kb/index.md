@@ -53,7 +53,7 @@ Accepted technical decisions and their rationale.
 - [Match heft behavior for serve configurations and the debug URL](decisions/match-heft-serve-behavior.md): unknown `--config` falls back to `default`, heft's page order, query replacement, no `debug=true` for extensions. Tags: decision, extensions, serve-configurations, heft. Status: current.
 - [TypeScript handling without tsc](decisions/typescript-handling.md): own tsconfig-paths resolver, compiler-option whitelist to Oxc with lookup off, type re-export guard that warns and removes, explained `const enum` limits. Tags: decision, typescript, tsconfig, oxc. Status: current.
 - [Error reporting: project errors only, overlay for runtime errors](decisions/error-reporting.md): stack-frame rule for terminal forwarding, overlay for uncaught errors and rejections (not `console.error`), `overlay` opt-out. Tags: decision, errors, overlay, terminal. Status: current.
-- [Scope cuts and features dropped on purpose](decisions/scope-cuts.md): theme-change monitoring, locale switch, `@pnp/spfx-property-controls` 3.13 CSS. Tags: decision, scope, theming, styles, localization. Status: needs-clarification.
+- [Scope cuts and features dropped on purpose](decisions/scope-cuts.md): theme-change monitoring, `@pnp/spfx-property-controls` 3.13 CSS. Tags: decision, scope, theming, styles. Status: current.
 - [Package toolchain and code conventions](decisions/toolchain-and-conventions.md): pnpm, TypeScript 7, type-aware oxlint instead of ESLint/typescript-eslint, no code comments, no source maps in the package, approval-first process. Tags: decision, toolchain, typescript, oxlint, pnpm. Status: current.
 
 ## Limitations
@@ -72,10 +72,10 @@ Known limitations, gotchas, problems and open issues.
 Development workflow, toolchain, testing, live verification, packaging.
 
 - [Development workflow and toolchain](operations/development-workflow.md): Node engines, pnpm, scripts (`build`, `dev`, `typecheck`, `lint`, `test`, `prepublishOnly`), Node vs browser-runtime compilation, no-comments rule, tests next to code with fake-SPFx fixtures, process rules. Tags: operations, toolchain, pnpm, typescript, oxlint, vitest. Status: current.
-- [Local testing and consumer setup](operations/local-testing-and-consumer-setup.md): `pnpm pack` + `file:` tarball install and reinstall gotcha, consumer setup steps, the small SPFx test project and the large benchmark project, tenant test pages, release acceptance checklist. Tags: operations, packaging, testing, test-projects. Status: needs-clarification.
+- [Local testing and consumer setup](operations/local-testing-and-consumer-setup.md): `pnpm pack` + install of the version-named tarball and reinstall gotcha, consumer setup steps, the small SPFx test project and the large benchmark project, draft tenant test pages, release acceptance checklist. Tags: operations, packaging, testing, test-projects. Status: current.
 - [Live verification on a SharePoint tenant](operations/live-verification.md): agent-browser with headless Chrome and the saved profile, certificate/LNA flags, debug query, useful checks, proving a hot update with a marker and counter, cleanup and never saving pages. Tags: operations, verification, agent-browser, sharepoint, hmr. Status: current.
 - [Benchmark method](operations/benchmark-method.md): CDP harness on the generated benchmark project, what is measured (start, loads, edits, network, memory, crawl), reproduce commands, lighter checks used for the package. Tags: operations, benchmark, performance. Status: current.
-- [VS Code debugging and remote development](operations/debugging-and-remote-development.md): `launch.json` launch/attach with path mapping (F5 unverified), DevTools, SSH from Windows with same-port forward and Rushstack CA import. Tags: operations, debugging, vscode, remote-development, certificate. Status: needs-clarification.
+- [VS Code debugging and remote development](operations/debugging-and-remote-development.md): `launch.json` launch/attach with path mapping (F5 unverified), DevTools, verified SSH-from-Windows setup with same-port forward and Rushstack CA import. Tags: operations, debugging, vscode, remote-development, certificate. Status: current.
 
 ## Roadmap
 

@@ -23,25 +23,25 @@ Everything that involves the SharePoint page (manifest loading, the bundle shim,
 
 - `fast-serve` (or `heft start`, for comparison) runs in a test project on `https://localhost:<port>`, with a freshly reinstalled tarball after any package change (see [Local testing and consumer setup](local-testing-and-consumer-setup.md)).
 - The SPFx dev certificate exists in the user's Rushstack folder (`~/.rushstack/`).
-- The saved browser profile `/home/sergei/.agent-browser-profiles/mastaq-sharepoint` is logged in to the tenant (see the `agent-browser-profile` skill). Profile contents are authentication secrets: never print, copy or commit them.
+- A saved browser profile is logged in to the tenant. Profile contents are authentication secrets: never print, copy or commit them.
 
 ### Rules for the browser profile
 
-- Always invoke agent-browser as `env -u XDG_RUNTIME_DIR agent-browser ...` (a socket-path quirk on this host; without it a second daemon can start and hit the profile lock).
-- **One Chrome per profile.** Check `pgrep -af mastaq-sharepoint` first; never delete lock files and never switch to a fresh profile (that loses the login).
-- If Microsoft asks to sign in, let the user sign in through the agent-browser dashboard (`env -u XDG_RUNTIME_DIR agent-browser dashboard start`, http://localhost:4848). Never ask for credentials.
+- If agent-browser starts a second daemon on the same profile (for example because of a socket-path quirk in the environment), it hits the profile lock; make sure all calls reach the same daemon.
+- **One Chrome per profile.** Check for a running Chrome on that profile first; never delete lock files and never switch to a fresh profile (that loses the login).
+- If Microsoft asks to sign in, let the user sign in through the agent-browser dashboard (`agent-browser dashboard start`). Never ask for credentials.
 
 ### Start Chrome and open the page
 
 Start Chrome yourself; agent-browser's own `--args` did not apply the certificate and LNA flags reliably:
 
 ```bash
-/home/sergei/.agent-browser/browsers/chrome-153.0.8010.36/chrome --headless=new --no-sandbox \
-  --user-data-dir=/home/sergei/.agent-browser-profiles/mastaq-sharepoint \
+<chrome> --headless=new --no-sandbox \
+  --user-data-dir=<saved profile> \
   --ignore-certificate-errors --disable-features=LocalNetworkAccessChecks,Translate \
-  --remote-debugging-port=9333 --window-size=1280,900 about:blank &
-AB="env -u XDG_RUNTIME_DIR agent-browser --session vite-dev --cdp 9333"
-$AB open 'https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true'
+  --remote-debugging-port=<cdp port> --window-size=1280,900 about:blank &
+AB="agent-browser --session vite-dev --cdp <cdp port>"
+$AB open 'https://<tenant>.sharepoint.com/sites/<site>/SitePages/<test page>.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A<port>%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true'
 ```
 
 - Without `--ignore-certificate-errors` and `--disable-features=LocalNetworkAccessChecks` the page shows "Error loading debug manifests" (`ERR_CERT_AUTHORITY_INVALID` or an LNA block).
@@ -77,7 +77,7 @@ For timings, network and console capture without agent-browser, the benchmark ha
 
 ### Cleanup and safety
 
-- `$AB close`, then stop the Chrome you started (`pgrep -f remote-debugging-port=9333`) and your dev server. Never kill processes you didn't start.
+- `$AB close`, then stop the Chrome you started (match it by its `--remote-debugging-port`) and your dev server. Never kill processes you didn't start.
 - **Never save or publish tenant pages.** Test pages stay drafts; edits on the workbench are not saved.
 - HAR files contain auth cookies: keep them outside repositories.
 
@@ -97,6 +97,6 @@ For timings, network and console capture without agent-browser, the benchmark ha
 
 ## Evidence
 
-- Source: project handoff notes (live debugging procedure, pitfalls), agent-browser profile skill, live verification runs on the tenant
+- Source: project handoff notes (live debugging procedure, pitfalls), browser profile instructions, live verification runs on the tenant
 - Confidence: high
 - Last checked: 2026-11-18

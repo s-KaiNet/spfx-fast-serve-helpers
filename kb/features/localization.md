@@ -32,7 +32,7 @@ Imports of the names declared in `config/config.json` `localizedResources` (such
 
 ## Edge Cases
 
-- The locale is fixed for the server's lifetime; switching locale needs a restart (a live locale switch was cut).
+- The locale is chosen once at start (`--locale` or `config/fast-serve.json` `locale`) and fixed for the server's lifetime; to change it, restart `fast-serve` with the new value.
 - `export =` in a TypeScript loc file works in `fast-serve` but fails in `heft build` (TS1203); `export default` builds but breaks under RequireJS in production.
 
 ## Links

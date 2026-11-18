@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 22:45 | ingest | open questions resolved, KB made generic
+
+- Changed: `kb/operations/debugging-and-remote-development.md`, `kb/operations/local-testing-and-consumer-setup.md`, `kb/operations/live-verification.md`, `kb/operations/benchmark-method.md`, `kb/decisions/scope-cuts.md`, `kb/features/localization.md`, `kb/limitations/environment-and-browser-gotchas.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: SSH-from-Windows setup marked user-verified; locale switch removed from scope cuts (locale chosen at start, restart to change); local testing installs the version-named packed tarball; machine paths, tenant names and page URLs replaced with generic descriptions; no open clarifications left
+
 ## 2026-11-18 06:30 | status+reconcile | final consistency check
 
 - Changed: `kb/decisions/unbundled-dev-without-warmup.md` (renamed from the warmup decision), `kb/decisions/scope-cuts.md`, `kb/architecture/runtime-flows.md`, `kb/architecture/source-pipeline.md`, `kb/architecture/overview.md`, `kb/features/styles-and-assets.md`, `kb/features/hmr-and-fast-refresh.md`, `kb/features/cli-and-options.md`, `kb/limitations/dev-vs-production.md`, `kb/limitations/hmr-gotchas.md`, `kb/limitations/known-issues.md`, `kb/concepts/hmr-and-vite-terms.md`, `kb/concepts/glossary.md`, `kb/references/vite-oxc-rolldown.md`, `kb/references/benchmark-results.md`, `kb/references/dependencies-and-external-docs.md`, `kb/operations/benchmark-method.md`, `kb/roadmap/overview.md`, `kb/index.md`

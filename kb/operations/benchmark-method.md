@@ -20,7 +20,7 @@ Performance of `fast-serve` against `heft start` is measured on the large genera
 ### Setup
 
 - The benchmark project (see [Local testing and consumer setup](local-testing-and-consumer-setup.md)) is produced by a generator script with a configurable module count (250, 1000 or 2000 modules, barrels on or off); it has its own solution and web part ids, port 4341, and both `heft build` and `heft build --clean` pass.
-- Page: the draft `SitePages/spfx-bench.aspx` on the dev site with both benchmark web parts. Browser: Chrome headless with the saved tenant profile, CDP on a dedicated port.
+- Page: a draft test page on a dev tenant with both benchmark web parts. Browser: Chrome headless with a saved, logged-in browser profile, CDP on a dedicated port.
 - Report medians of 3 runs (5 for server start); note machine load, since other work on the machine adds noise.
 
 ### What is measured and how

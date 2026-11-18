@@ -33,7 +33,7 @@ Most "nothing loads" problems come from the browser and SharePoint side of the d
 ### Remote and SSH setups
 
 - The server listens on `localhost` with a certificate generated on the machine running `fast-serve`, while the browser runs on the developer's machine.
-- To use it remotely: forward the **same port** (for example an SSH local forward of 4321 to 4321), so the printed debug URL `https://localhost:<port>/temp/build/manifests.js` and the absolute asset/module URLs still resolve; and trust the dev certificate's CA **on the client machine** where the browser runs (trusting it only on the server doesn't help).
+- To use it remotely: forward the **same port** (for example an SSH local forward of 4321 to 4321), so the printed debug URL `https://localhost:<port>/temp/build/manifests.js` and the absolute asset/module URLs still resolve; and trust the dev certificate's CA **on the client machine** where the browser runs (trusting it only on the server doesn't help). On Windows, import the CA into the current user's Trusted Root Certification Authorities store; this SSH-from-Windows setup is verified.
 - Tunnels, containers, Docker/WSL-specific setup are not supported beyond this (see [Unsupported scope](unsupported-scope.md)).
 
 ## Links
@@ -46,6 +46,6 @@ Most "nothing loads" problems come from the browser and SharePoint side of the d
 
 ## Evidence
 
-- Source: user docs (migration, troubleshooting, VS Code debugging guide), project handoff notes (gotchas, live debugging pitfalls), live verification on the test tenant; remote/SSH guidance from the orchestrator brief, consistent with the localhost-only design but not recorded in project docs
-- Confidence: high; remote/SSH medium
+- Source: user docs (migration, troubleshooting, VS Code debugging guide), project handoff notes (gotchas, live debugging pitfalls), live verification on the test tenant; remote/SSH setup verified by the user from Windows
+- Confidence: high
 - Last checked: 2026-11-18

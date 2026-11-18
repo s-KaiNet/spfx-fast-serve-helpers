@@ -1,7 +1,7 @@
 ---
 title: Local testing and consumer setup
 type: operation
-status: needs-clarification
+status: current
 tags:
   - project-kb
   - operations
@@ -21,7 +21,7 @@ Changes to the package are tested in real SPFx 1.24 projects by packing it into 
 ### Pack and install the package locally
 
 1. In the repository: `pnpm build && pnpm pack`. The tarball is named `spfx-fast-serve-helpers-<version>.tgz` after the version in `package.json` and is git-ignored.
-2. The test projects depend on the package through a `file:` reference to the tarball in the repository root (`file:../gh/src/spfx-fast-serve-helpers/spfx-fast-serve-helpers-1.24.0.tgz`). The reference names a fixed file, so the packed file name and the reference must match: since the version became `1.24.0-beta.0`, `pnpm pack` produces a `-1.24.0-beta.0` file name, which needs renaming or an updated reference.
+2. Install the packed tarball in the test project: `npm install --save-dev <path to the repository>/spfx-fast-serve-helpers-<version>.tgz`. The project then depends on it through a `file:` reference that names that exact file, so when the package version changes, install the newly named tarball again; the test projects currently use the tarball of the current version (for example `spfx-fast-serve-helpers-1.24.0-beta.0.tgz`).
 3. **Reinstall after every rebuild** (`npm install` in the project, forcing a reinstall of the package if needed). The package manager caches the tarball contents by reference, so a rebuilt tarball under the same name is not picked up by itself; a stale install is the usual reason a fix "doesn't work" in the test project. Restart `fast-serve` afterwards.
 4. Check the result also with the project's own `npm run build` (Heft), which must still pass: `fast-serve` writes only typings into `temp/`.
 
@@ -43,12 +43,12 @@ Two SPFx projects outside the repository are used for verification; both referen
 
 | Project | What it is | What it covers |
 |---|---|---|
-| Small SPFx 1.24.1 project (host path `/home/sergei/Projects/spfx-rea`) | a generator-style project with `npm run serve` = `fast-serve` and `config/fast-serve.json` pointing at a draft tenant page | one bundle mixing two web parts (one a function component) with an Application Customizer; separate bundles for a ListView Command Set, a Field Customizer, a Form Customizer and an ACE; `config/serve.json` with `default` (Application Customizer), command set, field customizer and New/Edit/View form configurations |
-| Large generated benchmark project (host path `/home/sergei/Projects/spfx-bench`) | a generator writes N modules (default 1000): a deep tree of function components, utilities, barrels and SCSS modules with theme tokens; port 4341; `npm run fast-serve` runs the package | two web parts: a tree web part rendering the whole generated tree, and a PnP web part using Fluent UI, `@pnp/spfx-controls-react` (ListView, PeoplePicker) and `@pnp/sp` with a live REST call; exercises pre-bundling, SPFx libraries used from dependencies, library `.module.scss.css` and page-load performance |
+| Small SPFx 1.24.1 test project | a generator-style project with `npm run serve` = `fast-serve` and `config/fast-serve.json` pointing at a draft tenant page | one bundle mixing two web parts (one a function component) with an Application Customizer; separate bundles for a ListView Command Set, a Field Customizer, a Form Customizer and an ACE; `config/serve.json` with `default` (Application Customizer), command set, field customizer and New/Edit/View form configurations |
+| Large generated benchmark project | a generator writes N modules (default 1000): a deep tree of function components, utilities, barrels and SCSS modules with theme tokens; port 4341; `npm run fast-serve` runs the package | two web parts: a tree web part rendering the whole generated tree, and a PnP web part using Fluent UI, `@pnp/spfx-controls-react` (ListView, PeoplePicker) and `@pnp/sp` with a live REST call; exercises pre-bundling, SPFx libraries used from dependencies, library `.module.scss.css` and page-load performance |
 
 Both contain leftovers from the proof-of-concept era (an unused Vite config and plugin folder; in the benchmark project `npm run serve` still runs the old PoC setup). Use `npm run serve` in the small project and `npm run fast-serve` in the benchmark project.
 
-Tenant test pages are drafts on the dev site (`https://mastaq.sharepoint.com/sites/dev/`): `SitePages/spfx-rea.aspx` (both small-project web parts; the Application Customizer loads through `default`), `SitePages/spfx-bench.aspx` (both benchmark web parts), and a list used for the Command Set, Field and Form Customizer configurations. ACEs were tested in the hosted workbench (`/_layouts/15/workbench.aspx`, retired on 2026-12-01; after that, use a draft page).
+Tenant test pages are draft pages on a dev site of a dev tenant: one with both small-project web parts (the Application Customizer loads through `default`), one with both benchmark web parts, and a list used for the Command Set, Field and Form Customizer configurations. ACEs were tested in the hosted workbench (`/_layouts/15/workbench.aspx`, retired on 2026-12-01; after that, use a draft page).
 
 ### Acceptance checklist (before a release)
 
@@ -62,10 +62,6 @@ With a fresh tarball, live on the tenant (procedure in [Live verification](live-
 
 The last full run passed on 2026-11-17, with the error overlay verified live on 2026-11-18. The Field Customizer is loaded but never instantiated by this tenant, with `heft start` too (see [Known issues](../limitations/known-issues.md)).
 
-## Needs Clarification
-
-- The test projects still reference `spfx-fast-serve-helpers-1.24.0.tgz` while the package version is `1.24.0-beta.0`: should the projects reference the beta file name, or is the tarball renamed after packing?
-
 ## Links
 
 - [Development workflow and toolchain](development-workflow.md)
@@ -77,6 +73,6 @@ The last full run passed on 2026-11-17, with the error overlay verified live on 
 
 ## Evidence
 
-- Source: project handoff notes (test projects, tenant pages, acceptance), user docs (install, migration, usage), package manifest
+- Source: project handoff notes (test projects, tenant pages, acceptance), user docs (install, migration, usage), package manifest, user instruction on tarball naming
 - Confidence: high; the exact cause of the stale-tarball gotcha (package manager caching) is medium
 - Last checked: 2026-11-18
