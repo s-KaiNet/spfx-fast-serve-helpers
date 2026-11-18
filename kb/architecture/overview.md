@@ -78,6 +78,7 @@ Runtime requirement: Node `>=22.14 <23`, `>=24 <25` or `>=26 <27`; ESM package w
 - [Startup and request flows](runtime-flows.md)
 - [SPFx libraries and externals at runtime](spfx-libraries-and-externals.md)
 - [Source pipeline](source-pipeline.md)
+- [CLI, options and startup](../features/cli-and-options.md)
 
 ## Evidence
 

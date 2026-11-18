@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-18 03:20 | ingest | features category populated
+
+- Changed: `kb/features/cli-and-options.md`, `kb/features/serving-components.md`, `kb/features/hmr-and-fast-refresh.md`, `kb/features/styles-and-assets.md`, `kb/features/typescript-compatibility.md`, `kb/features/localization.md`, `kb/features/library-imports-and-externals.md`, `kb/features/errors-and-diagnostics.md`, `kb/index.md`, links in architecture and concept pages
+- Outcome: user-visible behavior of the CLI and options, component serving and serve configurations, HMR, styles and typings, TypeScript compatibility, localization, library imports and externals, errors and diagnostics
+
 ## 2026-11-18 02:40 | ingest | architecture category populated
 
 - Changed: `kb/architecture/overview.md`, `kb/architecture/runtime-flows.md`, `kb/architecture/spfx-libraries-and-externals.md`, `kb/architecture/source-pipeline.md`, `kb/index.md`, links in four concept pages

@@ -30,6 +30,15 @@ System shape, data flow, modules and runtime contracts.
 
 User- and developer-visible behavior of `fast-serve`.
 
+- [CLI, options and startup](features/cli-and-options.md): install requirements, flags, `config/fast-serve.json`, precedence and page order, `{tenantDomain}`/`SPFX_SERVE_TENANT_DOMAIN`, ready banner, startup failures and exit codes. Tags: cli, options, configuration, startup. Status: current.
+- [Serving web parts, extensions and ACEs](features/serving-components.md): multi-component bundles, dev icon URLs, `serveConfigurations` and `--config`, heft-matching extension query, serve configuration warnings, ACEs and the hosted workbench. Tags: web-parts, extensions, ace, serve-configurations. Status: current.
+- [HMR and Fast Refresh](features/hmr-and-fast-refresh.md): what hot-updates, what reloads the page, what restarts the server, guidance for HMR-friendly code. Tags: hmr, react-fast-refresh. Status: current.
+- [Styles, theme tokens and asset typings](features/styles-and-assets.md): SPFx CSS module names, theme tokens, library `.module.scss.css` via `@microsoft/sp-css-loader`, `temp/sass-ts` and `temp/static-asset-ts` typings, static asset URLs. Tags: styles, css-modules, theming, assets, typings. Status: current.
+- [TypeScript source compatibility](features/typescript-compatibility.md): tsconfig `paths`, decorator/class-field options, `emitDecoratorMetadata` type imports, type re-exports, `require()` rewriting, `const enum` messages, defines. Tags: typescript, tsconfig, decorators, const-enum. Status: current.
+- [Localized strings](features/localization.md): `localizedResources` modules, locale fallback, AMD vs TS/ES loc files and the heft warning, string HMR. Tags: localization, loc. Status: current.
+- [SPFx library imports and config.json externals](features/library-imports-and-externals.md): tenant-version SPFx libraries on demand, project development React, `config.json` externals validation and named-import rule. Tags: externals, spfx-libraries, sp-loader. Status: current.
+- [Errors and diagnostics](features/errors-and-diagnostics.md): terminal forwarding rule, error overlay and `overlay` option, readable bundle load errors and auto-reload, troubleshooting messages, source maps and VS Code debugging. Tags: errors, overlay, debugging, troubleshooting. Status: current.
+
 ## Decisions
 
 Accepted technical decisions and their rationale.

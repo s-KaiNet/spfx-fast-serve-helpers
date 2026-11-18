@@ -63,6 +63,8 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 - [SPFx libraries and externals at runtime](spfx-libraries-and-externals.md)
 - [Styles, localization and assets in SPFx](../concepts/styles-localization-assets.md)
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
+- [TypeScript source compatibility](../features/typescript-compatibility.md)
+- [Styles, theme tokens and asset typings](../features/styles-and-assets.md)
 
 ## Evidence
 

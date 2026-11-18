@@ -55,6 +55,7 @@ tags:
 - [Styles, localization and assets in SPFx](styles-localization-assets.md)
 - [Glossary](glossary.md)
 - [Source pipeline](../architecture/source-pipeline.md)
+- [HMR and Fast Refresh](../features/hmr-and-fast-refresh.md)
 
 ## Evidence
 

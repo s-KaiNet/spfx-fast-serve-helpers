@@ -65,6 +65,8 @@ All bundles share one ESM module graph in dev (one instance of a shared module),
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
+- [Errors and diagnostics](../features/errors-and-diagnostics.md)
+- [HMR and Fast Refresh](../features/hmr-and-fast-refresh.md)
 
 ## Evidence
 

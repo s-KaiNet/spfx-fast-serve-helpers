@@ -57,6 +57,7 @@ On-demand facades were chosen over preloading the libraries in the shim: the com
 - [Source pipeline](source-pipeline.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
+- [SPFx library imports and config.json externals](../features/library-imports-and-externals.md)
 
 ## Evidence
 

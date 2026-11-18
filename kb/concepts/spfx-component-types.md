@@ -50,6 +50,7 @@ Other extension types (`SearchQueryModifier`, `Unknown`) and other component typ
 - [SharePoint debug flow](sharepoint-debug-flow.md)
 - [HMR, Fast Refresh and Vite terms](hmr-and-vite-terms.md)
 - [Glossary](glossary.md)
+- [Serving web parts, extensions and ACEs](../features/serving-components.md)
 
 ## Evidence
 

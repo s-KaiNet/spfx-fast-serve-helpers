@@ -55,6 +55,7 @@ SPFx components under development run inside a real SharePoint page that is open
 - [Component manifests and the SharePoint loader](component-manifests-and-loader.md)
 - [SPFx component types](spfx-component-types.md)
 - [Glossary](glossary.md)
+- [CLI, options and startup](../features/cli-and-options.md)
 
 ## Evidence
 
