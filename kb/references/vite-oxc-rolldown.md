@@ -53,6 +53,9 @@ tags:
 - Those plugins need **hook filters**: unfiltered hooks run for every module of every dependency and made pre-bundling about twice as slow.
 - Rolldown's fallback resolver appends `.css` to an unresolved `./X.module.scss` and, with `.css` mapped to the JS module type, fails with `PARSE_ERROR` on SPFx-library CSS files.
 - **Top-level await inside pre-bundles:** facade awaits stay at the top level in import order (scope-hoisted), ESM cycles evaluate correctly, and no deadlock is possible because the awaits only wait on RequireJS outside the ESM graph. A TLA module reached through CommonJS `require()` is a build error (`REQUIRE_TLA`), hence the separate synchronous facade plus one parallel preload per chunk; without that preload, three sibling awaits ran sequentially (154 ms vs 52 ms). Rolldown keeps unused property reads (harmless bloat).
+- **`import * as ns` of a pre-bundled CommonJS dependency is a copy**: Vite's interop gives `{ ...module.exports, default: module.exports }`, not `module.exports` itself, so a function export isn't callable through the namespace. Getting webpack's `require` value means taking `default` unless the namespace is a real ES module namespace or has `__esModule` (see [require() and AMD in dependencies](../features/require-and-amd.md)).
+- **The optimizer hash includes plugin names but not plugin options**: an option that changes pre-bundle output (the `amdPackages` list) has to be part of the plugin name to invalidate the cache.
+- **Oxc's `define` replacement is scope-aware**: replacing the global `define` with `undefined` leaves local variables and parameters named `define` alone, which is what AMD isolation of dependency code relies on.
 - `optimizeDeps.holdUntilCrawlEnd: false` changed neither speed nor the stall in the benchmark.
 
 ### Config file loading (used for `fast-serve/vite.extend.mts`)
@@ -82,6 +85,7 @@ tags:
 - [On-demand SPFx library facades with top-level await](../decisions/on-demand-library-facades.md)
 - [SPFx 1.24 Heft pipeline](spfx-heft-pipeline.md)
 - [Dependencies, versions and external docs](dependencies-and-external-docs.md)
+- [require() and AMD in dependencies](../features/require-and-amd.md)
 
 ## Evidence
 

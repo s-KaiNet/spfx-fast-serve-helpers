@@ -30,7 +30,7 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 
 ### Terminal error forwarding gaps (status: by design)
 
-- Only errors whose stack has a project frame (`https://localhost:<port>/src/...`) or a loader frame are forwarded. Rejections without a stack (`Promise.reject('text')`) and errors whose stack has no project frame (thrown and caught only inside dependencies) stay in the browser console only, as do SharePoint and third-party errors.
+- Only errors whose stack has a project frame (`https://localhost:<port>/src/...`) or a loader frame are forwarded. Rejections without a stack (`Promise.reject('text')`) and errors whose stack has no project frame (thrown and caught only inside dependencies) stay in the browser console only, as do SharePoint and third-party errors. The one exception is RequireJS's "Mismatched anonymous define()", forwarded with a hint.
 - `console.error` from project code goes to the terminal but never opens the overlay.
 - The browser reports the position it has for a frame: for an undefined name in JSX children Chrome can point at an earlier expression on the same line.
 - React 18 replays a failed render 2–3 times; a signature filter shows it once.
@@ -44,6 +44,8 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 - `@microsoft/sp-lodash-subset` ships an AMD blob in its ESM folder; its export names are read by evaluating it.
 - Oxc's automatic tsconfig lookup must stay off (the SPFx rig's `importsNotUsedAsValues: "remove"` would keep type-only imports).
 - Plugins used in pre-bundling need hook filters, or pre-bundling gets about twice as slow.
+- Vite's pre-bundle cache key includes plugin names but not plugin options, so the `amdPackages` list is carried in the AMD isolation plugin's name; recheck on Vite upgrades.
+- The `require()` package unwrapping relies on the shape of Vite's CommonJS interop namespace (a copy with `default` = `module.exports`); recheck on Vite upgrades.
 - Deleting a loaded `fast-serve/vite.extend.*` while running relies on detaching the file from Vite's own config-restart bookkeeping before the full restart; recheck on Vite upgrades.
 
 ### Vite extend file can drift from the webpack customization (status: by design)
@@ -58,6 +60,7 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 
 - [Errors and diagnostics](../features/errors-and-diagnostics.md)
 - [Error reporting: project errors only, overlay for runtime errors](../decisions/error-reporting.md)
+- [require() and AMD in dependencies](../features/require-and-amd.md)
 - [Serving web parts, extensions and ACEs](../features/serving-components.md)
 - [Environment and browser gotchas](environment-and-browser-gotchas.md)
 - [Dev vs production differences](dev-vs-production.md)

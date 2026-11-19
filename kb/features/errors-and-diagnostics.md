@@ -33,6 +33,7 @@ Errors from the developer's own code show in three places: the `fast-serve` term
 
 - Only errors whose stack has a frame in a project module (`https://localhost:<port>/src/...`, not `node_modules`) or in the `fast-serve` loader are forwarded. So `@pnp/telemetry-js` "Failed to fetch" and SharePoint's errors stay in the browser, and so does `Promise.reject('text')` (no stack).
 - Frames are mapped through source maps to `src/...tsx:line:col`, the stack is trimmed after the last own frame, and a code frame is printed. Each error object is reported once; messages already printed by `fast-serve` or Vite are skipped.
+- Exception: a "Mismatched anonymous define()" error from SharePoint's RequireJS is always forwarded, with a hint in the terminal and the overlay (its stack never points at the culprit; see [require() and AMD in dependencies](require-and-amd.md)).
 - `console.error` goes to the terminal only: the code that logged it has handled it (React's "The above error occurred in the <X> component" is one of these).
 
 ### Error overlay
@@ -60,6 +61,8 @@ Errors from the developer's own code show in three places: the `fast-serve` term
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served) |
 | `serve configuration "x" not found … using "default"` | the `--config` name isn't in `serveConfigurations`; the warning lists the names |
 | `ReferenceError` for a webpack `DefinePlugin` constant, or `Failed to resolve import` for a webpack alias | mirror the heft webpack customization in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](vite-extend-file.md)) |
+| `Module name "x" has not been loaded yet for context: _` | a computed `require(name)` reached SharePoint's RequireJS (only `require('<string>')` is rewritten); use `import()` (see [require() and AMD in dependencies](require-and-amd.md)) |
+| `Mismatched anonymous define() module`, or a UMD library import gives `{}` | a script registered with SharePoint's RequireJS; check `amdPackages` in `fast-serve/config.json`, linked packages outside `node_modules` and `<script>`-loaded AMD scripts |
 | `config/fast-serve.json is not read anymore` | move the file to `fast-serve/config.json` (same options) |
 | `fast-serve/vite.extend.mts: "…" is ignored` or `a plugin from … overrides fast-serve` | remove the setting; use the `fast-serve` option the warning names |
 
@@ -88,6 +91,7 @@ The full list of fatal startup errors is in [CLI, options and startup](cli-and-o
 - [HMR and Fast Refresh](hmr-and-fast-refresh.md)
 - [TypeScript source compatibility](typescript-compatibility.md)
 - [SPFx library imports and config.json externals](library-imports-and-externals.md)
+- [require() and AMD in dependencies](require-and-amd.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
 - [Error reporting: project errors only, overlay for runtime errors](../decisions/error-reporting.md)

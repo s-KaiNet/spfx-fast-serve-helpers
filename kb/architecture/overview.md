@@ -41,7 +41,7 @@ Startup, page load, edit and failure paths are traced in [Startup and request fl
 | Localization | `*Strings` imports → modules built from `loc/<locale>` files |
 | Styles | SPFx CSS module naming, `~` Sass imports, Sass `pkg:` URLs, `config/sass.json` `silenceDeprecations` for Sass, theme tokens, library `.module.scss.css` compilation, Sass typings |
 | Assets | static-asset typings |
-| Transforms | source compatibility: tsconfig options for Oxc, defines, `require()` → imports, type-only name and `const enum` checks |
+| Transforms | source compatibility: tsconfig options for Oxc, defines, `require()` → imports with webpack's values, AMD `define` hidden from dependency code, type-only name and `const enum` checks |
 | Browser errors | browser errors → terminal (source-mapped, code frame) and Vite's overlay; overlay hint |
 | Server | HTTPS certificate, port/origin, CORS and Private Network headers, watch ignores, React dedupe, project-change reloads/restarts, debug URL and serve configuration warnings |
 | Vite extend file | `fast-serve/vite.extend.*` lookup, the published context for `defineConfig`, the guard that warns about protected settings, the add/delete watcher that requests a full restart, the startup hint for heft webpack customizations; the public package entry (`defineConfig` and types) |

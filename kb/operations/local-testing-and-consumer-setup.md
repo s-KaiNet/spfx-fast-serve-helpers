@@ -21,7 +21,7 @@ Changes to the package are tested in real SPFx 1.24 projects by packing it into 
 ### Pack and install the package locally
 
 1. In the repository: `pnpm build && pnpm pack`. The tarball is named `spfx-fast-serve-helpers-<version>.tgz` after the version in `package.json` and is git-ignored.
-2. Install the packed tarball in the test project: `npm install --save-dev <path to the repository>/spfx-fast-serve-helpers-<version>.tgz`. The project then depends on it through a `file:` reference that names that exact file, so when the package version changes, install the newly named tarball again; the test projects currently use the tarball of the current version (for example `spfx-fast-serve-helpers-1.24.0-beta.1.tgz`).
+2. Install the packed tarball in the test project: `npm install --save-dev <path to the repository>/spfx-fast-serve-helpers-<version>.tgz`. The project then depends on it through a `file:` reference that names that exact file, so when the package version changes, install the newly named tarball again; the test projects currently use the tarball of the current version (for example `spfx-fast-serve-helpers-1.24.0-beta.2.tgz`).
 3. **Reinstall after every rebuild** (`npm install` in the project, forcing a reinstall of the package if needed). The package manager caches the tarball contents by reference, so a rebuilt tarball under the same name is not picked up by itself; a stale install is the usual reason a fix "doesn't work" in the test project. Restart `fast-serve` afterwards.
 4. Check the result also with the project's own `npm run build` (Heft), which must still pass: `fast-serve` writes only typings into `temp/`.
 

@@ -26,6 +26,7 @@ Vite 8 can forward everything the page logs to the terminal (`server.forwardCons
 - **Overlay for uncaught errors and rejections from project code**, in addition to compile errors; the same error is shown once (React's replayed render errors).
 - **Not for `console.error`**: it goes to the terminal only.
 - **Opt-out**: `"overlay": false` in `fast-serve/config.json` or `--no-overlay` turns the overlay off for compile and runtime errors; the overlay's hint names this option instead of a Vite config.
+- **One exception to the stack-frame rule**: "Mismatched anonymous define()" from SharePoint's RequireJS is forwarded with a hint even without a project frame, because its stack never shows the culprit (see [Isolate dependency code from the page's AMD define](amd-isolation-for-dependencies.md)).
 - Bundle load failures show a readable `[fast-serve]` message in the web part's error box instead of SharePoint's `[object Object]`, and the page reloads after the next file change.
 
 ## Rationale
@@ -46,9 +47,10 @@ Vite 8 can forward everything the page logs to the terminal (`server.forwardCons
 - [Errors and diagnostics](../features/errors-and-diagnostics.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
 - [CLI, options and startup](../features/cli-and-options.md)
+- [Isolate dependency code from the page's AMD define](amd-isolation-for-dependencies.md)
 
 ## Evidence
 
 - Source: user decisions recorded in the project handoff notes, user docs (errors), implementation behavior (browser-errors component); verified live on the tenant on 2026-11-18
 - Confidence: stated
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

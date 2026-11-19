@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-Code written for `heft build` (webpack + tsc) mostly runs unchanged even though Vite compiles each file on its own with Oxc and the browser loads native ES modules. `fast-serve` applies the project's tsconfig `paths`/`baseUrl` aliases and the compiler options that change emitted code, rewrites the `require()` forms SPFx code commonly uses, and turns the cases that can't work file by file (type re-exports without `type`, decorator-metadata type imports, `const enum` from `.d.ts` files or dependencies) into clear messages instead of cryptic browser errors. There is no type checking.
+Code written for `heft build` (webpack + tsc) mostly runs unchanged even though Vite compiles each file on its own with Oxc and the browser loads native ES modules. `fast-serve` applies the project's tsconfig `paths`/`baseUrl` aliases and the compiler options that change emitted code, rewrites `require('<string>')` calls like webpack, and turns the cases that can't work file by file (type re-exports without `type`, decorator-metadata type imports, `const enum` from `.d.ts` files or dependencies) into clear messages instead of cryptic browser errors. There is no type checking.
 
 ## Behavior
 
@@ -42,8 +42,8 @@ Code written for `heft build` (webpack + tsc) mostly runs unchanged even though 
 
 ### `require()` in project source
 
-- Relative `require()` calls (`require('./logo.png')`, `require('./data.json')`, scripts, styles) and `require()` of an explicit tsconfig `paths` key (`require('@alias/logo.png')`) become hoisted imports: assets as URLs, JSON as its default export, scripts and styles as namespaces.
-- A catch-all `"*"` key or `baseUrl` alone doesn't make a `require()` an alias. Other `require()` calls in project source are left alone: use `import`.
+- `require('<string>')` calls (relative paths, explicit tsconfig `paths` keys and packages) become imports placed after the file's own imports, and the call gives what webpack's `require` gives: module namespace, JSON data or asset URL for local files; `module.exports` of a CommonJS package, the namespace of an ES module package; SPFx libraries and `config.json` externals exactly as RequireJS returns them.
+- A computed `require(name)` is left as is with one warning per file; `require.resolve`/`.context`/`.ensure`, `typeof require` and a shadowed `require` are untouched. Remaining difference: a `require` after other statements runs before them (ES import hoisting). Details in [require() and AMD in dependencies](require-and-amd.md).
 
 ### `const enum`
 
@@ -62,7 +62,7 @@ Code written for `heft build` (webpack + tsc) mostly runs unchanged even though 
 
 - The aliases component is an early resolver that tries the candidates the project model derives from the merged tsconfig chain; Vite 8's built-in `resolve.tsconfigPaths` is not used because it ignores aliases when `include` comes from an extended config, which is the SPFx rig setup.
 - Compiler options are passed to Oxc as an inline tsconfig whitelist; Oxc's own tsconfig lookup stays off, because the rig's `importsNotUsedAsValues: "remove"` would keep type-only imports.
-- Only project modules are checked or rewritten; dependencies are served as published. See [Source pipeline](../architecture/source-pipeline.md).
+- Only project modules are checked or rewritten; dependencies are served as published, except that the page's global `define` is hidden from them (see [require() and AMD in dependencies](require-and-amd.md)). See [Source pipeline](../architecture/source-pipeline.md).
 
 ## Edge Cases
 
@@ -78,6 +78,7 @@ Code written for `heft build` (webpack + tsc) mostly runs unchanged even though 
 - [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
 - [TypeScript handling without tsc](../decisions/typescript-handling.md)
 - [TypeScript limits of per-file compilation](../limitations/typescript-limits.md)
+- [require() and AMD in dependencies](require-and-amd.md)
 
 ## Evidence
 

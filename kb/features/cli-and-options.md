@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project (usually as `"serve": "fast-serve"` in `package.json`). It has five options (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), settable as flags or in `fast-serve/config.json`, with `config/serve.json` supplying SPFx defaults. All `fast-serve` files of a project live in its `fast-serve/` folder (also the optional [Vite extend file](vite-extend-file.md)). At start it checks the SPFx version and the dev certificate, then prints the served components and the SharePoint page URL with the debug query. Any startup failure prints one `[fast-serve]` message and exits with code 1.
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project (usually as `"serve": "fast-serve"` in `package.json`). It has five options settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`) plus the file-only `amdPackages`, with `config/serve.json` supplying SPFx defaults. All `fast-serve` files of a project live in its `fast-serve/` folder (also the optional [Vite extend file](vite-extend-file.md)). At start it checks the SPFx version and the dev certificate, then prints the served components and the SharePoint page URL with the debug query. Any startup failure prints one `[fast-serve]` message and exits with code 1.
 
 ## Behavior
 
@@ -42,7 +42,11 @@ The CLI hides Node's HTTP/2 warning "Status message is not supported by HTTP/2" 
 
 ### `fast-serve/config.json`
 
-Optional, JSON with comments, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true }`. The file must be a JSON object; `$schema` is ignored; any other unknown key or a value of the wrong type is a fatal error naming the key and the supported keys.
+Optional, JSON with comments, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true }`. 
+
+`amdPackages` (file only, string array, default `[]`) lists `node_modules` packages that keep SharePoint's RequireJS `define()` instead of having it hidden (see [require() and AMD in dependencies](require-and-amd.md)), for example `["legacy-amd-plugin"]`; restart `fast-serve` after changing it.
+
+The file must be a JSON object; `$schema` is ignored; any other unknown key or a value of the wrong type is a fatal error naming the key and the supported keys.
 
 `config/fast-serve.json` (the old location used by early betas) is not read. When it exists and `fast-serve/config.json` doesn't, `fast-serve` warns at start that it must be moved to `fast-serve/config.json` (same options).
 
@@ -118,6 +122,7 @@ Warnings that don't stop the server: the old `config/fast-serve.json` location, 
 - [Architecture overview](../architecture/overview.md)
 - [Startup and request flows](../architecture/runtime-flows.md)
 - [Customizing the Vite config](vite-extend-file.md)
+- [require() and AMD in dependencies](require-and-amd.md)
 - [Zero-config CLI with an optional Vite extend file](../decisions/zero-config-cli.md)
 
 ## Evidence

@@ -42,7 +42,7 @@ The lint configuration (`.oxlintrc.json`) turns the correctness, suspicious and 
 
 - **Node code**: strict TypeScript, `NodeNext` modules (relative imports carry `.js` extensions), ES2023, `verbatimModuleSyntax`. Source maps are on for local development, off in the published build; test files are excluded from the build.
 - **Browser runtime**: its own DOM-only configuration (no Node types), ES2022, compiled into a runtime folder inside `lib/`. These files are served to, or concatenated into generated scripts for, the SharePoint page (the bundle shim, the library loader, themed styles, browser error reporting). When tests run from sources, runtime files are transpiled on the fly, so tests don't need a prior build.
-- The published package contains `lib/` without test files, plus the `skills/` folder with the `fast-serve-vite-config` agent skill. `package.json` `exports` exposes the public entry (`defineConfig` and types, with declarations emitted for that entry only) and `./package.json`; the `fast-serve` bin is the CLI entry point. Current version: `1.24.0-beta.1`.
+- The published package contains `lib/` without test files, plus the `skills/` folder with the `fast-serve-vite-config` agent skill. `package.json` `exports` exposes the public entry (`defineConfig` and types, with declarations emitted for that entry only) and `./package.json`; the `fast-serve` bin is the CLI entry point. Current version: `1.24.0-beta.2`.
 
 ### Conventions
 

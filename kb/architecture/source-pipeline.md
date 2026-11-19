@@ -16,7 +16,7 @@ tags:
 
 ## Summary
 
-Project source is served file by file as native ES modules, compiled by Vite 8 (Oxc for TypeScript/JSX, Sass for styles) and adapted by `fast-serve`'s components so code written for `heft build` runs unchanged: tsconfig aliases, `*Strings` localization modules, SPFx CSS module names and theme tokens, library CSS compiled with `sp-css-loader`, tsconfig decorator/class-field semantics, `require()` calls and type-only names. Dependencies are pre-bundled by Vite's Rolldown-based optimizer, which `fast-serve` customizes so SPFx libraries, localization modules and library CSS behave the same there. Generated typings in `temp/` keep the editor and `heft build` in sync.
+Project source is served file by file as native ES modules, compiled by Vite 8 (Oxc for TypeScript/JSX, Sass for styles) and adapted by `fast-serve`'s components so code written for `heft build` runs unchanged: tsconfig aliases, `*Strings` localization modules, SPFx CSS module names and theme tokens, library CSS compiled with `sp-css-loader`, tsconfig decorator/class-field semantics, `require()` calls and type-only names. Dependencies are pre-bundled by Vite's Rolldown-based optimizer, which `fast-serve` customizes so SPFx libraries, localization modules and library CSS behave the same there and dependency code doesn't see the page's AMD `define`. Generated typings in `temp/` keep the editor and `heft build` in sync.
 
 ## Current Knowledge
 
@@ -34,11 +34,16 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 
 - **TypeScript options**: the project's `experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, `target`, `strict` and `strictNullChecks` (merged through `extends`) are passed to Oxc as inline tsconfig options, giving legacy decorators and tsc's class-field semantics. Oxc's automatic tsconfig lookup stays off: the SPFx rig's `importsNotUsedAsValues: "remove"` would otherwise keep type-only imports.
 - **Defines**: `DEBUG` = `true`, `process.env.NODE_ENV` = `"development"`.
-- **`require()` → imports**: relative `require()` calls (images, JSON, scripts, styles) and `require()` of explicit tsconfig `paths` aliases become hoisted ES imports (assets as URLs, JSON as default export, scripts and styles as namespaces).
+- **`require()` → imports**: `require('<string>')` calls (relative, explicit tsconfig `paths` aliases, packages) become ES imports placed after the file's own imports; the call is replaced by webpack's value: namespace, JSON data or asset URL for local files, `module.exports` or namespace for packages (unwrapped by a small inline helper), the raw RequireJS module for SPFx libraries and `config.json` externals. A shadowed `require`, computed names and `require.*` members are left alone. See [require() and AMD in dependencies](../features/require-and-amd.md).
 - **Type-only name checks**: type re-exports written without `type`, and (with `emitDecoratorMetadata`) imports kept only for decorator metadata, are checked against the target module's runtime exports, removed from the served code and reported in the terminal and the browser console. Imports from `config.json` externals are skipped, because their names exist only at runtime.
 - **`const enum` checks**: global `declare const enum`s from the project's `.d.ts` files used as values, and relative imports that only resolve to a `.d.ts`, are reported with an explanation; a named import a dependency doesn't export is explained by the bundle shim when the browser links modules.
 - **React**: `@vitejs/plugin-react` adds Fast Refresh; the bundle entry imports its preamble.
-- Only project modules (and virtual modules) are checked or rewritten; dependencies are left as published.
+- Only project modules (and virtual modules) are checked or rewritten; dependencies are left as published except for AMD isolation.
+
+### AMD isolation of dependency code
+
+- In JavaScript files served from `node_modules` and in pre-bundled dependencies that mention `amd`, the global `define` is replaced with `undefined` by Oxc's scope-aware define replacement, so UMD wrappers take their CommonJS or ES module branch. Project `src` is never touched.
+- Packages listed in `amdPackages` (`fast-serve/config.json`) are skipped; the list is part of the pre-bundling plugin identity, so changing it invalidates the pre-bundle cache.
 
 ### Styles at runtime
 
@@ -49,7 +54,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 ### Dependency pre-bundling customization
 
 - **Entries**: the component entry files from `config/config.json` (there is no `index.html`); `react`, `react-dom`, `react-dom/client` and the JSX runtimes are always included.
-- **Rolldown plugins added to pre-bundling**: the externals plugin (ESM and CommonJS facades plus the per-chunk preload), the localization plugin (marks `*Strings` names external so they stay out of pre-bundles and keep hot-updating), and the library CSS plugin (compiles `.module.scss.css` from packages such as PnP controls).
+- **Rolldown plugins added to pre-bundling**: the externals plugin (ESM and CommonJS facades plus the per-chunk preload), the localization plugin (marks `*Strings` names external so they stay out of pre-bundles and keep hot-updating), the AMD isolation plugin, and the library CSS plugin (compiles `.module.scss.css` from packages such as PnP controls).
 - These plugins use hook filters on module ids; without them Rolldown calls JavaScript hooks for every module of every dependency and pre-bundling becomes about twice as slow.
 - Vite's experimental bundled dev mode is not used.
 
@@ -66,6 +71,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 - [Styles, localization and assets in SPFx](../concepts/styles-localization-assets.md)
 - [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
 - [TypeScript source compatibility](../features/typescript-compatibility.md)
+- [require() and AMD in dependencies](../features/require-and-amd.md)
 - [Styles, theme tokens and asset typings](../features/styles-and-assets.md)
 
 ## Evidence

@@ -29,7 +29,7 @@ Project TypeScript is compiled file by file by Vite's Oxc transform, not by `tsc
 - **Compiler-option whitelist to Oxc**: only `experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, `target`, `strict` and `strictNullChecks` are passed as an inline tsconfig; never `jsx`, `importsNotUsedAsValues` or `preserveValueImports`, and never the tsconfig file itself, so Oxc's lookup stays off. Changing one of these options restarts the server.
 - **Type re-export guard warns instead of failing**: type-only re-exports without `type`, and imports kept only for decorator metadata, are checked against the target module's runtime exports, removed from the served code and reported with the `export type` / `import type` fix (re-exports as errors in the terminal and console, metadata imports as warnings). The page keeps working.
 - **`const enum`**: exported `const enum` in project `.ts` files works; ambient, `.d.ts`-only and dependency `const enum`s are not supported, and each form gets a message naming the enum, file or missing export.
-- Relative and explicit-alias `require()` calls in project source are rewritten to imports; other `require()` calls are left alone.
+- `require('<string>')` calls in project source (relative, explicit alias and packages) are rewritten to imports with webpack's `require` values; computed and special forms are left alone (see [Isolate dependency code from the page's AMD define](amd-isolation-for-dependencies.md)).
 
 ## Rationale
 
@@ -42,7 +42,7 @@ Project TypeScript is compiled file by file by Vite's Oxc transform, not by `tsc
 
 - No other compiler option changes emitted code; nothing else is downleveled.
 - With `emitDecoratorMetadata`, class tokens match `tsc`, but primitive metadata can differ, and cross-module types should use `import type`.
-- Only project modules are checked or rewritten; dependencies are served as published.
+- Only project modules are checked or rewritten; dependencies are served as published apart from AMD isolation.
 
 ## Links
 
@@ -50,9 +50,10 @@ Project TypeScript is compiled file by file by Vite's Oxc transform, not by `tsc
 - [Source pipeline](../architecture/source-pipeline.md)
 - [Match heft behavior for serve configurations and the debug URL](match-heft-serve-behavior.md)
 - [Vite 8, Oxc and Rolldown facts relied upon](../references/vite-oxc-rolldown.md)
+- [Isolate dependency code from the page's AMD define](amd-isolation-for-dependencies.md)
 
 ## Evidence
 
 - Source: tsconfig and decorators research (tsc vs Oxc outputs), user decisions recorded in the project handoff notes, implementation behavior (aliases and transforms components)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19
