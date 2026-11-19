@@ -15,11 +15,11 @@ tags:
 
 ## Summary
 
-An SPFx project can contain web parts, extensions (four kinds that matter here), Adaptive Card Extensions (ACEs) and library components. All share the same bundle and manifest machinery, but they differ in how SharePoint hosts them and how they are put on a page during development. `fast-serve` serves web parts, extensions and ACEs; library components are not served yet.
+An SPFx project can contain web parts, extensions (four kinds that matter here), Adaptive Card Extensions (ACEs) and library components. All share the same bundle and manifest machinery, but they differ in how SharePoint hosts them and how they are put on a page during development. The Rspack `fast-serve` targets web parts, extensions and ACEs (phases 1 and 2 of the roadmap); library components are out of scope for now, as in the Vite implementation.
 
 ## Current Knowledge
 
-| Type | Manifest | Host / how it gets on the page in dev | Served by `fast-serve` |
+| Type | Manifest | Host / how it gets on the page in dev | Target of the Rspack `fast-serve` |
 |---|---|---|---|
 | Web part | `componentType: "WebPart"` | added to a page from the toolbox; the page stores only its id and properties | yes |
 | Application Customizer | `componentType: "Extension"`, `extensionType: "ApplicationCustomizer"` | `customActions` with location `ClientSideExtension.ApplicationCustomizer`; renders into page placeholders (`Top`, `Bottom`) | yes |
@@ -48,12 +48,10 @@ Other extension types (`SearchQueryModifier`, `Unknown`) and other component typ
 
 - [Component manifests and the SharePoint loader](component-manifests-and-loader.md)
 - [SharePoint debug flow](sharepoint-debug-flow.md)
-- [HMR, Fast Refresh and Vite terms](hmr-and-vite-terms.md)
-- [Glossary](glossary.md)
-- [Serving web parts, extensions and ACEs](../features/serving-components.md)
+- [Roadmap overview](../roadmap/overview.md)
 
 ## Evidence
 
 - Source: research (SPFx generator 1.24 output, `@microsoft/spfx-heft-plugins` 1.24.1 manifest and serve code, live checks), project docs
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19 (carried over from the Vite implementation's KB)

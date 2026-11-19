@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse-engineered from the shipped `@microsoft/spfx-heft-plugins` 1.24.1 code, `heft build`/`heft start` runs and live observation on a SharePoint Online tenant serving SPFx 1.25.0. These facts define what `fast-serve` has to reproduce and where it deliberately matches heft. Concept-level explanations live in the concept pages; this page keeps the detailed heft-side conclusions.
+How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse-engineered from the shipped `@microsoft/spfx-heft-plugins` 1.24.1 code, `heft build`/`heft start` runs and live observation on a SharePoint Online tenant serving SPFx 1.25.0. These facts define the output format the Rspack `fast-serve` has to reproduce with its own configuration (heft's config and plugins are never reused, see [Rspack with our own configuration](../decisions/rspack-with-own-config.md)). Concept-level explanations live in the concept pages; this page keeps the detailed heft-side conclusions.
 
 ## Current Knowledge
 
@@ -31,32 +31,32 @@ How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse
 - `config/spfx-customize-webpack.js` exports a function (`module.exports` or `exports.default`) that heft calls **synchronously** with `(config, taskSession, heftConfiguration, webpack)`, where `webpack` is heft's own instance. The return value is ignored and a returned promise is not awaited, so only in-place mutation counts. It runs last.
 - `config/webpack-patch.json` lists `patchFiles` (paths relative to the project root, typically `config/webpack-patch/<name>.js`; the JSON itself is found with rig fallback). Each exports `fn(config)`; heft **awaits** them in order, **before** `spfx-customize-webpack.js`. A returned new object doesn't reach webpack either, so patches must mutate too.
 - Both run in `heft build` and in `heft start`; a throwing script fails the build. Before they run the config already holds SPFx's generated config, the third-party externals and, in serve mode, `devServer`.
-- Typical contents: `DefinePlugin` constants, `resolve.alias` entries pointing at `lib/` (webpack bundles the TypeScript output), extra loaders (Babel for lit, SVG, Less) and CSS rule tweaks. `fast-serve` doesn't run them; their dev counterpart lives in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](../features/vite-extend-file.md)).
+- Typical contents: `DefinePlugin` constants, `resolve.alias` entries pointing at `lib/` (webpack bundles the TypeScript output), extra loaders (Babel for lit, SVG, Less) and CSS rule tweaks. `fast-serve` doesn't run them; their dev counterpart is planned as an optional extend file with an Rspack configuration (see [Roadmap overview](../roadmap/overview.md)).
 
 ### Generator from plain Node
 
-- Heft's webpack configuration generator can be called from plain Node with serve mode on and production off: it returns entries and externals in about 0.7 s without a build. Useful for parity checks; `fast-serve` does not use it.
+- Heft's webpack configuration generator can be called from plain Node with serve mode on and production off: it returns entries and externals in about 0.7 s without a build. Useful for parity checks only; `fast-serve` must not use it.
 - Cold dev build of the small test project ≈ 5 s (TypeScript 2.6 s, webpack 2.0 s).
 
 ### Typings tasks
 
 - `sass` compiles `*.module.scss` to plain CSS in `lib/` (ICSS `:export` kept, class names **not** hashed yet) and writes typings to `temp/sass-ts/**/X.module.scss.d.ts`.
 - `static-asset-typings` writes `temp/static-asset-ts/**/X.png.d.ts` (`declare const content: string; export default content;`) for the extensions in the rig's `config/static-asset-typings.json` (`.gif`, `.jpg`, `.jpeg`, `.png`, `.svg`, `.webp`).
-- The rig tsconfig reads both folders through `rootDirs`. `fast-serve` writes the same files with heft's own logic (see [Styles, theme tokens and asset typings](../features/styles-and-assets.md)).
+- The rig tsconfig reads both folders through `rootDirs`. The Vite implementation wrote the same files with heft's own logic; the Rspack implementation reuses that approach.
 
 ### Generated webpack config and bundle format
 
-- One entry per bundle; output is a **named AMD module** `define("<componentId>_<version>", [bare specifiers], factory)` whose `default` export is the component class.
-- **Export names:** with several components in one bundle, heft generates an intermediate entry that re-exports each component with `export * as <name>` and sets `loaderConfig.exportName` per component; the names are short generated identifiers (`a`, `b`, …, skipping JavaScript reserved words). `fast-serve` generates the same kind of names.
+- One entry per bundle; output (`libraryTarget: 'amd'`, no library name) is an **anonymous AMD module** `define([bare specifiers], factory)` whose `default` export is the component class. RequireJS registers it under `<componentId>_<version>` through the `paths` entry sp-loader creates from the manifest.
+- **Export names:** with several components in one bundle, heft generates an intermediate entry that re-exports each component with `export * as <name>` and sets `loaderConfig.exportName` per component; the names are short generated identifiers (`a`, `b`, …, skipping JavaScript reserved words).
 - `DEBUG` and `process.env.NODE_ENV` are defined; assets and chunks load relative to `document.currentScript`, so one build works from localhost, the CDN or the app catalog.
-- Async `import()` of an SPFx component is rewritten to `SPComponentLoader.loadComponentById` — the same mechanism `fast-serve`'s library facades use.
+- Async `import()` of an SPFx library is rewritten to `SPComponentLoader.loadComponentById` by heft's async-component plugin (webpack internals; Rspack cannot run it). Without it, libraries used only from async chunks become dependencies of the entry `define`, which is fine in development.
 - Production adds content hashes, module-level terser minification, `DEBUG=false`; `.map` files are not copied to `release/`.
 
 ### CSS and class-name hashing
 
-- `*.module.css` / `*.module.scss.css` go through `@microsoft/sp-css-loader` as CSS modules; other `.css` files are global. The 1.24 module rule is `/\.module(?:\.scss)?\.css$/i` (SPFx 1.23 treated every non-`.global` style file as a module, see [SPFx 1.23 support](../roadmap/spfx-1-23-support.md)).
+- `*.module.css` / `*.module.scss.css` go through `@microsoft/sp-css-loader` as CSS modules; other `.css` files are global. The 1.24 module rule is `/\.module(?:\.scss)?\.css$/i` (SPFx 1.23 treated every non-`.global` style file as a module).
 - sp-css-loader runs cssnano (calc off), autoprefixer and the PostCSS modules chain, then emits `loadStyles(css, true)` from `@microsoft/load-themed-styles` (bundled, not external) plus `export default { class: "class_<hash>", ...:export values }`.
-- **Class name = `<class>_<first 8 hex of HMAC-SHA1(key = absolute CSS file path, data = CSS)>`.** Hashes therefore differ between machines; only agreement between CSS and the JS class map matters. `fast-serve`'s compile of library CSS is byte-identical to heft's bundle.
+- **Class name = `<class>_<first 8 hex of HMAC-SHA1(key = absolute CSS file path, data = CSS)>`.** Hashes therefore differ between machines; only agreement between CSS and the JS class map matters.
 - Theme tokens (`"[theme:x, default:y]"`) stay in the CSS string and are replaced at runtime by load-themed-styles from `window.__themeState__.theme`.
 
 ### Externals
@@ -70,7 +70,7 @@ Computed by heft, they become both the AMD `define` dependency list and the mani
 `tslib` and `@microsoft/load-themed-styles` are bundled. `config.json` `externals` appear in the manifest as `{ "type": "path", "path", "globalName"?, "globalDependencies"? }`: URLs as is, local files copied to `dist/`; `globalName` becomes a RequireJS `shim`.
 
 - In webpack's output a named import from a `config.json` external is a property read on the loaded module at runtime; `import * as x` of an AMD module that sets `__esModule` is the wrapper object, so its default is reached through the default import.
-- A tenant's Content Security Policy may block externals loaded from a CDN URL; that affects heft as much as `fast-serve`.
+- A tenant's Content Security Policy may block externals loaded from a CDN URL; that affects heft and `fast-serve` alike.
 
 ### Manifests and `manifests.js`
 
@@ -82,7 +82,7 @@ Computed by heft, they become both the AMD `define` dependency list and the mani
 ### Localized resources
 
 - `localizedResources` maps a name (e.g. `HelloWorldWebPartStrings`) to `lib/.../loc/{locale}.js`; heft emits `<Name>_<locale>.js` and a `path` (one locale) or `localizedPath` entry.
-- Loc file forms heft accepts: plain AMD `define([], function () { return {...}; })`; a TypeScript file containing `define([], …)` works; a TypeScript `export default {...}` **builds but breaks at runtime under RequireJS**; `export = {...}` fails with TS1203. See [Localized strings](../features/localization.md).
+- Loc file forms heft accepts: plain AMD `define([], function () { return {...}; })`; a TypeScript file containing `define([], …)` works; a TypeScript `export default {...}` **builds but breaks at runtime under RequireJS**; `export = {...}` fails with TS1203.
 
 ### `heft start` (serve)
 
@@ -99,24 +99,21 @@ Computed by heft, they become both the AMD `define` dependency list and the mani
 - Each component gets a RequireJS `map` from its bare specifiers to `<id>_<version>` module ids, so the same specifier can resolve differently per component; listing a library in `scriptResources` makes the loader load it eagerly before the component's script runs.
 - The class is `module.default` (unwrapped up to twice) or the `exportName` property.
 - CSP: `script-src` includes `https://localhost:*` and `http://localhost:*` (not `127.0.0.1`) only when the page is requested with the debug query; there is no `connect-src`, `style-src` or `img-src`, so WebSocket HMR, fetches, CSS and images from localhost are unrestricted. `sessionStorage["spfx-debug"]` remembers the debug manifests URL for the tab.
-- A native ES module imported from `https://localhost:*` works inside a debug page and can read already-defined SPFx AMD modules — the basis of the whole `fast-serve` design.
+- A native ES module imported from `https://localhost:*` works inside a debug page and can read already-defined SPFx AMD modules (the basis of the Vite implementation; the Rspack implementation serves classic AMD bundles instead).
 
 ### Library components under heft
 
-The consumer's `manifests.js` lists linked libraries' manifests with a base URL under `node_modules/<lib>/dist/`, so heft needs a build or watcher in the library. A generated library project has no `main` in `package.json`, although Microsoft's tutorial requires `"main": "lib/index.js"`. Details and the consequences for `fast-serve` are in [Library components](../roadmap/library-components.md).
+The consumer's `manifests.js` lists linked libraries' manifests with a base URL under `node_modules/<lib>/dist/`, so heft needs a build or watcher in the library. A generated library project has no `main` in `package.json`, although Microsoft's tutorial requires `"main": "lib/index.js"`.
 
 ## Links
 
-- [Customizing the Vite config](../features/vite-extend-file.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
-- [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
-- [Match heft behavior for serve configurations and the debug URL](../decisions/match-heft-serve-behavior.md)
-- [SPFx libraries and externals at runtime](../architecture/spfx-libraries-and-externals.md)
-- [Vite 8, Oxc and Rolldown facts](vite-oxc-rolldown.md)
+- [Externals semantics](../concepts/externals-semantics.md)
+- [Rspack facts and references](rspack.md)
 
 ## Evidence
 
-- Source: research (reverse engineering of `@microsoft/spfx-heft-plugins` 1.24.1 and sp-loader, `@rushstack/heft-webpack5-plugin` webpack customization plugins, `heft build`/`heft start` runs on the SPFx 1.24.1 test project, live observation on the tenant serving 1.25.0), project handoff notes
+- Source: research (reverse engineering of `@microsoft/spfx-heft-plugins` 1.24.1 and sp-loader, `@rushstack/heft-webpack5-plugin` webpack customization plugins, `heft build`/`heft start` runs on the SPFx 1.24.1 test project, live observation on the tenant serving 1.25.0), project handoff notes; carried over from the Vite implementation's KB, bundle format re-checked against heft's dumped webpack config and production output
 - Confidence: high (observed or read in shipped code); medium for export-name generation details
 - Last checked: 2026-11-19

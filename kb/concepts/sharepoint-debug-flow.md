@@ -51,15 +51,12 @@ SPFx components under development run inside a real SharePoint page that is open
 
 ## Links
 
-- [SPFx development loop and what fast-serve replaces](spfx-dev-loop.md)
 - [Component manifests and the SharePoint loader](component-manifests-and-loader.md)
 - [SPFx component types](spfx-component-types.md)
-- [Glossary](glossary.md)
-- [CLI, options and startup](../features/cli-and-options.md)
-- [Environment and browser gotchas](../limitations/environment-and-browser-gotchas.md)
+- [Architecture overview](../architecture/overview.md)
 
 ## Evidence
 
 - Source: research (live observation on a SharePoint Online tenant, shipped sp-loader and `@microsoft/spfx-heft-plugins` 1.24.1 code), project docs
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19 (carried over from the Vite implementation's KB; bundler-independent)

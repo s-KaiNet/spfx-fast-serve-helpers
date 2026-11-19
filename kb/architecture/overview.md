@@ -1,11 +1,11 @@
 ---
 title: Architecture overview
 type: architecture
-status: current
+status: draft
 tags:
   - project-kb
   - architecture
-  - vite
+  - rspack
   - data-flow
 ---
 
@@ -13,78 +13,51 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI that runs Vite programmatically (no user `vite.config`, no fast-serve Vite plugin export; only an optional `fast-serve/vite.extend.mts` escape hatch) and makes a Vite dev server look like `heft start` to SharePoint. Data flows one way: **config → project model → generated artifacts → Vite server → browser runtime**. Each feature is a self-contained component that contributes Vite plugin(s) plus, where needed, browser code; all components share one read-only serve context (project root, resolved options, project model, logger). This page lists the components, their boundaries and dependency rules, and what is reused from the user's project versus shipped with the package.
+`fast-serve` (Rspack implementation) turns an SPFx 1.24 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. This page describes the target shape; only the CLI entry exists so far (see [Roadmap overview](../roadmap/overview.md)).
 
 ## Current Knowledge
 
 ### Data flow
 
-1. **Configuration**: CLI flags, `fast-serve/config.json`, `config/serve.json` and defaults are merged into resolved options (port, origin, page URL, locale, selected serve configuration, overlay). The optional `fast-serve/vite.extend.mts` is handed to Vite as its config file and merged under `fast-serve`'s own settings.
-2. **Project model**: SPFx facts read from the project on disk: bundles and components from `config/config.json`, component manifests, `serve.json` serve configurations, SPFx libraries in `node_modules`, `config.json` `externals`, localized resources, the `tsconfig.json` chain, the installed SPFx version, and which heft webpack customization files exist.
-3. **Generated artifacts**: computed on request from the model: the debug `manifests.js`, one AMD bundle shim and one ESM bundle entry per bundle, library facades, localization modules, typings files.
-4. **Vite server**: HTTPS on `localhost`, module transforms, dependency pre-bundling, HMR socket, file watching.
-5. **Browser runtime**: code that runs inside the SharePoint page: the bundle shim and library loader (classic scripts), the themed-styles runtime and the browser-errors runtime (ES modules), plus Vite's client and the React Fast Refresh preamble.
+1. **Config:** CLI flags, `fast-serve/config.json`, `config/serve.json`, defaults (flags win).
+2. **Project model** (plain Node, no bundler import): bundles and components from `config/config.json` mapped from `lib/` to `src/` entry files, source manifests, `serve.json` serve configurations, SPFx libraries found in `node_modules` (id, version), `config.json` externals, localized resources, tsconfig (through `extends`), merged `config/sass.json`, SPFx version.
+3. **Generated artifacts:** entry modules for multi-component bundles (`export * as <exportName>`), the debug `manifests.js` rendered on request, SCSS and static-asset typings in heft's `temp/` folders.
+4. **Rspack compiler and dev server:** one compilation, one entry per SPFx bundle, `output.library.type: 'amd'`, `externalsType: 'amd'` for SPFx libraries and `config.json` externals, absolute `publicPath` on the dev server, `builtin:swc-loader` with tsconfig-derived options, Sass and CSS modules with SPFx class names and theme tokens, React Refresh; `@rspack/dev-server` over HTTPS with the SPFx dev certificate, CORS and Private Network Access headers.
+5. **Browser runtime:** SharePoint's RequireJS loads each bundle like a heft bundle; Rspack's HMR runtime and React Refresh run inside it, each bundle with its own hot-update global; small fast-serve runtimes add error forwarding to the terminal.
 
-Startup, page load, edit and failure paths are traced in [Startup and request flows](runtime-flows.md).
+### Responsibilities
 
-### Components and responsibilities
-
-| Component | Responsibility |
+| Component | Owns |
 |---|---|
-| CLI and dev server bootstrap | argument parsing, process wiring (exit code 1 on startup failure, clean shutdown on SIGINT/SIGTERM, Node's HTTP/2 status-message warning hidden), a dev session that can fully restart the server, startup order, ready banner with components and the debug page URL |
-| Configuration | option precedence (CLI > `fast-serve/config.json` > `config/serve.json` > defaults), `{tenantDomain}` substitution from `SPFX_SERVE_TENANT_DOMAIN`, serve configuration and page selection like heft |
-| Project model | everything SPFx-specific that can be read from disk (see above); cached, invalidated per changed file |
-| Manifests | `GET /temp/build/manifests.js`: debug manifests per component, relative `./` icon URLs made absolute |
-| Loader | the bundle shim (`/@spfx/bundle/<bundle>.js`), the generated bundle entry (`/@spfx/entry/<bundle>`), the last-server-error record and `/@spfx/status`, pre-bundling entries |
-| Externals | facades for SPFx libraries and `config.json` externals in both the normal and the pre-bundling pipeline; webpack-like rewriting of project imports from `config.json` externals; the `scriptResources` the manifests list; local external files at `/@spfx/external/<name>.js` |
-| Aliases | tsconfig `paths`/`baseUrl` resolution for project scripts |
-| Localization | `*Strings` imports → modules built from `loc/<locale>` files |
-| Styles | SPFx CSS module naming, `~` Sass imports, Sass `pkg:` URLs, `config/sass.json` `silenceDeprecations` for Sass, theme tokens, library `.module.scss.css` compilation, Sass typings |
-| Assets | static-asset typings |
-| Transforms | source compatibility: tsconfig options for Oxc, defines, `require()` → imports with webpack's values, AMD `define` hidden from dependency code, type-only name and `const enum` checks |
-| Browser errors | browser errors → terminal (source-mapped, code frame) and Vite's overlay; overlay hint |
-| Server | HTTPS certificate, port/origin, CORS and Private Network headers, watch ignores, React dedupe, project-change reloads/restarts, debug URL and serve configuration warnings |
-| Vite extend file | `fast-serve/vite.extend.*` lookup, the published context for `defineConfig`, the guard that warns about protected settings, the add/delete watcher that requests a full restart, the startup hint for heft webpack customizations; the public package entry (`defineConfig` and types) |
-| Browser runtime | the browser-side code of the loader, externals, styles and browser-errors components, built separately for the DOM |
+| CLI and options | flags, `fast-serve/config.json`, precedence, version check, logging |
+| Project model | SPFx facts, cached and invalidated on file changes; no bundler types |
+| Rspack config | composition of feature contributions (rules, plugins, resolve, externals, dev-server middlewares) |
+| Manifests | debug `manifests.js`: source manifest + `loaderConfig` with the bundle and the externals it uses |
+| Dev server | HTTPS, headers, debug URL and ready banner, restarts on project-config changes |
+| Features | HMR, externals, localization, styles, typings, tsconfig, errors, extend file, each one module with tests |
 
-How a single project module passes through these components is described in [Source pipeline](source-pipeline.md); SPFx library loading in [SPFx libraries and externals at runtime](spfx-libraries-and-externals.md).
+### Dependency rules
 
-### Dependency rules and invariants
+- The project model never imports Rspack; features depend on the model, not on each other's internals.
+- SPFx and heft packages the project already has are loaded from the project at runtime; Rspack and its plugins are package dependencies.
+- No heft webpack config or heft-plugin internals ([decision](../decisions/rspack-with-own-config.md)).
 
-- **The project model is plain Node and never imports Vite.** It knows SPFx, not the dev server, so it can be reasoned about (and tested) on its own. Everything Vite-specific lives in the feature components.
-- **One feature = one component** that returns its Vite plugin(s), contributes its own Vite config through the plugin `config()` hook, and owns its browser runtime. A composition step lists the plugins in a fixed order; there is no central Vite config object.
-- **Generated artifacts are derived, never stored**: manifests, shims and entries are rendered from the current model on each request, so a model invalidation is enough to change them.
-- **Browser runtime code shares only type contracts with Node code.** It is built with a DOM-only TypeScript config; classic-script parts are concatenated into the bundle shim, ES-module parts are served as virtual modules.
-- Plugins that run inside dependency pre-bundling declare hook filters, so Rolldown only calls into JavaScript for matching module ids (unfiltered hooks made pre-bundling about twice as slow).
-- The design deliberately does not mirror the old webpack-based spfx-fast-serve-helpers structure (see [Build from scratch with semantic modules](../decisions/semantic-architecture.md)).
+### Differences from the Vite implementation
 
-### Reused from the user's project vs shipped with the package
-
-Shipped as package dependencies (installed with `fast-serve`, no `--legacy-peer-deps` needed): `vite` 8, `@vitejs/plugin-react` 6, `rolldown` (bundles TypeScript/ESM loc files), `@rushstack/debug-certificate-manager` (the SPFx dev certificate), `@rushstack/terminal`, `es-module-lexer`, `magic-string`, `picomatch`, `tinyglobby`.
-
-Resolved from the project at runtime, so output matches the project's own Heft toolchain:
-
-- **React and react-dom** from the project's `node_modules`, in their development build (Fast Refresh needs it), deduplicated and pre-bundled; the tenant's production React is not used for project code.
-- **`@microsoft/sp-css-loader`** (directly or through `@microsoft/spfx-heft-plugins`) to compile libraries' `.module.scss.css` files with SPFx class-name hashing.
-- **Heft plugins** found through the project and its SPFx build rig: `@rushstack/heft-sass-plugin`'s Sass processor for `temp/sass-ts` typings, the static-asset typings logic, `@rushstack/heft-config-file` and `@rushstack/rig-package` to read rig-aware `config/sass.json` (typings settings and `silenceDeprecations`) and `config/static-asset-typings.json`.
-- **SPFx library packages** (`@microsoft/sp-*` and any package shipping an SPFx library manifest): only their manifest ids/versions and export names are read; the code itself always comes from the SharePoint page.
-
-Runtime requirement: Node `>=22.14 <23`, `>=24 <25` or `>=26 <27`; ESM package with the `fast-serve` bin; `package.json` `exports` exposes the package entry (`defineConfig` and types, see [Customizing the Vite config](../features/vite-extend-file.md)) and `./package.json`. The published files are the compiled output (without tests) and the `skills/` folder with the `fast-serve-vite-config` agent skill.
+- SharePoint loads real AMD bundles: no shim, no ES module graph, no on-demand library facades, no request-time transforms.
+- Cost at start (one full compile) and per edit (incremental rebuild), instead of per page load.
 
 ## Links
 
-- [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
+- [Rspack with our own configuration](../decisions/rspack-with-own-config.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
-- [HMR, Fast Refresh and Vite terms](../concepts/hmr-and-vite-terms.md)
-- [Startup and request flows](runtime-flows.md)
-- [SPFx libraries and externals at runtime](spfx-libraries-and-externals.md)
-- [Source pipeline](source-pipeline.md)
-- [CLI, options and startup](../features/cli-and-options.md)
-- [Customizing the Vite config](../features/vite-extend-file.md)
-- [Zero-config CLI with an optional Vite extend file](../decisions/zero-config-cli.md)
+- [Externals semantics](../concepts/externals-semantics.md)
+- [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
+- [Rspack facts and references](../references/rspack.md)
+- [Roadmap overview](../roadmap/overview.md)
 
 ## Evidence
 
-- Source: project handoff notes, package code layout notes, implementation behavior (plugin composition, project model, package manifest)
-- Confidence: high
+- Source: Rspack branch plan and handoff (2026-11-19), Rspack prototype, Vite implementation architecture
+- Confidence: medium (target design, not implemented yet)
 - Last checked: 2026-11-19

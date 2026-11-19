@@ -23,6 +23,5 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src"],
-  "exclude": ["src/runtime"]
+  "include": ["src"]
 }

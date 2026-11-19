@@ -1,5 +1,7 @@
 # Debugging the web part in VS Code
 
+> **Vite version only** (branch `v1.24`). Kept on the `rspack` branch as reference for the Rspack rewrite; it does not describe this branch's code. See [HANDOFF.md](HANDOFF.md).
+
 `fast-serve` serves your source files with inline source maps. Every module is loaded from `https://localhost:4321/<path in the project>` (for example `https://localhost:4321/src/webparts/hello/components/Hello.tsx`), and its source map points to that same URL with the original TypeScript inside. So the browser's DevTools show your `.tsx` files, and VS Code only needs to know that `https://localhost:4321/` is the project folder.
 
 ## launch.json

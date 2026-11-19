@@ -1,5 +1,7 @@
 # HMR: do's and don'ts
 
+> **Vite version only** (branch `v1.24`). Kept on the `rspack` branch as reference for the Rspack rewrite; it does not describe this branch's code. See [HANDOFF.md](HANDOFF.md).
+
 `fast-serve` runs Vite's hot module replacement (HMR) with React Fast Refresh. When you save a file, Vite sends the changed module to the page. If a module "accepts" the update (React components do), only that module runs again and React re-renders with the state kept. If nothing accepts it on the way up the import chain, the page reloads.
 
 ## What updates in place

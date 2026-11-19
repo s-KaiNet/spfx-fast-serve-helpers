@@ -1,5 +1,7 @@
 # Migrating to fast-serve for SPFx 1.24 (Vite)
 
+> **Vite version only** (branch `v1.24`). Kept on the `rspack` branch as reference for the Rspack rewrite; it does not describe this branch's code. See [HANDOFF.md](HANDOFF.md).
+
 `fast-serve` replaces `heft start` while you develop. `heft build`, `heft test` and `heft package-solution` don't change, and nothing it does ends up in your `.sppkg`.
 
 - [From `heft start` (SPFx 1.22+)](#from-heft-start-spfx-122)
