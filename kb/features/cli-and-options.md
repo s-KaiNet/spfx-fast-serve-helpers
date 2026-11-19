@@ -54,7 +54,7 @@ The page follows heft's order with the `pageUrl` option in place of heft's fallb
 
 ### Startup order and summary
 
-SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
+SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
 
 ### Startup failures (exit code 1)
 

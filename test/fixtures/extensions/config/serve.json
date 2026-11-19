@@ -1,0 +1,36 @@
+{
+  "port": 4321,
+  "https": true,
+  "initialPage": "https://{tenantDomain}/_layouts/workbench.aspx",
+  "serveConfigurations": {
+    "default": {
+      "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/home.aspx",
+      "customActions": {
+        "20000000-0000-0000-0000-000000000001": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "testMessage": "Hello"
+          }
+        }
+      }
+    },
+    "commands": {
+      "pageUrl": "https://{tenantDomain}/sites/dev/Lists/Tasks/AllItems.aspx?viewid=1#top",
+      "customActions": {
+        "20000000-0000-0000-0000-000000000002": {
+          "location": "ClientSideExtension.ListViewCommandSet.CommandBar",
+          "properties": {
+            "sampleText": "One"
+          }
+        }
+      }
+    },
+    "wrong": {
+      "customActions": {
+        "30000000-0000-0000-0000-000000000009": {
+          "location": "ClientSideExtension.ApplicationCustomizer"
+        }
+      }
+    }
+  }
+}

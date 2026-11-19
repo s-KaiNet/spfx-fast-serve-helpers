@@ -3,6 +3,7 @@ import { legacyOptionsFileHint, loadOptionsFile, resolveOptions, type FastServeO
 import type { Logger } from '../logger.js';
 import { packageName, packageVersion } from '../packageInfo.js';
 import { assertSupportedSpfxVersion, createProject, findSpfxVersion, type InstalledSpfxVersion, type SpfxProject } from '../project/index.js';
+import { serveConfigurationWarnings } from './serveConfigurationWarnings.js';
 
 export interface ServeSetup {
   root: string;
@@ -31,5 +32,9 @@ export function prepareServe({ root, cli = {}, logger, env = process.env }: Prep
     throw new Error('No web parts, extensions or Adaptive Card Extensions found in config/config.json bundles (library components are not supported yet).');
   }
   for (const warning of options.warnings) logger.warn(warning);
+  if (options.serveConfiguration) {
+    const { name, ...configuration } = options.serveConfiguration;
+    for (const warning of serveConfigurationWarnings(name, configuration, project.components())) logger.warn(warning);
+  }
   return { root: projectRoot, spfxVersion, project, options };
 }

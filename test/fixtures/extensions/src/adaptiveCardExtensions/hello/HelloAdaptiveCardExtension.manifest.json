@@ -1,0 +1,16 @@
+{
+  "id": "10000000-0000-0000-0000-000000000001",
+  "alias": "HelloAdaptiveCardExtension",
+  "componentType": "AdaptiveCardExtension",
+  "version": "*",
+  "manifestVersion": 2,
+  "supportedHosts": ["Dashboard"],
+  "preconfiguredEntries": [{
+    "groupId": "bd067b1e-3ad5-4d5d-a5fe-505f07d7f59c",
+    "group": { "default": "Dashboard" },
+    "title": { "default": "Hello" },
+    "iconImageUrl": "./assets/icon.png",
+    "properties": { "title": "Hello" },
+    "cardSize": "Medium"
+  }]
+}

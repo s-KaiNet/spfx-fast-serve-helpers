@@ -46,7 +46,7 @@ SPFx components under development run inside a real SharePoint page that is open
 ### Hosts
 
 - Regular SharePoint pages (site pages, list views, list forms) are the main host.
-- The SharePoint Online hosted workbench (`/_layouts/15/workbench.aspx`) still accepts the debug query and keeps an unsaved canvas across reloads, but it is deprecated and retired on 2026-12-01; Microsoft's ACE tutorial now uses a test page.
+- The SharePoint Online hosted workbench (`/_layouts/15/workbench.aspx`) still accepts the debug query and keeps an unsaved canvas across reloads, but it is deprecated and retired on 2026-12-01; Microsoft's ACE tutorial now uses a test page. Besides `debugManifestsFile` it always probes the classic default `localhost:4321` and warns "Your web part will not appear in the toolbox" when nothing answers there; the debug manifests' components are listed anyway (details in [Extensions and ACEs](../features/extensions-and-aces.md)).
 - Interaction with ACEs (buttons, quick views) is disabled in edit mode: use Preview on the workbench or a saved page in read mode.
 
 ## Links

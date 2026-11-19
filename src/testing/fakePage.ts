@@ -88,7 +88,7 @@ export interface FakePage {
   readonly head: FakeNode;
   readonly logs: string[];
   readonly reloads: () => number;
-  loadAmdBundle(source: string): void;
+  loadAmdBundle(source: string): unknown;
   styles(): string[];
 }
 
@@ -172,6 +172,7 @@ export function createFakePage({ externals, fetch }: FakePageOptions): FakePage 
       vm.runInContext(source, context);
       delete globals.define;
       if (factoryResult === undefined) throw new Error('the bundle did not call define()');
+      return factoryResult;
     },
     styles: () => head.childNodes.filter((node) => node.tagName === 'style').map((node) => node.text),
   };

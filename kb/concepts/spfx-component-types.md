@@ -49,6 +49,7 @@ Other extension types (`SearchQueryModifier`, `Unknown`) and other component typ
 - [Component manifests and the SharePoint loader](component-manifests-and-loader.md)
 - [SharePoint debug flow](sharepoint-debug-flow.md)
 - [Roadmap overview](../roadmap/overview.md)
+- [Extensions and Adaptive Card Extensions](../features/extensions-and-aces.md)
 
 ## Evidence
 

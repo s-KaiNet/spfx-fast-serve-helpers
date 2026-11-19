@@ -59,6 +59,31 @@ describe('prepareServe', () => {
     expect(messages).toContain('warn: config/fast-serve.json is not read anymore: move it to fast-serve/config.json (same options)');
   });
 
+  it('checks the selected serve configuration against the served extensions', () => {
+    const root = fixtureCopy({
+      'config/serve.json': JSON.stringify({
+        initialPage: 'https://contoso.sharepoint.com/sites/dev/SitePages/home.aspx',
+        serveConfigurations: {
+          default: { customActions: { '99999999-2222-3333-4444-555555555555': { location: 'ClientSideExtension.ApplicationCustomizer' } } },
+          commands: {
+            pageUrl: 'https://contoso.sharepoint.com/sites/dev/Lists/Tasks/AllItems.aspx',
+            customActions: { '11111111-2222-3333-4444-555555555555': { location: 'ClientSideExtension.ListViewCommandSet.CommandBar' } },
+          },
+        },
+      }),
+    });
+    const quiet = recordingLogger();
+    expect(prepareServe({ root, logger: quiet.logger, env: {} }).options.serveConfiguration?.name).toBe('default');
+    expect(quiet.messages.filter((message) => message.includes('serveConfigurations'))).toEqual([]);
+
+    const { logger, messages } = recordingLogger();
+    const setup = prepareServe({ root, cli: { serveConfiguration: 'commands' }, logger, env: {} });
+    expect(setup.options.pageUrl).toBe('https://contoso.sharepoint.com/sites/dev/Lists/Tasks/AllItems.aspx');
+    expect(messages).toContain(
+      'warn: config/serve.json serveConfigurations.commands.customActions.11111111-2222-3333-4444-555555555555: HelloWebPart is WebPart, expected ListViewCommandSet',
+    );
+  });
+
   it('refuses unsupported SPFx versions and projects without components', () => {
     const { logger } = recordingLogger();
     const newer = fixtureCopy({ 'node_modules/@microsoft/sp-core-library/package.json': '{ "name": "@microsoft/sp-core-library", "version": "1.25.0" }' });

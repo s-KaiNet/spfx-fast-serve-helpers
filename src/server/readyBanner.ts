@@ -1,3 +1,4 @@
+import { aceBannerLines } from '../aces/index.js';
 import { TENANT_DOMAIN_ENV, type ResolvedOptions } from '../config/options.js';
 import type { SpfxComponent } from '../project/index.js';
 import { debugPageUrl, debugQuery } from './debugUrl.js';
@@ -12,6 +13,7 @@ export function readyBanner(options: ResolvedOptions, components: readonly SpfxC
     if (options.pageUrlTemplate) lines.push(`set ${TENANT_DOMAIN_ENV} to resolve the page URL "${options.pageUrlTemplate}"`);
     lines.push(`append to your SharePoint page URL: ?${debugQuery(options.origin, serveConfiguration)}`);
   }
+  lines.push(...aceBannerLines(components, options.pageUrl, debugQuery(options.origin)));
   lines.push('the debug query sticks to the browser tab: after stopping fast-serve, open the page in a new tab');
   return lines;
 }

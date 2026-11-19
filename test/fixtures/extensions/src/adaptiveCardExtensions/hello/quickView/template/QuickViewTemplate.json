@@ -1,0 +1,9 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "${title}"
+    }
+  ]
+}

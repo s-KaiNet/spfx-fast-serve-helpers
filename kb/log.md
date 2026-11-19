@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-19 21:52 | ingest | extensions and ACEs (R6, R7)
+
+- Changed: `kb/features/extensions-and-aces.md` (new), `kb/features/cli-and-options.md`, `kb/features/dev-server.md`, `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/spfx-component-types.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: serve configuration selection, extension query and startup warnings documented; ACE handling (manifest, JSON templates, images, lazy chunks with hoisted libraries, reload on edits), ACE banner hint and site workbench URL recorded; hosted workbench's fixed `localhost:4321` probe warning noted; live results for Application Customizer, Command Set, Form Customizer and the ACE added
+
 ## 2026-11-19 21:40 | ingest | HMR and React Fast Refresh (R5)
 
 - Changed: `kb/features/hmr.md` (new), `kb/decisions/several-bundles-one-compilation.md` (new), `kb/features/dev-server.md`, `kb/features/rspack-compile.md`, `kb/references/rspack.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/index.md`

@@ -1,0 +1,17 @@
+{
+  "id": "20000000-0000-0000-0000-000000000002",
+  "alias": "CommandsCommandSet",
+  "componentType": "Extension",
+  "extensionType": "ListViewCommandSet",
+  "version": "*",
+  "manifestVersion": 2,
+  "items": {
+    "COMMAND_1": {
+      "title": {
+        "default": "Command One"
+      },
+      "iconImageUrl": "./icon.png",
+      "type": "command"
+    }
+  }
+}

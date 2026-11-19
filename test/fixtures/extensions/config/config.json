@@ -1,0 +1,33 @@
+{
+  "version": "2.0",
+  "bundles": {
+    "hello-adaptive-card-extension": {
+      "components": [
+        {
+          "entrypoint": "./lib/adaptiveCardExtensions/hello/HelloAdaptiveCardExtension.js",
+          "manifest": "./src/adaptiveCardExtensions/hello/HelloAdaptiveCardExtension.manifest.json"
+        }
+      ]
+    },
+    "banner-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/banner/BannerApplicationCustomizer.js",
+          "manifest": "./src/extensions/banner/BannerApplicationCustomizer.manifest.json"
+        }
+      ]
+    },
+    "commands-command-set": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/commands/CommandsCommandSet.js",
+          "manifest": "./src/extensions/commands/CommandsCommandSet.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "HelloAdaptiveCardExtensionStrings": "lib/adaptiveCardExtensions/hello/loc/{locale}.js"
+  }
+}
