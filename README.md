@@ -123,6 +123,7 @@ The page is the exception: a named serve configuration's own `pageUrl` wins over
 | `locale` | `--locale` | locale of `localizedResources` strings (falls back to `en-us` per resource) |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` `serveConfigurations` entry to use (default: `default`); an unknown name warns with the list of names and uses `default` |
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page (see [Errors](#errors)); errors still go to the terminal and the browser console (default: `true`) |
+| `amdPackages` | | `fast-serve/config.json` only: packages from `node_modules` that keep SharePoint's RequireJS `define()` (see [require() and AMD in dependencies](#require-and-amd-in-dependencies)), e.g. `["legacy-amd-plugin"]`. Restart `fast-serve` after changing it (default: `[]`) |
 
 HTTPS is always on, with the SPFx development certificate. There is no `vite.config` to write: `fast-serve` configures Vite itself. A project that customizes heft's webpack config can add the development counterpart in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](#customizing-the-vite-config)).
 
@@ -139,6 +140,19 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 - `await import('ejs')` gives a webpack-like namespace: the module's properties plus `default`.
 
 A script that defines nothing (it returns `undefined`) loads without errors; only reading a name from it fails.
+
+### require() and AMD in dependencies
+
+On a SharePoint page the global `require` and `define` belong to SharePoint's RequireJS. Heft's webpack handles both at build time; `fast-serve` serves ES modules, so it rewrites them where webpack would have handled them:
+
+- **`require('<string>')` in your code** becomes an import, and the call gives what webpack's `require` gives:
+  - relative paths and `tsconfig` `paths` aliases: the module (namespace), JSON data, or the URL of an asset;
+  - packages (`require('dayjs')`, `require('@microsoft/mgt-components/dist/es6/components/mgt-person/mgt-person')`): `module.exports` of a CommonJS package, the namespace of an ES module package; `require('pkg/data.json')` gives the data and `require('pkg/icon.svg')` a URL;
+  - SPFx libraries (`@microsoft/sp-*`) and `config/config.json` externals: the module exactly as RequireJS returns it;
+  - `require('x');` on its own runs the module for its side effects.
+
+  `require(variable)`, `require.resolve`, `require.context`, `require.ensure`, `typeof require` and a `require` that is a parameter or variable of your code are left as is; a computed `require(name)` prints a warning (use `import()` for modules chosen at runtime). One difference remains: imports run before the code of the module, so a `require` placed after other statements runs before them, while webpack runs it in place. The generated imports go after your own imports, so the order among dependencies is the same.
+- **AMD in dependencies:** UMD libraries that check for AMD before CommonJS (the full `lodash` build, some older moment builds and bundles from older tooling) would call SharePoint's `define()` from inside `node_modules` code: RequireJS throws "Mismatched anonymous define() module" (with a stack pointing at an unrelated module) and the import gives `{}`. `fast-serve` hides the global `define` from dependency code, in pre-bundled dependencies and in files served from `node_modules`, so these libraries take their CommonJS or ES module branch as under webpack. Your `src` code and `config/config.json` externals still see RequireJS. A package that really must register with SharePoint's RequireJS can keep `define` through `"amdPackages": ["package-name"]` in `fast-serve/config.json`. If the error still shows up, the terminal adds a hint where to look.
 
 ### TypeScript settings, static assets and theme colors
 
@@ -234,6 +248,8 @@ The browser reports the position it has for a stack frame, which isn't always th
 | `serve configuration "x" not found … using "default"` | the `--config` name isn't in `config/serve.json` `serveConfigurations`; the warning lists the names |
 | web part shows `[fast-serve] Failed to load bundle …: <error> in src/…:line:col` | a syntax or transform error: details are in the `fast-serve` terminal. Fix the file and the page reloads |
 | `ReferenceError` for a constant from webpack's `DefinePlugin`, or `Failed to resolve import` for a webpack alias | mirror the webpack customization in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](#customizing-the-vite-config)) |
+| `Module name "x" has not been loaded yet for context: _` | a `require()` reached SharePoint's RequireJS: a computed `require(name)` is left as is (use `import()`; see [require() and AMD in dependencies](#require-and-amd-in-dependencies)) |
+| `Mismatched anonymous define() module`, or an import of a UMD library gives `{}` | a script registered with SharePoint's RequireJS; the stack points at an unrelated module. Check `amdPackages` in `fast-serve/config.json` (see [require() and AMD in dependencies](#require-and-amd-in-dependencies)) |
 | `… older than … used by the project` | your project uses a newer SPFx version than your tenant serves. It would fail in production too: use the SPFx version your tenant supports |
 
 ## Limitations (v1)

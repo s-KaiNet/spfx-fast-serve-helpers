@@ -56,7 +56,7 @@ function createContext(): ServeContext {
     root,
     project: createProject(root, logger),
     logger,
-    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, overlay: true, warnings: [] },
+    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, overlay: true, amdPackages: [], warnings: [] },
   };
 }
 

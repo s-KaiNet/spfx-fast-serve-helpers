@@ -14,6 +14,8 @@ export interface FastServeOptions {
   serveConfiguration?: string;
 
   overlay?: boolean;
+
+  amdPackages?: string[];
 }
 
 export interface SelectedServeConfiguration extends ServeConfiguration {
@@ -33,6 +35,8 @@ export interface ResolvedOptions {
   serveConfiguration: SelectedServeConfiguration | undefined;
 
   overlay: boolean;
+
+  amdPackages: readonly string[];
 
   warnings: string[];
 }
@@ -77,6 +81,7 @@ export function resolveOptions(
     pageUrlTemplate,
     serveConfiguration,
     overlay: cli.overlay ?? file.overlay ?? true,
+    amdPackages: file.amdPackages ?? [],
     warnings,
   };
 }
@@ -133,7 +138,12 @@ export function loadOptionsFile(root: string): FastServeOptions {
     else if (key === 'locale' && typeof value === 'string') options.locale = value;
     else if (key === 'serveConfiguration' && typeof value === 'string') options.serveConfiguration = value;
     else if (key === 'overlay' && typeof value === 'boolean') options.overlay = value;
-    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay)`);
+    else if (key === 'amdPackages' && isStringArray(value)) options.amdPackages = value;
+    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, amdPackages)`);
   }
   return options;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }

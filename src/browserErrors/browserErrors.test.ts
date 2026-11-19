@@ -9,7 +9,7 @@ import { resolveOptions } from '../config/options.js';
 import type { BrowserErrorReport } from '../runtime/contracts.js';
 import { readRuntimeSource } from '../utils/runtimeSource.js';
 import { createRequire } from 'node:module';
-import { codeFrame, formatBrowserError, overlayError } from './format.js';
+import { codeFrame, formatBrowserError, isAmdMismatch, overlayError } from './format.js';
 import { BROWSER_ERROR_EVENT, browserErrorsPlugin, describeBrowserError, errorSignature, showsOverlay } from './index.js';
 import { rewriteOverlayHint } from './overlayHint.js';
 import { frameSource, parseStackFrames, referencesProjectCode } from './stackFrames.js';
@@ -104,6 +104,16 @@ describe('formatBrowserError', () => {
   it('labels rejections and console errors', () => {
     expect(stripVTControlCharacters(formatBrowserError(report({ kind: 'unhandled-rejection', message: 'x' }), [], () => undefined))).toBe('[Unhandled rejection] Error: x');
     expect(stripVTControlCharacters(formatBrowserError(report({ kind: 'console-error', message: 'Loading failed 42' }), [], () => undefined))).toBe('[console.error] Loading failed 42');
+  });
+
+  it('explains a RequireJS anonymous define mismatch, whose stack points at an unrelated module', () => {
+    const message = 'Mismatched anonymous define() module: function() { return _; }\nhttps://requirejs.org/docs/errors.html#mismatch';
+    const lines = stripVTControlCharacters(formatBrowserError(report({ message }), [], () => undefined)).split('\n');
+    expect(lines[2]).toMatch(/^Hint: a script called SharePoint's RequireJS define\(\) without a module name/);
+    expect(lines[2]).toContain('"amdPackages" in fast-serve/config.json');
+    expect(overlayError(report({ message }), [], () => undefined).message).toContain('\n\nHint: ');
+    expect(isAmdMismatch(message)).toBe(true);
+    expect(isAmdMismatch('Script error for "x"')).toBe(false);
   });
 
   it('keeps the code frame inside the file', () => {

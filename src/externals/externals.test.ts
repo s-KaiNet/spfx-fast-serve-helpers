@@ -31,7 +31,7 @@ function createFixtureExternals() {
     root,
     project: createProject(root, logger),
     logger,
-    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, overlay: true, warnings: [] },
+    options: { port: 4400, origin: 'https://localhost:4400', locale: 'en-us', pageUrl: undefined, pageUrlTemplate: undefined, serveConfiguration: undefined, overlay: true, amdPackages: [], warnings: [] },
   };
   return { externals: createExternals(context), warnings };
 }
@@ -62,6 +62,7 @@ describe('facades', () => {
     const code = renderEsmFacade(core, ['Version', 'delete']);
     expect(code).toContain(`const library = await window.__spfxFastServe.loadLibrary(${JSON.stringify(core)});`);
     expect(code).toContain('export default (library.default !== undefined ? library.default : library);');
+    expect(code).toContain('export { library as __spfxExternalModule };');
     expect(code).toContain('const __e0 = library["Version"];\nexport { __e0 as Version };');
     expect(code).toContain('export { __e1 as delete };');
   });

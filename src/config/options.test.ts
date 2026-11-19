@@ -14,6 +14,7 @@ describe('resolveOptions', () => {
       pageUrlTemplate: undefined,
       serveConfiguration: undefined,
       overlay: true,
+      amdPackages: [],
       warnings: [],
     });
   });
@@ -34,6 +35,10 @@ describe('resolveOptions', () => {
   it('turns the error overlay off from the CLI or the options file', () => {
     expect(resolveOptions({ file: { overlay: false } }, {}).overlay).toBe(false);
     expect(resolveOptions({ file: { overlay: true }, cli: { overlay: false } }, {}).overlay).toBe(false);
+  });
+
+  it('takes the AMD opt-out packages from the options file', () => {
+    expect(resolveOptions({ file: { amdPackages: ['legacy-amd'] } }, {}).amdPackages).toEqual(['legacy-amd']);
   });
 
   it('substitutes {tenantDomain} from SPFX_SERVE_TENANT_DOMAIN', () => {
@@ -133,10 +138,16 @@ describe('loadOptionsFile', () => {
     expect(loadOptionsFile(root)).toEqual({ port: 4500, pageUrl: 'https://x/y', locale: 'nl-nl', serveConfiguration: 'rating', overlay: false });
   });
 
+  it('reads the AMD opt-out list', () => {
+    expect(loadOptionsFile(projectWith('{ "amdPackages": ["legacy-amd", "@scope/amd"] }'))).toEqual({ amdPackages: ['legacy-amd', '@scope/amd'] });
+  });
+
   it('rejects unknown options and wrong types', () => {
     expect(() => loadOptionsFile(projectWith('{ "open": true }'))).toThrow(/unknown option.*"open"/);
     expect(() => loadOptionsFile(projectWith('{ "port": "4321" }'))).toThrow(/"port"/);
     expect(() => loadOptionsFile(projectWith('{ "overlay": "no" }'))).toThrow(/"overlay"/);
+    expect(() => loadOptionsFile(projectWith('{ "amdPackages": "lodash" }'))).toThrow(/"amdPackages"/);
+    expect(() => loadOptionsFile(projectWith('{ "amdPackages": [1] }'))).toThrow(/"amdPackages"/);
   });
 });
 

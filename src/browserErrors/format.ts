@@ -16,6 +16,11 @@ const HEADERS: Record<BrowserErrorReport['kind'], string> = {
 };
 
 const CODE_FRAME_CONTEXT_LINES = 2;
+const AMD_MISMATCH = 'Mismatched anonymous define()';
+const AMD_MISMATCH_HINT =
+  "Hint: a script called SharePoint's RequireJS define() without a module name; the stack shows what RequireJS was loading at that moment, not the culprit. " +
+  'fast-serve hides define() from dependencies in node_modules, so look for a package listed in "amdPackages" in fast-serve/config.json, ' +
+  'a linked package outside node_modules, or an AMD script loaded with a <script> tag.';
 const LINE_MARKER_WIDTH = 2;
 
 export interface OverlayError {
@@ -27,9 +32,18 @@ export interface OverlayError {
 
 type SourceReader = (file: string) => string | undefined;
 
+export function isAmdMismatch(message: string): boolean {
+  return message.includes(AMD_MISMATCH);
+}
+
+function browserErrorHint(message: string): string | undefined {
+  return isAmdMismatch(message) ? AMD_MISMATCH_HINT : undefined;
+}
+
 export function formatBrowserError(report: BrowserErrorReport, frames: readonly DisplayFrame[], readSource: SourceReader): string {
   const title = report.kind === 'console-error' ? report.message : `${styleText('bold', report.name)}: ${report.message}`;
-  const lines = [styleText('red', `${HEADERS[report.kind]} ${title}`)];
+  const hint = browserErrorHint(report.message);
+  const lines = [styleText('red', `${HEADERS[report.kind]} ${title}`), ...(hint === undefined ? [] : [styleText('yellow', hint)])];
   let codeFrameShown = false;
   for (const frame of frames) {
     lines.push(` > ${[frame.method, `${frame.location}:${frame.line}:${frame.column}`].filter(Boolean).join(' ')}`);
@@ -43,8 +57,9 @@ export function formatBrowserError(report: BrowserErrorReport, frames: readonly 
 
 export function overlayError(report: BrowserErrorReport, frames: readonly DisplayFrame[], readSource: SourceReader): OverlayError {
   const title = report.kind === 'console-error' ? report.message : `${report.name}: ${report.message}`;
+  const hint = browserErrorHint(report.message);
   const stack = frames.map((frame) => `    at ${[frame.method, `(${frameLocation(frame)})`].filter(Boolean).join(' ')}`).join('\n');
-  const error: OverlayError = { message: `${HEADERS[report.kind]} ${title}`, stack };
+  const error: OverlayError = { message: `${HEADERS[report.kind]} ${title}${hint === undefined ? '' : `\n\n${hint}`}`, stack };
   const located = frames.find((frame) => frame.sourceFile !== undefined) ?? frames[0];
   if (!located) return error;
   const source = located.sourceFile === undefined ? undefined : readSource(located.sourceFile);

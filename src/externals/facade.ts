@@ -20,6 +20,7 @@ export function renderEsmFacade(library: SpfxLibraryReference, exportNames: read
     `if (!${LIBRARY_LOADER}) throw new Error(${MISSING_LOADER_ERROR});`,
     `const library = await ${LIBRARY_LOADER}.loadLibrary(${JSON.stringify(library)});`,
     'export default (library.default !== undefined ? library.default : library);',
+    `export { library as ${EXTERNAL_MODULE_EXPORT} };`,
     ...renderNamedExports('library', exportNames),
     '',
   ].join('\n');

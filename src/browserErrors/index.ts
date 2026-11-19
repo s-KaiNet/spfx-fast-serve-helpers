@@ -7,7 +7,7 @@ import type { ServeContext } from '../context.js';
 import type { BrowserErrorReport } from '../runtime/contracts.js';
 import { isInside, toPosix } from '../utils/paths.js';
 import { readRuntimeSource, runtimeFilePath } from '../utils/runtimeSource.js';
-import { type DisplayFrame, formatBrowserError, overlayError } from './format.js';
+import { type DisplayFrame, formatBrowserError, isAmdMismatch, overlayError } from './format.js';
 import { overlayHintPlugin } from './overlayHint.js';
 import { frameSource, isOwnCode, parseStackFrames, referencesProjectCode, type StackFrame } from './stackFrames.js';
 
@@ -37,7 +37,8 @@ export function browserErrorsPlugin({ root, options }: Pick<ServeContext, 'root'
       const environment = server.environments.client;
       const isRepeated = createRepeatFilter(REPEAT_SUPPRESSION_MS);
       environment.hot.on(BROWSER_ERROR_EVENT, (payload: unknown, client) => {
-        if (!isBrowserErrorReport(payload) || !referencesProjectCode([payload.stack, payload.callStack], options.origin)) return;
+        if (!isBrowserErrorReport(payload)) return;
+        if (!referencesProjectCode([payload.stack, payload.callStack], options.origin) && !isAmdMismatch(payload.message)) return;
         void mapBrowserErrorFrames(environment, root, options.origin, payload).then((frames) => {
           if (isRepeated(errorSignature(payload, frames))) return;
           environment.logger.error(formatBrowserError(payload, frames, readSourceFile), { timestamp: true });
