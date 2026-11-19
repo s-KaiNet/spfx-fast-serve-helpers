@@ -1,11 +1,19 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.24.0-rspack.8",
+  "version": "1.24.0-rspack.9",
   "description": "Rspack-based dev server for SharePoint Framework 1.24.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
   "type": "module",
   "bin": {
     "fast-serve": "lib/cli.js"
   },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./lib/index.d.ts",
   "files": [
     "lib",
     "!lib/**/*.test.*",
@@ -17,7 +25,7 @@
   "packageManager": "pnpm@12.11.2",
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
-    "build": "pnpm clean && tsc -p tsconfig.build.json && tsc -p tsconfig.runtime.json",
+    "build": "pnpm clean && tsc -p tsconfig.build.json && tsc -p tsconfig.runtime.json && tsc -p tsconfig.types.json",
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.runtime.json --noEmit",
     "lint": "oxlint --type-aware --deny-warnings",
@@ -68,8 +76,5 @@
     "react-refresh": "^0.19.0",
     "sass-loader": "^17.1.0",
     "tinyglobby": "^0.2.17"
-  },
-  "exports": {
-    "./package.json": "./package.json"
   }
 }

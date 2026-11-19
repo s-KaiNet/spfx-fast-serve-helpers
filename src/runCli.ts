@@ -3,6 +3,8 @@ import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TEN
 import { DEFAULT_LOCALE } from './project/index.js';
 import { packageName, packageVersion } from './packageInfo.js';
 import { errorMessage } from './utils/errors.js';
+import { EXTEND_FILE } from './extend/files.js';
+import { RSPACK_CONFIG_DOCS_URL } from './extend/webpackHint.js';
 
 export interface CliIo {
   out(text: string): void;
@@ -33,6 +35,10 @@ The same options can be set in ${OPTIONS_FILE}:
 { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true }.
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
+
+Optional Rspack config merged into fast-serve's (e.g. to mirror a heft webpack customization):
+${EXTEND_FILE}, see ${RSPACK_CONFIG_DOCS_URL}
+fast-serve restarts when that file, config/*.json, ${OPTIONS_FILE}, package.json or tsconfig change.
 `;
 
 export async function runCli(args: string[], io: CliIo): Promise<number> {

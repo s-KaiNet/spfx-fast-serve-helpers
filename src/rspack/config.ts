@@ -22,6 +22,7 @@ const IGNORED_PROJECT_FOLDERS = ['lib', 'lib-[^\\\\/]+', 'dist', 'temp', 'releas
 
 export interface RspackConfigOptions {
   outputPath?: string;
+  hashSalt?: string;
 }
 
 export async function featureContributions(context: BuildContext): Promise<ConfigContribution[]> {
@@ -51,7 +52,7 @@ export async function createRspackConfig(context: BuildContext, options: RspackC
   return (await createRspackBuild(context, options)).config;
 }
 
-export async function createRspackBuild(context: BuildContext, { outputPath }: RspackConfigOptions = {}): Promise<RspackBuild> {
+export async function createRspackBuild(context: BuildContext, { outputPath, hashSalt }: RspackConfigOptions = {}): Promise<RspackBuild> {
   const { entry, rules, plugins, alias, extensions, externals, middlewares, serverStarted } = mergeContributions(await featureContributions(context));
   const uniqueName = uniqueNameOf(context);
   const config: Configuration = {
@@ -68,6 +69,7 @@ export async function createRspackBuild(context: BuildContext, { outputPath }: R
       uniqueName,
       chunkLoadingGlobal: `webpackJsonp_${uniqueName}`,
       hashFunction: 'xxhash64',
+      ...(hashSalt === undefined ? {} : { hashSalt }),
       crossOriginLoading: 'anonymous',
       devtoolModuleFilenameTemplate: 'webpack:///../[resource-path]',
       devtoolFallbackModuleFilenameTemplate: 'webpack:///../[resource-path]?[contenthash]',

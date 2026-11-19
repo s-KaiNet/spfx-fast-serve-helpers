@@ -15,6 +15,24 @@ Why: SharePoint loads Rspack's output as a few AMD bundles, like heft's, instead
 - An SPFx **1.24.x** project; Node.js 22 (from 22.14), 24 or 26.
 - The SPFx development certificate, trusted once per machine (`npx heft trust-dev-cert`).
 
+## Customizing the Rspack config
+
+`fast-serve` needs no configuration. To mirror a heft webpack customization (`config/spfx-customize-webpack.js`, `config/webpack-patch.json`) in development, add `fast-serve/rspack.extend.mjs` (or `.mts`, `.js`, `.ts`, `.cjs`): a Rspack config fragment that fast-serve merges into its own like `webpack-merge` (objects merged, arrays appended), evaluated at start and restarted when it or a local file it imports changes.
+
+```js
+import path from 'node:path';
+import { defineConfig, rspack } from 'spfx-fast-serve-helpers';
+
+export default defineConfig(({ root }) => ({
+  plugins: [new rspack.DefinePlugin({ CONTOSO_API: JSON.stringify('https://api.contoso.com') })],
+  resolve: { alias: { '@src': path.join(root, 'src') } },
+}));
+```
+
+The function gets fast-serve's context (`root`, `port`, `origin`, `publicPath`, `locale`, `serveConfiguration`, `pageUrl`, `spfxVersion`, `fastServeVersion`, `rspackVersion`) and `{ command: 'serve', mode: 'development' }`. Keys fast-serve owns (`entry`, `output.*`, `externalsType`, `devServer.port`, …) are ignored with a warning naming the option to use instead. The package ships an agent skill for the translation: `node_modules/spfx-fast-serve-helpers/skills/fast-serve-rspack-config/SKILL.md`.
+
+fast-serve also restarts on edits of `config/config.json`, `config/serve.json`, `config/sass.json`, `fast-serve/config.json`, `package.json`, tsconfig files and component manifests; a broken edit keeps the running server and prints the error.
+
 ## Try the current state
 
 ```sh

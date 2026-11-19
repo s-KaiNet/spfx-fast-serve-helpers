@@ -1,8 +1,9 @@
-import { rspack, type Compiler, type DevServer, type Stats } from '@rspack/core';
+import { rspack, type Compiler, type Configuration, type DevServer, type Stats } from '@rspack/core';
 import { RspackDevServer } from '@rspack/dev-server';
 import type { ResolvedOptions } from '../config/options.js';
 import type { Logger } from '../logger.js';
-import { createRspackBuild, DIST_PATH, type BuildContext, type ServerMiddleware, type ServerStopper, type StartedServer } from '../rspack/index.js';
+import { guardExtendConfig, mergeDevServer, mergeRspackConfig, projectRelative, type LoadedExtend } from '../extend/index.js';
+import { createRspackBuild, DIST_PATH, type BuildContext, type ServerMiddleware, type ServerStartedHook, type ServerStopper, type StartedServer } from '../rspack/index.js';
 import type { ServeSetup } from '../setup/index.js';
 import { loadDevCertificate, type HttpsCredentials } from './certificate.js';
 import { preflightMiddleware, responseHeaders } from './headers.js';
@@ -15,6 +16,8 @@ export interface StartDevServerOptions {
   logger: Logger;
   https?: HttpsCredentials;
   outputPath?: string;
+  hashSalt?: string;
+  extend?: LoadedExtend;
 }
 
 export interface RunningDevServer {
@@ -22,16 +25,63 @@ export interface RunningDevServer {
   readonly close: () => Promise<void>;
 }
 
-export async function startDevServer({ setup, logger, https, outputPath }: StartDevServerOptions): Promise<RunningDevServer> {
+export type ReadyBannerKind = 'full' | 'restart';
+
+export interface PreparedDevServer {
+  listen(banner?: ReadyBannerKind): Promise<RunningDevServer>;
+  dispose(): Promise<void>;
+}
+
+export async function startDevServer(options: StartDevServerOptions): Promise<RunningDevServer> {
+  await assertPortFree(options.setup.options.port);
+  const prepared = await prepareDevServer(options);
+  return prepared.listen();
+}
+
+export async function prepareDevServer({ setup, logger, https, outputPath, hashSalt, extend }: StartDevServerOptions): Promise<PreparedDevServer> {
   const startedAt = performance.now();
   const { root, project, options } = setup;
-  await assertPortFree(options.port);
   const credentials = https ?? (await loadDevCertificate());
   const context: BuildContext = { root, project, options, logger };
-  const { config, middlewares, serverStarted } = await createRspackBuild(context, outputPath === undefined ? {} : { outputPath });
+  const build = await createRspackBuild(context, { ...(outputPath === undefined ? {} : { outputPath }), ...(hashSalt === undefined ? {} : { hashSalt }) });
+  const { config, devServer } = withExtend(build.config, devServerConfiguration(options, credentials, build.middlewares), extend, root, logger);
   const compiler = rspack(config);
+  let used = false;
+  return {
+    async listen(banner = 'full') {
+      used = true;
+      await assertPortFree(options.port);
+      return listenDevServer({ compiler, devServer, serverStarted: build.serverStarted, setup, logger, startedAt, banner });
+    },
+    async dispose() {
+      if (!used) await closeCompiler(compiler);
+    },
+  };
+}
+
+function withExtend(config: Configuration, devServer: DevServer, extend: LoadedExtend | undefined, root: string, logger: Logger): { config: Configuration; devServer: DevServer } {
+  if (extend === undefined) return { config, devServer };
+  const guarded = guardExtendConfig(extend.config);
+  const file = projectRelative(root, extend.file);
+  for (const { key, alternative } of guarded.ignored) logger.warn(`${file}: "${key}" is ignored (${alternative})`);
+  for (const note of guarded.notes) logger.warn(`${file}: ${note}`);
+  return { config: mergeRspackConfig(config, guarded.config), devServer: mergeDevServer(devServer, guarded.devServer) };
+}
+
+interface ListenOptions {
+  compiler: Compiler;
+  devServer: DevServer;
+  serverStarted: readonly ServerStartedHook[];
+  setup: Pick<ServeSetup, 'root' | 'project' | 'options'>;
+  logger: Logger;
+  startedAt: number;
+  banner: ReadyBannerKind;
+}
+
+async function listenDevServer({ compiler, devServer, serverStarted, setup, logger, startedAt, banner }: ListenOptions): Promise<RunningDevServer> {
+  const { root, project, options } = setup;
   const firstCompile = reportCompiles(compiler, root, logger);
-  const server = new RspackDevServer(devServerConfiguration(options, credentials, middlewares), compiler);
+  const server = new RspackDevServer(devServer, compiler);
   const stoppers: ServerStopper[] = [];
   let stopped: Promise<void> | undefined;
   const close = () => (stopped ??= stopDevServer(server, compiler, stoppers));
@@ -51,7 +101,9 @@ export async function startDevServer({ setup, logger, https, outputPath }: Start
     await close();
     throw error;
   }
-  for (const line of readyBanner(options, project.components(), Math.round(performance.now() - startedAt))) logger.info(line);
+  const elapsedMs = Math.round(performance.now() - startedAt);
+  if (banner === 'restart') logger.info(`restarted in ${elapsedMs} ms at ${options.origin}`);
+  else for (const line of readyBanner(options, project.components(), elapsedMs)) logger.info(line);
   return { origin: options.origin, close };
 }
 
@@ -117,7 +169,11 @@ function reloadPages(server: RspackDevServer): void {
 async function stopDevServer(server: RspackDevServer, compiler: Compiler, stoppers: readonly ServerStopper[]): Promise<void> {
   for (const stopper of stoppers) stopper();
   await server.stop();
-  await new Promise<void>((resolve) => {
+  await closeCompiler(compiler);
+}
+
+function closeCompiler(compiler: Compiler): Promise<void> {
+  return new Promise<void>((resolve) => {
     compiler.close(() => {
       resolve();
     });

@@ -50,6 +50,9 @@ All Rspack 2 packages are pure ESM.
 - `compilation.hooks.finishModules` gives the modules; `NormalModule` exposes `resource` and `rawRequest` (the request as written), enough to find files bundled from a given package.
 - The dev server's `sendMessage(webSocketServer.clients, 'static-changed')` makes every connected client reload the page; a `done` tap registered by a plugin runs before the dev server's own, so the reload is sent before the update is announced.
 - Two `rspack.experiments.VirtualModulesPlugin` instances in one compilation work side by side.
+- ES module output for Node (`output.module: true`, `library.type: 'module'`, `chunkFormat: 'module'`, `target: 'node22'`) needs no experiment flag in Rspack 2 (`experiments.outputModule` no longer exists). An externals function can choose the type per request: `node-commonjs <request>` (via `createRequire`) for `require()` and `module <request>` (static `import`) for `import`. `import.meta.url` in bundled modules is replaced with the source file's URL; `node.__dirname: 'node-module'` gives the output file's folder, not the source's.
+- A strict ES module (`.mjs`) that re-exports a missing name (`export { default } from …`) is a linking error (`ESModulesLinkingError`) even with `exportsPresence: 'auto'`; re-exporting the namespace avoids it. A CommonJS module imported as a namespace from strict ESM gives `{ default: module.exports }`.
+- A failed compile still emits its output file; the caller must delete it.
 
 ### `@rspack/dev-server` 2 behaviours that matter
 
@@ -58,6 +61,7 @@ All Rspack 2 packages are pure ESM.
 - The `headers` option is applied by a middleware placed before the dev middleware; middlewares appended in `setupMiddlewares` run after it, so they get the headers too. The dev middleware only handles `GET`/`HEAD` under its `publicPath` and passes everything else on; with `static: false` unmatched requests end in 404.
 - With `client` enabled it adds its client (and the HMR client with `hot`) as global entries to every entry; the websocket URL comes from `client.webSocketURL` and is baked into each bundle.
 - `setupExitSignals` defaults to registering SIGINT/SIGTERM handlers that exit the process; turn it off when the CLI handles shutdown.
+- After a server restart the pages' clients reconnect by themselves; they reload the page only when the new server announces a different compilation hash (the hot check against the old hash finds no update). A per-start `output.hashSalt` makes that reliable even when the restart doesn't change any module.
 - The dev middleware prints stats with `console.log` unless `devMiddleware.stats` is `'none'`; the server's own "Project is running at" lines go through the infrastructure logger (silent at `warn`).
 
 ### HMR inside SharePoint pages

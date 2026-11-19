@@ -1,19 +1,25 @@
 #!/usr/bin/env node
 import { createConsoleLogger } from './logger.js';
 import { runCli } from './runCli.js';
-import { startDevServer } from './server/index.js';
-import { describeSetup, prepareServe } from './setup/index.js';
+import { startDevSession } from './session/index.js';
 import { closeOnShutdownSignal } from './shutdown.js';
+import { errorMessage } from './utils/errors.js';
 
 const exitCode = await runCli(process.argv.slice(2), {
   out: (text) => process.stdout.write(text),
   err: (text) => process.stderr.write(text),
   async startServer(cli) {
     const logger = createConsoleLogger();
-    const setup = prepareServe({ root: process.cwd(), cli, logger });
-    for (const line of describeSetup(setup)) logger.info(line);
-    const server = await startDevServer({ setup, logger });
-    closeOnShutdownSignal(server.close, (code) => process.exit(code));
+    const session = await startDevSession({
+      root: process.cwd(),
+      cli,
+      logger,
+      onRestartFailed(error) {
+        logger.error(`restart failed: ${errorMessage(error)}`);
+        process.exit(1);
+      },
+    });
+    closeOnShutdownSignal(() => session.close(), (code) => process.exit(code));
   },
 });
 if (exitCode !== 0) process.exit(exitCode);

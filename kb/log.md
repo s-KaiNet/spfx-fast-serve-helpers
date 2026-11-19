@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-19 23:55 | ingest | restarts, Rspack extend file, webpack hint, agent skill (R17–R20)
+
+- Changed: `kb/features/project-restarts.md` (new), `kb/features/rspack-extend-file.md` (new), `kb/features/cli-and-options.md`, `kb/architecture/project-model.md`, `kb/references/rspack.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: dev session with content-based restarts (old server kept on failure, pages reload via a per-start hash salt), extend file in every format bundled with Rspack, `defineConfig`/`rspack`/types as the public entry, webpack-merge semantics with dev-server additions, warn-only guard rails, webpack-customization hint and the shipped skill documented; open question on extend formats closed; Rspack facts on ES module output, strict re-export linking and client reconnects added
+
 ## 2026-11-19 23:19 | ingest | errors, overlay, terminal output, browser errors, require/AMD (R14, R15, R16)
 
 - Changed: `kb/features/errors-and-diagnostics.md` (new), `kb/features/require-and-amd.md` (new), `kb/features/dev-server.md`, `kb/features/hmr.md`, `kb/features/cli-and-options.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/references/rspack.md`, `kb/index.md`

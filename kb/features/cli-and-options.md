@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has five options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints a summary and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready banner with the debug URL. It runs until SIGINT or SIGTERM.
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has five options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints a summary, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready banner with the debug URL. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
 
 ## Behavior
 
@@ -29,7 +29,7 @@ tags:
 | `--no-overlay` | `overlay: false` | no error overlay over the page (compile and runtime errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |
 | `-h, --help` / `-v, --version` | | print help / the package version, exit 0 |
 
-Flags are parsed strictly: an unknown flag or a positional argument prints the error plus the help text and exits with 1. The help text describes the options, `fast-serve/config.json` and the page order; it does not mention any bundler-specific escape hatch yet.
+Flags are parsed strictly: an unknown flag or a positional argument prints the error plus the help text and exits with 1. The help text describes the options, `fast-serve/config.json`, the page order, the optional `fast-serve/rspack.extend.mjs` with its docs link, and which files restart the server.
 
 ### `fast-serve/config.json`
 
@@ -54,7 +54,7 @@ The page follows heft's order with the `pageUrl` option in place of heft's fallb
 
 ### Startup order and summary
 
-SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
+SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the extend file (`Rspack config: <file>` and guard warnings) or, without one, the [webpack-customization hint](rspack-extend-file.md#startup-hint-for-webpack-customizations), the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
 
 ### Startup failures (exit code 1)
 
@@ -68,16 +68,19 @@ SPFx version check → warning for the old options file → project model → op
 | bad port, locale or options file | `Invalid port "<value>" (expected 1-65535)`, `Invalid locale …`, `fast-serve/config.json: unknown option or wrong type …` |
 | port in use | `Port <n> is already in use … fast-serve --port <n+1> …` |
 | no SPFx dev certificate | `No valid SPFx development certificate found. Run "npx heft trust-dev-cert" …` |
+| broken extend file | `fast-serve/rspack.extend.mjs could not be loaded:` + error + `Fix or remove the file and run fast-serve again.` |
 
 Every failure is one `[fast-serve] <message>` line on stderr. The SPFx version comes from the installed `@microsoft/sp-core-library`, then `@microsoft/spfx-heft-plugins`, then `@microsoft/sp-webpart-base`; any 1.24.x (also prereleases) is accepted, because the package version follows SPFx `major.minor`.
 
 ### Shutdown
 
-SIGINT and SIGTERM close the dev server and the compiler once and exit with 0 (1 if closing fails).
+SIGINT and SIGTERM wait for a running restart, close the current dev server and compiler once and exit with 0 (1 if closing fails).
 
 ## Links
 
 - [Dev server, debug manifests and debug URL](dev-server.md)
+- [Restarts on project changes](project-restarts.md)
+- [Rspack extend file](rspack-extend-file.md)
 - [Rspack compile](rspack-compile.md)
 - [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)

@@ -39,7 +39,7 @@ heft treats `react`, `react-dom` and `react-dom/client` as SPFx libraries with f
 
 ### Caching and invalidation
 
-Each fact is computed once. A changed file reports what changed: the tsconfig chain → `tsconfig`; `package.json` or `config/config.json` → everything, `model`; `config/serve.json`, a local external file or a source manifest → that fact, `model`; `config/sass.json` → `sass`; any other file → nothing. The model lists the files that define it, for the restart rules of the dev session.
+Each fact is computed once. A changed file reports what changed: the tsconfig chain → `tsconfig`; `package.json` or `config/config.json` → everything, `model`; `config/serve.json`, a local external file or a source manifest → that fact, `model`; `config/sass.json` → `sass`; any other file → nothing. The model lists the files that define it; the dev session watches them and [restarts](../features/project-restarts.md) with a fresh model instead of invalidating facts in place. The model also detects heft webpack customizations (`config/spfx-customize-webpack.js`, `config/webpack-patch.json` and its existing patch files) for the [startup hint](../features/rspack-extend-file.md#startup-hint-for-webpack-customizations).
 
 ### Checked against heft
 

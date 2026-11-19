@@ -19,7 +19,7 @@ tags:
 
 ### Data flow
 
-1. **Config:** CLI flags, `fast-serve/config.json`, `config/serve.json`, defaults (flags win); see [CLI, options and startup](../features/cli-and-options.md).
+1. **Config:** CLI flags, `fast-serve/config.json`, `config/serve.json`, defaults (flags win); see [CLI, options and startup](../features/cli-and-options.md). The optional `fast-serve/rspack.extend.*` is merged into the Rspack config in step 4.
 2. **[Project model](project-model.md)** (plain Node, no bundler import): bundles and components from `config/config.json` mapped from `lib/` to `src/` entry files, source manifests, `serve.json` serve configurations, SPFx libraries found in `node_modules` (id, version), `config.json` externals, localized resources, tsconfig (through `extends`), merged `config/sass.json`, SPFx version.
 3. **Generated artifacts:** entry modules for multi-component bundles (`export * as <exportName>`, virtual modules inside the compiler), the debug `manifests.js` rendered on request, SCSS and static-asset typings in heft's `temp/` folders.
 4. **Rspack compiler and dev server:** one compilation, one entry per SPFx bundle, `output.library.type: 'amd'`, `externalsType: 'amd'` for SPFx libraries and `config.json` externals, absolute `publicPath` on the dev server, `builtin:swc-loader` with tsconfig-derived options, Sass and CSS modules with SPFx class names and theme tokens, React Refresh; `@rspack/dev-server` over HTTPS with the SPFx dev certificate, CORS and Private Network Access headers.
@@ -30,11 +30,13 @@ tags:
 | Component | Owns |
 |---|---|
 | CLI and options | flags, `fast-serve/config.json`, precedence, version check, logging |
-| Project model | SPFx facts, cached and invalidated on file changes; no bundler types |
+| Project model | SPFx facts, cached; rebuilt on restart; no bundler types |
 | Rspack config | composition of feature contributions (entries, rules, plugins, aliases, resolve extensions, externals; later dev-server middlewares) |
 | Manifests | debug `manifests.js`: source manifest + `loaderConfig` with the bundle and the externals it uses |
-| Dev server | HTTPS, headers, debug URL and ready banner, restarts on project-config changes |
-| Features | HMR, externals, localization, styles, typings, tsconfig, errors, extend file, each one module with tests |
+| Dev server | HTTPS, headers, debug URL and ready banner |
+| Dev session | watching project configuration and the extend file, [restarts](../features/project-restarts.md) that swap the server only after the new config is ready |
+| Extend file | loading `fast-serve/rspack.extend.*`, guard and merge into fast-serve's config, public `defineConfig` entry ([Rspack extend file](../features/rspack-extend-file.md)) |
+| Features | HMR, externals, localization, styles, typings, tsconfig, errors, each one module with tests |
 
 ### Dependency rules
 
