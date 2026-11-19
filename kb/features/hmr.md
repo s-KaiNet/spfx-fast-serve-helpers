@@ -59,7 +59,7 @@ Server RSS: spfx-rea 0.25 GB ready, 0.29–0.30 GB after the edits; spfx-bench 0
 ## Constraints
 
 - A background or hidden tab throttles timers to once per second; Fast Refresh schedules its re-render with a timer, so hot updates in a hidden tab appear up to a second late (or when the tab becomes visible).
-- With several bundles on a page every bundle has its own websocket client; a compile error overlay may therefore appear once per bundle (overlay polish is a later task).
+- With several bundles on a page every bundle has its own websocket client; fast-serve's page runtime still shows a single compile-error overlay ([Errors, overlay and terminal output](errors-and-diagnostics.md)).
 - HMR-boundary rules are React Refresh's: a file that mixes component and non-component exports reloads the page.
 
 ## Links

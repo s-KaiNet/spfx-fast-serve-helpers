@@ -23,7 +23,7 @@ function buildContext(root: string, locale: string, messages: string[]): BuildCo
     warn: (message) => messages.push(`warn: ${message}`),
     error: (message) => messages.push(`error: ${message}`),
   };
-  return { root, project: createProject(root, logger), options: { origin: ORIGIN, locale }, logger };
+  return { root, project: createProject(root, logger), options: { origin: ORIGIN, locale, overlay: true }, logger };
 }
 
 function evaluateAmd(source: string, externals: Record<string, unknown>): AmdModule {

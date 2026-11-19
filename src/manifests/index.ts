@@ -29,7 +29,9 @@ export function bundleScriptPath(bundleName: string): string {
   return `${bundleName}.js`;
 }
 
-export function renderDebugManifests(context: BuildContext, externals: BundleExternals): string {
+export type PageScript = () => string;
+
+export function renderDebugManifests(context: BuildContext, externals: BundleExternals, pageScript?: PageScript): string {
   const { root, project, options } = context;
   const libraries = project.libraries();
   const configExternals = project.configExternals();
@@ -41,17 +43,17 @@ export function renderDebugManifests(context: BuildContext, externals: BundleExt
     bundleScriptPath,
     scriptResources: (bundleName) => bundleScriptResources(externals.requestsOf(bundleName), libraries, configExternals),
   });
-  return renderManifestsModule(manifests);
+  return (pageScript?.() ?? '') + renderManifestsModule(manifests);
 }
 
-export function manifestsContribution(context: BuildContext): ConfigContribution {
+export function manifestsContribution(context: BuildContext, pageScript?: PageScript): ConfigContribution {
   const reloaders: PageReloader[] = [];
   const externals = new BundleExternals(() => {
     for (const reloader of reloaders) reloader.reloadPages();
   });
   return {
     plugins: [externals],
-    middlewares: [manifestsMiddleware(context, externals), iconsMiddleware(context)],
+    middlewares: [manifestsMiddleware(context, externals, pageScript), iconsMiddleware(context)],
     serverStarted: [
       (reloader) => {
         reloaders.push(reloader);
@@ -60,7 +62,7 @@ export function manifestsContribution(context: BuildContext): ConfigContribution
   };
 }
 
-function manifestsMiddleware(context: BuildContext, externals: BundleExternals): ServerMiddleware {
+function manifestsMiddleware(context: BuildContext, externals: BundleExternals, pageScript: PageScript | undefined): ServerMiddleware {
   return {
     name: 'fast-serve:manifests',
     middleware: async (req, res, next) => {
@@ -70,7 +72,7 @@ function manifestsMiddleware(context: BuildContext, externals: BundleExternals):
       }
       try {
         await externals.whenCompiled();
-        send(req, res, 'application/javascript; charset=utf-8', renderDebugManifests(context, externals));
+        send(req, res, 'application/javascript; charset=utf-8', renderDebugManifests(context, externals, pageScript));
       } catch (error) {
         next(error);
       }

@@ -5,7 +5,8 @@ type Listener = (event: FakeEvent) => void;
 interface FakeEvent {
   type: string;
   args?: unknown;
-  initEvent(type: string): void;
+  initEvent?(type: string): void;
+  [key: string]: unknown;
 }
 
 class FakeEventTarget {
@@ -29,6 +30,8 @@ class FakeEventTarget {
 
 export class FakeNode extends FakeEventTarget {
   readonly childNodes: FakeNode[] = [];
+  id = '';
+  shadowRoot: FakeNode | undefined;
   readonly attributes = new Map<string, string>();
   parentNode: FakeNode | undefined;
   textContent = '';
@@ -76,19 +79,32 @@ export class FakeNode extends FakeEventTarget {
   remove(): void {
     this.parentNode?.removeChild(this);
   }
+
+  append(...children: FakeNode[]): void {
+    for (const child of children) this.appendChild(child);
+  }
+
+  attachShadow(): FakeNode {
+    this.shadowRoot = new FakeNode('#shadow-root');
+    return this.shadowRoot;
+  }
 }
 
 export interface FakePageOptions {
   externals: Record<string, unknown>;
-  fetch: (url: string) => Promise<Response>;
+  fetch: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
 export interface FakePage {
   readonly globals: Record<string, unknown>;
   readonly head: FakeNode;
+  readonly body: FakeNode;
   readonly logs: string[];
   readonly reloads: () => number;
-  loadAmdBundle(source: string): unknown;
+  loadAmdBundle(source: string, filename?: string): unknown;
+  readonly window: unknown;
+  evaluate(source: string, filename?: string): unknown;
+  dispatch(type: string, properties?: Record<string, unknown>): void;
   styles(): string[];
 }
 
@@ -117,6 +133,22 @@ export function createFakePage({ externals, fetch }: FakePageOptions): FakePage 
     currentScript: null,
     createElement: (tagName: string) => new FakeNode(tagName.toLowerCase()),
     createTextNode: (text: string) => Object.assign(new FakeNode('#text'), { textContent: text }),
+    createTreeWalker: (root: FakeNode) => {
+      const texts: FakeNode[] = [];
+      const collect = (node: FakeNode): void => {
+        if (node.tagName === '#text') texts.push(node);
+        node.childNodes.forEach(collect);
+      };
+      collect(root);
+      let index = -1;
+      return {
+        nextNode: () => {
+          index++;
+          const text = texts[index];
+          return text === undefined ? null : Object.defineProperty(text, 'nodeValue', { get: () => text.textContent, set: (value: string) => { text.textContent = value; }, configurable: true });
+        },
+      };
+    },
     createEvent: (): FakeEvent => ({
       type: '',
       initEvent(type: string) {
@@ -145,7 +177,19 @@ export function createFakePage({ externals, fetch }: FakePageOptions): FakePage 
       },
     },
     navigator: { userAgent: 'fake-page' },
-    postMessage: () => undefined,
+    postMessage: (data: unknown) => {
+      queueMicrotask(() => globals.dispatchEvent({ type: 'message', data, source: pageWindow }));
+    },
+    MutationObserver: class {
+      observed = 0;
+      observe(): void {
+        this.observed++;
+      }
+      disconnect(): void {
+        this.observed = 0;
+      }
+    },
+    NodeFilter: { SHOW_TEXT: 4 },
     setTimeout,
     clearTimeout,
     setInterval,
@@ -154,25 +198,32 @@ export function createFakePage({ externals, fetch }: FakePageOptions): FakePage 
     fetch,
     WebSocket,
     URL,
-  }) as unknown as Record<string, unknown>;
+  }) as unknown as Record<string, unknown> & FakeEventTarget;
   globals.self = globals;
   globals.window = globals;
   const context = vm.createContext(globals);
+  const pageWindow: unknown = vm.runInContext('window', context);
   return {
     globals,
     head,
+    body,
     logs,
     reloads: () => reloadCount,
-    loadAmdBundle(source) {
+    loadAmdBundle(source, filename) {
       let factoryResult: unknown;
       const define = (dependencies: string[], factory: (...args: unknown[]) => unknown): void => {
         factoryResult = factory(...dependencies.map((name) => externals[name]));
       };
       globals.define = define;
-      vm.runInContext(source, context);
+      vm.runInContext(source, context, filename === undefined ? {} : { filename });
       delete globals.define;
       if (factoryResult === undefined) throw new Error('the bundle did not call define()');
       return factoryResult;
+    },
+    window: pageWindow,
+    evaluate: (source, filename) => vm.runInContext(source, context, filename === undefined ? {} : { filename }) as unknown,
+    dispatch(type, properties = {}) {
+      globals.dispatchEvent({ type, ...properties });
     },
     styles: () => head.childNodes.filter((node) => node.tagName === 'style').map((node) => node.text),
   };

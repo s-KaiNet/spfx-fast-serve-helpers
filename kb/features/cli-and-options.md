@@ -26,7 +26,7 @@ tags:
 | `--page-url <url>` | `pageUrl` | SharePoint page to open with the debug query; `{tenantDomain}` allowed |
 | `--locale <locale>` | `locale` | locale of the `localizedResources` strings; lowercased, must look like `en-us` |
 | `--config <name>`, `--serve-config <name>` | `serveConfiguration` | `config/serve.json` `serveConfigurations` entry (default `default`); `--config` wins if both are given |
-| `--no-overlay` | `overlay: false` | no error overlay over the page |
+| `--no-overlay` | `overlay: false` | no error overlay over the page (compile and runtime errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |
 | `-h, --help` / `-v, --version` | | print help / the package version, exit 0 |
 
 Flags are parsed strictly: an unknown flag or a positional argument prints the error plus the help text and exits with 1. The help text describes the options, `fast-serve/config.json` and the page order; it does not mention any bundler-specific escape hatch yet.

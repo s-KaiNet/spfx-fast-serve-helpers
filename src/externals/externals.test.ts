@@ -122,7 +122,7 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
       'warn: TsStrings: src/webparts/probe/tsLoc/en-us.ts is an ES/CommonJS module. fast-serve loads it, but heft copies the compiled lib/ file into dist/ as is and SharePoint loads it with RequireJS, which needs `define([], function () { return { ... }; });`',
       'warn: "@microsoft/sp-property-pane/lib/fields/PropertyPaneTextField" is a deep import into the SPFx library @microsoft/sp-property-pane: it is bundled from node_modules like heft does, as a copy separate from the @microsoft/sp-property-pane SharePoint loads; import from "@microsoft/sp-property-pane" to use SharePoint\'s instance',
     ]);
-    expect(messages).toContainEqual(expect.stringMatching(/^info: compiled in \d+ ms: 0 errors, 0 warnings$/));
+    expect(messages).toContainEqual(expect.stringMatching(/^info: compiled in \d+ ms$/));
   });
 
   it('declares SPFx libraries, lazy-chunk libraries and used config.json externals on the bundle define', () => {

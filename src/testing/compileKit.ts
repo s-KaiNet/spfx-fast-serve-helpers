@@ -31,7 +31,7 @@ export function recordingContext(root: string, locale: string, messages: string[
     warn: (message) => messages.push(`warn: ${message}`),
     error: (message) => messages.push(`error: ${message}`),
   };
-  return { root, project: createProject(root, logger), options: { origin: TEST_ORIGIN, locale }, logger };
+  return { root, project: createProject(root, logger), options: { origin: TEST_ORIGIN, locale, overlay: true }, logger };
 }
 
 export function evaluateAmd(source: string, externals: Record<string, unknown> = fakeExternals, globals: Record<string, unknown> = {}): AmdModule {

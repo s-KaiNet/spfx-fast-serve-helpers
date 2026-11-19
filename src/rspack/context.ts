@@ -5,7 +5,7 @@ import type { SpfxProject } from '../project/index.js';
 export interface BuildContext {
   readonly root: string;
   readonly project: SpfxProject;
-  readonly options: Pick<ResolvedOptions, 'origin' | 'locale'>;
+  readonly options: Pick<ResolvedOptions, 'origin' | 'locale' | 'overlay'>;
   readonly logger: Logger;
 }
 

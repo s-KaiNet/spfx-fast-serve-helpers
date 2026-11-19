@@ -28,16 +28,17 @@ tags:
 | Bundles | Rspack output kept in memory, served under `/dist/` (`publicPath` is the absolute `https://localhost:<port>/dist/`); nothing is written to disk |
 | `manifests.js` | `GET`/`HEAD /temp/build/manifests.js`, rendered on each request, `Cache-Control: no-store`; waits for the first compile |
 | Icons | relative manifest icons (`./…`, `../…`) are served from their source files at their project-relative path, only image types; everything else in the project returns 404 |
-| Headers | `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: HEAD, GET, OPTIONS`, `Access-Control-Allow-Headers: *`, `Access-Control-Allow-Private-Network: true` on every response; `OPTIONS` answers 204 with the same headers; hot-update files (`*.hot-update.json`, `*.hot-update.js`) also get `Cache-Control: no-store` |
+| Headers | `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: HEAD, GET, POST, OPTIONS`, `Access-Control-Allow-Headers: *`, `Access-Control-Allow-Private-Network: true` on every response; `OPTIONS` answers 204 with the same headers; hot-update files (`*.hot-update.json`, `*.hot-update.js`) also get `Cache-Control: no-store` |
 | Hosts | `allowedHosts: 'all'` like heft: the dev server otherwise rejects SharePoint's cross-site `no-cors` script requests and websocket connections from the tenant origin |
 | Compression | off (local traffic) |
-| Websocket client | added by the dev server to every bundle; connects to `wss://localhost:<port>/ws`; browser logging `warn`; overlay for compile errors unless `--no-overlay` |
+| Websocket client | added by the dev server to every bundle; connects to `wss://localhost:<port>/ws`; browser logging `warn`; its own overlay is off (fast-serve draws one overlay per page, see [Errors, overlay and terminal output](errors-and-diagnostics.md)) |
+| Browser errors | `POST /fast-serve/browser-errors` receives error reports from the page runtime and answers with overlay content or a readable load-error message |
 | HMR | `hot` and `liveReload` on: edits hot-update inside the bundles with React Fast Refresh, an update that nobody accepts falls back to a page reload; details in [HMR and React Fast Refresh](hmr.md) |
-| Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms` with error and warning counts), errors and warnings printed in full; the dev server's own banners and stats are silenced |
+| Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms (<changed files>)`, error and warning counts only when non-zero), errors and warnings with project-relative paths; the dev server's own banners and stats are silenced ([details](errors-and-diagnostics.md#terminal)) |
 
 ### Debug `manifests.js`
 
-An anonymous AMD module, `define([], function () { … return { getManifests: function () { return manifests; } }; })`, with one entry per component of every bundle:
+fast-serve's page runtime (error forwarding, overlay, readable load errors; see [Errors, overlay and terminal output](errors-and-diagnostics.md)) as a guarded script, then an anonymous AMD module, `define([], function () { … return { getManifests: function () { return manifests; } }; })`, with one entry per component of every bundle:
 
 - the source manifest (JSON with comments, `"version": "*"` replaced by the `package.json` version), relative icon URLs made absolute on the dev server;
 - `loaderConfig.internalModuleBaseUrls`: `["https://localhost:<port>/dist/"]`, rendered for the port the server listens on (heft 1.24.1 writes 4321 into its file even when `serve.json` sets another port);

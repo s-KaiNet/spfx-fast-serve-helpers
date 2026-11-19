@@ -50,7 +50,7 @@ describe('compileOnce with --locale', () => {
         error: (message) => messages.push(`error: ${message}`),
       };
       const outputPath = path.join(root, 'out');
-      const context = { root, project: createProject(root, logger), options: { origin: 'https://localhost:4433', locale: 'de-de' }, logger };
+      const context = { root, project: createProject(root, logger), options: { origin: 'https://localhost:4433', locale: 'de-de', overlay: true }, logger };
       const result = await compileOnce(context, { outputPath });
       expect(result.errors).toEqual([]);
       expect(messages).toEqual(expect.arrayContaining(['warn: LabelStrings: no "de-de" strings, using en-us', 'warn: TsStrings: no "de-de" strings, using en-us']));

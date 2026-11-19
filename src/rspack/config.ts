@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type { Configuration } from '@rspack/core';
 import { assetsContribution } from '../assets/index.js';
+import { browserErrorsFeature } from '../browserErrors/index.js';
 import { definesContribution } from '../defines/index.js';
 import { entriesContribution } from '../entries/index.js';
 import { externalsContribution } from '../externals/index.js';
@@ -24,6 +25,7 @@ export interface RspackConfigOptions {
 }
 
 export async function featureContributions(context: BuildContext): Promise<ConfigContribution[]> {
+  const browserErrors = browserErrorsFeature(context);
   return [
     entriesContribution(context),
     typescriptContribution(context),
@@ -33,7 +35,8 @@ export async function featureContributions(context: BuildContext): Promise<Confi
     assetsContribution(context),
     await stylesContribution(context),
     definesContribution(),
-    manifestsContribution(context),
+    manifestsContribution(context, browserErrors.pageScript),
+    browserErrors.contribution,
     hmrContribution(context),
   ];
 }

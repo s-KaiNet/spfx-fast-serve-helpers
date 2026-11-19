@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-19 23:19 | ingest | errors, overlay, terminal output, browser errors, require/AMD (R14, R15, R16)
+
+- Changed: `kb/features/errors-and-diagnostics.md` (new), `kb/features/require-and-amd.md` (new), `kb/features/dev-server.md`, `kb/features/hmr.md`, `kb/features/cli-and-options.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/references/rspack.md`, `kb/index.md`
+- Outcome: page runtime in `manifests.js` (single overlay, error forwarding, readable load errors, reload after a failed load), terminal format and short rebuild lines, forwarding rule and source mapping documented with live results; webpack semantics for `require()` and UMD/AMD dependencies recorded as verified (Vite rewrites not needed); Rspack facts on client window messages, per-client overlays, SharePoint re-evaluating failing bundles, line-only maps and RequireJS error shapes added
+
 ## 2026-11-20 00:30 | ingest | Sass/CSS modules, typings, tsconfig (R11, R12, R13)
 
 - Changed: `kb/features/styles-and-typings.md` (new), `kb/features/typescript-and-tsconfig.md` (new), `kb/features/rspack-compile.md`, `kb/architecture/project-model.md`, `kb/references/rspack.md`, `kb/references/spfx-heft-pipeline.md`, `kb/roadmap/overview.md`, `kb/index.md`

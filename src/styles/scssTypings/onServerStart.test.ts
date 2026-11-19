@@ -44,7 +44,7 @@ function startedServer(): StartedServer {
 describe('typings while serving', () => {
   it('generates SCSS typings at start and updates them when stylesheets are added, edited and deleted', async () => {
     const root = copyFixture();
-    const context = { root, logger: silentLogger, project: createProject(root, silentLogger), options: { origin: 'https://localhost:4433', locale: 'en-us' } };
+    const context = { root, logger: silentLogger, project: createProject(root, silentLogger), options: { origin: 'https://localhost:4433', locale: 'en-us', overlay: true } };
     const typingsOf = (file: string) => path.join(root, 'temp/sass-ts', `${file}.d.ts`);
 
     scssTypingsOnServerStart(context, path.join(root, 'src'))(startedServer());

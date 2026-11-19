@@ -82,7 +82,7 @@ describe('startDevServer on a fixture project', () => {
     expect(messages.filter((message) => message.startsWith('error:'))).toEqual([]);
     expect(messages).toEqual(
       expect.arrayContaining([
-        expect.stringMatching(/^info: compiled in \d+ ms: 0 errors, 0 warnings$/),
+        expect.stringMatching(/^info: compiled in \d+ ms$/),
         expect.stringMatching(new RegExp(`^info: ready in \\d+ ms at https://localhost:${port}$`)),
       ]),
     );

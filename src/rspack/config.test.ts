@@ -12,7 +12,7 @@ const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta
 function fixtureContext(): { context: BuildContext; warnings: string[] } {
   const warnings: string[] = [];
   const logger: Logger = { info: () => undefined, warn: (message) => warnings.push(message), error: (message) => warnings.push(message) };
-  const context = { root: fixture, project: createProject(fixture, logger), options: { origin: 'https://localhost:4433', locale: 'en-us' }, logger };
+  const context = { root: fixture, project: createProject(fixture, logger), options: { origin: 'https://localhost:4433', locale: 'en-us', overlay: true }, logger };
   return { context, warnings };
 }
 

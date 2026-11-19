@@ -2,7 +2,7 @@ import type { ServerMiddleware } from '../rspack/contribution.js';
 
 export const CORS_HEADERS: Readonly<Record<string, string>> = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'HEAD, GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'HEAD, GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': '*',
   'Access-Control-Allow-Private-Network': 'true',
 };

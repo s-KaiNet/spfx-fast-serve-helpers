@@ -1,0 +1,152 @@
+import path from 'node:path';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Compiler, RspackPluginInstance } from '@rspack/core';
+import { publicPathOf, type BuildContext } from '../rspack/context.js';
+import type { ConfigContribution, ServerMiddleware } from '../rspack/contribution.js';
+import { CORS_HEADERS } from '../server/headers.js';
+import { requestPath } from '../utils/http.js';
+import type { BrowserErrorReport, BrowserErrorResponse, PageRuntimeConfig } from './contracts.js';
+import { BrowserErrorReporter } from './reporter.js';
+import { renderPageScript } from './pageScript.js';
+import { BundleSourceMaps } from './sourceMaps.js';
+
+export type { BrowserErrorKind, BrowserErrorReport, BrowserErrorResponse, OverlayContent, PageRuntimeConfig } from './contracts.js';
+export { codeFrame, formatBrowserError, type DisplayFrame } from './format.js';
+export { describeLoadError, type LoadErrorFacts } from './loadErrors.js';
+export { renderPageScript } from './pageScript.js';
+export { BrowserErrorReporter, errorSignature } from './reporter.js';
+export { BundleSourceMaps, sourceFilePath } from './sourceMaps.js';
+export { parseStackFrames, servedFile } from './stackFrames.js';
+
+export const BROWSER_ERRORS_PATH = '/fast-serve/browser-errors';
+
+const MAX_REPORT_BYTES = 256 * 1024;
+const REPORT_KINDS = new Set(['error', 'unhandled-rejection', 'console-error', 'load-error']);
+
+export interface BrowserErrorsFeature {
+  contribution: ConfigContribution;
+  pageScript: () => string;
+}
+
+export class BrowserErrorsPlugin implements RspackPluginInstance {
+  readonly sourceMaps: BundleSourceMaps;
+  compileFailed = false;
+  private compiler: Compiler | undefined;
+
+  constructor(root: string) {
+    this.sourceMaps = new BundleSourceMaps(root, (file) => this.readOutput(file), () => this.mapsHaveColumns());
+  }
+
+  apply(compiler: Compiler): void {
+    this.compiler = compiler;
+    compiler.hooks.done.tap('fast-serve:browser-errors', (stats) => {
+      this.compileFailed = stats.hasErrors();
+      this.sourceMaps.forget();
+    });
+  }
+
+  private mapsHaveColumns(): boolean {
+    const devtool = this.compiler?.options.devtool;
+    return typeof devtool !== 'string' || !devtool.includes('cheap');
+  }
+
+  private readOutput(file: string): Promise<string | undefined> {
+    const compiler = this.compiler;
+    const fileSystem = compiler?.outputFileSystem;
+    if (compiler === undefined || !fileSystem) return Promise.resolve(undefined);
+    return new Promise((resolve) => {
+      fileSystem.readFile(path.join(compiler.outputPath, file), (error, content) => {
+        resolve(error || content === undefined ? undefined : content.toString());
+      });
+    });
+  }
+}
+
+export function browserErrorsFeature(context: BuildContext): BrowserErrorsFeature {
+  const { root, project, options, logger } = context;
+  const distUrl = publicPathOf(context);
+  const plugin = new BrowserErrorsPlugin(root);
+  const reporter = new BrowserErrorReporter({
+    root,
+    distUrl,
+    overlay: options.overlay,
+    logger,
+    sourceMaps: plugin.sourceMaps,
+    loadErrorFacts: () => ({ root, configExternals: project.configExternals(), libraries: project.libraries(), compileFailed: plugin.compileFailed }),
+  });
+  const pageConfig = (): PageRuntimeConfig => ({
+    origin: options.origin,
+    distUrl,
+    reportUrl: `${options.origin}${BROWSER_ERRORS_PATH}`,
+    overlay: options.overlay,
+    bundles: Object.fromEntries(project.bundles().map((bundle) => [bundle.name, bundle.components.map((component) => component.manifest.id)])),
+  });
+  return {
+    contribution: { plugins: [plugin], middlewares: [reportsMiddleware(reporter)] },
+    pageScript: () => renderPageScript(pageConfig()),
+  };
+}
+
+function reportsMiddleware(reporter: BrowserErrorReporter): ServerMiddleware {
+  return {
+    name: 'fast-serve:browser-errors',
+    middleware: (req, res, next) => {
+      if (req.method !== 'POST' || requestPath(req) !== BROWSER_ERRORS_PATH) {
+        next();
+        return;
+      }
+      readBody(req)
+        .then(async (body) => {
+          const report = parseReport(body);
+          sendJson(res, report === undefined ? {} : await reporter.report(report));
+        })
+        .catch(() => {
+          sendJson(res, {});
+        });
+    },
+  };
+}
+
+function readBody(req: IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    let size = 0;
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length;
+      if (size <= MAX_REPORT_BYTES) chunks.push(chunk);
+    });
+    req.on('end', () => {
+      resolve(size <= MAX_REPORT_BYTES ? Buffer.concat(chunks).toString('utf8') : '');
+    });
+    req.on('error', reject);
+  });
+}
+
+export function parseReport(body: string): BrowserErrorReport | undefined {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    return undefined;
+  }
+  if (typeof payload !== 'object' || payload === null) return undefined;
+  const { kind, name, message, stack, callStack, bundle, requireType, requireModules } = payload as Record<string, unknown>;
+  if (typeof kind !== 'string' || !REPORT_KINDS.has(kind)) return undefined;
+  if (![name, message, stack, callStack].every((value) => typeof value === 'string')) return undefined;
+  const report = { kind, name, message, stack, callStack } as BrowserErrorReport;
+  if (typeof bundle === 'string') report.bundle = bundle;
+  if (typeof requireType === 'string') report.requireType = requireType;
+  if (Array.isArray(requireModules)) report.requireModules = requireModules.filter((module): module is string => typeof module === 'string');
+  return report;
+}
+
+function sendJson(res: ServerResponse, body: BrowserErrorResponse): void {
+  const text = JSON.stringify(body);
+  res.statusCode = 200;
+  for (const [header, value] of Object.entries(CORS_HEADERS)) res.setHeader(header, value);
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Content-Length', Buffer.byteLength(text));
+  res.end(text);
+}
+
