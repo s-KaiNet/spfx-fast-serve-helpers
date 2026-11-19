@@ -54,6 +54,10 @@ All Rspack 2 packages are pure ESM.
 - A strict ES module (`.mjs`) that re-exports a missing name (`export { default } from …`) is a linking error (`ESModulesLinkingError`) even with `exportsPresence: 'auto'`; re-exporting the namespace avoids it. A CommonJS module imported as a namespace from strict ESM gives `{ default: module.exports }`.
 - A failed compile still emits its output file; the caller must delete it.
 
+- Persistent cache (`cache: { type: 'persistent', version, storage: { type: 'filesystem', directory } }`): one cache per compiler path, overwritten when `version` differs; no build dependencies by default (unlike webpack), so configuration changes must be reflected in `version` or `buildDependencies`; `node_modules` files are validated by package version (managed paths). A cached start reports a module's syntax error like an uncached one (checked). `output.hashSalt` changes do not invalidate it.
+- `incremental` is fully enabled in development by default (every pass), `lazyCompilation` is off by default and its client posts to the dev server (`/_rspack/lazy/trigger`).
+- sass-loader's `implementation` and `sassOptions` are read per loader run (`sassOptions` may be a function), so the Sass package can be loaded on first use; Rspack passes JavaScript loader option objects by reference, getters included.
+
 ### `@rspack/dev-server` 2 behaviours that matter
 
 - Its host checks block SharePoint unless `allowedHosts` covers it: cross-site `no-cors` requests (plain `<script>` tags from the tenant) get 403 "Cross-Origin request blocked" unless the `Host` is explicitly allowed, and websocket connections are closed unless the page's `Origin` is allowed. heft's dev server uses `allowedHosts: 'all'`.
@@ -98,6 +102,7 @@ The prototype reused heft's generated config; the implementation writes its own,
 
 ## Links
 
+- [Startup performance and the persistent cache](../features/performance-and-cache.md)
 - [Rspack compile](../features/rspack-compile.md)
 - [HMR and React Fast Refresh](../features/hmr.md)
 - [One compilation for several bundles](../decisions/several-bundles-one-compilation.md)

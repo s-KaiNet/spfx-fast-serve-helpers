@@ -64,6 +64,7 @@ Server RSS: spfx-rea 0.25 GB ready, 0.29–0.30 GB after the edits; spfx-bench 0
 
 ## Links
 
+- [Acceptance run on the test projects](../operations/acceptance-run.md)
 - [Dev server, debug manifests and debug URL](dev-server.md)
 - [Rspack compile](rspack-compile.md)
 - [One compilation for several bundles](../decisions/several-bundles-one-compilation.md)

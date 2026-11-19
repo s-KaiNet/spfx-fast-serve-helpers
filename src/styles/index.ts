@@ -55,11 +55,20 @@ function hotStylesLoader(): RuleSetUseItem {
 }
 
 function sassLoader(root: string, configuration: SassConfiguration): RuleSetUseItem | undefined {
-  const found = findSass(root);
-  if (!found) return undefined;
+  const file = findSass(root);
+  if (file === undefined) return undefined;
+  let sass: SassPackage | undefined;
+  const loadSass = (): SassPackage => (sass ??= createRequire(file)(file) as SassPackage);
+  let options: Record<string, unknown> | undefined;
   return {
     loader: createRequire(import.meta.url).resolve('sass-loader'),
-    options: { implementation: found.sass, api: 'modern-compiler', sassOptions: sassOptions(root, configuration, found.sass) },
+    options: {
+      get implementation() {
+        return loadSass();
+      },
+      api: 'modern-compiler',
+      sassOptions: () => (options ??= sassOptions(root, configuration, loadSass())),
+    },
   };
 }
 
@@ -76,10 +85,10 @@ export function sassOptions(
   };
 }
 
-function findSass(root: string): { file: string; sass: SassPackage } | undefined {
+function findSass(root: string): string | undefined {
   for (const packageName of SASS_PACKAGES) {
     const file = resolveFromProject(root, packageName);
-    if (file !== undefined) return { file, sass: createRequire(file)(file) as SassPackage };
+    if (file !== undefined) return file;
   }
   return undefined;
 }

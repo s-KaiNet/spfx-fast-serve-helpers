@@ -21,7 +21,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 ### Shape of the configuration
 
 - Each feature returns a contribution (entries, rules, plugins, aliases, resolve extensions, externals, dev-server middlewares); contributions are merged in a fixed order (rules, plugins and middlewares appended, aliases and entries merged, extensions and externals deduplicated) under a common base.
-- Base: `mode: 'development'`, target web/ES2020, `devtool: 'cheap-module-source-map'`, memory `cache: true`, `optimization.nodeEnv` off (the defines own `process.env.NODE_ENV`), performance hints off, quiet infrastructure logging.
+- Base: `mode: 'development'`, target web/ES2020, `devtool: 'cheap-module-source-map'`, Rspack's persistent cache in `temp/fast-serve/cache` for the dev server (memory cache for one-shot compiles; see [Startup performance and the persistent cache](performance-and-cache.md)), `optimization.nodeEnv` off (the defines own `process.env.NODE_ENV`), performance hints off, quiet infrastructure logging.
 - Output: `[name].js` per bundle, `chunk.[name].js` for `import()` chunks, `library.type: 'amd'` without a name (anonymous `define`), absolute `publicPath` `https://localhost:<port>/dist/`, `hashFunction: 'xxhash64'`, `crossOriginLoading: 'anonymous'`, heft's source-map module filename templates. `uniqueName` and the JSONP global are derived from a hash of the package name, so they don't collide with the solution's installed production bundle (heft's JSONP global) on the same page.
 - `amd: {}` is set on purpose: **Rspack 2 parses `define`/AMD only when `amd` is configured** (webpack enables it by default). Without it, AMD loc files evaluate to empty modules and UMD dependencies take their CommonJS/global branch.
 - `module.parser.javascript.exportsPresence: 'auto'`: missing exports warn instead of failing (type-only re-exports compiled per file). A heft-like warning filter is not there yet.
@@ -54,7 +54,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 
 Checked on two SPFx 1.24.1 projects (7 bundles) against heft's production `dist/`: every bundle exports the same names (`default`, plus named exports such as an ACE's registry id; `a`/`b`/`c` for a three-component bundle), and each `define` dependency list equals heft's minus the React family and loc resource names, which fast-serve bundles by design. One difference per async-chunk bundle: heft lists `@microsoft/sp-core-library` (its async component loader), fast-serve lists the library the chunk uses. heft names the first bundle's `define` in some projects ([quirk](../references/spfx-heft-pipeline.md)); fast-serve's are always anonymous.
 
-### Compile times (single machine, 3 runs)
+### Compile times (single machine, 3 runs, without the persistent cache; current numbers in [Startup performance](performance-and-cache.md))
 
 | Project | Rspack compile | CLI start to exit |
 |---|---|---|
@@ -63,6 +63,7 @@ Checked on two SPFx 1.24.1 projects (7 bundles) against heft's production `dist/
 
 ## Links
 
+- [Startup performance and the persistent cache](performance-and-cache.md)
 - [Dev server, debug manifests and debug URL](dev-server.md)
 - [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)

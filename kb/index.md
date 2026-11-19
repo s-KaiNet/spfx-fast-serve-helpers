@@ -18,7 +18,7 @@ Bundler-independent SPFx platform concepts.
 
 ## Architecture
 
-- [Architecture overview](architecture/overview.md): target data flow config → project model → generated artifacts → Rspack compiler and dev server → browser runtime, responsibilities, dependency rules, differences from the Vite implementation. Tags: architecture, rspack, data-flow. Status: draft.
+- [Architecture overview](architecture/overview.md): data flow config → project model → generated artifacts → Rspack compiler and dev server → browser runtime, responsibilities, dependency rules, differences from the Vite implementation. Tags: architecture, rspack, data-flow. Status: current.
 - [Project model](architecture/project-model.md): bundler-free SPFx facts (bundles, components, export names, manifests, serve configurations, SPFx libraries incl. `@microsoft/microsoft-graph-client`, `config.json` externals, loc, tsconfig, `sass.json`, SPFx version), deliberate differences from heft (React), caching and invalidation, check against heft's output. Tags: architecture, project-model, spfx. Status: current.
 
 ## Features
@@ -35,7 +35,12 @@ Bundler-independent SPFx platform concepts.
 - [require() and AMD in dependencies](features/require-and-amd.md): webpack semantics for `require()` of CommonJS/ESM/JSON/assets/SPFx libraries/externals and for UMD dependencies with an AMD branch (full lodash), no emulation, `amdPackages` dropped. Tags: require, amd, requirejs. Status: current.
 - [Restarts on project changes](features/project-restarts.md): dev session that restarts on `package.json`, `config/*.json`, `fast-serve/config.json`, tsconfig, manifests and extend-file edits, content-based watching, failing restarts keep the old server, short restart line, pages reload by themselves (new hash salt). Tags: dev-session, restarts. Status: current.
 - [Rspack extend file](features/rspack-extend-file.md): `fast-serve/rspack.extend.mjs` (`.mts`/`.ts`/`.cjs`… bundled with Rspack), `defineConfig`, context and env, public types and `rspack` re-export, webpack-merge semantics, dev-server additions, guarded keys, restarts and errors, webpack-customization hint, shipped `fast-serve-rspack-config` skill. Tags: rspack, configuration, webpack-customization, agent-skill. Status: current.
+- [Startup performance and the persistent cache](features/performance-and-cache.md): Rspack persistent cache in `temp/fast-serve/cache` with a version fingerprint of the config and project files, typings after the first compile, lazily loaded Sass, before/after start numbers, levers measured and rejected (eval/no source maps, lazy compilation). Tags: performance, cache, rspack. Status: current.
 - [CLI, options and startup](features/cli-and-options.md): flags, `fast-serve/config.json` (dropped `amdPackages`, old file warning), precedence, page order, `{tenantDomain}`, startup order and summary, failures and exit codes, shutdown signals. Tags: cli, options, startup. Status: current.
+
+## Operations
+
+- [Acceptance run on the test projects](operations/acceptance-run.md): procedure (copies, tarball, live checks with a page marker and DOM timing) and the last results for every component type, HMR across bundles, errors, restarts, extend file, locale, cache and heft build. Tags: acceptance, live-verification. Status: current.
 
 ## Decisions
 

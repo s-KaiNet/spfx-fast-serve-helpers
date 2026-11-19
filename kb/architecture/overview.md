@@ -1,7 +1,7 @@
 ---
 title: Architecture overview
 type: architecture
-status: draft
+status: current
 tags:
   - project-kb
   - architecture
@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-`fast-serve` (Rspack implementation) turns an SPFx 1.24 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. This page describes the target shape; so far the CLI with options, the [project model](project-model.md), the [Rspack compile](../features/rspack-compile.md) the [dev server with debug manifests](../features/dev-server.md) and [HMR with React Fast Refresh](../features/hmr.md) exist (see [Roadmap overview](../roadmap/overview.md)).
+`fast-serve` (Rspack implementation) turns an SPFx 1.24 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. Every part described here exists (status in the [Roadmap overview](../roadmap/overview.md)).
 
 ## Current Knowledge
 
@@ -31,7 +31,7 @@ tags:
 |---|---|
 | CLI and options | flags, `fast-serve/config.json`, precedence, version check, logging |
 | Project model | SPFx facts, cached; rebuilt on restart; no bundler types |
-| Rspack config | composition of feature contributions (entries, rules, plugins, aliases, resolve extensions, externals; later dev-server middlewares) |
+| Rspack config | composition of feature contributions (entries, rules, plugins, aliases, resolve extensions, externals, dev-server middlewares, server-start hooks) and the [persistent cache](../features/performance-and-cache.md) version |
 | Manifests | debug `manifests.js`: source manifest + `loaderConfig` with the bundle and the externals it uses |
 | Dev server | HTTPS, headers, debug URL and ready banner |
 | Dev session | watching project configuration and the extend file, [restarts](../features/project-restarts.md) that swap the server only after the new config is ready |

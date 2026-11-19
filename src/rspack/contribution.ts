@@ -12,6 +12,7 @@ export interface PageReloader {
 export type ServerStopper = () => void;
 
 export interface StartedServer extends PageReloader {
+  readonly firstCompile: Promise<void>;
   onStop(stopper: ServerStopper): void;
 }
 

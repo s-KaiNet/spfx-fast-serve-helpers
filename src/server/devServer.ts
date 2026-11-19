@@ -1,5 +1,6 @@
 import { rspack, type Compiler, type Configuration, type DevServer, type Stats } from '@rspack/core';
 import { RspackDevServer } from '@rspack/dev-server';
+import { withPersistentCache } from '../cache/index.js';
 import type { ResolvedOptions } from '../config/options.js';
 import type { Logger } from '../logger.js';
 import { guardExtendConfig, mergeDevServer, mergeRspackConfig, projectRelative, type LoadedExtend } from '../extend/index.js';
@@ -18,6 +19,7 @@ export interface StartDevServerOptions {
   outputPath?: string;
   hashSalt?: string;
   extend?: LoadedExtend;
+  persistentCache?: boolean;
 }
 
 export interface RunningDevServer {
@@ -38,14 +40,14 @@ export async function startDevServer(options: StartDevServerOptions): Promise<Ru
   return prepared.listen();
 }
 
-export async function prepareDevServer({ setup, logger, https, outputPath, hashSalt, extend }: StartDevServerOptions): Promise<PreparedDevServer> {
+export async function prepareDevServer({ setup, logger, https, outputPath, hashSalt, extend, persistentCache = true }: StartDevServerOptions): Promise<PreparedDevServer> {
   const startedAt = performance.now();
   const { root, project, options } = setup;
   const credentials = https ?? (await loadDevCertificate());
   const context: BuildContext = { root, project, options, logger };
   const build = await createRspackBuild(context, { ...(outputPath === undefined ? {} : { outputPath }), ...(hashSalt === undefined ? {} : { hashSalt }) });
   const { config, devServer } = withExtend(build.config, devServerConfiguration(options, credentials, build.middlewares), extend, root, logger);
-  const compiler = rspack(config);
+  const compiler = rspack(!persistentCache || extend?.config.cache !== undefined ? config : withPersistentCache({ root, config, files: [...project.modelFiles(), ...extendFiles(extend)] }));
   let used = false;
   return {
     async listen(banner = 'full') {
@@ -57,6 +59,10 @@ export async function prepareDevServer({ setup, logger, https, outputPath, hashS
       if (!used) await closeCompiler(compiler);
     },
   };
+}
+
+function extendFiles(extend: LoadedExtend | undefined): string[] {
+  return extend === undefined ? [] : [extend.file, ...extend.dependencies];
 }
 
 function withExtend(config: Configuration, devServer: DevServer, extend: LoadedExtend | undefined, root: string, logger: Logger): { config: Configuration; devServer: DevServer } {
@@ -88,6 +94,10 @@ async function listenDevServer({ compiler, devServer, serverStarted, setup, logg
   try {
     await server.start();
     const startedServer: StartedServer = {
+      firstCompile: firstCompile.then(
+        () => undefined,
+        () => undefined,
+      ),
       reloadPages: () => {
         reloadPages(server);
       },

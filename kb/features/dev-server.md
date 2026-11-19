@@ -57,10 +57,11 @@ SIGINT and SIGTERM stop the dev server (websocket clients, sockets, middleware a
 
 ### Measured (spfx-rea, SPFx 1.24.1)
 
-Start to ready: 0.85 s (first compile 0.52–0.54 s). A page load requests `manifests.js`, the one bundle on the page (1.3 MB, development React included) and one image: three requests. A text edit in a component rebuilds in about 40 ms and reaches the DOM in about 120–160 ms without a reload ([HMR](hmr.md)).
+Start to ready: about 1.2 s uncached and 0.6 s with the persistent cache (process start → ready line, [details](performance-and-cache.md)). A page load requests `manifests.js`, the one bundle on the page (1.3 MB, development React included) and one image: three requests. A text edit in a component rebuilds in about 40 ms and reaches the DOM in about 120–160 ms without a reload ([HMR](hmr.md)).
 
 ## Links
 
+- [Startup performance and the persistent cache](performance-and-cache.md)
 - [Rspack compile](rspack-compile.md)
 - [HMR and React Fast Refresh](hmr.md)
 - [CLI, options and startup](cli-and-options.md)

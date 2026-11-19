@@ -40,7 +40,7 @@ A file counts as changed only when its content changed (saves without changes, `
 
 ### Pages after a restart
 
-Every server start uses a new compilation hash salt. The pages' dev-server clients reconnect to the new server, see a new hash, try a hot update against the previous hash, get no update and reload the page. Measured live on spfx-rea: an edit of the extend file → new values on the page in about 4 s including the SharePoint page reload; the server itself restarted in 0.18–0.25 s. HMR keeps working on the restarted server (a TSX edit hot-updated with the component state kept).
+Every server start uses a new compilation hash salt. The pages' dev-server clients reconnect to the new server, see a new hash, try a hot update against the previous hash, get no update and reload the page. Measured live on spfx-rea: an edit of the extend file → new values on the page in about 4 s including the SharePoint page reload; the server itself restarted in 0.18–0.25 s. HMR keeps working on the restarted server (a TSX edit hot-updated with the component state kept). Restarts use the [persistent cache](performance-and-cache.md): a changed configuration file changes the cache version, so the restarted compile is uncached, but loaders and Sass are already loaded in the process, so it takes 0.1–0.5 s on spfx-rea; the hash salt is not part of the cache version.
 
 ### Unchanged options
 
@@ -55,6 +55,7 @@ The option set is final for this line: `port`, `pageUrl`, `locale`, `serveConfig
 
 ## Links
 
+- [Startup performance and the persistent cache](performance-and-cache.md)
 - [CLI, options and startup](cli-and-options.md)
 - [Rspack extend file](rspack-extend-file.md)
 - [Dev server, debug manifests and debug URL](dev-server.md)

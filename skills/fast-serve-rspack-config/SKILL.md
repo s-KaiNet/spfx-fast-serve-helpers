@@ -83,4 +83,5 @@ Don't add React Refresh, HMR or SWC/TypeScript rules: fast-serve already runs th
 - `externals` in the extend file are applied, but fast-serve warns: the debug manifests don't list them, so SharePoint can't load them. Use `config/config.json`.
 - Keep files that both builds compile (in `src`) valid for heft's webpack.
 - Plugins that only matter for production (compression, analyzers, copy) don't belong here.
+- Don't set `cache` or `devtool` from a webpack config: fast-serve keeps a persistent cache in `temp/fast-serve/cache` keyed on the final config, and its error mapping needs its source maps. `cache: false` in the extend file turns the persistent cache off; only do that when asked.
 - If something can't be mirrored, say so to the user instead of changing `src` to work around it.

@@ -9,7 +9,7 @@ export { createScssTypings, type ScssTypings } from './scssTypings.js';
 export function scssTypingsOnServerStart({ root, logger, project }: BuildContext, sourceFolder: string): ServerStartedHook {
   return (server) => {
     const typings = createScssTypings({ root, logger, sassConfiguration: () => project.sassConfiguration() });
-    void typings.generateAll();
+    void server.firstCompile.then(() => typings.generateAll());
     const watcher = watchSourceFolder(
       sourceFolder,
       (changes) => {

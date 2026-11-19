@@ -24,7 +24,7 @@ SWC compiles each TypeScript file on its own, with the options that change emitt
 - `experimentalDecorators: true` → legacy decorators (class, method, property, parameter); without it TypeScript 5 standard decorators (SWC `2022-03`).
 - `emitDecoratorMetadata` (with legacy decorators) → `design:type`/`design:paramtypes`/`design:returntype` metadata through `Reflect.metadata` when present.
 - `useDefineForClassFields`: the explicit value, else tsc's default from `target` (true from ES2022/ESNext). The rig's `target: es5` gives `false`, so a field without an initializer is not emitted and doesn't reset a value set by a base class, as with heft.
-- Nothing is downleveled beyond ES2020; `target` only decides the class-field default. JSX is the classic React transform. A tsconfig change needs a restart for now.
+- Nothing is downleveled beyond ES2020; `target` only decides the class-field default. JSX is the classic React transform. A tsconfig change [restarts](project-restarts.md) fast-serve.
 
 ### `paths` and `baseUrl`
 
@@ -46,6 +46,7 @@ SWC compiles each TypeScript file on its own, with the options that change emitt
 
 ## Links
 
+- [Restarts on project changes](project-restarts.md)
 - [Rspack compile](rspack-compile.md)
 - [Project model](../architecture/project-model.md)
 - [Styles, theme tokens and typings](styles-and-typings.md)

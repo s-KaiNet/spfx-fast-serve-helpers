@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 01:30 | ingest | persistent cache, docs reconcile, acceptance run (R21, R22, R23)
+
+- Changed: `kb/features/performance-and-cache.md` (new), `kb/operations/acceptance-run.md` (new), `kb/features/dev-server.md`, `kb/features/rspack-compile.md`, `kb/features/project-restarts.md`, `kb/features/styles-and-typings.md`, `kb/features/extensions-and-aces.md`, `kb/features/typescript-and-tsconfig.md`, `kb/features/hmr.md`, `kb/references/rspack.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: Rspack persistent cache with a config-and-files fingerprint as version, typings after the first compile and lazily loaded Sass recorded with before/after numbers and the rejected levers; stale "restart needed for now" notes replaced by the restart behaviour; architecture page current; acceptance procedure and the last live results for every component type added
+
 ## 2026-11-19 23:55 | ingest | restarts, Rspack extend file, webpack hint, agent skill (R17–R20)
 
 - Changed: `kb/features/project-restarts.md` (new), `kb/features/rspack-extend-file.md` (new), `kb/features/cli-and-options.md`, `kb/architecture/project-model.md`, `kb/references/rspack.md`, `kb/roadmap/overview.md`, `kb/index.md`

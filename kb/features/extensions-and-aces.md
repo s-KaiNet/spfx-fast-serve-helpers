@@ -26,7 +26,7 @@ Extensions are served exactly like heft serves them: `--config <name>` (alias `-
   - a component of the wrong kind for its slot (custom action location → Application Customizer, ListView Command Set or Search Query Modifier; field customizer → Field Customizer; form customizer → Form Customizer);
   - an unknown custom action location;
   - the generator's placeholders: field `InternalFieldName`, `RootFolder` `/sites/mySite/Lists/MyList`.
-- `serve.json` is read at start; a change needs a restart (automatic restarts come later).
+- A `serve.json` change [restarts](project-restarts.md) fast-serve, which prints the new URL.
 
 ### Adaptive Card Extensions
 
@@ -61,6 +61,7 @@ Banner: when the project has ACEs, one line explains where to add them (toolbox 
 
 ## Links
 
+- [Restarts on project changes](project-restarts.md)
 - [SPFx component types](../concepts/spfx-component-types.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [CLI, options and startup](cli-and-options.md)

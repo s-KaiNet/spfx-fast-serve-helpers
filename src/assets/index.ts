@@ -21,7 +21,7 @@ export function assetsContribution({ root, logger }: Pick<BuildContext, 'root' |
     serverStarted: [
       (server) => {
         const typings = createAssetTypings({ root, logger });
-        void typings.generateAll();
+        void server.firstCompile.then(() => typings.generateAll());
         const watcher = watchSourceFolder(
           path.join(root, 'src'),
           (changes) => {

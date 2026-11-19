@@ -26,7 +26,7 @@ Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules wh
 - Imports: Sass `pkg:` URLs resolve through the `NodePackageImporter` of the same Sass package (`@import 'pkg:@fluentui/react/dist/sass/References.scss'`); `~` imports (`@import '~@fluentui/react/dist/sass/References'`) and bare package specifiers resolve through sass-loader's resolver; `loadPaths` from `sass.json` are passed to Sass. `@use` must come before `@import` (Sass rule).
 - `url()` in CSS (also in `node_modules` CSS) becomes an emitted asset served from the dev server.
 - Deprecations: `silenceDeprecations` silences them (the SPFx rig silences `mixed-decls`, `import`, `global-builtin`, `color-functions`, so a default project starts without Sass noise); `ignoreDeprecationsInDependencies` maps to Sass `quietDeps`. Anything not silenced appears as a compile warning.
-- `sass.json` changes need a restart for now (restarts come with option completion).
+- A `sass.json` change [restarts](project-restarts.md) fast-serve.
 
 ### Class names equal to heft's
 
@@ -42,7 +42,7 @@ Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules wh
 
 ### Typings
 
-- **SCSS typings:** heft's own Sass processor from the project's `@rushstack/heft-sass-plugin` writes `temp/sass-ts/**/X.module.scss.d.ts` (and `secondaryGeneratedTsFolders`) with the merged `sass.json` (`srcFolder`, `exportAsDefault`, extensions, `excludeFiles`), byte-identical to `heft build`. All files are generated after the server listens; adding, editing or deleting a stylesheet under `srcFolder` regenerates or removes its typing (a changed partial regenerates its consumers). Sass errors are reported and the previous typing stays.
+- **SCSS typings:** heft's own Sass processor from the project's `@rushstack/heft-sass-plugin` writes `temp/sass-ts/**/X.module.scss.d.ts` (and `secondaryGeneratedTsFolders`) with the merged `sass.json` (`srcFolder`, `exportAsDefault`, extensions, `excludeFiles`), byte-identical to `heft build`. All files are generated after the first compile (see [Startup performance](performance-and-cache.md)); adding, editing or deleting a stylesheet under `srcFolder` regenerates or removes its typing (a changed partial regenerates its consumers). Sass errors are reported and the previous typing stays.
 - **Static asset typings:** `temp/static-asset-ts/**/X.png.d.ts` for the extensions of the merged `config/static-asset-typings.json` (rig: `.gif`, `.jpg`, `.jpeg`, `.png`, `.svg`, `.webp`), at start and when an asset is added or deleted under `src`. Without that config nothing is written.
 - Changes are detected by a recursive file-system watch of the source folder, so new files that nothing imports yet are covered; the watch closes with the server.
 
@@ -62,6 +62,7 @@ Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules wh
 
 ## Links
 
+- [Startup performance and the persistent cache](performance-and-cache.md)
 - [Rspack compile](rspack-compile.md)
 - [HMR and React Fast Refresh](hmr.md)
 - [Project model](../architecture/project-model.md)

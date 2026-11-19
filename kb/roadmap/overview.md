@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload. Phase 2 is done (`1.24.0-rspack.5`): extensions through serve configurations and `--config` (Application Customizer, Command Set, Form Customizer live) with startup warnings, and ACEs on the hosted workbench; in phase 3 (parity) SPFx libraries as externals (deep imports bundled like heft), `config.json` externals and localization are done (`1.24.0-rspack.6`), then Sass/CSS modules with heft's class names and theme tokens, SCSS and static asset typings and tsconfig handling (`1.24.0-rspack.7`), then the error overlay, terminal output, browser errors in the terminal with readable load errors, and the `require()`/AMD regression tests (`1.24.0-rspack.8`), then restarts on project changes, the Rspack extend file with `defineConfig`, the webpack-customization hint and the agent skill (`1.24.0-rspack.9`); performance tuning, docs, the acceptance run and the benchmark follow.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload. Phase 2 is done (`1.24.0-rspack.5`): extensions through serve configurations and `--config` (Application Customizer, Command Set, Form Customizer live) with startup warnings, and ACEs on the hosted workbench; in phase 3 (parity) SPFx libraries as externals (deep imports bundled like heft), `config.json` externals and localization are done (`1.24.0-rspack.6`), then Sass/CSS modules with heft's class names and theme tokens, SCSS and static asset typings and tsconfig handling (`1.24.0-rspack.7`), then the error overlay, terminal output, browser errors in the terminal with readable load errors, and the `require()`/AMD regression tests (`1.24.0-rspack.8`), then restarts on project changes, the Rspack extend file with `defineConfig`, the webpack-customization hint and the agent skill (`1.24.0-rspack.9`); then the persistent cache and startup tuning, the user README and the acceptance run on both test projects (`1.24.0-rspack.10`). The final benchmark against the Vite implementation, `heft start` and Vite's bundled dev mode is the remaining task.
 
 ## Current Knowledge
 
@@ -41,6 +41,8 @@ Library components, SPFx 1.22/1.23, tunnels and remote hosts beyond what the Vit
 
 ## Links
 
+- [Acceptance run on the test projects](../operations/acceptance-run.md)
+- [Startup performance and the persistent cache](../features/performance-and-cache.md)
 - [Rspack compile](../features/rspack-compile.md)
 - [HMR and React Fast Refresh](../features/hmr.md)
 - [CLI, options and startup](../features/cli-and-options.md)
@@ -54,4 +56,4 @@ Library components, SPFx 1.22/1.23, tunnels and remote hosts beyond what the Vit
 
 - Source: Rspack branch plan (2026-11-19)
 - Confidence: high for scope; task sizes are estimates
-- Last checked: 2026-11-19
+- Last checked: 2026-11-20

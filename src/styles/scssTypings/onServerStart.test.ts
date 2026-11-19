@@ -34,6 +34,7 @@ const POLL = { timeout: 5000, interval: 25 };
 
 function startedServer(): StartedServer {
   return {
+    firstCompile: Promise.resolve(),
     reloadPages: () => undefined,
     onStop: (stopper) => {
       cleanups.unshift(stopper);
