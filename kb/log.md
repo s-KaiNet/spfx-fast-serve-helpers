@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 00:30 | ingest | Sass/CSS modules, typings, tsconfig (R11, R12, R13)
+
+- Changed: `kb/features/styles-and-typings.md` (new), `kb/features/typescript-and-tsconfig.md` (new), `kb/features/rspack-compile.md`, `kb/architecture/project-model.md`, `kb/references/rspack.md`, `kb/references/spfx-heft-pipeline.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: heft's exact class-name hash input recorded (lib CSS path plus the Sass plugin's source-map comment) and matched; `pkg:`/`~`/`loadPaths`/deprecation settings, global and library CSS, theme tokens, SCSS and asset typings while serving documented; tsconfig-derived SWC options, `paths` via Rspack's tsconfig resolver, type-only warning filter and `const enum` errors documented with the reasons; Rspack facts on linking warnings, module graph access, rule-level `tsConfig` and SWC decorator options added
+
 ## 2026-11-19 23:55 | ingest | SPFx libraries, config.json externals, localization (R8, R9, R10)
 
 - Changed: `kb/features/libraries-and-externals.md` (new), `kb/features/localization.md` (new), `kb/features/rspack-compile.md`, `kb/features/dev-server.md`, `kb/features/hmr.md`, `kb/concepts/externals-semantics.md`, `kb/references/rspack.md`, `kb/roadmap/overview.md`, `kb/index.md`

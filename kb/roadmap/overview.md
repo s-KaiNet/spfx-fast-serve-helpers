@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload. Phase 2 is done (`1.24.0-rspack.5`): extensions through serve configurations and `--config` (Application Customizer, Command Set, Form Customizer live) with startup warnings, and ACEs on the hosted workbench; in phase 3 (parity) SPFx libraries as externals (deep imports bundled like heft), `config.json` externals and localization are done (`1.24.0-rspack.6`); Sass/CSS, typings, tsconfig and the rest follow. The compile already contains initial asset and Sass/CSS handling that later tasks complete.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload. Phase 2 is done (`1.24.0-rspack.5`): extensions through serve configurations and `--config` (Application Customizer, Command Set, Form Customizer live) with startup warnings, and ACEs on the hosted workbench; in phase 3 (parity) SPFx libraries as externals (deep imports bundled like heft), `config.json` externals and localization are done (`1.24.0-rspack.6`), then Sass/CSS modules with heft's class names and theme tokens, SCSS and static asset typings and tsconfig handling (`1.24.0-rspack.7`); error overlay, terminal output and the rest follow.
 
 ## Current Knowledge
 
@@ -31,7 +31,7 @@ AMD shim and ES module entry, on-demand library facades, named-import rewriting 
 
 ### Open questions
 
-- CSS pipeline: the project's `@microsoft/sp-css-loader` (exact heft class names and tokens) or a fully own CSS-modules pipeline.
+- CSS pipeline: the project's `@microsoft/sp-css-loader` is used (exact heft class names and tokens, verified); a fully own CSS-modules pipeline was not needed.
 - Extend file formats beyond `.mjs` (TypeScript needs Node type stripping).
 - Whether the Rspack line is published or stays local until the benchmark decides.
 

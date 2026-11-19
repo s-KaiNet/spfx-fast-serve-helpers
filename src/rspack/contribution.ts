@@ -9,7 +9,13 @@ export interface PageReloader {
   reloadPages(): void;
 }
 
-export type ServerStartedHook = (reloader: PageReloader) => void;
+export type ServerStopper = () => void;
+
+export interface StartedServer extends PageReloader {
+  onStop(stopper: ServerStopper): void;
+}
+
+export type ServerStartedHook = (server: StartedServer) => void;
 
 export interface ConfigContribution {
   entry?: EntryObject;

@@ -40,7 +40,7 @@ How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse
 
 ### Typings tasks
 
-- `sass` compiles `*.module.scss` to plain CSS in `lib/` (ICSS `:export` kept, class names **not** hashed yet) and writes typings to `temp/sass-ts/**/X.module.scss.d.ts`.
+- `sass` compiles `*.module.scss` to plain CSS in `lib/` (ICSS `:export` kept, class names **not** hashed yet) and writes typings to `temp/sass-ts/**/X.module.scss.d.ts`. Rig `sass.json`: `cssOutputFolders` `lib` and `lib-commonjs`, `doNotTrimOriginalFileExtension` (`X.module.scss.css`), `preserveIcssExports`, `sourceMap`, `resolveBareSpecifiersAsPackages`, `silenceDeprecations` `mixed-decls`, `import`, `global-builtin`, `color-functions`; Sass runs with `style: expanded` and rewrites `~pkg` imports to `pkg:` itself.
 - `static-asset-typings` writes `temp/static-asset-ts/**/X.png.d.ts` (`declare const content: string; export default content;`) for the extensions in the rig's `config/static-asset-typings.json` (`.gif`, `.jpg`, `.jpeg`, `.png`, `.svg`, `.webp`).
 - The rig tsconfig reads both folders through `rootDirs`. The Vite implementation wrote the same files with heft's own logic; the Rspack implementation reuses that approach.
 
@@ -57,7 +57,7 @@ How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse
 
 - `*.module.css` / `*.module.scss.css` go through `@microsoft/sp-css-loader` as CSS modules; other `.css` files are global. The 1.24 module rule is `/\.module(?:\.scss)?\.css$/i` (SPFx 1.23 treated every non-`.global` style file as a module).
 - sp-css-loader runs cssnano (calc off), autoprefixer and the PostCSS modules chain, then emits `loadStyles(css, true)` from `@microsoft/load-themed-styles` (bundled, not external) plus `export default { class: "class_<hash>", ...:export values }`.
-- **Class name = `<class>_<first 8 hex of HMAC-SHA1(key = absolute CSS file path, data = CSS)>`.** Hashes therefore differ between machines; only agreement between CSS and the JS class map matters.
+- **Class name = `<class>_<first 8 hex of HMAC-SHA1(key = absolute CSS file path, data = CSS)>`**, computed once per file per process. For project styles the file is the Sass plugin's `lib/**/X.module.scss.css` and the data is its full text, including the `/*# sourceMappingURL=X.module.scss.css.map */` line the plugin appends when `sourceMap` is on (the rig enables it; the comment is not stripped before hashing). Hashes therefore differ between machines; only agreement between CSS and the JS class map matters.
 - Theme tokens (`"[theme:x, default:y]"`) stay in the CSS string and are replaced at runtime by load-themed-styles from `window.__themeState__.theme`.
 
 ### Externals

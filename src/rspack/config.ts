@@ -26,11 +26,11 @@ export interface RspackConfigOptions {
 export async function featureContributions(context: BuildContext): Promise<ConfigContribution[]> {
   return [
     entriesContribution(context),
-    typescriptContribution(),
+    typescriptContribution(context),
     externalsContribution(context),
     reactContribution(context),
     localizationContribution(context),
-    assetsContribution(),
+    assetsContribution(context),
     await stylesContribution(context),
     definesContribution(),
     manifestsContribution(context),

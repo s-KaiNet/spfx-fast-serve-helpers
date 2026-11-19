@@ -35,7 +35,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 
 ### TypeScript
 
-`builtin:swc-loader` for `.ts` and `.tsx` outside `node_modules`: TypeScript syntax with decorators, legacy decorators, `useDefineForClassFields: false`, classic JSX runtime with the development transform (React receives `__self`/`__source`) and the React Refresh transform, target ES2020, source maps. These are the SPFx rig defaults; tsconfig-derived options come later.
+`builtin:swc-loader` for `.ts` and `.tsx` outside `node_modules`: TypeScript syntax with decorators, classic JSX runtime with the development transform (React receives `__self`/`__source`) and the React Refresh transform, target ES2020, source maps. Decorator and class-field options, tsconfig `paths` and the `const enum`/type-only handling come from the project's tsconfig: see [TypeScript and tsconfig](typescript-and-tsconfig.md).
 
 ### Externals and React
 
@@ -47,7 +47,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 
 - Each `localizedResources` name is aliased to the model's strings file for the selected locale (with the `en-us` fallback) and bundled; AMD loc files parse through Rspack's AMD support, module loc files go through a small wrapper. Details: [Localized strings](localization.md).
 - Images, fonts and other binary files from heft's list are `asset/resource` named `[name]_[contenthash][ext]` and referenced through the absolute `publicPath`; `.sprite.svg` is `asset/source`.
-- Styles: `.scss` goes through `sass-loader` (the project's `sass-embedded`, else `sass`; modern compiler API; `silenceDeprecations` from the merged `config/sass.json`; Sass `NodePackageImporter` for `pkg:` URLs) and then the project's `@microsoft/sp-css-loader`, with heft's split: `.module.scss`, `.module.css` and `.module.scss.css` as CSS modules with SPFx class names (`<class>_<8 hex>`), other `.css`/`.scss` global; theme tokens stay for `@microsoft/load-themed-styles`. Class names don't match heft's yet (the hash input is the `.scss` source path instead of heft's compiled `lib` CSS file). Missing `sp-css-loader` or Sass is a warning, and style imports then fail to compile.
+- Styles: Sass through `sass-loader`, then the project's `@microsoft/sp-css-loader`, CSS modules with heft's exact class names and theme tokens; details in [Styles, theme tokens and typings](styles-and-typings.md).
 - Defines: `DEBUG` = `true`, `process.env.NODE_ENV` = `"development"` (same values as the Vite implementation).
 
 ### Comparison with heft's output
@@ -70,6 +70,8 @@ Checked on two SPFx 1.24.1 projects (7 bundles) against heft's production `dist/
 - [Externals semantics](../concepts/externals-semantics.md)
 - [SPFx libraries and config.json externals](libraries-and-externals.md)
 - [Localized strings](localization.md)
+- [Styles, theme tokens and typings](styles-and-typings.md)
+- [TypeScript and tsconfig](typescript-and-tsconfig.md)
 - [Rspack facts and references](../references/rspack.md)
 - [SPFx 1.24 Heft pipeline (reverse-engineered)](../references/spfx-heft-pipeline.md)
 - [Rspack with our own configuration](../decisions/rspack-with-own-config.md)

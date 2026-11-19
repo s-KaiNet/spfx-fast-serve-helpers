@@ -15,6 +15,10 @@ export interface SassConfiguration {
   loadPaths?: string[];
   resolveBareSpecifiersAsPackages?: boolean;
   silenceDeprecations?: string[];
+  ignoreDeprecationsInDependencies?: boolean;
+  cssOutputFolders?: (string | { folder: string })[];
+  doNotTrimOriginalFileExtension?: boolean;
+  sourceMap?: boolean;
 }
 
 export async function loadSassConfiguration(root: string, logger: ProjectLogger): Promise<SassConfiguration> {

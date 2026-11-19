@@ -1,45 +1,50 @@
 import { createRequire } from 'node:module';
+import path from 'node:path';
 import type { RuleSetRule, RuleSetUseItem } from '@rspack/core';
 import type { SassConfiguration } from '../project/index.js';
 import type { BuildContext } from '../rspack/context.js';
 import type { ConfigContribution } from '../rspack/contribution.js';
 import { resolveFromProject } from '../utils/heftProject.js';
 import { packageFile } from '../utils/packageFile.js';
-import { createCssClassNameGenerator } from './cssClassName.js';
+import { createCssClassNameGenerator, heftCssFileMapper } from './cssClassName.js';
+import { scssTypingsOnServerStart } from './scssTypings/index.js';
 
 const SP_CSS_LOADER = '@microsoft/sp-css-loader';
 const SASS_PACKAGES = ['sass-embedded', 'sass'];
 const MODULE_CSS = /\.module(?:\.scss)?\.css$/i;
 const GLOBAL_CSS = /(?<!\.module(?:\.scss)?)\.css$/i;
-const MODULE_SCSS = /\.module\.scss$/i;
-const GLOBAL_SCSS = /(?<!\.module)\.scss$/i;
+const MODULE_SASS = /\.module\.s[ac]ss$/i;
+const GLOBAL_SASS = /(?<!\.module)\.s[ac]ss$/i;
 
-interface SassPackage {
+export interface SassPackage {
   NodePackageImporter?: new (entryPointDirectory: string) => object;
 }
 
-export async function stylesContribution({ root, project, logger }: BuildContext): Promise<ConfigContribution> {
+export async function stylesContribution(context: BuildContext): Promise<ConfigContribution> {
+  const { root, project, logger } = context;
+  const sassConfiguration = await project.sassConfiguration().catch((): SassConfiguration => ({}));
+  const serverStarted = [scssTypingsOnServerStart(context, path.resolve(root, sassConfiguration.srcFolder ?? 'src'))];
   const spCssLoader = resolveFromProject(root, SP_CSS_LOADER);
   if (spCssLoader === undefined) {
     logger.warn(`${SP_CSS_LOADER} was not found (it ships with @microsoft/spfx-heft-plugins): styles can't be compiled, reinstall the project dependencies`);
-    return {};
+    return { serverStarted };
   }
-  const generateCssClassName = createCssClassNameGenerator();
+  const generateCssClassName = createCssClassNameGenerator(heftCssFileMapper(root, sassConfiguration));
   const moduleCss: RuleSetUseItem = { loader: spCssLoader, options: { async: true, production: false, generateCssClassName } };
   const globalCss: RuleSetUseItem = { loader: spCssLoader, options: { async: true, production: false } };
-  const sass = sassLoader(root, await project.sassConfiguration().catch((): SassConfiguration => ({})));
+  const sass = sassLoader(root, sassConfiguration);
   const hotStyles = hotStylesLoader();
   const rules: RuleSetRule[] = [
     { test: MODULE_CSS, use: [hotStyles, moduleCss], type: 'javascript/auto' },
     { test: GLOBAL_CSS, use: [hotStyles, globalCss], type: 'javascript/auto' },
   ];
   if (sass) {
-    rules.push({ test: MODULE_SCSS, use: [hotStyles, moduleCss, sass], type: 'javascript/auto' });
-    rules.push({ test: GLOBAL_SCSS, use: [hotStyles, globalCss, sass], type: 'javascript/auto' });
+    rules.push({ test: MODULE_SASS, use: [hotStyles, moduleCss, sass], type: 'javascript/auto' });
+    rules.push({ test: GLOBAL_SASS, use: [hotStyles, globalCss, sass], type: 'javascript/auto' });
   } else {
     logger.warn('neither sass-embedded nor sass was found in the project: .scss files can\'t be compiled');
   }
-  return { rules, extensions: ['.css'] };
+  return { rules, extensions: ['.css'], serverStarted };
 }
 
 function hotStylesLoader(): RuleSetUseItem {
@@ -49,20 +54,25 @@ function hotStylesLoader(): RuleSetUseItem {
   };
 }
 
-function sassLoader(root: string, { silenceDeprecations }: SassConfiguration): RuleSetUseItem | undefined {
+function sassLoader(root: string, configuration: SassConfiguration): RuleSetUseItem | undefined {
   const found = findSass(root);
   if (!found) return undefined;
-  const { NodePackageImporter } = found.sass;
   return {
     loader: createRequire(import.meta.url).resolve('sass-loader'),
-    options: {
-      implementation: found.sass,
-      api: 'modern-compiler',
-      sassOptions: {
-        ...(silenceDeprecations && { silenceDeprecations: [...silenceDeprecations] }),
-        ...(NodePackageImporter && { importers: [new NodePackageImporter(root)] }),
-      },
-    },
+    options: { implementation: found.sass, api: 'modern-compiler', sassOptions: sassOptions(root, configuration, found.sass) },
+  };
+}
+
+export function sassOptions(
+  root: string,
+  { silenceDeprecations, ignoreDeprecationsInDependencies, loadPaths }: SassConfiguration,
+  { NodePackageImporter }: SassPackage,
+): Record<string, unknown> {
+  return {
+    ...(silenceDeprecations && { silenceDeprecations: [...silenceDeprecations] }),
+    ...(ignoreDeprecationsInDependencies && { quietDeps: true }),
+    ...(loadPaths && { loadPaths: loadPaths.map((folder) => path.resolve(root, folder)) }),
+    ...(NodePackageImporter && { importers: [new NodePackageImporter(root)] }),
   };
 }
 

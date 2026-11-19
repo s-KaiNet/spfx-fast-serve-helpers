@@ -2,7 +2,7 @@ import { rspack, type Compiler, type DevServer, type Stats } from '@rspack/core'
 import { RspackDevServer } from '@rspack/dev-server';
 import type { ResolvedOptions } from '../config/options.js';
 import type { Logger } from '../logger.js';
-import { createRspackBuild, DIST_PATH, type BuildContext, type ServerMiddleware } from '../rspack/index.js';
+import { createRspackBuild, DIST_PATH, type BuildContext, type ServerMiddleware, type ServerStopper, type StartedServer } from '../rspack/index.js';
 import type { ServeSetup } from '../setup/index.js';
 import { loadDevCertificate, type HttpsCredentials } from './certificate.js';
 import { preflightMiddleware, responseHeaders } from './headers.js';
@@ -31,16 +31,20 @@ export async function startDevServer({ setup, logger, https, outputPath }: Start
   const compiler = rspack(config);
   const firstCompile = reportCompiles(compiler, logger);
   const server = new RspackDevServer(devServerConfiguration(options, credentials, middlewares), compiler);
+  const stoppers: ServerStopper[] = [];
   let stopped: Promise<void> | undefined;
-  const close = () => (stopped ??= stopDevServer(server, compiler));
+  const close = () => (stopped ??= stopDevServer(server, compiler, stoppers));
   try {
     await server.start();
-    const reloader = {
+    const startedServer: StartedServer = {
       reloadPages: () => {
         reloadPages(server);
       },
+      onStop: (stopper) => {
+        stoppers.push(stopper);
+      },
     };
-    for (const hook of serverStarted) hook(reloader);
+    for (const hook of serverStarted) hook(startedServer);
     await firstCompile;
   } catch (error) {
     await close();
@@ -100,7 +104,8 @@ function reloadPages(server: RspackDevServer): void {
   if (clients.length > 0) server.sendMessage(clients, 'static-changed');
 }
 
-async function stopDevServer(server: RspackDevServer, compiler: Compiler): Promise<void> {
+async function stopDevServer(server: RspackDevServer, compiler: Compiler, stoppers: readonly ServerStopper[]): Promise<void> {
+  for (const stopper of stoppers) stopper();
   await server.stop();
   await new Promise<void>((resolve) => {
     compiler.close(() => {
