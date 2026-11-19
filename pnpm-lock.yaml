@@ -221,6 +221,9 @@ importers:
       oxlint-tsgolint:
         specifier: ^7.0.2007
         version: 7.0.2007
+      sass-embedded:
+        specifier: 1.85.1
+        version: 1.85.1
       typescript:
         specifier: ^7.0.2
         version: 7.0.2

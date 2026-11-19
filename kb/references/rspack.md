@@ -35,6 +35,10 @@ All Rspack 2 packages are pure ESM.
 - `output.hashFunction: 'md5'` panics on the Rust side; use `xxhash64` (or `md4`, `sha256`).
 - `output.libraryTarget` is ignored; use `output.library.type: 'amd'`.
 - AMD externals need `externalsType: 'amd'`; otherwise externals are emitted as `module.exports = <name>` with an empty dependency list.
+- AMD parsing (`define`, `require([...])`, UMD AMD branches) is **off unless `amd` is set** in the config (webpack enables it by default); `amd: {}` restores webpack's behaviour.
+- CSS is not handled without explicit rules (`experiments.css` is deprecated), so JavaScript CSS loaders need no `type` workarounds beyond `javascript/auto`.
+- Externals used only inside `import()` chunks of an AMD library are hoisted onto the entry `define` dependency list.
+- Virtual modules: `rspack.experiments.VirtualModulesPlugin` (experimental) serves generated modules under real-looking paths without writing files.
 - `module.parser.javascript.exportsPresence` defaults to `error` (webpack 5 warns); heft only filters "export … was not found" warnings, so `auto` plus a warning filter matches heft.
 - webpack plugins that use webpack-only hooks don't run: `Compilation.hooks.afterOptimizeChunkModules`, `JavascriptModulesPlugin.getCompilationHooks().render`. A `webpack.DefinePlugin` instance must be replaced by `rspack.DefinePlugin`. JavaScript loaders (`sass-loader`, `@microsoft/sp-css-loader`, `html-loader`) run unchanged.
 - Rspack's `ExternalModule` has `userRequest` but no `externalType` (matters only when reading modules from stats/plugins).
@@ -68,6 +72,7 @@ The prototype reused heft's generated config; the implementation writes its own,
 
 ## Links
 
+- [Rspack compile](../features/rspack-compile.md)
 - [Rspack with our own configuration](../decisions/rspack-with-own-config.md)
 - [Architecture overview](../architecture/overview.md)
 - [Externals semantics](../concepts/externals-semantics.md)

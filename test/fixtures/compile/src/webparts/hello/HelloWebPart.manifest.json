@@ -1,0 +1,7 @@
+{
+  "id": "10000000-0000-0000-0000-000000000001",
+  "alias": "HelloWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2
+}

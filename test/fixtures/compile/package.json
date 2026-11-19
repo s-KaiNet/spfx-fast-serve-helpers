@@ -1,0 +1,13 @@
+{
+  "name": "compile-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@microsoft/sp-core-library": "1.24.1",
+    "@microsoft/sp-webpart-base": "1.24.1",
+    "@microsoft/microsoft-graph-client": "3.0.7",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "nested-react-user": "1.0.0"
+  }
+}

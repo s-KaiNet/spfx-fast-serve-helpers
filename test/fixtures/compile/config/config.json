@@ -1,0 +1,29 @@
+{
+  "version": "2.0",
+  "bundles": {
+    "single-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/hello/HelloWebPart.js",
+          "manifest": "./src/webparts/hello/HelloWebPart.manifest.json"
+        }
+      ]
+    },
+    "shared-bundle": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/first/FirstWebPart.js",
+          "manifest": "./src/webparts/first/FirstWebPart.manifest.json"
+        },
+        {
+          "entrypoint": "./lib/extensions/banner/BannerApplicationCustomizer.js",
+          "manifest": "./src/extensions/banner/BannerApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "HelloWebPartStrings": "lib/webparts/hello/loc/{locale}.js"
+  }
+}

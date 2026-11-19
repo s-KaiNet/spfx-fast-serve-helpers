@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options and the project model are done (`1.24.0-rspack.1`): the CLI prints the resolved options and bundles, then stops because the dev server does not exist yet.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model and the Rspack compile are done (`1.24.0-rspack.2`): the CLI prints the resolved options and bundles, compiles once, then stops because the dev server does not exist yet. The compile already contains initial localization, asset and Sass/CSS handling that later tasks complete.
 
 ## Current Knowledge
 
@@ -42,6 +42,7 @@ Library components, SPFx 1.22/1.23, tunnels and remote hosts beyond what the Vit
 
 ## Links
 
+- [Rspack compile](../features/rspack-compile.md)
 - [CLI, options and startup](../features/cli-and-options.md)
 - [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)

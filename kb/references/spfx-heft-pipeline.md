@@ -47,9 +47,10 @@ How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse
 ### Generated webpack config and bundle format
 
 - One entry per bundle; output (`libraryTarget: 'amd'`, no library name) is an **anonymous AMD module** `define([bare specifiers], factory)` whose `default` export is the component class. RequireJS registers it under `<componentId>_<version>` through the `paths` entry sp-loader creates from the manifest.
+- Quirk: heft's generator collects the `<componentId>_<version>` ids while it walks the bundles and names an entry's AMD module whenever exactly one id has been collected so far, so the **first** bundle of `config/config.json` becomes a named `define("<componentId>_<version>", [...], factory)` when it has a single component; all later bundles are anonymous. Both forms load the same way, because the name equals the module id sp-loader requests. The project-wide `uniqueName` (JSONP global) is that id for one-bundle projects and a hash of all ids otherwise.
 - **Export names:** with several components in one bundle, heft generates an intermediate entry that re-exports each component with `export * as <name>` and sets `loaderConfig.exportName` per component; the names are short generated identifiers (`a`, `b`, …, skipping JavaScript reserved words).
 - `DEBUG` and `process.env.NODE_ENV` are defined; assets and chunks load relative to `document.currentScript`, so one build works from localhost, the CDN or the app catalog.
-- Async `import()` of an SPFx library is rewritten to `SPComponentLoader.loadComponentById` by heft's async-component plugin (webpack internals; Rspack cannot run it). Without it, libraries used only from async chunks become dependencies of the entry `define`, which is fine in development.
+- Async `import()` of an SPFx library is rewritten to `SPComponentLoader.loadComponentById` by heft's async-component plugin (webpack internals; Rspack cannot run it); the loader it uses makes `@microsoft/sp-core-library` an entry dependency of such bundles. Without the plugin, libraries used only from async chunks become dependencies of the entry `define` (Rspack does this by itself), which is fine in development.
 - Production adds content hashes, module-level terser minification, `DEBUG=false`; `.map` files are not copied to `release/`.
 
 ### CSS and class-name hashing

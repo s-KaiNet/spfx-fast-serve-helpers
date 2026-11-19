@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has five options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md) and resolves the options. The dev server does not exist yet: after printing the resolved options and the bundles, the CLI exits with code 1 and "the Rspack dev server is not implemented yet on this branch".
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has five options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md) and resolves the options. The dev server does not exist yet: after printing the resolved options and the bundles, the CLI compiles every bundle once ([Rspack compile](rspack-compile.md)) into `temp/fast-serve/dist`, prints errors, warnings and the compile time, then exits with code 1 and "the Rspack dev server is not implemented yet on this branch".
 
 ## Behavior
 
@@ -75,6 +75,7 @@ SIGINT and SIGTERM close the running session once and exit with 0 (1 if closing 
 
 ## Links
 
+- [Rspack compile](rspack-compile.md)
 - [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
