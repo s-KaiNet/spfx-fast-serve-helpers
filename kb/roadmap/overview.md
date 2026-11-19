@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload. Phase 2 is done (`1.24.0-rspack.5`): extensions through serve configurations and `--config` (Application Customizer, Command Set, Form Customizer live) with startup warnings, and ACEs on the hosted workbench; phase 3 (parity) is next. The compile already contains initial localization, asset and Sass/CSS handling that later tasks complete.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload. Phase 2 is done (`1.24.0-rspack.5`): extensions through serve configurations and `--config` (Application Customizer, Command Set, Form Customizer live) with startup warnings, and ACEs on the hosted workbench; in phase 3 (parity) SPFx libraries as externals (deep imports bundled like heft), `config.json` externals and localization are done (`1.24.0-rspack.6`); Sass/CSS, typings, tsconfig and the rest follow. The compile already contains initial asset and Sass/CSS handling that later tasks complete.
 
 ## Current Knowledge
 
@@ -27,7 +27,7 @@ The Rspack implementation reaches parity with the Vite implementation in three p
 
 ### Expected not to be needed (Vite-era features)
 
-AMD shim and ES module entry, on-demand library facades, named-import rewriting for externals, `require()` rewriting, AMD isolation for dependencies and its opt-out option (`amdPackages` is already ignored with a warning), type-only re-export guard, pre-bundling and warmup, the HTTP/2 status-message warning workaround. Each is confirmed by a regression test or by the reason that the mechanism doesn't exist with Rspack.
+AMD shim and ES module entry, on-demand library facades, named-import rewriting for externals (confirmed not needed: webpack semantics verified for all import forms), `require()` rewriting, AMD isolation for dependencies and its opt-out option (`amdPackages` is already ignored with a warning), type-only re-export guard, pre-bundling and warmup, the HTTP/2 status-message warning workaround. Each is confirmed by a regression test or by the reason that the mechanism doesn't exist with Rspack.
 
 ### Open questions
 

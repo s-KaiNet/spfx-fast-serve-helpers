@@ -1,9 +1,15 @@
-import type { DevServerMiddlewareHandler, EntryObject, Plugin, RuleSetRule } from '@rspack/core';
+import type { DevServerMiddlewareHandler, EntryObject, ExternalItem, Plugin, RuleSetRule } from '@rspack/core';
 
 export interface ServerMiddleware {
   name: string;
   middleware: DevServerMiddlewareHandler;
 }
+
+export interface PageReloader {
+  reloadPages(): void;
+}
+
+export type ServerStartedHook = (reloader: PageReloader) => void;
 
 export interface ConfigContribution {
   entry?: EntryObject;
@@ -11,8 +17,9 @@ export interface ConfigContribution {
   plugins?: Plugin[];
   alias?: Record<string, string>;
   extensions?: string[];
-  externals?: string[];
+  externals?: ExternalItem[];
   middlewares?: ServerMiddleware[];
+  serverStarted?: ServerStartedHook[];
 }
 
 export interface MergedContribution {
@@ -21,12 +28,13 @@ export interface MergedContribution {
   plugins: Plugin[];
   alias: Record<string, string>;
   extensions: string[];
-  externals: string[];
+  externals: ExternalItem[];
   middlewares: ServerMiddleware[];
+  serverStarted: ServerStartedHook[];
 }
 
 export function mergeContributions(contributions: readonly ConfigContribution[]): MergedContribution {
-  const merged: MergedContribution = { entry: {}, rules: [], plugins: [], alias: {}, extensions: [], externals: [], middlewares: [] };
+  const merged: MergedContribution = { entry: {}, rules: [], plugins: [], alias: {}, extensions: [], externals: [], middlewares: [], serverStarted: [] };
   for (const contribution of contributions) {
     Object.assign(merged.entry, contribution.entry);
     merged.rules.push(...(contribution.rules ?? []));
@@ -35,6 +43,7 @@ export function mergeContributions(contributions: readonly ConfigContribution[])
     merged.extensions.push(...(contribution.extensions ?? []));
     merged.externals.push(...(contribution.externals ?? []));
     merged.middlewares.push(...(contribution.middlewares ?? []));
+    merged.serverStarted.push(...(contribution.serverStarted ?? []));
   }
   merged.extensions = [...new Set(merged.extensions)];
   merged.externals = [...new Set(merged.externals)];

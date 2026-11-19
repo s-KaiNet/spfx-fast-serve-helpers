@@ -27,7 +27,7 @@ export async function startDevServer({ setup, logger, https, outputPath }: Start
   await assertPortFree(options.port);
   const credentials = https ?? (await loadDevCertificate());
   const context: BuildContext = { root, project, options, logger };
-  const { config, middlewares } = await createRspackBuild(context, outputPath === undefined ? {} : { outputPath });
+  const { config, middlewares, serverStarted } = await createRspackBuild(context, outputPath === undefined ? {} : { outputPath });
   const compiler = rspack(config);
   const firstCompile = reportCompiles(compiler, logger);
   const server = new RspackDevServer(devServerConfiguration(options, credentials, middlewares), compiler);
@@ -35,6 +35,12 @@ export async function startDevServer({ setup, logger, https, outputPath }: Start
   const close = () => (stopped ??= stopDevServer(server, compiler));
   try {
     await server.start();
+    const reloader = {
+      reloadPages: () => {
+        reloadPages(server);
+      },
+    };
+    for (const hook of serverStarted) hook(reloader);
     await firstCompile;
   } catch (error) {
     await close();
@@ -87,6 +93,11 @@ function logCompile(stats: Stats, verb: string, logger: Logger): void {
   for (const error of errors) logger.error(error.message);
   for (const warning of warnings) logger.warn(warning.message);
   logger.info(`${verb} in ${time} ms: ${errors.length} errors, ${warnings.length} warnings`);
+}
+
+function reloadPages(server: RspackDevServer): void {
+  const clients = server.webSocketServer?.clients ?? [];
+  if (clients.length > 0) server.sendMessage(clients, 'static-changed');
 }
 
 async function stopDevServer(server: RspackDevServer, compiler: Compiler): Promise<void> {

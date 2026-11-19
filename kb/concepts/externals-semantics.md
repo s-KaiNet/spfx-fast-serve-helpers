@@ -30,8 +30,9 @@ In SPFx, framework libraries, `config.json` externals and localized resources ar
 - A named import (`import { Version } from '@microsoft/sp-core-library'`) compiles to a property read on that module object **at the point of use**, so a name that the module defines later or not at all yields `undefined` instead of a link error.
 - `import * as x` gives the module object as RequireJS returned it, so a function or class exported as the whole module stays callable/constructible.
 - A default import reads `module.default` when the module sets `__esModule`, otherwise it is the module itself.
-- `export * from '<external>'` is a dynamic re-export in webpack's output (names copied at runtime).
+- `export * from '<external>'` is a dynamic re-export in webpack's output (names copied at runtime); verified on Rspack.
 - `require('<external>')` returns the raw module object.
+- Externals match exact requests: a deep import into a library (`<library>/lib/...`) is not external in heft and gets bundled from `node_modules`.
 
 ### Manifest side
 
@@ -49,9 +50,10 @@ In SPFx, framework libraries, `config.json` externals and localized resources ar
 - [SPFx 1.24 Heft pipeline (reverse-engineered)](../references/spfx-heft-pipeline.md)
 - [Architecture overview](../architecture/overview.md)
 - [Rspack facts and references](../references/rspack.md)
+- [SPFx libraries and config.json externals](../features/libraries-and-externals.md)
 
 ## Evidence
 
 - Source: heft's generated webpack config and production bundles for SPFx 1.24.1, the Rspack prototype (`externalsType: 'amd'` output and AMD dependency lists identical to heft's), the Vite implementation's externals research
-- Confidence: high for heft behaviour and the AMD dependency list; medium for `export *` from an external under Rspack (not yet tested)
+- Confidence: high (all import forms verified with Rspack against a fake RequireJS page and live)
 - Last checked: 2026-11-19

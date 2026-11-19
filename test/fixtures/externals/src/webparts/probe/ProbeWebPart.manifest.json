@@ -1,0 +1,8 @@
+{
+  "id": "30000000-0000-0000-0000-000000000001",
+  "alias": "ProbeWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "preconfiguredEntries": [{ "title": { "default": "Probe" } }]
+}

@@ -25,6 +25,8 @@ Edits are applied inside the AMD bundles SharePoint loaded, without a page reloa
 | `.module.scss` / `.scss` / `.css` imported by such a component | the style module and the component re-run; new styles applied without a reload |
 | module that also exports non-components (hooks, constants), services, anything that only the component class imports | the update bubbles to the bundle entry → full page reload |
 | web part / extension / ACE class, multi-component bundle entry | full page reload |
+| loc file used only by components / loc file the class imports | hot update / full page reload (see [Localized strings](localization.md)) |
+| edit that adds or removes a library or `config.json` external import of a bundle, edit of a local-file external | full page reload sent by fast-serve (the AMD `define` list is fixed at load; see [SPFx libraries and config.json externals](libraries-and-externals.md)) |
 | any edit in a bundle that is on the page together with other fast-serve bundles | same rules, per bundle |
 
 The reload comes from the dev server's HMR client when an update is not accepted on the way to the entry (Rspack's "cannot apply update" path); it is not a separate fast-serve mechanism.

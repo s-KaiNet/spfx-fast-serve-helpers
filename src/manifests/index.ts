@@ -1,17 +1,17 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { DIST_PATH, publicPathOf, type BuildContext } from '../rspack/context.js';
-import type { ConfigContribution, ServerMiddleware } from '../rspack/contribution.js';
+import type { ConfigContribution, PageReloader, ServerMiddleware } from '../rspack/contribution.js';
 import { decodedRequestPath, isReadRequest, requestPath, send } from '../utils/http.js';
 import { BundleExternals } from './bundleExternals.js';
 import { buildDebugManifests, renderManifestsModule } from './debugManifests.js';
 import { devIconFiles } from './iconUrls.js';
-import { libraryScriptResources } from './scriptResources.js';
+import { bundleScriptResources } from './scriptResources.js';
 
 export { buildDebugManifests, renderManifestsModule, type DebugManifest, type ScriptResource } from './debugManifests.js';
 export { BundleExternals, externalRequestsByEntry } from './bundleExternals.js';
 export { devIconFiles } from './iconUrls.js';
-export { COMPONENT_LOADER_PACKAGE, libraryScriptResources } from './scriptResources.js';
+export { bundleScriptResources, COMPONENT_LOADER_PACKAGE } from './scriptResources.js';
 
 export const MANIFESTS_PATH = '/temp/build/manifests.js';
 
@@ -32,20 +32,32 @@ export function bundleScriptPath(bundleName: string): string {
 export function renderDebugManifests(context: BuildContext, externals: BundleExternals): string {
   const { root, project, options } = context;
   const libraries = project.libraries();
+  const configExternals = project.configExternals();
   const manifests = buildDebugManifests({
     root,
     bundles: project.bundles(),
     origin: options.origin,
     bundleBaseUrl: publicPathOf(context),
     bundleScriptPath,
-    scriptResources: (bundleName) => libraryScriptResources(externals.requestsOf(bundleName), libraries),
+    scriptResources: (bundleName) => bundleScriptResources(externals.requestsOf(bundleName), libraries, configExternals),
   });
   return renderManifestsModule(manifests);
 }
 
 export function manifestsContribution(context: BuildContext): ConfigContribution {
-  const externals = new BundleExternals();
-  return { plugins: [externals], middlewares: [manifestsMiddleware(context, externals), iconsMiddleware(context)] };
+  const reloaders: PageReloader[] = [];
+  const externals = new BundleExternals(() => {
+    for (const reloader of reloaders) reloader.reloadPages();
+  });
+  return {
+    plugins: [externals],
+    middlewares: [manifestsMiddleware(context, externals), iconsMiddleware(context)],
+    serverStarted: [
+      (reloader) => {
+        reloaders.push(reloader);
+      },
+    ],
+  };
 }
 
 function manifestsMiddleware(context: BuildContext, externals: BundleExternals): ServerMiddleware {

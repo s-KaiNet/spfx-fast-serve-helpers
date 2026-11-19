@@ -12,7 +12,7 @@ import { reactContribution } from '../react/index.js';
 import { stylesContribution } from '../styles/index.js';
 import { typescriptContribution } from '../typescript/index.js';
 import { publicPathOf, type BuildContext } from './context.js';
-import { mergeContributions, type ConfigContribution, type ServerMiddleware } from './contribution.js';
+import { mergeContributions, type ConfigContribution, type ServerMiddleware, type ServerStartedHook } from './contribution.js';
 
 export const OUTPUT_FOLDER = path.join('temp', 'fast-serve', 'dist');
 
@@ -41,6 +41,7 @@ export async function featureContributions(context: BuildContext): Promise<Confi
 export interface RspackBuild {
   config: Configuration;
   middlewares: ServerMiddleware[];
+  serverStarted: ServerStartedHook[];
 }
 
 export async function createRspackConfig(context: BuildContext, options: RspackConfigOptions = {}): Promise<Configuration> {
@@ -48,7 +49,7 @@ export async function createRspackConfig(context: BuildContext, options: RspackC
 }
 
 export async function createRspackBuild(context: BuildContext, { outputPath }: RspackConfigOptions = {}): Promise<RspackBuild> {
-  const { entry, rules, plugins, alias, extensions, externals, middlewares } = mergeContributions(await featureContributions(context));
+  const { entry, rules, plugins, alias, extensions, externals, middlewares, serverStarted } = mergeContributions(await featureContributions(context));
   const uniqueName = uniqueNameOf(context);
   const config: Configuration = {
     mode: 'development',
@@ -87,7 +88,7 @@ export async function createRspackBuild(context: BuildContext, { outputPath }: R
     watchOptions: { ignored: watchIgnored(context.root) },
     infrastructureLogging: { level: 'warn' },
   };
-  return { config, middlewares };
+  return { config, middlewares, serverStarted };
 }
 
 function uniqueNameOf({ project }: BuildContext): string {

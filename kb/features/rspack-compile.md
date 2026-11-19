@@ -39,13 +39,13 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 
 ### Externals and React
 
-- Externals: every SPFx library the model found (any package with an SPFx library manifest, plus `@microsoft/microsoft-graph-client`, as heft does), by exact request, `externalsType: 'amd'`. They become the bundle's `define` dependency list and are read as properties at use. Deep imports into libraries are not externals yet.
+- Externals: every SPFx library the model found (any package with an SPFx library manifest, plus `@microsoft/microsoft-graph-client`, as heft does), by exact request, `externalsType: 'amd'`. `config.json` externals are added by exact name. They become the bundle's `define` dependency list and are read as properties at use. Deep imports into libraries are bundled like heft. Details: [SPFx libraries and config.json externals](libraries-and-externals.md).
 - Libraries used only inside `import()` chunks are hoisted onto the entry `define` by Rspack itself (no heft async-component plugin needed).
 - React, `react-dom`, `react-dom/client`, `react/jsx-runtime`, `react/jsx-dev-runtime` are aliased (exact requests) to the project's copies, so nested copies in dependencies (for example PnP's React 17) collapse into the project's React. React is never an external.
 
-### Localization, assets, styles, defines (initial versions)
+### Localization, assets, styles, defines
 
-- Each `localizedResources` name is aliased to the model's strings file for the selected locale (with the `en-us` fallback) and bundled; AMD loc files parse through Rspack's AMD support.
+- Each `localizedResources` name is aliased to the model's strings file for the selected locale (with the `en-us` fallback) and bundled; AMD loc files parse through Rspack's AMD support, module loc files go through a small wrapper. Details: [Localized strings](localization.md).
 - Images, fonts and other binary files from heft's list are `asset/resource` named `[name]_[contenthash][ext]` and referenced through the absolute `publicPath`; `.sprite.svg` is `asset/source`.
 - Styles: `.scss` goes through `sass-loader` (the project's `sass-embedded`, else `sass`; modern compiler API; `silenceDeprecations` from the merged `config/sass.json`; Sass `NodePackageImporter` for `pkg:` URLs) and then the project's `@microsoft/sp-css-loader`, with heft's split: `.module.scss`, `.module.css` and `.module.scss.css` as CSS modules with SPFx class names (`<class>_<8 hex>`), other `.css`/`.scss` global; theme tokens stay for `@microsoft/load-themed-styles`. Class names don't match heft's yet (the hash input is the `.scss` source path instead of heft's compiled `lib` CSS file). Missing `sp-css-loader` or Sass is a warning, and style imports then fail to compile.
 - Defines: `DEBUG` = `true`, `process.env.NODE_ENV` = `"development"` (same values as the Vite implementation).
@@ -68,6 +68,8 @@ Checked on two SPFx 1.24.1 projects (7 bundles) against heft's production `dist/
 - [Architecture overview](../architecture/overview.md)
 - [CLI, options and startup](cli-and-options.md)
 - [Externals semantics](../concepts/externals-semantics.md)
+- [SPFx libraries and config.json externals](libraries-and-externals.md)
+- [Localized strings](localization.md)
 - [Rspack facts and references](../references/rspack.md)
 - [SPFx 1.24 Heft pipeline (reverse-engineered)](../references/spfx-heft-pipeline.md)
 - [Rspack with our own configuration](../decisions/rspack-with-own-config.md)

@@ -42,6 +42,10 @@ All Rspack 2 packages are pure ESM.
 - `module.parser.javascript.exportsPresence` defaults to `error` (webpack 5 warns); heft only filters "export … was not found" warnings, so `auto` plus a warning filter matches heft.
 - webpack plugins that use webpack-only hooks don't run: `Compilation.hooks.afterOptimizeChunkModules`, `JavascriptModulesPlugin.getCompilationHooks().render`. A `webpack.DefinePlugin` instance must be replaced by `rspack.DefinePlugin`. JavaScript loaders (`sass-loader`, `@microsoft/sp-css-loader`, `html-loader`) run unchanged.
 - Rspack's `ExternalModule` has `userRequest` but no `externalType` (matters only when reading modules from stats/plugins). `compilation.chunkGraph.getChunkModules(chunk)` plus `instanceof ExternalModule` over an entrypoint's chunks and their `getAllAsyncChunks()` gives the externals a bundle uses.
+- A hot update cannot add an AMD external: the module that reads it refers to a factory parameter of the bundle's `define` that doesn't exist, and the update throws "`__rspack_external_<name>` is not defined" (React Refresh swallows it into a broken component, no automatic reload). Detect external-list changes on `done` and reload instead.
+- `compilation.hooks.finishModules` gives the modules; `NormalModule` exposes `resource` and `rawRequest` (the request as written), enough to find files bundled from a given package.
+- The dev server's `sendMessage(webSocketServer.clients, 'static-changed')` makes every connected client reload the page; a `done` tap registered by a plugin runs before the dev server's own, so the reload is sent before the update is announced.
+- Two `rspack.experiments.VirtualModulesPlugin` instances in one compilation work side by side.
 
 ### `@rspack/dev-server` 2 behaviours that matter
 

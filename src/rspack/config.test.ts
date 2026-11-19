@@ -104,6 +104,7 @@ describe('mergeContributions', () => {
       extensions: ['.ts', '.css'],
       externals: ['lib', 'other'],
       middlewares: [],
+      serverStarted: [],
     });
   });
 });

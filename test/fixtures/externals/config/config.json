@@ -1,0 +1,26 @@
+{
+  "version": "2.0",
+  "bundles": {
+    "probe-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/probe/ProbeWebPart.js",
+          "manifest": "./src/webparts/probe/ProbeWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {
+    "ejs": "https://cdn.example.com/ejs.min.js",
+    "apexcharts": { "path": "./externals/apexcharts.js", "globalName": "ApexCharts" },
+    "legacy-chart": { "path": "externals/legacy-chart.js", "globalName": "LegacyChart", "globalDependencies": ["legacy-dep"] },
+    "legacy-dep": { "path": "externals/legacy-dep.js", "globalName": "LegacyDep" },
+    "unused-external": "https://cdn.example.com/unused.js"
+  },
+  "localizedResources": {
+    "ProbeStrings": "lib/webparts/probe/loc/{locale}.js",
+    "LabelStrings": "lib/webparts/probe/components/loc/{locale}.js",
+    "TsStrings": "lib/webparts/probe/tsLoc/{locale}.js",
+    "ContosoControlStrings": "node_modules/@contoso/controls/lib/loc/{locale}.js"
+  }
+}

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-19 23:55 | ingest | SPFx libraries, config.json externals, localization (R8, R9, R10)
+
+- Changed: `kb/features/libraries-and-externals.md` (new), `kb/features/localization.md` (new), `kb/features/rspack-compile.md`, `kb/features/dev-server.md`, `kb/features/hmr.md`, `kb/concepts/externals-semantics.md`, `kb/references/rspack.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: library and `config.json` externals with heft-format per-bundle manifest entries, local externals served under `/dist/`, webpack import semantics verified (incl. `export *`), deep imports bundled like heft after the root-mapping attempt broke default imports, reloads for external-list changes and local external edits; localization with module loc wrapper, heft warning, `--locale` for library strings, hot update vs reload; Rspack facts on externals in hot updates, `finishModules`/`rawRequest` and `static-changed`
+
 ## 2026-11-19 21:52 | ingest | extensions and ACEs (R6, R7)
 
 - Changed: `kb/features/extensions-and-aces.md` (new), `kb/features/cli-and-options.md`, `kb/features/dev-server.md`, `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/spfx-component-types.md`, `kb/roadmap/overview.md`, `kb/index.md`
