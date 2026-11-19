@@ -1,5 +1,0 @@
-{
-  "port": 4400,
-  "https": true,
-  "initialPage": "https://{tenantDomain}/_layouts/workbench.aspx"
-}

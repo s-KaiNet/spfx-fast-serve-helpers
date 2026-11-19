@@ -1,5 +1,0 @@
-{
-  "fileExtensions": [".sass", ".scss", ".css"],
-  "nonModuleFileExtensions": [".global.sass", ".global.scss", ".global.css"],
-  "silenceDeprecations": ["mixed-decls", "import", "global-builtin", "color-functions"]
-}
