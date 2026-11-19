@@ -3,5 +3,6 @@
   "alias": "HelloWebPart",
   "componentType": "WebPart",
   "version": "*",
-  "manifestVersion": 2
+  "manifestVersion": 2,
+  "preconfiguredEntries": [{ "title": { "default": "Hello" }, "iconImageUrl": "./assets/logo.png" }]
 }

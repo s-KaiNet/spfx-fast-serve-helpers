@@ -41,7 +41,16 @@ All Rspack 2 packages are pure ESM.
 - Virtual modules: `rspack.experiments.VirtualModulesPlugin` (experimental) serves generated modules under real-looking paths without writing files.
 - `module.parser.javascript.exportsPresence` defaults to `error` (webpack 5 warns); heft only filters "export … was not found" warnings, so `auto` plus a warning filter matches heft.
 - webpack plugins that use webpack-only hooks don't run: `Compilation.hooks.afterOptimizeChunkModules`, `JavascriptModulesPlugin.getCompilationHooks().render`. A `webpack.DefinePlugin` instance must be replaced by `rspack.DefinePlugin`. JavaScript loaders (`sass-loader`, `@microsoft/sp-css-loader`, `html-loader`) run unchanged.
-- Rspack's `ExternalModule` has `userRequest` but no `externalType` (matters only when reading modules from stats/plugins).
+- Rspack's `ExternalModule` has `userRequest` but no `externalType` (matters only when reading modules from stats/plugins). `compilation.chunkGraph.getChunkModules(chunk)` plus `instanceof ExternalModule` over an entrypoint's chunks and their `getAllAsyncChunks()` gives the externals a bundle uses.
+
+### `@rspack/dev-server` 2 behaviours that matter
+
+- Its host checks block SharePoint unless `allowedHosts` covers it: cross-site `no-cors` requests (plain `<script>` tags from the tenant) get 403 "Cross-Origin request blocked" unless the `Host` is explicitly allowed, and websocket connections are closed unless the page's `Origin` is allowed. heft's dev server uses `allowedHosts: 'all'`.
+- A listen error (port in use) is thrown from the server's `error` handler, i.e. as an uncaught exception, not as a rejection of `start()`; check the port before starting.
+- The `headers` option is applied by a middleware placed before the dev middleware; middlewares appended in `setupMiddlewares` run after it, so they get the headers too. The dev middleware only handles `GET`/`HEAD` under its `publicPath` and passes everything else on; with `static: false` unmatched requests end in 404.
+- With `client` enabled it adds its client (and the HMR client with `hot`) as global entries to every entry; the websocket URL comes from `client.webSocketURL` and is baked into each bundle.
+- `setupExitSignals` defaults to registering SIGINT/SIGTERM handlers that exit the process; turn it off when the CLI handles shutdown.
+- The dev middleware prints stats with `console.log` unless `devMiddleware.stats` is `'none'`; the server's own "Project is running at" lines go through the infrastructure logger (silent at `warn`).
 
 ### HMR inside SharePoint pages (prototype findings)
 

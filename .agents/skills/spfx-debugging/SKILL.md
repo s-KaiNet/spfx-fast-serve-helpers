@@ -53,7 +53,7 @@ ab open "$(<skill>/scripts/debug-url.sh "$SPFX_DEBUG_PAGE_URL" "${SPFX_DEBUG_DEV
 ab snapshot -i | grep -i "debug scripts"
 ab click @eN
 ab wait 8000
-ab console | grep -iE "vite|fast-serve|error"
+ab console | grep -iE "webpack-dev-server|hmr|fast-serve|error"
 ab screenshot /tmp/spfx-debug.png
 ```
 
@@ -63,7 +63,7 @@ ab screenshot /tmp/spfx-debug.png
    - web parts / ACEs: `scripts/debug-url.sh <page> <port>` → `?debugManifestsFile=<encoded https://localhost:<port>/temp/build/manifests.js>&debug=true&noredir=true`, replacing the page's own query;
    - extensions: copy the `open:` URL that `fast-serve --config <name>` (or heft) prints (`loadSPFX=true&customActions=…`, no `debug=true`).
 4. First load shows **"Allow debug scripts?"**: `ab snapshot -i`, click the **Load debug scripts** button ref. Re-snapshot after every navigation.
-5. Verify: `[vite] connected.` in the console (fast-serve's HMR client), the component's DOM, a screenshot. More checks and the hot-update test: [references/checks.md](references/checks.md).
+5. Verify: the component's DOM, the dev-server requests (resource timing), a screenshot. fast-serve's Rspack client logs nothing when it connects (browser logging is `warn`); prove the websocket with the hot-update test. More checks and the hot-update test: [references/checks.md](references/checks.md).
 6. Clean up (section 5).
 
 ## 4. Safety rules

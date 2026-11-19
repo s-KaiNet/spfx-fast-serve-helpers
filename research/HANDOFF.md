@@ -1,6 +1,6 @@
 # Handoff: Rspack dev server for SPFx 1.24 (branch `rspack`)
 
-**Status (2026-11-19):** R0–R3 done (plan, scaffold, KB; CLI and options; project model; Rspack compile). Package `spfx-fast-serve-helpers` `1.24.0-rspack.2`: `fast-serve` parses flags and `fast-serve/config.json`, checks the SPFx version, builds the project model, prints the resolved options and bundles, compiles every bundle once with our own Rspack config into `temp/fast-serve/dist`, prints the result, then exits with "the Rspack dev server is not implemented yet" (code 1). Next: R4 (dev server, manifests, debug URL). Task list and status: [rspack/PLAN.md](rspack/PLAN.md). Nothing is committed by task agents, pushed or published.
+**Status (2026-11-19):** R0–R4 done (plan, scaffold, KB; CLI and options; project model; Rspack compile; HTTPS dev server with debug `manifests.js` and debug URL). Package `spfx-fast-serve-helpers` `1.24.0-rspack.3`: `fast-serve` parses flags and `fast-serve/config.json`, checks the SPFx version, builds the project model, compiles with our own Rspack config and serves the bundles from memory plus `manifests.js` on `https://localhost:<port>`, prints the ready banner with the debug URL, and stops cleanly on SIGINT/SIGTERM. spfx-rea's web parts and Banner customizer render on SharePoint; edits reload the page. Next: R5 (HMR and React Fast Refresh). Task list and status: [rspack/PLAN.md](rspack/PLAN.md). Nothing is committed by task agents, pushed or published.
 
 ## 1. Goal
 

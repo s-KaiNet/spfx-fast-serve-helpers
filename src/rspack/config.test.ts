@@ -40,7 +40,7 @@ describe('createRspackConfig', () => {
 
   it('declares every SPFx library, including the Microsoft Graph client, as an external', async () => {
     const config = await createRspackConfig(fixtureContext().context);
-    expect(config.externals).toEqual(['@microsoft/microsoft-graph-client', '@microsoft/sp-core-library', '@microsoft/sp-webpart-base']);
+    expect(config.externals).toEqual(['@microsoft/microsoft-graph-client', '@microsoft/sp-core-library', '@microsoft/sp-loader', '@microsoft/sp-webpart-base']);
   });
 
   it('points single-component bundles at their source and others at a generated entry module', async () => {
@@ -103,6 +103,7 @@ describe('mergeContributions', () => {
       alias: { x$: '/x', y$: '/y' },
       extensions: ['.ts', '.css'],
       externals: ['lib', 'other'],
+      middlewares: [],
     });
   });
 });

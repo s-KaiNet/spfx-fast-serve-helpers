@@ -5,7 +5,7 @@
 ## Eval snippets
 
 ```bash
-ab console | grep -iE "vite|fast-serve|error"
+ab console | grep -iE "webpack-dev-server|hmr|fast-serve|error"
 ab eval '(()=>{const s=document.querySelector("[class*=helloWorld_]");return s?s.innerText.slice(0,120):"not found"})()'
 ab eval 'Object.keys(window.require.s.contexts._.defined).filter(k=>/_\d+\.\d+\.\d+$/.test(k))'
 ab eval 'window.__themeState__.theme.themePrimary'
@@ -15,7 +15,7 @@ ab eval 'sessionStorage.getItem("spfx-debug")'
 ab screenshot /tmp/spfx-debug.png
 ```
 
-- `[vite] connected.`: fast-serve's HMR client is up (heft has no such line).
+- fast-serve's dev-server client (Rspack) is silent when it connects; its messages appear as `[webpack-dev-server]` / `[HMR]` only at warning level or above. A page load requests `manifests.js`, one bundle per SPFx bundle on the page and its assets from `localhost`, not hundreds of modules.
 - Component DOM: SPFx CSS module class names look like `<name>_<hash>`, so match with `[class*=<name>_]`; web parts sit in `[data-sp-feature-tag]` / `.ControlZone` elements.
 - RequireJS `defined` keys `<componentId>_<version>` show which components and SPFx libraries (tenant versions) the page loaded.
 - `window.__themeState__.theme`: the theme that `[theme:…]` style tokens resolve against.
@@ -41,7 +41,7 @@ ab eval '(async()=>{const d=window.require.s.contexts._.defined;const k=Object.k
 5. Marker kept + new text + counter kept → hot update (Fast Refresh). Marker gone → the page reloaded.
 6. Restore the file and confirm the page returns to the original.
 
-Under fast-serve:
+Under fast-serve. Until HMR with React Fast Refresh lands on the Rspack implementation, **every edit rebuilds and reloads the page**; the table is the target behaviour:
 
 | Edit | Result |
 |---|---|
@@ -52,6 +52,5 @@ Under fast-serve:
 | loc files (`loc/*.js`) | reload |
 | manifests, `config/*.json`, `package.json`, `tsconfig.json` | reload; tsconfig compiler options that change emit and `config/sass.json` restart the server |
 | `serve.json` | read at start: restart to get a new URL |
-| first import of a new dependency | one reload (pre-bundling) |
 
-An error overlay opened during the page load turns the first edit into a reload (Vite's rule). `heft start` always rebuilds and reloads.
+`heft start` always rebuilds and reloads.

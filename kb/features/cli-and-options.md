@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has five options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md) and resolves the options. The dev server does not exist yet: after printing the resolved options and the bundles, the CLI compiles every bundle once ([Rspack compile](rspack-compile.md)) into `temp/fast-serve/dist`, prints errors, warnings and the compile time, then exits with code 1 and "the Rspack dev server is not implemented yet on this branch".
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has five options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints a summary and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready banner with the debug URL. It runs until SIGINT or SIGTERM.
 
 ## Behavior
 
@@ -54,7 +54,7 @@ The page follows heft's order with the `pageUrl` option in place of heft's fallb
 
 ### Startup order and summary
 
-SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary).
+SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
 
 ### Startup failures (exit code 1)
 
@@ -66,15 +66,18 @@ SPFx version check → warning for the old options file → project model → op
 | no `config/config.json` | `config/config.json not found …` |
 | no web part, extension or ACE | `No web parts, extensions or Adaptive Card Extensions found …` |
 | bad port, locale or options file | `Invalid port "<value>" (expected 1-65535)`, `Invalid locale …`, `fast-serve/config.json: unknown option or wrong type …` |
+| port in use | `Port <n> is already in use … fast-serve --port <n+1> …` |
+| no SPFx dev certificate | `No valid SPFx development certificate found. Run "npx heft trust-dev-cert" …` |
 
 Every failure is one `[fast-serve] <message>` line on stderr. The SPFx version comes from the installed `@microsoft/sp-core-library`, then `@microsoft/spfx-heft-plugins`, then `@microsoft/sp-webpart-base`; any 1.24.x (also prereleases) is accepted, because the package version follows SPFx `major.minor`.
 
 ### Shutdown
 
-SIGINT and SIGTERM close the running session once and exit with 0 (1 if closing fails). With no dev server yet there is nothing to close.
+SIGINT and SIGTERM close the dev server and the compiler once and exit with 0 (1 if closing fails).
 
 ## Links
 
+- [Dev server, debug manifests and debug URL](dev-server.md)
 - [Rspack compile](rspack-compile.md)
 - [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)
@@ -84,6 +87,6 @@ SIGINT and SIGTERM close the running session once and exit with 0 (1 if closing 
 
 ## Evidence
 
-- Source: implementation behavior, ported from the Vite implementation's CLI and options; checked from the packed tarball in copies of two SPFx 1.24.1 test projects (help, version, summary, unknown serve configuration warning, bad port)
+- Source: implementation behavior, ported from the Vite implementation's CLI and options; checked from the packed tarball in copies of two SPFx 1.24.1 test projects (help, version, summary, unknown serve configuration warning, bad port; port in use and SIGINT/SIGTERM shutdown on spfx-rea)
 - Confidence: high
 - Last checked: 2026-11-19

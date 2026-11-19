@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model and the Rspack compile are done (`1.24.0-rspack.2`): the CLI prints the resolved options and bundles, compiles once, then stops because the dev server does not exist yet. The compile already contains initial localization, asset and Sass/CSS handling that later tasks complete.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL are done (`1.24.0-rspack.3`): web parts and extensions in the default serve configuration render on a SharePoint page and every edit reloads the page; HMR with React Fast Refresh is next. The compile already contains initial localization, asset and Sass/CSS handling that later tasks complete.
 
 ## Current Knowledge
 

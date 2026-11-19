@@ -24,7 +24,8 @@ Bundler-independent SPFx platform concepts.
 ## Features
 
 - [Rspack compile](features/rspack-compile.md): own Rspack config from feature contributions, anonymous AMD bundles, virtual multi-component entries, `amd: {}`, SPFx library externals, bundled development React with alias, SWC defaults, initial loc/assets/Sass + `sp-css-loader`/defines, comparison with heft's `dist/`, compile times. Tags: rspack, bundling, amd, externals. Status: current.
-- [CLI, options and startup](features/cli-and-options.md): flags, `fast-serve/config.json` (dropped `amdPackages`, old file warning), precedence, page order, `{tenantDomain}`, startup order and summary, interim one-shot compile, failures and exit codes, shutdown signals. Tags: cli, options, startup. Status: current.
+- [Dev server, debug manifests and debug URL](features/dev-server.md): `@rspack/dev-server` over HTTPS with the SPFx certificate, bundles from memory under `/dist/`, `manifests.js` (per-bundle library `scriptResources` from the compile, `sp-loader`, port-correct base URL, `no-store`), icons, CORS/PNA headers, `allowedHosts`, port check, ready banner and debug query, shutdown, measured start and requests. Tags: dev-server, manifests, https, debugging. Status: current.
+- [CLI, options and startup](features/cli-and-options.md): flags, `fast-serve/config.json` (dropped `amdPackages`, old file warning), precedence, page order, `{tenantDomain}`, startup order and summary, failures and exit codes, shutdown signals. Tags: cli, options, startup. Status: current.
 
 ## Decisions
 
@@ -36,5 +37,5 @@ Bundler-independent SPFx platform concepts.
 
 ## References
 
-- [Rspack facts and references](references/rspack.md): versions, Rspack 2 behaviours (hash function, AMD library/externals, AMD parsing off by default, async-chunk externals, virtual modules, `exportsPresence`, webpack-only hooks), HMR inside SharePoint pages (per-runtime hot-update global, React alias), prototype numbers, external docs. Tags: reference, rspack, hmr, dependencies. Status: current.
+- [Rspack facts and references](references/rspack.md): versions, Rspack 2 behaviours (hash function, AMD library/externals, AMD parsing off by default, async-chunk externals, virtual modules, `exportsPresence`, webpack-only hooks), `@rspack/dev-server` host checks, listen errors, middleware order and exit signals, HMR inside SharePoint pages (per-runtime hot-update global, React alias), prototype numbers, external docs. Tags: reference, rspack, hmr, dependencies. Status: current.
 - [SPFx 1.24 Heft pipeline (reverse-engineered)](references/spfx-heft-pipeline.md): build phases, webpack customization mechanics, generated config and AMD bundle format (first-bundle named `define` quirk), export names, CSS class-name hashing, externals, manifest and `manifests.js` shape, loc file forms, typings tasks, `heft start` behaviour and bugs, loader/CSP facts. Tags: reference, spfx, heft, webpack, manifests. Status: current.

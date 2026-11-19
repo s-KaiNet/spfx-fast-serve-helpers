@@ -6,11 +6,12 @@ import { definesContribution } from '../defines/index.js';
 import { entriesContribution } from '../entries/index.js';
 import { externalsContribution } from '../externals/index.js';
 import { localizationContribution } from '../localization/index.js';
+import { manifestsContribution } from '../manifests/index.js';
 import { reactContribution } from '../react/index.js';
 import { stylesContribution } from '../styles/index.js';
 import { typescriptContribution } from '../typescript/index.js';
 import { publicPathOf, type BuildContext } from './context.js';
-import { mergeContributions, type ConfigContribution } from './contribution.js';
+import { mergeContributions, type ConfigContribution, type ServerMiddleware } from './contribution.js';
 
 export const OUTPUT_FOLDER = path.join('temp', 'fast-serve', 'dist');
 
@@ -31,13 +32,23 @@ export async function featureContributions(context: BuildContext): Promise<Confi
     assetsContribution(),
     await stylesContribution(context),
     definesContribution(),
+    manifestsContribution(context),
   ];
 }
 
-export async function createRspackConfig(context: BuildContext, { outputPath }: RspackConfigOptions = {}): Promise<Configuration> {
-  const { entry, rules, plugins, alias, extensions, externals } = mergeContributions(await featureContributions(context));
+export interface RspackBuild {
+  config: Configuration;
+  middlewares: ServerMiddleware[];
+}
+
+export async function createRspackConfig(context: BuildContext, options: RspackConfigOptions = {}): Promise<Configuration> {
+  return (await createRspackBuild(context, options)).config;
+}
+
+export async function createRspackBuild(context: BuildContext, { outputPath }: RspackConfigOptions = {}): Promise<RspackBuild> {
+  const { entry, rules, plugins, alias, extensions, externals, middlewares } = mergeContributions(await featureContributions(context));
   const uniqueName = uniqueNameOf(context);
-  return {
+  const config: Configuration = {
     mode: 'development',
     context: context.root,
     target: ['web', 'es2020'],
@@ -74,6 +85,7 @@ export async function createRspackConfig(context: BuildContext, { outputPath }: 
     watchOptions: { ignored: watchIgnored(context.root) },
     infrastructureLogging: { level: 'warn' },
   };
+  return { config, middlewares };
 }
 
 function uniqueNameOf({ project }: BuildContext): string {
