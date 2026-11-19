@@ -1,0 +1,7 @@
+{
+  "id": "aaaaaaaa-0000-0000-0000-000000000004",
+  "alias": "CardAdaptiveCardExtension",
+  "componentType": "AdaptiveCardExtension",
+  "version": "*",
+  "manifestVersion": 2
+}

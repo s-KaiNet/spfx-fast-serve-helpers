@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 (plan and scaffold) done; package `1.24.0-rspack.0` only prints help and version.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options and the project model are done (`1.24.0-rspack.1`): the CLI prints the resolved options and bundles, then stops because the dev server does not exist yet.
 
 ## Current Knowledge
 
@@ -27,7 +27,7 @@ The Rspack implementation reaches parity with the Vite implementation in three p
 
 ### Expected not to be needed (Vite-era features)
 
-AMD shim and ES module entry, on-demand library facades, named-import rewriting for externals, `require()` rewriting, AMD isolation for dependencies and its opt-out option, type-only re-export guard, pre-bundling and warmup, the HTTP/2 status-message warning workaround. Each is confirmed by a regression test or by the reason that the mechanism doesn't exist with Rspack.
+AMD shim and ES module entry, on-demand library facades, named-import rewriting for externals, `require()` rewriting, AMD isolation for dependencies and its opt-out option (`amdPackages` is already ignored with a warning), type-only re-export guard, pre-bundling and warmup, the HTTP/2 status-message warning workaround. Each is confirmed by a regression test or by the reason that the mechanism doesn't exist with Rspack.
 
 ### Open questions
 
@@ -42,6 +42,8 @@ Library components, SPFx 1.22/1.23, tunnels and remote hosts beyond what the Vit
 
 ## Links
 
+- [CLI, options and startup](../features/cli-and-options.md)
+- [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)
 - [Rspack with our own configuration](../decisions/rspack-with-own-config.md)
 - [Rspack facts and references](../references/rspack.md)

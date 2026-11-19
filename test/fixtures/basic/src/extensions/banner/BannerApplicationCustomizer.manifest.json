@@ -1,0 +1,8 @@
+{
+  "id": "99999999-2222-3333-4444-555555555555",
+  "alias": "BannerApplicationCustomizer",
+  "componentType": "Extension",
+  "extensionType": "ApplicationCustomizer",
+  "version": "*",
+  "manifestVersion": 2
+}

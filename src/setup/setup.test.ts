@@ -1,0 +1,105 @@
+import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it, onTestFinished } from 'vitest';
+import type { Logger } from '../logger.js';
+import { packageVersion } from '../packageInfo.js';
+import { describeSetup, prepareServe } from './index.js';
+
+const fixture = fileURLToPath(new URL('../../test/fixtures/basic', import.meta.url));
+
+function recordingLogger() {
+  const messages: string[] = [];
+  const logger: Logger = {
+    info: (message) => messages.push(`info: ${message}`),
+    warn: (message) => messages.push(`warn: ${message}`),
+    error: (message) => messages.push(`error: ${message}`),
+  };
+  return { logger, messages };
+}
+
+function fixtureCopy(files: Record<string, string> = {}): string {
+  const root = mkdtempSync(path.join(tmpdir(), 'fast-serve-setup-'));
+  onTestFinished(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+  cpSync(fixture, root, { recursive: true });
+  for (const [file, content] of Object.entries(files)) {
+    mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    writeFileSync(path.join(root, file), content);
+  }
+  return root;
+}
+
+describe('prepareServe', () => {
+  it('checks the SPFx version, reads the model and resolves the options', () => {
+    const { logger } = recordingLogger();
+    const setup = prepareServe({ root: fixture, logger, env: { SPFX_SERVE_TENANT_DOMAIN: 'contoso.sharepoint.com' } });
+    expect(setup.root).toBe(fixture);
+    expect(setup.spfxVersion).toEqual({ kind: 'installed', version: '1.24.1', packageName: '@microsoft/sp-core-library' });
+    expect(setup.options).toMatchObject({ port: 4400, locale: 'en-us', pageUrl: 'https://contoso.sharepoint.com/_layouts/workbench.aspx' });
+    expect(setup.project.bundles().map((bundle) => bundle.name)).toEqual(['hello-web-part', 'card-adaptive-card-extension', 'banner-application-customizer']);
+  });
+
+  it('lets flags win over fast-serve/config.json and warns about old and dropped options', () => {
+    const root = fixtureCopy({
+      'fast-serve/config.json': '{ "port": 4500, "locale": "de-de", "amdPackages": [] }',
+      'config/fast-serve.json': '{}',
+    });
+    const { logger, messages } = recordingLogger();
+    const setup = prepareServe({ root, cli: { port: 4600, serveConfiguration: 'nope' }, logger, env: {} });
+    expect(setup.options).toMatchObject({ port: 4600, locale: 'de-de', pageUrl: undefined });
+    expect(messages).toEqual([
+      'warn: fast-serve/config.json: "amdPackages" is ignored (not needed: AMD and UMD code in dependencies is bundled like in heft)',
+      'warn: ToolsLibrary: componentType "Library" is not supported yet, skipped',
+      'warn: serve configuration "nope" not found in config/serve.json "serveConfigurations" (the file has none)',
+    ]);
+    expect(prepareServe({ root: fixtureCopy({ 'config/fast-serve.json': '{}' }), logger, env: {} }).options.port).toBe(4400);
+    expect(messages).toContain('warn: config/fast-serve.json is not read anymore: move it to fast-serve/config.json (same options)');
+  });
+
+  it('refuses unsupported SPFx versions and projects without components', () => {
+    const { logger } = recordingLogger();
+    const newer = fixtureCopy({ 'node_modules/@microsoft/sp-core-library/package.json': '{ "name": "@microsoft/sp-core-library", "version": "1.25.0" }' });
+    expect(() => prepareServe({ root: newer, logger })).toThrow(/Unsupported SPFx version: this project uses SPFx 1\.25\.0/);
+    const empty = fixtureCopy({ 'config/config.json': '{ "bundles": {} }' });
+    expect(() => prepareServe({ root: empty, logger })).toThrow(/No web parts, extensions or Adaptive Card Extensions/);
+  });
+});
+
+describe('describeSetup', () => {
+  it('summarizes the resolved options and the project model', () => {
+    const { logger } = recordingLogger();
+    const setup = prepareServe({ root: fixture, cli: { overlay: false }, logger, env: {} });
+    expect(describeSetup(setup)).toEqual([
+      `spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
+      'port 4400 (https://localhost:4400), locale en-us, overlay off',
+      'serve configuration: none',
+      'page: https://{tenantDomain}/_layouts/workbench.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
+      'bundle hello-web-part: HelloWebPart (WebPart)',
+      'bundle card-adaptive-card-extension: CardAdaptiveCardExtension (AdaptiveCardExtension)',
+      'bundle banner-application-customizer: BannerApplicationCustomizer (ApplicationCustomizer)',
+      'SPFx libraries: 3, config.json externals: 2, localized resources: 2',
+    ]);
+  });
+
+  it('names the export of components in bundles with several components and explains a missing page', () => {
+    const root = fixtureCopy({
+      'config/serve.json': '{}',
+      'config/config.json': JSON.stringify({
+        bundles: {
+          shared: {
+            components: [
+              { entrypoint: './lib/webparts/hello/HelloWebPart.js', manifest: './src/webparts/hello/HelloWebPart.manifest.json' },
+              { entrypoint: './lib/extensions/banner/BannerApplicationCustomizer.js', manifest: './src/extensions/banner/BannerApplicationCustomizer.manifest.json' },
+            ],
+          },
+        },
+      }),
+    });
+    const lines = describeSetup(prepareServe({ root, logger: recordingLogger().logger, env: {} }));
+    expect(lines).toContain('bundle shared: HelloWebPart (WebPart, export a), BannerApplicationCustomizer (ApplicationCustomizer, export b)');
+    expect(lines).toContain('page: none (set --page-url, "pageUrl" in fast-serve/config.json or "initialPage" in config/serve.json)');
+  });
+});

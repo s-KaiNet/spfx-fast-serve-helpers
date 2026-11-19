@@ -19,6 +19,11 @@ Bundler-independent SPFx platform concepts.
 ## Architecture
 
 - [Architecture overview](architecture/overview.md): target data flow config → project model → generated artifacts → Rspack compiler and dev server → browser runtime, responsibilities, dependency rules, differences from the Vite implementation. Tags: architecture, rspack, data-flow. Status: draft.
+- [Project model](architecture/project-model.md): bundler-free SPFx facts (bundles, components, export names, manifests, serve configurations, SPFx libraries incl. `@microsoft/microsoft-graph-client`, `config.json` externals, loc, tsconfig, `sass.json`, SPFx version), deliberate differences from heft (React), caching and invalidation, check against heft's output. Tags: architecture, project-model, spfx. Status: current.
+
+## Features
+
+- [CLI, options and startup](features/cli-and-options.md): flags, `fast-serve/config.json` (dropped `amdPackages`, old file warning), precedence, page order, `{tenantDomain}`, startup order and summary, failures and exit codes, shutdown signals. Tags: cli, options, startup. Status: current.
 
 ## Decisions
 

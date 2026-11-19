@@ -1,6 +1,6 @@
 # Handoff: Rspack dev server for SPFx 1.24 (branch `rspack`)
 
-**Status (2026-11-19):** R0 done (plan, scaffold, docs, fresh KB). Package `spfx-fast-serve-helpers` `1.24.0-rspack.0`: the `fast-serve` bin prints help/version only. Next: R1 (CLI and options). Task list and status: [rspack/PLAN.md](rspack/PLAN.md). Nothing is committed by task agents, pushed or published.
+**Status (2026-11-19):** R0–R2 done (plan, scaffold, KB; CLI and options; project model). Package `spfx-fast-serve-helpers` `1.24.0-rspack.1`: `fast-serve` parses flags and `fast-serve/config.json`, checks the SPFx version, builds the project model, prints the resolved options and bundles, then exits with "the Rspack dev server is not implemented yet" (code 1). Next: R3 (Rspack compile). Task list and status: [rspack/PLAN.md](rspack/PLAN.md). Nothing is committed by task agents, pushed or published.
 
 ## 1. Goal
 
@@ -30,7 +30,7 @@ Data flow, as on `v1.24`: **config → project model → generated artifacts →
 - One folder per feature: `src/<feature>/index.ts` returning the feature's config contribution (rules, plugins, resolve, middlewares) + runtime + tests; small modules.
 - What the Vite version needed and Rspack doesn't (shim, TLA facades, `require` rewrite, AMD isolation…): table in [rspack/PLAN.md](rspack/PLAN.md#vite-version-items-that-are-not-needed-with-rspack).
 
-Today `src/` holds only `cli.ts`, `runCli.ts`, `packageInfo.ts` and a test.
+Today `src/` holds the CLI (`cli.ts`, `runCli.ts`, `shutdown.ts`), `config/` (options and precedence), `project/` (the model, ported from `v1.24`), `setup/` (version check + model + options at start, the printed summary) and `utils/`. Fixtures `test/fixtures/basic` and `test/fixtures/multi` come from `v1.24`. Model check against heft's output: `research/rspack/scripts/model-snapshot.mjs <lib dir> <project> [snapshot.json] [heft-webpack-config.json]`.
 
 ## 4. How to test
 

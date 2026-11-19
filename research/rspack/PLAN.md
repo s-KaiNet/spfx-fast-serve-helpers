@@ -35,8 +35,8 @@ Key differences from the Vite version, decided up front:
 
 | # | Task | Size | Status |
 |---|---|---|---|
-| R1 | CLI and options | M | ⬜ |
-| R2 | Project model | M | ⬜ |
+| R1 | CLI and options | M | ✅ |
+| R2 | Project model | M | ✅ |
 | R3 | Rspack compile: entries, TS via SWC, AMD output, SPFx library externals (minimal) | L | ⬜ |
 | R4 | HTTPS dev server, debug `manifests.js`, debug URL, web parts on the page | L | ⬜ |
 | R5 | HMR and React Fast Refresh | L | ⬜ |
@@ -44,10 +44,12 @@ Key differences from the Vite version, decided up front:
 **R1 CLI and options.** `fast-serve` bin, `runCli` (`-p/--port`, `--page-url`, `--locale`, `--config`/`--serve-config`, `--no-overlay`, `-h`, `-v`), `fast-serve/config.json` (JSONC) with precedence flags > file > `config/serve.json` > defaults, `{tenantDomain}` = `SPFX_SERVE_TENANT_DOMAIN`, warning for the old `config/fast-serve.json`, SPFx `major.minor` check at start (1.24.x only), logger with `[fast-serve]` prefix, exit codes, SIGINT/SIGTERM shutdown.
 - Vite lessons: port `config/options.ts`, `runCli.ts`, `project/spfxVersion.ts`, `utils/jsonc.ts` almost unchanged (bundler-free); `amdPackages` is dropped (see R16). Help text without Vite wording.
 - Acceptance: unit tests for parsing, precedence, invalid port, old-file warning, version check (ported from v1.24); `fast-serve --help/--version` from the packed tarball.
+- Done (`1.24.0-rspack.1`): ported as planned; `amdPackages` in `fast-serve/config.json` is ignored with a warning (not a fatal unknown key, so Vite-version configs keep working); `--port abc` reports the raw value; SIGINT/SIGTERM helper ready for R4 (nothing to close yet). Until R4 the CLI prints the resolved options and bundles, then exits 1 with "the Rspack dev server is not implemented yet". Checked from the tarball in the spfx-rea/spfx-bench copies (`--help`, `--version`, summary, unknown `--config` warning, bad port).
 
 **R2 Project model.** Plain Node, no Rspack import: bundles and components from `config/config.json`, entry `./lib/**.js` → `./src/**.ts(x)`, source manifests (JSON with comments), `localizedResources` (`lib/` → `src/`), `serve.json` (port, `initialPage`, `serveConfigurations`), SPFx libraries in `node_modules` (any package with an SPFx library manifest: id, version), `config.json` externals, tsconfig (`extends` incl. rig, `paths`, compiler options), merged `config/sass.json`, cache + `invalidate(file)`.
 - Vite lessons: port `project/` (multi-component bundles, rig `extends`, `sass.json` `extends` arrays appended, missing-source errors) with its tests and fixtures.
 - Acceptance: ported unit tests on fixtures; a model snapshot of spfx-rea and spfx-bench copies (bundles, components, libraries, configurations) matches what heft's config would produce (compare with the dumped heft config from the prototype run, read only).
+- Done (`1.24.0-rspack.1`): `project/` ported with its tests and the `basic`/`multi` fixtures (heft-customization detection left for R19). New: `@microsoft/microsoft-graph-client` is an SPFx library when installed (heft's fixed id `32b9363b-…`, no manifest in the package), like heft's non-standard externals; heft's other non-standard externals `react`, `react-dom`, `react-dom/client` are deliberately not libraries (bundled development React). Snapshot check `research/rspack/scripts/model-snapshot.mjs` on the copies: spfx-rea 5 bundles/7 components, entries equal heft's config, export names `a`/`b`/`c`, versions and every library id/version in heft's `dist/*.manifest.json` match, every heft external is a library or loc resource; spfx-bench 2 bundles, 16 libraries, all match. Only differences: the React family (by design).
 
 **R3 Rspack compile.** Our config builder: one entry per SPFx bundle (single component: the source entry; several: a generated entry module `export * as <exportName>` per component, written to `temp/fast-serve/` or a virtual module, decided here), `output.library.type: 'amd'` (anonymous `define`, like heft), `externalsType: 'amd'`, `output.publicPath` = `https://localhost:<port>/dist/`, `output.hashFunction: 'xxhash64'`, `builtin:swc-loader` for `.ts/.tsx` (classic JSX runtime; decorator/class-field options from tsconfig come in R13, R3 uses the SPFx rig defaults), `resolve.extensions`, `mode: 'development'`, `devtool` (start with `cheap-module-source-map`), `cache: true`, watch ignores (`lib`, `lib-*`, `dist`, `temp`, `release`, `sharepoint`, `teams`, `jest-output`, `.heft`), `DEBUG`/`NODE_ENV` via `rspack.DefinePlugin`. Minimal externals: the `@microsoft/sp-*` packages the project model finds (full rules in R8), React bundled from the project.
 - Vite lessons: React stays the project's development copy (Fast Refresh); DefinePlugin values as in `transforms/defines.ts`.
@@ -100,7 +102,7 @@ Key differences from the Vite version, decided up front:
 | R23 | Acceptance run (both projects, all component types) | M | ⬜ |
 | R24 | Final benchmark | L | ⬜ |
 
-**R8 SPFx libraries as AMD externals.** Every package with an SPFx library manifest (not only `@microsoft/sp-*`) and its known deep entry points as externals by exact request; manifest `scriptResources` with the library's id and version; libraries used only from async chunks still listed; React and react-dom deliberately bundled (development build), `react-dom/server` etc. resolved from the project.
+**R8 SPFx libraries as AMD externals.** Every package with an SPFx library manifest (not only `@microsoft/sp-*`), plus `@microsoft/microsoft-graph-client` (in the model since R2, heft's non-standard external), and its known deep entry points as externals by exact request; manifest `scriptResources` with the library's id and version; libraries used only from async chunks still listed; React and react-dom deliberately bundled (development build), `react-dom/server` etc. resolved from the project.
 - Vite lessons: the library detection of `project/libraries.ts` is reused. **Not needed with Rspack:** on-demand TLA facades, sync facades + per-chunk preload, facades in pre-bundling, export-name probing, `@microsoft/sp-lodash-subset` evaluation — webpack AMD externals import the module object and read names at use, like heft.
 - Acceptance: integration test: imports of named, namespace and default exports from a library compile to property reads on the AMD dependency; manifest lists the right ids/versions; **live:** spfx-bench (PnP controls, `@pnp/sp`, Fluent) renders with the tenant's libraries (tenant 1.25 vs project 1.24.1 is fine).
 
