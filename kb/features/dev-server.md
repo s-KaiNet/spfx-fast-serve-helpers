@@ -28,11 +28,11 @@ tags:
 | Bundles | Rspack output kept in memory, served under `/dist/` (`publicPath` is the absolute `https://localhost:<port>/dist/`); nothing is written to disk |
 | `manifests.js` | `GET`/`HEAD /temp/build/manifests.js`, rendered on each request, `Cache-Control: no-store`; waits for the first compile |
 | Icons | relative manifest icons (`./…`, `../…`) are served from their source files at their project-relative path, only image types; everything else in the project returns 404 |
-| Headers | `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: HEAD, GET, OPTIONS`, `Access-Control-Allow-Headers: *`, `Access-Control-Allow-Private-Network: true` on every response; `OPTIONS` answers 204 with the same headers |
+| Headers | `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: HEAD, GET, OPTIONS`, `Access-Control-Allow-Headers: *`, `Access-Control-Allow-Private-Network: true` on every response; `OPTIONS` answers 204 with the same headers; hot-update files (`*.hot-update.json`, `*.hot-update.js`) also get `Cache-Control: no-store` |
 | Hosts | `allowedHosts: 'all'` like heft: the dev server otherwise rejects SharePoint's cross-site `no-cors` script requests and websocket connections from the tenant origin |
 | Compression | off (local traffic) |
 | Websocket client | added by the dev server to every bundle; connects to `wss://localhost:<port>/ws`; browser logging `warn`; overlay for compile errors unless `--no-overlay` |
-| Reloads | `hot` and `liveReload` on; until React Refresh exists every edit reloads the page through the dev server client (an update that nobody accepts falls back to a reload) |
+| HMR | `hot` and `liveReload` on: edits hot-update inside the bundles with React Fast Refresh, an update that nobody accepts falls back to a page reload; details in [HMR and React Fast Refresh](hmr.md) |
 | Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms` with error and warning counts), errors and warnings printed in full; the dev server's own banners and stats are silenced |
 
 ### Debug `manifests.js`
@@ -56,11 +56,12 @@ SIGINT and SIGTERM stop the dev server (websocket clients, sockets, middleware a
 
 ### Measured (spfx-rea, SPFx 1.24.1)
 
-Start to ready: 0.85 s (first compile 0.52–0.54 s). A page load requests `manifests.js`, the one bundle on the page (1.3 MB, development React included) and one image: three requests. A text edit in a component rebuilds in about 25 ms and reloads the page.
+Start to ready: 0.85 s (first compile 0.52–0.54 s). A page load requests `manifests.js`, the one bundle on the page (1.3 MB, development React included) and one image: three requests. A text edit in a component rebuilds in about 40 ms and reaches the DOM in about 120–160 ms without a reload ([HMR](hmr.md)).
 
 ## Links
 
 - [Rspack compile](rspack-compile.md)
+- [HMR and React Fast Refresh](hmr.md)
 - [CLI, options and startup](cli-and-options.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)

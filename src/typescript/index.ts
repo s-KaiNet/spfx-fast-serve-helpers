@@ -19,7 +19,7 @@ function swcRule(test: RegExp, tsx: boolean): RuleSetRule {
       transform: {
         legacyDecorator: true,
         useDefineForClassFields: false,
-        react: { runtime: 'classic', development: true },
+        react: { runtime: 'classic', development: true, refresh: true },
       },
       target: SWC_TARGET,
     },

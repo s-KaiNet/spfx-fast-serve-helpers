@@ -25,10 +25,12 @@ Bundler-independent SPFx platform concepts.
 
 - [Rspack compile](features/rspack-compile.md): own Rspack config from feature contributions, anonymous AMD bundles, virtual multi-component entries, `amd: {}`, SPFx library externals, bundled development React with alias, SWC defaults, initial loc/assets/Sass + `sp-css-loader`/defines, comparison with heft's `dist/`, compile times. Tags: rspack, bundling, amd, externals. Status: current.
 - [Dev server, debug manifests and debug URL](features/dev-server.md): `@rspack/dev-server` over HTTPS with the SPFx certificate, bundles from memory under `/dist/`, `manifests.js` (per-bundle library `scriptResources` from the compile, `sp-loader`, port-correct base URL, `no-store`), icons, CORS/PNA headers, `allowedHosts`, port check, ready banner and debug query, shutdown, measured start and requests. Tags: dev-server, manifests, https, debugging. Status: current.
+- [HMR and React Fast Refresh](features/hmr.md): what hot-updates vs reloads, refresh loader and per-bundle refresh entry, project React, hot-update fan-out for several bundles, hot styles without piling up `<style>` elements, `no-store` hot-update files, quiet console, live edit → DOM times and memory. Tags: hmr, fast-refresh, dev-server. Status: current.
 - [CLI, options and startup](features/cli-and-options.md): flags, `fast-serve/config.json` (dropped `amdPackages`, old file warning), precedence, page order, `{tenantDomain}`, startup order and summary, failures and exit codes, shutdown signals. Tags: cli, options, startup. Status: current.
 
 ## Decisions
 
+- [One compilation for several bundles](decisions/several-bundles-one-compilation.md): one compilation with a hot-update fan-out instead of a `MultiCompiler` per bundle, with the measurements (start, memory, rebuild). Tags: decision, hmr, rspack. Status: current.
 - [Rspack with our own configuration](decisions/rspack-with-own-config.md): own Rspack config from the project model, no heft webpack config or heft-plugin internals, what may be loaded from the project, same product contract and architecture as the Vite implementation. Tags: decision, rspack, architecture, heft. Status: current.
 
 ## Roadmap
@@ -37,5 +39,5 @@ Bundler-independent SPFx platform concepts.
 
 ## References
 
-- [Rspack facts and references](references/rspack.md): versions, Rspack 2 behaviours (hash function, AMD library/externals, AMD parsing off by default, async-chunk externals, virtual modules, `exportsPresence`, webpack-only hooks), `@rspack/dev-server` host checks, listen errors, middleware order and exit signals, HMR inside SharePoint pages (per-runtime hot-update global, React alias), prototype numbers, external docs. Tags: reference, rspack, hmr, dependencies. Status: current.
+- [Rspack facts and references](references/rspack.md): versions, Rspack 2 behaviours (hash function, AMD library/externals, AMD parsing off by default, async-chunk externals, virtual modules, `exportsPresence`, webpack-only hooks), `@rspack/dev-server` host checks, listen errors, middleware order and exit signals, HMR inside SharePoint pages (shared hot-update global, runtime-module hook, refresh plugin 2.0 options and injection flag, `hot.data`, React alias, hidden-tab throttling), prototype numbers, external docs. Tags: reference, rspack, hmr, dependencies. Status: current.
 - [SPFx 1.24 Heft pipeline (reverse-engineered)](references/spfx-heft-pipeline.md): build phases, webpack customization mechanics, generated config and AMD bundle format (first-bundle named `define` quirk), export names, CSS class-name hashing, externals, manifest and `manifests.js` shape, loc file forms, typings tasks, `heft start` behaviour and bugs, loader/CSP facts. Tags: reference, spfx, heft, webpack, manifests. Status: current.

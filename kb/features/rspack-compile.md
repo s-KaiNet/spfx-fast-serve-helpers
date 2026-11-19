@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-fast-serve builds its own Rspack configuration from the [project model](../architecture/project-model.md) and compiles every SPFx bundle into one anonymous AMD module per bundle, with SPFx libraries as AMD dependencies and React bundled from the project in its development build. The configuration is the merge of small feature contributions (entries, TypeScript, externals, React, localization, assets, styles, defines, manifests); a contribution can also add dev-server middlewares. The [dev server](dev-server.md) runs the compiler in watch mode with the output in memory.
+fast-serve builds its own Rspack configuration from the [project model](../architecture/project-model.md) and compiles every SPFx bundle into one anonymous AMD module per bundle, with SPFx libraries as AMD dependencies and React bundled from the project in its development build. The configuration is the merge of small feature contributions (entries, TypeScript, externals, React, localization, assets, styles, defines, manifests, [HMR](hmr.md)); a contribution can also add dev-server middlewares. The [dev server](dev-server.md) runs the compiler in watch mode with the output in memory.
 
 ## Current Knowledge
 
@@ -35,7 +35,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 
 ### TypeScript
 
-`builtin:swc-loader` for `.ts` and `.tsx` outside `node_modules`: TypeScript syntax with decorators, legacy decorators, `useDefineForClassFields: false`, classic JSX runtime with the development transform (React receives `__self`/`__source`), target ES2020, source maps. These are the SPFx rig defaults; tsconfig-derived options come later.
+`builtin:swc-loader` for `.ts` and `.tsx` outside `node_modules`: TypeScript syntax with decorators, legacy decorators, `useDefineForClassFields: false`, classic JSX runtime with the development transform (React receives `__self`/`__source`) and the React Refresh transform, target ES2020, source maps. These are the SPFx rig defaults; tsconfig-derived options come later.
 
 ### Externals and React
 

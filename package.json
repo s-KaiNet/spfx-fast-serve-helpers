@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.24.0-rspack.3",
+  "version": "1.24.0-rspack.4",
   "description": "Rspack-based dev server for SharePoint Framework 1.24.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
   "type": "module",
   "bin": {
@@ -17,9 +17,9 @@
   "packageManager": "pnpm@12.11.2",
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
-    "build": "pnpm clean && tsc -p tsconfig.build.json",
+    "build": "pnpm clean && tsc -p tsconfig.build.json && tsc -p tsconfig.runtime.json",
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.runtime.json --noEmit",
     "lint": "oxlint --type-aware --deny-warnings",
     "test": "vitest run",
     "test:watch": "vitest",

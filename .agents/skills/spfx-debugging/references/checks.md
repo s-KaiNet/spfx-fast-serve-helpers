@@ -34,6 +34,7 @@ ab eval '(async()=>{const d=window.require.s.contexts._.defined;const k=Object.k
 
 ## Proving a hot update
 
+0. Check `ab eval 'document.visibilityState'` is `"visible"`: with another tab active (for example one restored from the profile's last session, see `ab tab`) the page is hidden, timers run once per second and hot updates arrive up to a second late. Close the other tabs.
 1. `ab eval 'window.__spfxMark="alive"'`.
 2. Click a state counter (or type into an input) so the component holds non-initial state. If the component has none, the marker alone tells reload vs update.
 3. Edit a source file in the SPFx project.
@@ -41,16 +42,16 @@ ab eval '(async()=>{const d=window.require.s.contexts._.defined;const k=Object.k
 5. Marker kept + new text + counter kept → hot update (Fast Refresh). Marker gone → the page reloaded.
 6. Restore the file and confirm the page returns to the original.
 
-Under fast-serve. Until HMR with React Fast Refresh lands on the Rspack implementation, **every edit rebuilds and reloads the page**; the table is the target behaviour:
+Under fast-serve (Rspack: HMR inside the bundles with React Fast Refresh, also with several bundles on one page):
 
 | Edit | Result |
 |---|---|
 | `.tsx` function component in a file that exports only components | hot update, state kept |
-| `.module.scss` / `.scss` / `.css` | style swapped in place |
+| `.module.scss` / `.scss` / `.css` imported by such a component | styles applied in place (the component re-renders with the new class names; style elements don't pile up) |
 | component file that also exports values (hooks, constants) | reload |
 | web part / extension / ACE class and what only it imports (services; ACE card/quick views, templates) | reload |
 | loc files (`loc/*.js`) | reload |
-| manifests, `config/*.json`, `package.json`, `tsconfig.json` | reload; tsconfig compiler options that change emit and `config/sass.json` restart the server |
+| manifests, `config/*.json`, `package.json`, `tsconfig.json`, `config/sass.json` | not picked up while serving yet: restart fast-serve |
 | `serve.json` | read at start: restart to get a new URL |
 
 `heft start` always rebuilds and reloads.

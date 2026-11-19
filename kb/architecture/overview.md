@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-`fast-serve` (Rspack implementation) turns an SPFx 1.24 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. This page describes the target shape; so far the CLI with options, the [project model](project-model.md), the [Rspack compile](../features/rspack-compile.md) and the [dev server with debug manifests](../features/dev-server.md) exist (see [Roadmap overview](../roadmap/overview.md)).
+`fast-serve` (Rspack implementation) turns an SPFx 1.24 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. This page describes the target shape; so far the CLI with options, the [project model](project-model.md), the [Rspack compile](../features/rspack-compile.md) the [dev server with debug manifests](../features/dev-server.md) and [HMR with React Fast Refresh](../features/hmr.md) exist (see [Roadmap overview](../roadmap/overview.md)).
 
 ## Current Knowledge
 
@@ -23,7 +23,7 @@ tags:
 2. **[Project model](project-model.md)** (plain Node, no bundler import): bundles and components from `config/config.json` mapped from `lib/` to `src/` entry files, source manifests, `serve.json` serve configurations, SPFx libraries found in `node_modules` (id, version), `config.json` externals, localized resources, tsconfig (through `extends`), merged `config/sass.json`, SPFx version.
 3. **Generated artifacts:** entry modules for multi-component bundles (`export * as <exportName>`, virtual modules inside the compiler), the debug `manifests.js` rendered on request, SCSS and static-asset typings in heft's `temp/` folders.
 4. **Rspack compiler and dev server:** one compilation, one entry per SPFx bundle, `output.library.type: 'amd'`, `externalsType: 'amd'` for SPFx libraries and `config.json` externals, absolute `publicPath` on the dev server, `builtin:swc-loader` with tsconfig-derived options, Sass and CSS modules with SPFx class names and theme tokens, React Refresh; `@rspack/dev-server` over HTTPS with the SPFx dev certificate, CORS and Private Network Access headers.
-5. **Browser runtime:** SharePoint's RequireJS loads each bundle like a heft bundle; Rspack's HMR runtime and React Refresh run inside it, each bundle with its own hot-update global; small fast-serve runtimes add error forwarding to the terminal.
+5. **Browser runtime:** SharePoint's RequireJS loads each bundle like a heft bundle; Rspack's HMR runtime and React Refresh run inside it, one refresh runtime per bundle and the shared hot-update global fanned out to every bundle's runtime; small fast-serve runtimes add error forwarding to the terminal.
 
 ### Responsibilities
 
@@ -50,6 +50,7 @@ tags:
 ## Links
 
 - [Rspack compile](../features/rspack-compile.md)
+- [HMR and React Fast Refresh](../features/hmr.md)
 - [Dev server, debug manifests and debug URL](../features/dev-server.md)
 - [Project model](project-model.md)
 - [CLI, options and startup](../features/cli-and-options.md)

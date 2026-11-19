@@ -7,6 +7,12 @@ export const CORS_HEADERS: Readonly<Record<string, string>> = {
   'Access-Control-Allow-Private-Network': 'true',
 };
 
+const HOT_UPDATE_FILE = /\.hot-update\.(?:js|json)(?:[?#]|$)/;
+
+export function responseHeaders(url: string | undefined): Record<string, string> {
+  return url !== undefined && HOT_UPDATE_FILE.test(url) ? { ...CORS_HEADERS, 'Cache-Control': 'no-store' } : { ...CORS_HEADERS };
+}
+
 export function preflightMiddleware(): ServerMiddleware {
   return {
     name: 'fast-serve:preflight',

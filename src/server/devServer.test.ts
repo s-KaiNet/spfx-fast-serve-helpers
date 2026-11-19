@@ -1,7 +1,5 @@
-import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { request } from 'node:https';
-import { createServer, type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +9,7 @@ import { resolveOptions } from '../config/options.js';
 import type { Logger } from '../logger.js';
 import type { DebugManifest } from '../manifests/index.js';
 import { createProject } from '../project/index.js';
-import type { HttpsCredentials } from './certificate.js';
+import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
 import { startDevServer, type RunningDevServer } from './devServer.js';
 import { assertPortFree } from './port.js';
 
@@ -21,28 +19,6 @@ interface Response {
   status: number;
   headers: Record<string, string | string[] | undefined>;
   body: string;
-}
-
-function selfSignedCertificate(folder: string): HttpsCredentials {
-  const key = path.join(folder, 'key.pem');
-  const cert = path.join(folder, 'cert.pem');
-  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key, '-out', cert, '-days', '1', '-subj', '/CN=localhost'], {
-    stdio: 'ignore',
-  });
-  return { key: readFileSync(key, 'utf8'), cert: readFileSync(cert, 'utf8') };
-}
-
-function freePort(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const server = createServer();
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', () => {
-      const { port } = server.address() as AddressInfo;
-      server.close(() => {
-        resolve(port);
-      });
-    });
-  });
 }
 
 function send(origin: string, urlPath: string, method = 'GET', headers: Record<string, string> = {}): Promise<Response> {

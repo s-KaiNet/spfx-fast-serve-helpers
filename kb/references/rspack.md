@@ -52,13 +52,16 @@ All Rspack 2 packages are pure ESM.
 - `setupExitSignals` defaults to registering SIGINT/SIGTERM handlers that exit the process; turn it off when the CLI handles shutdown.
 - The dev middleware prints stats with `console.log` unless `devMiddleware.stats` is `'none'`; the server's own "Project is running at" lines go through the infrastructure logger (silent at `warn`).
 
-### HMR inside SharePoint pages (prototype findings)
+### HMR inside SharePoint pages
 
-- HMR works inside AMD bundles loaded by the page's RequireJS: the client gets a hash over the websocket, fetches `<bundle>.<hash>.hot-update.json` and loads the update chunk as a script from the absolute `publicPath`.
-- **Several bundles on one page:** each bundle has its own runtime, but a shared `output.uniqueName` gives all of them the same `self["rspackHotUpdate<uniqueName>"]` global; the last bundle's handler wins and updates for the others are silently lost (no reload, no error). Fix: a distinct hot-update global per runtime (small plugin rewriting the emitted global), or a `MultiCompiler` with one `uniqueName` per bundle. heft's webpack config has the same shape, which likely explains heft's "auto reload only on the first edit with two bundles".
+- HMR works inside AMD bundles loaded by the page's RequireJS: the client gets a hash over the websocket, fetches `<bundle>.<hash>.hot-update.json` and loads the update chunk as a script from the absolute `publicPath`. Every runtime of the compilation gets a hot-update manifest on every rebuild, empty when nothing in it changed.
+- **Several bundles on one page:** each bundle has its own runtime, but a shared `output.uniqueName` gives all of them the same hot-update global (`globalThis["rspackHotUpdate<uniqueName>"]`); the last bundle's handler wins and updates for the others are silently lost (no reload, no error). heft's webpack config has the same shape, which likely explains heft's "auto reload only on the first edit with two bundles". Rspack 2.3's handler only acts on chunk ids it is waiting for, so calling every runtime's handler is safe; fast-serve fans the global out ([decision](../decisions/several-bundles-one-compilation.md)).
+- `compilation.hooks.runtimeModule` lets a plugin change a runtime module's source by assigning `module.source.source` (not allowed with `experiments.runtimeMode: 'rspack'`); the hot-update handler lives in the `jsonp_chunk_loading` runtime module of each entry chunk.
+- `@rspack/plugin-react-refresh` 2.0: no `overlay` option any more; options `include`/`exclude`/`test` for its loader, `injectEntry`, `library` (default `output.uniqueName`). Its injected entry guards the DevTools-hook injection with a window flag `__reactRefreshInjected_<library>`; with several bundles sharing one compilation only the first bundle injects, so fast-serve injects per bundle with its own entry.
 - **Nested React copies** (e.g. React 17 under `@pnp/spfx-controls-react`) give "Invalid hook call" once React is bundled; `resolve.alias` of `react`, `react-dom`, `react/jsx-runtime`, `react-dom/client` to the project's copy fixes it.
-- An edit that reaches the bundle entry (the component class) falls back to a full page reload; CSS-module edits bubble to the importing component, which re-renders with the new class names.
+- An edit that reaches the bundle entry (the component class) falls back to a full page reload; CSS-module edits bubble to the importing component, which re-renders with the new class names. A re-evaluated module has `import.meta.webpackHot.data` set (an object even when no dispose handler stored anything); a first evaluation has none.
 - Rspack's compile-error overlay works over SharePoint pages.
+- A hidden tab (headless Chrome with another tab active, e.g. one restored from the profile's last session) throttles timers to 1 s; Fast Refresh re-renders through a timer, so measurements need a visible tab (`document.visibilityState`).
 
 ### Prototype numbers (medians, live on SharePoint Online)
 
@@ -82,6 +85,8 @@ The prototype reused heft's generated config; the implementation writes its own,
 ## Links
 
 - [Rspack compile](../features/rspack-compile.md)
+- [HMR and React Fast Refresh](../features/hmr.md)
+- [One compilation for several bundles](../decisions/several-bundles-one-compilation.md)
 - [Rspack with our own configuration](../decisions/rspack-with-own-config.md)
 - [Architecture overview](../architecture/overview.md)
 - [Externals semantics](../concepts/externals-semantics.md)

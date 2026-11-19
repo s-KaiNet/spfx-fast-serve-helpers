@@ -5,6 +5,7 @@ import { assetsContribution } from '../assets/index.js';
 import { definesContribution } from '../defines/index.js';
 import { entriesContribution } from '../entries/index.js';
 import { externalsContribution } from '../externals/index.js';
+import { hmrContribution } from '../hmr/index.js';
 import { localizationContribution } from '../localization/index.js';
 import { manifestsContribution } from '../manifests/index.js';
 import { reactContribution } from '../react/index.js';
@@ -33,6 +34,7 @@ export async function featureContributions(context: BuildContext): Promise<Confi
     await stylesContribution(context),
     definesContribution(),
     manifestsContribution(context),
+    hmrContribution(context),
   ];
 }
 

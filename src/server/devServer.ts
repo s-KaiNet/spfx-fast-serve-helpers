@@ -5,7 +5,7 @@ import type { Logger } from '../logger.js';
 import { createRspackBuild, DIST_PATH, type BuildContext, type ServerMiddleware } from '../rspack/index.js';
 import type { ServeSetup } from '../setup/index.js';
 import { loadDevCertificate, type HttpsCredentials } from './certificate.js';
-import { CORS_HEADERS, preflightMiddleware } from './headers.js';
+import { preflightMiddleware, responseHeaders } from './headers.js';
 import { assertPortFree } from './port.js';
 import { readyBanner } from './readyBanner.js';
 
@@ -56,7 +56,7 @@ export function devServerConfiguration(options: ResolvedOptions, https: HttpsCre
     historyApiFallback: false,
     setupExitSignals: false,
     server: { type: 'https', options: { cert: https.cert, key: https.key } },
-    headers: { ...CORS_HEADERS },
+    headers: (req) => responseHeaders(req.url),
     client: {
       webSocketURL: { protocol: 'wss', hostname: 'localhost', port: options.port },
       logging: 'warn',

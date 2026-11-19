@@ -1,6 +1,6 @@
 # Handoff: Rspack dev server for SPFx 1.24 (branch `rspack`)
 
-**Status (2026-11-19):** R0–R4 done (plan, scaffold, KB; CLI and options; project model; Rspack compile; HTTPS dev server with debug `manifests.js` and debug URL). Package `spfx-fast-serve-helpers` `1.24.0-rspack.3`: `fast-serve` parses flags and `fast-serve/config.json`, checks the SPFx version, builds the project model, compiles with our own Rspack config and serves the bundles from memory plus `manifests.js` on `https://localhost:<port>`, prints the ready banner with the debug URL, and stops cleanly on SIGINT/SIGTERM. spfx-rea's web parts and Banner customizer render on SharePoint; edits reload the page. Next: R5 (HMR and React Fast Refresh). Task list and status: [rspack/PLAN.md](rspack/PLAN.md). Nothing is committed by task agents, pushed or published.
+**Status (2026-11-19):** R0–R5 done (plan, scaffold, KB; CLI and options; project model; Rspack compile; HTTPS dev server with debug `manifests.js` and debug URL; HMR and React Fast Refresh). Package `spfx-fast-serve-helpers` `1.24.0-rspack.4`: `fast-serve` parses flags and `fast-serve/config.json`, checks the SPFx version, builds the project model, compiles with our own Rspack config and serves the bundles from memory plus `manifests.js` on `https://localhost:<port>`, prints the ready banner with the debug URL, and stops cleanly on SIGINT/SIGTERM. spfx-rea's web parts and Banner customizer render on SharePoint; edits hot-update with state kept (spfx-bench: both bundles), class edits reload. Next: R6 (extensions). Task list and status: [rspack/PLAN.md](rspack/PLAN.md). Nothing is committed by task agents, pushed or published.
 
 ## 1. Goal
 
@@ -26,7 +26,7 @@ Data flow, as on `v1.24`: **config → project model → generated artifacts →
 - `project/`: plain Node, no Rspack import (bundles/components from `config/config.json` mapped to `src`, manifests, `serve.json`, SPFx libraries, `config.json` externals, loc, tsconfig, `sass.json`, SPFx version).
 - One Rspack compilation with one entry per SPFx bundle, `output.library.type: 'amd'`, `externalsType: 'amd'`, absolute `publicPath` on `https://localhost:<port>/dist/`, in memory.
 - Our `/temp/build/manifests.js`, rendered from the model and the compilation (externals each bundle uses).
-- HMR runs inside each AMD bundle (Rspack runtime + React Refresh); each bundle needs its own hot-update global.
+- HMR runs inside each AMD bundle (Rspack runtime + React Refresh, one refresh runtime per bundle); all bundles share one compilation and the shared hot-update global is fanned out to every bundle's runtime (decided over `MultiCompiler` by measurement in R5).
 - One folder per feature: `src/<feature>/index.ts` returning the feature's config contribution (rules, plugins, resolve, middlewares) + runtime + tests; small modules.
 - What the Vite version needed and Rspack doesn't (shim, TLA facades, `require` rewrite, AMD isolation…): table in [rspack/PLAN.md](rspack/PLAN.md#vite-version-items-that-are-not-needed-with-rspack).
 

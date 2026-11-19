@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL are done (`1.24.0-rspack.3`): web parts and extensions in the default serve configuration render on a SharePoint page and every edit reloads the page; HMR with React Fast Refresh is next. The compile already contains initial localization, asset and Sass/CSS handling that later tasks complete.
+The Rspack implementation reaches parity with the Vite implementation in three phases and ends with a benchmark against Vite fast-serve, `heft start` and Vite's bundled dev mode. Status: phase 0 done; in phase 1 the CLI with options, the project model, the Rspack compile and the HTTPS dev server with debug manifests and debug URL and HMR with React Fast Refresh are done (`1.24.0-rspack.4`): web parts and extensions in the default serve configuration render on a SharePoint page, edits hot-update with state kept (also with several bundles on one page) and class edits reload; phase 2 (extensions, ACEs) is next. The compile already contains initial localization, asset and Sass/CSS handling that later tasks complete.
 
 ## Current Knowledge
 
@@ -33,7 +33,6 @@ AMD shim and ES module entry, on-demand library facades, named-import rewriting 
 
 - CSS pipeline: the project's `@microsoft/sp-css-loader` (exact heft class names and tokens) or a fully own CSS-modules pipeline.
 - Extend file formats beyond `.mjs` (TypeScript needs Node type stripping).
-- Several bundles: per-runtime hot-update global vs one compiler per bundle.
 - Whether the Rspack line is published or stays local until the benchmark decides.
 
 ### Out of scope for now
@@ -43,6 +42,7 @@ Library components, SPFx 1.22/1.23, tunnels and remote hosts beyond what the Vit
 ## Links
 
 - [Rspack compile](../features/rspack-compile.md)
+- [HMR and React Fast Refresh](../features/hmr.md)
 - [CLI, options and startup](../features/cli-and-options.md)
 - [Project model](../architecture/project-model.md)
 - [Architecture overview](../architecture/overview.md)
