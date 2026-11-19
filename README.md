@@ -91,13 +91,13 @@ npm run serve -- --config rating
 ```
 
 - `customActions` (Application Customizers, Command Sets), `fieldCustomizers` and `formCustomizer` become `loadSPFX=true` plus `customActions=<json>`, `fieldCustomizers=<json>`, or the form parameters (`componentId`, `PageType`, `RootFolder`, `ID`, `ContentTypeID`, `properties=<json>`). As in heft, `debug=true` is left out then: the list pages fail to load the debug scripts with both.
-- The page is chosen like in heft, with the `pageUrl` option (`--page-url`, then `config/fast-serve.json`) in the place of heft's fallback pages:
+- The page is chosen like in heft, with the `pageUrl` option (`--page-url`, then `fast-serve/config.json`) in the place of heft's fallback pages:
   1. `pageUrl` of the configuration picked with `--config` (other than `default`);
   2. the `pageUrl` option;
   3. `serveConfigurations.default.pageUrl`;
   4. `initialPage`.
 
-  So `--config commands` opens the list page of `commands` even when `config/fast-serve.json` sets a `pageUrl`, and a configuration without a `pageUrl` (or `default`) uses the option. `{tenantDomain}` works as everywhere.
+  So `--config commands` opens the list page of `commands` even when `fast-serve/config.json` sets a `pageUrl`, and a configuration without a `pageUrl` (or `default`) uses the option. `{tenantDomain}` works as everywhere.
 - As in heft, the debug parameters replace the page URL's own query (`?…`); a `#hash` is kept.
 - An unknown `--config` name prints a warning with the available names and falls back to `default`, like heft.
 - At start `fast-serve` warns about configurations that don't fit the project: an id that isn't one of your extensions, a field customizer used as a command set, the generator's placeholders (`InternalFieldName`, `/sites/mySite/Lists/MyList`).
@@ -108,7 +108,7 @@ npm run serve -- --config rating
 Zero config works. Options, by precedence:
 
 1. command-line flags: `fast-serve --port 4400 --page-url https://contoso.sharepoint.com/sites/dev/SitePages/test.aspx --locale de-de --config rating`
-2. `config/fast-serve.json` (optional, JSON with comments):
+2. `fast-serve/config.json` (optional, JSON with comments; like the classic spfx-fast-serve, all `fast-serve` files of a project live in its `fast-serve/` folder):
    ```json
    { "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default" }
    ```
@@ -124,7 +124,21 @@ The page is the exception: a named serve configuration's own `pageUrl` wins over
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` `serveConfigurations` entry to use (default: `default`); an unknown name warns with the list of names and uses `default` |
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page (see [Errors](#errors)); errors still go to the terminal and the browser console (default: `true`) |
 
-HTTPS is always on, with the SPFx development certificate. There is no `vite.config` to write: `fast-serve` configures Vite itself.
+HTTPS is always on, with the SPFx development certificate. There is no `vite.config` to write: `fast-serve` configures Vite itself. A project that customizes heft's webpack config can add the development counterpart in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](#customizing-the-vite-config)).
+
+`config/fast-serve.json` (used by early betas) is not read: `fast-serve` prints a warning asking to move it to `fast-serve/config.json`.
+
+### config.json externals
+
+`config/config.json` `externals` (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like in heft, never bundled from `node_modules`. Imports from them behave like heft's webpack output, without reading anything from an installed package:
+
+- `import { render } from 'ejs'`: reads `render` from the loaded module when your module runs (`undefined` if the script doesn't define it);
+- `import * as ejs from 'ejs'`: the module object exactly as RequireJS returns it, so a function or class (`new apexcharts(...)`) works when the script returns one;
+- `import ApexCharts from 'apexcharts'`: `module.default` when the module has `__esModule`, otherwise the module itself;
+- `export { render } from 'ejs'` and `export * as ejs from 'ejs'` work; `export * from 'ejs'` can't know the names (they only exist at runtime), so `fast-serve` warns: re-export the names you need;
+- `await import('ejs')` gives a webpack-like namespace: the module's properties plus `default`.
+
+A script that defines nothing (it returns `undefined`) loads without errors; only reading a name from it fails.
 
 ### TypeScript settings, static assets and theme colors
 
@@ -145,6 +159,43 @@ HTTPS is always on, with the SPFx development certificate. There is no `vite.con
 - **Sass `pkg:` URLs.** `@use`, `@forward` and `@import` with `pkg:` URLs (e.g. `@import 'pkg:@fluentui/react/dist/sass/References.scss';`) work, also inside packages, resolved like Sass's Node package importer from the Sass package Vite compiles with (`sass-embedded` or `sass` 1.71+; older versions don't support `pkg:`). That importer follows the package's `exports`, `sass` and `style` fields, while heft looks the path up in the file system, so a bare `pkg:name` import (without a file path) can resolve to a different file than in `heft build`. `~` imports (`@import '~@fluentui/react/dist/sass/References.scss';`) keep working.
 - **Theme colors.** `"[theme:themePrimary, default: #0078d4]"` tokens in your styles resolve to the page theme when a stylesheet is inserted or hot-updated. Switching the site theme while the page is open does not recolor them: reload the page.
 
+## Customizing the Vite config
+
+`fast-serve` never runs webpack, so a heft webpack customization (`config/spfx-customize-webpack.js`, or `config/webpack-patch.json` with its patch files) doesn't apply to it: `DefinePlugin` constants are `ReferenceError`s, aliases don't resolve, loaders for extra file types are missing. If those customizations matter in development, mirror them in **`fast-serve/vite.extend.mts`**, the counterpart of the classic `fast-serve/webpack.extend.js`. It is optional: without it nothing changes.
+
+```ts
+import path from 'node:path';
+import { defineConfig } from 'spfx-fast-serve-helpers';
+import { getApiUrl, getSolutionVersion } from '../scripts/helpers.js';
+
+export default defineConfig(({ root }) => ({
+  define: {
+    MY_API_URL: JSON.stringify(getApiUrl()),
+    MY_VERSION: JSON.stringify(getSolutionVersion()),
+  },
+  resolve: {
+    alias: { '@src': path.join(root, 'src') },
+  },
+}));
+```
+
+- **Format:** a Vite config: an object (`UserConfig`) or `defineConfig((context, env) => UserConfig)`, sync or async. `context` has `root`, `port`, `origin`, `locale`, `serveConfiguration`, `pageUrl`, `spfxVersion`, `fastServeVersion` and `viteVersion`; `env` is Vite's `ConfigEnv`. Types (`defineConfig`, `FastServeConfig`, `FastServeContext`, and Vite's `UserConfig`, `Plugin`, `ConfigEnv`) come from `spfx-fast-serve-helpers`, so the project doesn't need a `vite` dependency. `.ts`, `.mjs`, `.js` and `.cjs` work too; use `.mts` in SPFx projects (they are CommonJS packages) and write relative imports with the extension (`'../scripts/helpers.js'`).
+- **Merging:** the file is merged into `fast-serve`'s own config. Your arrays and maps are added (`plugins`, `resolve.alias`, `define`, `server.proxy`, `optimizeDeps.include`, …). `fast-serve`'s settings win: `root`, `base`, `appType`, `server.host`/`port`/`strictPort`/`origin`/`https`, `server.hmr.overlay`, `css.modules`, `define.DEBUG`, `define['process.env.NODE_ENV']`, `experimental.bundledDev` and `build` are ignored, with a warning that names the `fast-serve` option to use instead (`"server.port" is ignored (use --port or "port" in fast-serve/config.json)`). A plugin from the file that overrides the port, origin, HTTPS, `appType` or `base` after `fast-serve` gets a warning too: the page can't load then.
+- **Restarts:** the file is evaluated at start and on every restart. Editing it or any local file it imports (helpers, JSON they read) restarts the server and reloads the page; adding or deleting the file while `fast-serve` runs restarts `fast-serve`. A broken file at start stops `fast-serve` with an error naming the file; a broken edit keeps the running server and prints the error.
+- **Scope:** it is an escape hatch for what `fast-serve` can't know. Its content is your code; `fast-serve` loads it, merges it, keeps its own settings and restarts on change. It is Vite configuration, tied to the Vite major this package ships (Vite 8; `context.viteVersion`). Don't depend on `fast-serve`'s internal plugin names or virtual modules. Don't add a React plugin (`fast-serve` runs `@vitejs/plugin-react`), and keep `config/config.json` as the place for externals.
+
+Mapping table (webpack → Vite), the worked example and pitfalls: [research/vite-config.md](research/vite-config.md).
+
+**Startup hint.** When the project has `config/spfx-customize-webpack.js` or `config/webpack-patch.json` and no `fast-serve/vite.extend.*`, `fast-serve` prints a hint at start with the files it found, a minimal example and where to read more. If nothing needs mirroring, add `fast-serve/vite.extend.mts` with `export default {};` to silence it.
+
+**Coding agents.** The package ships an agent skill that writes this file from a webpack customization: `node_modules/spfx-fast-serve-helpers/skills/fast-serve-vite-config/SKILL.md`. Agents don't look into `node_modules` by themselves; reference it from the project's `AGENTS.md` (or `CLAUDE.md`):
+
+```md
+- fast-serve (Vite dev server): when the heft webpack customization (config/spfx-customize-webpack.js, config/webpack-patch.json) changes, or for anything in fast-serve/vite.extend.mts, follow node_modules/spfx-fast-serve-helpers/skills/fast-serve-vite-config/SKILL.md.
+```
+
+Or copy the skill folder into the project's skills folder (`.agents/skills/`, `.claude/skills/`); a copy doesn't follow package updates.
+
 ## HMR: do's and don'ts
 
 - Updates in place, keeping React state: function components in `.tsx` files that export only components; `.module.scss` / `.scss` / `.css`; new imports.
@@ -164,7 +215,7 @@ Errors show in Vite's error overlay over the SharePoint page and in the terminal
 - compile errors (syntax or transform errors in a file you edit), and in the web part's error box when the bundle fails to load;
 - runtime errors from your code: uncaught errors (a `ReferenceError` in a component's render, an error thrown in an event handler) and unhandled promise rejections. The overlay and the terminal show the message, the location in your source (`src/...tsx:line:col`, through source maps), a code frame and the stack trimmed to your code.
 
-Press Esc or click outside to dismiss the overlay; a hot update clears it, and a newer error replaces it. If the overlay is still open at the first edit after the page loaded (an error during the page load), the page reloads instead of hot-updating, as Vite does. A render error that React reports several times (React 18 replays a failed render in development) shows once. The overlay's hint points at the `overlay` option: `"overlay": false` in `config/fast-serve.json` or `--no-overlay` turns it off for compile and runtime errors.
+Press Esc or click outside to dismiss the overlay; a hot update clears it, and a newer error replaces it. If the overlay is still open at the first edit after the page loaded (an error during the page load), the page reloads instead of hot-updating, as Vite does. A render error that React reports several times (React 18 replays a failed render in development) shows once. The overlay's hint points at the `overlay` option: `"overlay": false` in `fast-serve/config.json` or `--no-overlay` turns it off for compile and runtime errors.
 
 Only errors from your code are shown: their stack trace has a project module (`https://localhost:<port>/src/...`, not `node_modules`) or the `fast-serve` loader. SharePoint's own errors and third-party noise (for example `@pnp/telemetry-js` "Failed to fetch") stay in the browser console, and so do rejections without a stack (`Promise.reject('text')`). `console.error` calls from your code go to the terminal with a code frame but don't open the overlay: the code that logs an error has handled it (React's "The above error occurred in the <X> component" is one of these).
 
@@ -182,6 +233,7 @@ The browser reports the position it has for a stack frame, which isn't always th
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served yet) |
 | `serve configuration "x" not found … using "default"` | the `--config` name isn't in `config/serve.json` `serveConfigurations`; the warning lists the names |
 | web part shows `[fast-serve] Failed to load bundle …: <error> in src/…:line:col` | a syntax or transform error: details are in the `fast-serve` terminal. Fix the file and the page reloads |
+| `ReferenceError` for a constant from webpack's `DefinePlugin`, or `Failed to resolve import` for a webpack alias | mirror the webpack customization in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](#customizing-the-vite-config)) |
 | `… older than … used by the project` | your project uses a newer SPFx version than your tenant serves. It would fail in production too: use the SPFx version your tenant supports |
 
 ## Limitations (v1)
@@ -189,7 +241,7 @@ The browser reports the position it has for a stack frame, which isn't always th
 - Web parts, extensions and Adaptive Card Extensions only: no library components yet.
 - Extensions: a localized command title in a manifest (`"title": { "id": "$…" }`) isn't resolved (heft fills it from the loc file); use `"default"` texts. Relative icon paths (`"iconImageUrl": "./icons/x.png"`) are served from `src`; `"icons/x.png"` without `./` is passed through, as heft does, and resolves against the dev server root.
 - Dev server only: no production build, no type checking and no linting (run `tsc --noEmit` / ESLint / `heft build` separately).
-- `config/config.json` `externals` (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like in heft, never bundled from `node_modules`. Named imports from an external (`import { ajax } from 'jquery'`) only work when a package with the same name is installed (its export names are used); otherwise use the default import.
+- `export * from '<external>'` re-exports nothing from a `config/config.json` external (see [config.json externals](#configjson-externals)).
 - `localizedResources` loc files can be JavaScript or TypeScript. Write them as `define([], function () { return { ... }; });`: `export default` / `export =` work in `fast-serve`, but heft copies the compiled file as is and SharePoint can't load an ES module there (`fast-serve` warns).
 - A `const enum` declared only in a `.d.ts` file or in a dependency (for example `IconNames` from `@fluentui/font-icons-mdl2`) doesn't work: each file is compiled on its own, so the enum can't be inlined and there is no JavaScript object to import. Use a regular `enum`, or string values. An exported `const enum` in your own `.ts` files works. `fast-serve` explains these cases instead of the browser's cryptic error:
   - a global `declare const enum` from a `.d.ts` in `src` used in a file: a message naming the enum and its `.d.ts`, in the terminal and the browser console (found while compiling the file);

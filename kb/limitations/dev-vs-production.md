@@ -25,6 +25,8 @@ tags:
 | React | the production React the page ships (tenant version) | development React/react-dom from the project's `node_modules`, deduplicated to one copy | low for project code (dev warnings and React DevTools work, slower renders); high for SPFx library components that render hooks (see [Unsupported scope](unsupported-scope.md)) | none needed for project code |
 | SPFx libraries (`@microsoft/sp-*`) | webpack externals resolved by the loader | loaded on demand from the page: same instances and the tenant's version, as in production | none | — |
 | `config.json` externals | each manifest lists the externals its bundle uses | every external is listed in every component's debug manifest (one shared RequireJS `require`) | low: an external loads even for a component that doesn't use it; a broken external surfaces in dev for every component | — |
+| `config.json` external imports | webpack reads named imports as properties of the loaded module | the same property reads at runtime, except `export * from '<external>'`, which re-exports nothing (warning) | low | re-export the needed names explicitly |
+| Webpack customization (`config/spfx-customize-webpack.js`, `config/webpack-patch.json`) | applied by heft in build and start | never run or translated; a startup hint appears while no extend file exists | high for projects relying on `DefinePlugin` constants, aliases or extra loaders | mirror the dev-relevant parts in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](../features/vite-extend-file.md)) |
 | Build output | `lib/`, `dist/`, `temp/` | only typings in `temp/sass-ts` and `temp/static-asset-ts` | none for the page; production artifacts must come from Heft | run `heft build` before shipping |
 | Checks | type checking and lint in the build | none: each file is compiled on its own without type information | medium: type errors don't stop the dev page | run `tsc --noEmit`, ESLint or `heft build` separately |
 | Loc files | copied as is to `dist/` | evaluated or bundled, so ES-module loc files work in dev | medium: an `export default` / `export =` loc file works in dev but breaks or fails in production | write `define([], function () { return { … }; });` (`fast-serve` warns) |
@@ -43,6 +45,7 @@ tags:
 - [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
 - [Development React from the project for Fast Refresh](../decisions/development-react.md)
 - [Dev server only; Heft keeps builds, checks and packaging](../decisions/dev-server-only.md)
+- [Customizing the Vite config](../features/vite-extend-file.md)
 - [SPFx library imports and config.json externals](../features/library-imports-and-externals.md)
 - [Localized strings](../features/localization.md)
 - [HMR gotchas](hmr-gotchas.md)
@@ -52,4 +55,4 @@ tags:
 
 - Source: user docs (migration "what's different", limitations), project handoff notes (performance, heft facts), proof-of-concept benchmark research, implementation behavior (manifests and externals components)
 - Confidence: high (behavior); medium (performance numbers are PoC-era or partial package runs)
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

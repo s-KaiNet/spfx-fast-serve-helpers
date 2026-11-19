@@ -27,6 +27,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 - **Localization**: names declared in `config.json` `localizedResources` (`HelloWorldWebPartStrings`) resolve to modules built from `loc/<locale>.js` or `.ts` for the selected locale (falling back to `en-us` with a warning). AMD JavaScript is evaluated directly; TypeScript and ES/CommonJS loc files are bundled to CommonJS with Rolldown first and get a warning, because heft copies them to `dist/` where RequireJS can't load them. Loc files are watched, so string edits hot-update importers.
 - **Library CSS**: a library import of `.module.scss` (or similar) that only ships the compiled `.module.scss.css` resolves to a JavaScript module produced by the project's `@microsoft/sp-css-loader`, with SPFx class-name hashing.
 - `~` prefixes in Sass imports are stripped, as webpack's Sass loader allowed.
+- **Sass `pkg:` URLs** go through Sass's `NodePackageImporter`, created from the same Sass package Vite loads and passed to Vite's Sass options together with `config/sass.json` `silenceDeprecations`.
 - `react` and `react-dom` are deduplicated to the project's single copy.
 
 ### Transformation of project modules
@@ -34,7 +35,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 - **TypeScript options**: the project's `experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, `target`, `strict` and `strictNullChecks` (merged through `extends`) are passed to Oxc as inline tsconfig options, giving legacy decorators and tsc's class-field semantics. Oxc's automatic tsconfig lookup stays off: the SPFx rig's `importsNotUsedAsValues: "remove"` would otherwise keep type-only imports.
 - **Defines**: `DEBUG` = `true`, `process.env.NODE_ENV` = `"development"`.
 - **`require()` → imports**: relative `require()` calls (images, JSON, scripts, styles) and `require()` of explicit tsconfig `paths` aliases become hoisted ES imports (assets as URLs, JSON as default export, scripts and styles as namespaces).
-- **Type-only name checks**: type re-exports written without `type`, and (with `emitDecoratorMetadata`) imports kept only for decorator metadata, are checked against the target module's runtime exports, removed from the served code and reported in the terminal and the browser console.
+- **Type-only name checks**: type re-exports written without `type`, and (with `emitDecoratorMetadata`) imports kept only for decorator metadata, are checked against the target module's runtime exports, removed from the served code and reported in the terminal and the browser console. Imports from `config.json` externals are skipped, because their names exist only at runtime.
 - **`const enum` checks**: global `declare const enum`s from the project's `.d.ts` files used as values, and relative imports that only resolve to a `.d.ts`, are reported with an explanation; a named import a dependency doesn't export is explained by the bundle shim when the browser links modules.
 - **React**: `@vitejs/plugin-react` adds Fast Refresh; the bundle entry imports its preamble.
 - Only project modules (and virtual modules) are checked or rewritten; dependencies are left as published.
@@ -42,7 +43,7 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 ### Styles at runtime
 
 - CSS modules use SPFx-style names (`<local>_<8-char hash>`) and camelCase locals; CSS source maps are on in dev.
-- Vite's Sass compile receives only `silenceDeprecations` from the project's merged `config/sass.json`, as heft does; editing that file restarts the server (see [Styles, theme tokens and asset typings](../features/styles-and-assets.md)).
+- Vite's Sass compile receives only `silenceDeprecations` from the project's merged `config/sass.json`, as heft does (plus the `pkg:` importer); editing that file restarts the server (see [Styles, theme tokens and asset typings](../features/styles-and-assets.md)).
 - Vite keeps owning the `<style>` tags (so CSS HMR works), but its style-insertion import is swapped for the themed-styles runtime, which resolves `"[theme:x, default:y]"` tokens from the page's `window.__themeState__.theme` once per insert or hot update. The theme is not watched.
 
 ### Dependency pre-bundling customization
@@ -71,4 +72,4 @@ Project source is served file by file as native ES modules, compiled by Vite 8 (
 
 - Source: package code layout notes, project handoff notes, tsconfig/decorators and library SCSS research, implementation behavior (aliases, localization, styles, transforms and externals components)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

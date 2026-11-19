@@ -67,7 +67,7 @@ Code written for `heft build` (webpack + tsc) mostly runs unchanged even though 
 ## Edge Cases
 
 - Assets imported through a `paths` alias need the typings folder as a second alias target to be typed (see [Styles, theme tokens and asset typings](styles-and-assets.md)).
-- The type-only checks only see names the target module doesn't export at runtime; a real runtime export with the same name is kept.
+- The type-only checks only see names the target module doesn't export at runtime; a real runtime export with the same name is kept. Imports and re-exports from `config/config.json` externals are not checked (their names exist only at runtime; see [SPFx library imports and config.json externals](library-imports-and-externals.md)).
 - Chrome may report an earlier column than the failing expression on the same line (for example inside JSX children).
 
 ## Links
@@ -83,4 +83,4 @@ Code written for `heft build` (webpack + tsc) mostly runs unchanged even though 
 
 - Source: user docs, migration guide, tsconfig/decorators research, implementation behavior (aliases and transforms components, bundle shim)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

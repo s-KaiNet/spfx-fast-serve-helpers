@@ -40,7 +40,7 @@ The previous package wrapped SPFx's gulp/webpack build: global mutable settings 
 ## Links
 
 - [Architecture overview](../architecture/overview.md)
-- [Zero-config CLI without a public Vite plugin API](zero-config-cli.md)
+- [Zero-config CLI with an optional Vite extend file](zero-config-cli.md)
 - [Package toolchain and code conventions](toolchain-and-conventions.md)
 
 ## Evidence

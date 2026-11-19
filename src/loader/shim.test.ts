@@ -293,6 +293,41 @@ describe('bundle load failures', () => {
   });
 });
 
+function rejectedFetch() {
+  return vi.fn<() => Promise<unknown>>(() => Promise.reject(new TypeError('Failed to fetch')));
+}
+
+describe('missing export hints', () => {
+  it('blames the config.json external when the missing export comes from its facade', async () => {
+    const linkError = new SyntaxError("The requested module '/@id/__x00__spfx-external:ejs' does not provide an export named 'render'");
+    const { message } = await failingLoad({ fetch: rejectedFetch() }, linkError);
+    expect(message).toContain('"render" is not provided by the config/config.json external "ejs" (the loaded script doesn\'t define that property)');
+    expect(message).toContain('https://github.com/s-KaiNet/spfx-fast-serve-helpers#configjson-externals');
+    expect(message).not.toContain('import type');
+  });
+
+  it('names scoped externals behind the CommonJS facade', async () => {
+    const linkError = new SyntaxError(
+      "The requested module 'https://localhost:4321/@id/__x00__spfx-external-cjs:@scope/charts?v=2' does not provide an export named 'Chart'",
+    );
+    const { message } = await failingLoad({ fetch: rejectedFetch() }, linkError);
+    expect(message).toContain('"Chart" is not provided by the config/config.json external "@scope/charts"');
+  });
+
+  it('keeps the TypeScript hint for SPFx libraries', async () => {
+    const linkError = new SyntaxError("The requested module '/@id/__x00__spfx-library:@microsoft/sp-core-library' does not provide an export named 'IFoo'");
+    const { message } = await failingLoad({ fetch: rejectedFetch() }, linkError);
+    expect(message).toContain('"IFoo" has no runtime value in that module');
+    expect(message).not.toContain('config/config.json external');
+  });
+
+  it('keeps the TypeScript hint for Firefox, whose message has no module URL', async () => {
+    const { message } = await failingLoad({ fetch: rejectedFetch() }, new SyntaxError('import not found: render'));
+    expect(message).toContain('"render" has no runtime value in that module');
+    expect(message).toContain('`import type { render }`');
+  });
+});
+
 describe('renderBundleEntry', () => {
   it('imports the browser error forwarding and the Fast Refresh preamble first and reloads on unaccepted updates', () => {
     const code = renderBundleEntry('/p', bundle);

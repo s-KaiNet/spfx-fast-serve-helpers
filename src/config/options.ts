@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_LOCALE, type ServeConfiguration } from '../project/index.js';
 import { isObject } from '../utils/guards.js';
@@ -42,7 +43,9 @@ export interface OptionDefaults {
   serveConfigurations?: Record<string, ServeConfiguration>;
 }
 
-export const OPTIONS_FILE = 'config/fast-serve.json';
+export const FAST_SERVE_FOLDER = 'fast-serve';
+export const OPTIONS_FILE = `${FAST_SERVE_FOLDER}/config.json`;
+export const LEGACY_OPTIONS_FILE = 'config/fast-serve.json';
 export const DEFAULT_PORT = 4321;
 export const TENANT_DOMAIN_ENV = 'SPFX_SERVE_TENANT_DOMAIN';
 export const DEFAULT_SERVE_CONFIGURATION = 'default';
@@ -110,6 +113,11 @@ export function parsePort(value: string): number {
   const port = Number(value);
   validatePort(port);
   return port;
+}
+
+export function legacyOptionsFileHint(root: string): string | undefined {
+  if (existsSync(path.join(root, OPTIONS_FILE)) || !existsSync(path.join(root, LEGACY_OPTIONS_FILE))) return undefined;
+  return `${LEGACY_OPTIONS_FILE} is not read anymore: move it to ${OPTIONS_FILE} (same options)`;
 }
 
 export function loadOptionsFile(root: string): FastServeOptions {

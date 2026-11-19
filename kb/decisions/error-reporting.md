@@ -25,7 +25,7 @@ Vite 8 can forward everything the page logs to the terminal (`server.forwardCons
 - Replace Vite's console forwarding with an own browser-errors channel: uncaught errors, unhandled rejections and `console.error` calls are sent over the HMR socket, and the server prints one only when a stack frame is a project module (`https://localhost:<port>/src/...`, not `node_modules`) or the loader. Frames are source-mapped, the stack is trimmed after the last own frame, and a code frame is printed.
 - **Overlay for uncaught errors and rejections from project code**, in addition to compile errors; the same error is shown once (React's replayed render errors).
 - **Not for `console.error`**: it goes to the terminal only.
-- **Opt-out**: `"overlay": false` in `config/fast-serve.json` or `--no-overlay` turns the overlay off for compile and runtime errors; the overlay's hint names this option instead of a Vite config.
+- **Opt-out**: `"overlay": false` in `fast-serve/config.json` or `--no-overlay` turns the overlay off for compile and runtime errors; the overlay's hint names this option instead of a Vite config.
 - Bundle load failures show a readable `[fast-serve]` message in the web part's error box instead of SharePoint's `[object Object]`, and the page reloads after the next file change.
 
 ## Rationale

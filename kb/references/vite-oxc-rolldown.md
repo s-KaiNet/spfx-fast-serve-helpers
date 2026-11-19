@@ -24,6 +24,7 @@ tags:
 - **HTTPS means HTTP/2.** Vite 8 always serves HTTP/2 when HTTPS is on (even with a `server.proxy` entry). The skipped page-load hang was a stall inside Chrome on that HTTP/2 connection; serving HTTP/1.1 is the likely fix if it returns (see [Known issues](../limitations/known-issues.md)).
 - Serving into a foreign page needs `appType: 'custom'`, `server.origin` (so asset URLs are absolute on the dev server) and explicit `optimizeDeps.entries` (there is no `index.html` to crawl).
 - `server.forwardConsole` forwards everything the page logs, SharePoint's own errors included, which is why `fast-serve` replaces it with its own project-only forwarding (see [Error reporting](../decisions/error-reporting.md)).
+- Node prints an `UnsupportedWarning` "Status message is not supported by HTTP/2" when a response sets a status message on an HTTP/2 connection; the `fast-serve` CLI filters exactly that warning.
 - Native ES modules evaluate sibling async (top-level-await) modules in parallel, and **ESM caches evaluation errors**: a module that failed to evaluate stays failed until the page reloads; HMR can't recover it because its URL doesn't change.
 
 ### Oxc transform and tsconfig
@@ -54,6 +55,14 @@ tags:
 - **Top-level await inside pre-bundles:** facade awaits stay at the top level in import order (scope-hoisted), ESM cycles evaluate correctly, and no deadlock is possible because the awaits only wait on RequireJS outside the ESM graph. A TLA module reached through CommonJS `require()` is a build error (`REQUIRE_TLA`), hence the separate synchronous facade plus one parallel preload per chunk; without that preload, three sibling awaits ran sequentially (154 ms vs 52 ms). Rolldown keeps unused property reads (harmless bloat).
 - `optimizeDeps.holdUntilCrawlEnd: false` changed neither speed nor the stall in the benchmark.
 
+### Config file loading (used for `fast-serve/vite.extend.mts`)
+
+- Passing a file as `configFile` makes Vite bundle it with Rolldown (TypeScript, ESM or CJS; local imports inlined, `node_modules` imports external), merge it under the inline config, add its plugins, and watch the file plus its local dependencies (also outside the root): a change restarts the server and re-reads the file. Vite only knows the path it started with, so adding or deleting the file needs a full restart by the caller.
+- `configLoader: 'bundle'` is pinned explicitly so a future change of Vite's default (the native loader) doesn't change behavior. With a `.ts` config in a CommonJS package Vite warns that the native loader would not parse ESM syntax there; `.mts` with explicit extensions on relative imports gives no warning.
+- Merge order: user file < inline config < plugin `config()` results in plugin order; within an `enforce` bucket the file's plugins come before the caller's. Later hooks win for scalars, arrays concatenate, objects deep-merge. Plugins returned from a `config()` hook are ignored (Vite flattens plugins before running hooks).
+- In dev, user `define` entries are not inlined into source: `/@vite/env` (imported by Vite's client) assigns them to `globalThis` before component code runs. Values must be standalone expressions; keys must be identifiers or member paths. `define` is not part of the dependency optimizer's hash, but changed plugins or aliases re-run pre-bundling once.
+- Vite restarts on `.env*` changes in the root with or without a config file.
+
 ### Warmup
 
 - `server.warmup.clientFiles` for all of `src` saved about 1.3 s on a cold load in the PoC benchmark, at ~3 s of CPU after "ready", but in the package it competed with the first pre-bundling and transformed unused files. A later warmup of only the entry import graph transformed Sass partials as root stylesheets (they are `asset` entries in Vite's module graph), which fails with "Undefined variable"; `fast-serve` therefore uses no warmup (see [Unbundled dev server without startup warmup](../decisions/unbundled-dev-without-warmup.md)).
@@ -76,6 +85,6 @@ tags:
 
 ## Evidence
 
-- Source: research (tsconfig/decorators experiments comparing tsc and Oxc output, top-level-await externals prototype with offline Rolldown edge cases and live checks, library CSS investigation in Vite's optimizer, benchmark), project handoff notes, implementation behavior
+- Source: research (tsconfig/decorators experiments comparing tsc and Oxc output, top-level-await externals prototype with offline Rolldown edge cases and live checks, library CSS investigation in Vite's optimizer, Vite extensibility prototype, benchmark), project handoff notes, implementation behavior
 - Confidence: high (observed with Vite 8.3.8 and Rolldown 1.2.19); upstream bug status may change
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

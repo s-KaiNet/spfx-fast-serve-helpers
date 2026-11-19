@@ -39,11 +39,13 @@ tags:
 
 ### Facades
 
-- **ESM facade** (any `import` of a library or external, in project code or in pre-bundled ES modules): awaits the loader at the top level, then re-exports `default` and the known named exports. Native ESM evaluates sibling async modules in parallel, so several facades load concurrently. A module that imports a facade evaluates only after that library is loaded.
-- **CommonJS facade** (`require()` calls inside pre-bundled dependencies): returns the already-loaded value synchronously. A plain top-level-await facade would make Rolldown fail with `REQUIRE_TLA` on CommonJS code.
+- **ESM facade for SPFx libraries** (any `import` of a library, in project code or in pre-bundled ES modules): awaits the loader at the top level, then re-exports `default` and the library's known named exports. Native ESM evaluates sibling async modules in parallel, so several facades load concurrently. A module that imports a facade evaluates only after that library is loaded.
+- **ESM facade for `config.json` externals**: awaits the loader the same way but declares no named exports, because no names are read from installed packages. It exposes the default export (`module.default` when the loaded module has `__esModule`, otherwise the module itself), the raw module as RequireJS returned it, and a webpack-like namespace (the module's properties plus `default`) for dynamic `import()`.
+- **Import rewriting for `config.json` externals**: in project modules, named imports, namespace imports and re-exports of an external are rewritten to read properties of the raw loaded module when the importing code runs, like webpack's output does. A name the script doesn't define is `undefined` rather than a link error. `export *` from an external can't be expressed (the names exist only at runtime), so it re-exports nothing and a warning asks to re-export the needed names. Inside pre-bundled dependencies every import of an external goes through the CommonJS facade, which gives the same webpack-like semantics.
+- **CommonJS facade** (`require()` calls inside pre-bundled dependencies, and every import of a `config.json` external there): returns the already-loaded value synchronously. A plain top-level-await facade would make Rolldown fail with `REQUIRE_TLA` on CommonJS code.
 - **Per-chunk preload**: after pre-bundling, every chunk that contains facades gets one `await` of a parallel preload of all libraries and externals it uses, prepended at the top. This guarantees the synchronous facades find their value and turns sequential awaits into one parallel wait (154 ms → 52 ms for three libraries in measurements).
 - Facades only await RequireJS, which is outside the ESM graph, so they cannot create top-level-await deadlocks. Using a facade outside a page that loaded the bundle shim throws a clear error.
-- Type-only imports (for example `IReadonlyTheme`) are erased and load nothing, as in production webpack builds.
+- Type-only imports (for example `IReadonlyTheme`) are erased and load nothing, as in production webpack builds. The type-only re-export guard skips `config.json` externals, since their names are only known at runtime.
 - Consequences: dynamic `import('@microsoft/sp-…')` works; adding a new SPFx import during a session hot-updates instead of reloading; HMR does not re-evaluate facades; a failed facade stays failed until the page reloads; unrelated modules may evaluate before libraries they don't import.
 
 ### Why on-demand loading
@@ -63,4 +65,4 @@ On-demand facades were chosen over preloading the libraries in the shim: the com
 
 - Source: top-level-await externals research (verified live on a SharePoint Online tenant serving SPFx 1.25.0 with a 1.24.1 project, and offline with Rolldown), project handoff notes, implementation behavior (externals and project model components, library loader runtime)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

@@ -23,7 +23,7 @@ Users switch between `heft start` and `fast-serve` in the same project and the s
 ## Decision
 
 - `--config` / `--serve-config` select a `serveConfigurations` entry; an unknown name **warns with the available names and falls back to `default`**, like heft.
-- Page order: the named configuration's `pageUrl` (other than `default`) > the `pageUrl` option (`--page-url`, then `config/fast-serve.json`) > `serveConfigurations.default.pageUrl` > `initialPage`.
+- Page order: the named configuration's `pageUrl` (other than `default`) > the `pageUrl` option (`--page-url`, then `fast-serve/config.json`) > `serveConfigurations.default.pageUrl` > `initialPage`.
 - The debug parameters **replace the page URL's own query**; a `#hash` is kept.
 - Extension configurations become `loadSPFX=true` plus `customActions` / `fieldCustomizers` JSON or the form customizer parameters, **without `debug=true`** (list pages fail to load debug scripts with both), as heft does.
 - Relative `./` icon paths are served from `src`; paths without `./` pass through as in heft.
@@ -36,7 +36,7 @@ Users switch between `heft start` and `fast-serve` in the same project and the s
 
 ## Consequences
 
-- `--config commands` opens its own list page even when `config/fast-serve.json` sets a `pageUrl`.
+- `--config commands` opens its own list page even when `fast-serve/config.json` sets a `pageUrl`.
 - A typo in `--config` does not stop the server; the warning must be noticed.
 - Editing `serve.json` requires a restart to get the new URL.
 - Heft's own bugs are not copied (for example heft 1.24.1 writes port 4321 into `manifests.js` regardless of `serve.json`).
@@ -46,7 +46,7 @@ Users switch between `heft start` and `fast-serve` in the same project and the s
 - [Serving web parts, extensions and ACEs](../features/serving-components.md)
 - [CLI, options and startup](../features/cli-and-options.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
-- [Zero-config CLI without a public Vite plugin API](zero-config-cli.md)
+- [Zero-config CLI with an optional Vite extend file](zero-config-cli.md)
 
 ## Evidence
 

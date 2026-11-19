@@ -41,7 +41,7 @@ SPFx 1.22+ builds with Heft; `heft start` rebuilds the whole solution on every e
 
 - [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
 - [Styles, theme tokens and asset typings](../features/styles-and-assets.md)
-- [Zero-config CLI without a public Vite plugin API](zero-config-cli.md)
+- [Zero-config CLI with an optional Vite extend file](zero-config-cli.md)
 - [Version policy: package follows the SPFx minor](version-policy.md)
 
 ## Evidence

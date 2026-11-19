@@ -7,6 +7,7 @@ import type { LibraryLoaderConfig, SpfxLibraryReference } from '../runtime/contr
 import { readRuntimeScript } from '../utils/runtimeSource.js';
 import { BARE_SPECIFIER_FILTER, isStyleRequest, sendJavaScript } from '../utils/vite.js';
 import { readExportNames } from './exportNames.js';
+import { externalImportsPlugin } from './externalImports.js';
 import {
   renderChunkPreload,
   renderCommonJsFacade,
@@ -17,6 +18,8 @@ import {
 
 export interface SpfxExternals {
   readonly plugin: Plugin;
+
+  readonly importsPlugin: Plugin;
 
   manifestScriptResources(): Record<string, ScriptResource>;
 
@@ -36,6 +39,10 @@ const FACADE_PREFIXES = {
 
 const FACADE_ID_FILTER = /spfx-(?:library|external)(?:-cjs)?:/;
 
+export function isConfigExternalFacadeId(id: string): boolean {
+  return id.startsWith(FACADE_PREFIXES.external) || id.startsWith(FACADE_PREFIXES.externalCommonJs);
+}
+
 type FacadeKind = keyof typeof FACADE_PREFIXES;
 
 interface FacadeId {
@@ -49,31 +56,25 @@ function configExternalPath(external: ConfigExternal): string {
 
 export function createExternals(context: ServeContext): SpfxExternals {
   const { project, logger } = context;
-  const exportNamesByPackage = new Map<string, Promise<string[]>>();
+  const exportNamesByLibrary = new Map<string, Promise<string[]>>();
 
   const findLibrary = (name: string): SpfxLibrary | undefined => project.libraries().get(name);
   const findConfigExternal = (name: string): ConfigExternal | undefined =>
     findLibrary(name) ? undefined : project.configExternals().get(name);
 
-  const exportNames = (packageDir: string, onError: (error: unknown) => void): Promise<string[]> => {
-    let names = exportNamesByPackage.get(packageDir);
+  const libraryExportNames = (library: SpfxLibrary): Promise<string[]> => {
+    let names = exportNamesByLibrary.get(library.packageDir);
     if (!names) {
-      names = readExportNames(packageDir).catch((error: unknown) => {
-        onError(error);
+      names = readExportNames(library.packageDir).catch((error: unknown) => {
+        logger.warn(`cannot read the exports of ${library.packageName}, only its default export is available: ${String(error)}`);
         return [];
       });
-      exportNamesByPackage.set(packageDir, names);
+      exportNamesByLibrary.set(library.packageDir, names);
     }
     return names;
   };
 
-  const libraryExportNames = (library: SpfxLibrary) =>
-    exportNames(library.packageDir, (error) => {
-      logger.warn(`cannot read the exports of ${library.packageName}, only its default export is available: ${String(error)}`);
-    });
-
-  const externalExportNames = (external: ConfigExternal) =>
-    external.packageDir === undefined ? Promise.resolve([]) : exportNames(external.packageDir, () => undefined);
+  const isConfigExternal = (name: string): boolean => findConfigExternal(name) !== undefined;
 
   const facadeId = (name: string, commonJs: boolean): string | null => {
     if (findLibrary(name)) return FACADE_PREFIXES[commonJs ? 'libraryCommonJs' : 'library'] + name;
@@ -95,14 +96,14 @@ export function createExternals(context: ServeContext): SpfxExternals {
     if (!external) return null;
     return facade.kind === 'externalCommonJs'
       ? renderExternalCommonJsFacade(external.name)
-      : renderExternalEsmFacade(external.name, await externalExportNames(external));
+      : renderExternalEsmFacade(external.name);
   };
 
   const prebundlePlugin: Rolldown.Plugin = {
     name: 'fast-serve:externals-prebundle',
     resolveId: {
       filter: { id: BARE_SPECIFIER_FILTER },
-      handler: (source, _importer, { kind }) => facadeId(source, kind === 'require-call'),
+      handler: (source, _importer, { kind }) => facadeId(source, kind === 'require-call' || isConfigExternal(source)),
     },
     load: { filter: { id: FACADE_ID_FILTER }, handler: loadFacade },
     renderChunk(code, chunk) {
@@ -151,6 +152,13 @@ export function createExternals(context: ServeContext): SpfxExternals {
       const runtime = await readRuntimeScript('libraryLoader');
       return ['(function () {', `var __SPFX_LIBRARY_LOADER__ = ${JSON.stringify(config)};`, runtime.trim(), '})();'].join('\n');
     },
+
+    importsPlugin: externalImportsPlugin({
+      root: context.root,
+      logger,
+      configExternalNames: () => project.configExternals().keys(),
+      isConfigExternal,
+    }),
 
     plugin: {
       name: 'fast-serve:externals',

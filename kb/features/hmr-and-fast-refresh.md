@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-HMR with React Fast Refresh is always on. Saving a file sends the changed module to the page; React components and styles update in place with state kept, while edits that reach the component class SharePoint instantiated (web part, extension or ACE class) reload the page. Project configuration changes reload the page, and a few tsconfig changes and `config/sass.json` edits restart the dev server. There is no option to turn HMR off.
+HMR with React Fast Refresh is always on. Saving a file sends the changed module to the page; React components and styles update in place with state kept, while edits that reach the component class SharePoint instantiated (web part, extension or ACE class) reload the page. Project configuration changes reload the page, and a few tsconfig changes, `config/sass.json` edits and edits of the Vite extend file restart the dev server. There is no option to turn HMR off.
 
 ## Behavior
 
@@ -38,7 +38,8 @@ HMR with React Fast Refresh is always on. Saving a file sends the changed module
 
 - A tsconfig change that alters the compiler options applied to the transform (`experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, `target`, `strict`, `strictNullChecks`) restarts the dev server; other tsconfig edits (such as `paths`) only invalidate modules and reload.
 - Editing the project's `config/sass.json` restarts the dev server so Vite's Sass compile picks up the new `silenceDeprecations`.
-- A changed serve configuration only changes the printed URL after a manual restart.
+- Editing `fast-serve/vite.extend.*` or a local file it imports restarts the dev server and reloads the page; adding or deleting the file restarts `fast-serve` entirely (see [Customizing the Vite config](vite-extend-file.md)).
+- A changed serve configuration or `fast-serve/config.json` only takes effect after a manual restart.
 
 ### Guidance for project code
 
@@ -77,4 +78,4 @@ HMR with React Fast Refresh is always on. Saving a file sends the changed module
 
 - Source: HMR guide, user docs, ACE and extensions research, project handoff notes, implementation behavior (loader and server components); verified live during acceptance (TSX hot update with state, SCSS swap, class edit → reload, ACE card view edit → reload)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

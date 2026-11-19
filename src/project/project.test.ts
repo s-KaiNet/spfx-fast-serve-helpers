@@ -215,7 +215,6 @@ describe('createProject', () => {
       {
         name: 'jquery',
         source: { type: 'url', url: 'https://code.jquery.com/jquery-3.7.1.min.js' },
-        packageDir: path.join(root, 'node_modules/jquery'),
       },
       {
         name: 'legacy-plugin',

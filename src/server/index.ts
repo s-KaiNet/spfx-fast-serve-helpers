@@ -24,7 +24,9 @@ export function serverPlugin(context: ServeContext, https: HttpsCredentials): Pl
     name: 'fast-serve:server',
     config: () => ({
       appType: 'custom',
+      base: '/',
       clearScreen: false,
+      experimental: { bundledDev: false },
       server: {
         host: 'localhost',
         port: options.port,

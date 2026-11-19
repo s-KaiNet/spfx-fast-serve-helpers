@@ -34,7 +34,14 @@ tags:
 
 - URL and local-file externals (`"jquery": "https://…"`, `"lib": "./lib/x.js"`, or `{ "path", "globalName", "globalDependencies" }`) are loaded by SharePoint's RequireJS like in heft; local files are served at `/@spfx/external/<name>.js` and watched (an edit reloads the page).
 - Validation warnings (the external is skipped): an entry without a path, a local file that doesn't exist (paths are relative to the project root), a `globalDependencies` entry that isn't a usable external (invalid, circular or an SPFx library). An external with the name of an SPFx library is ignored: the library wins.
-- Named imports from an external (`import { ajax } from 'jquery'`) only work when a package with that name is installed (its export names are used); otherwise use the default import.
+- Imports from an external behave like heft's webpack output, without reading anything from an installed package of the same name:
+  - `import { render } from 'ejs'` reads `render` from the loaded module when the importing module runs (`undefined` if the script doesn't define it);
+  - `import * as ejs from 'ejs'` is the module exactly as RequireJS returns it, so a function or class works when the script returns one;
+  - `import ApexCharts from 'apexcharts'` is `module.default` when the module has `__esModule`, otherwise the module itself;
+  - `export { render } from 'ejs'` and `export * as ejs from 'ejs'` work; `export * from 'ejs'` re-exports nothing (the names only exist at runtime) and `fast-serve` warns to re-export the needed names explicitly;
+  - `await import('ejs')` gives a webpack-like namespace: the module's properties plus `default`.
+- For an AMD module that sets `__esModule`, `import * as x` is the wrapper object, not its default export: use the default import, the same as with heft.
+- A script that defines nothing (returns `undefined`) loads without errors; only reading a name from it fails. If the browser still reports a missing export from an external, the message names the external and says the loaded script doesn't define that property.
 
 ## Implementation Notes
 
@@ -46,6 +53,7 @@ tags:
 - A library or facade that failed to load stays failed until the page reloads (ES module evaluation is cached).
 - Modules that don't import a library may evaluate before it is loaded; only importers wait.
 - Using a facade outside a page that loaded the bundle shim throws a clear error.
+- A tenant's Content Security Policy may block an external loaded from a CDN URL; that happens with heft too and is not specific to `fast-serve`.
 
 ## Links
 
@@ -58,6 +66,6 @@ tags:
 
 ## Evidence
 
-- Source: user docs, migration guide, top-level-await externals research (verified live with a 1.24.1 project on a tenant serving 1.25.0), implementation behavior (externals component, project model)
+- Source: user docs, migration guide, top-level-await externals research, implementation behavior (webpack-like external imports) (verified live with a 1.24.1 project on a tenant serving 1.25.0), implementation behavior (externals component, project model)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

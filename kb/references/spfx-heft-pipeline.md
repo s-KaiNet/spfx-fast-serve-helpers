@@ -25,6 +25,16 @@ How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse
 - Phase `build` runs: `sass` → `static-asset-typings` → `typescript` (src → `lib/` ESM with `target es5`, `jsx: react`, `importHelpers`, plus `lib-commonjs/` for jest) → `lint` and `copy-javascript` → `webpack`. The SPFx webpack tasks in `heft.json` are only hook registrations; the real work happens inside the single webpack task.
 - **Webpack bundles `lib/**/*.js` (TypeScript output), not `src/`.** The TS output keeps `import styles from './X.module.scss'`; webpack finds `X.module.scss.css` because `.css` is in `resolve.extensions`. SPFx libraries on npm (for example `@pnp/spfx-controls-react`) ship exactly this shape.
 - The webpack config is **generated in memory** from `config/config.json`; a local `webpack.config.js` is ignored while the SPFx plugin is active. Customization points without eject: `config/spfx-customize-webpack.js` (mutates the config last) and `config/webpack-patch.json` patch files.
+
+### Webpack customizations
+
+- `config/spfx-customize-webpack.js` exports a function (`module.exports` or `exports.default`) that heft calls **synchronously** with `(config, taskSession, heftConfiguration, webpack)`, where `webpack` is heft's own instance. The return value is ignored and a returned promise is not awaited, so only in-place mutation counts. It runs last.
+- `config/webpack-patch.json` lists `patchFiles` (paths relative to the project root, typically `config/webpack-patch/<name>.js`; the JSON itself is found with rig fallback). Each exports `fn(config)`; heft **awaits** them in order, **before** `spfx-customize-webpack.js`. A returned new object doesn't reach webpack either, so patches must mutate too.
+- Both run in `heft build` and in `heft start`; a throwing script fails the build. Before they run the config already holds SPFx's generated config, the third-party externals and, in serve mode, `devServer`.
+- Typical contents: `DefinePlugin` constants, `resolve.alias` entries pointing at `lib/` (webpack bundles the TypeScript output), extra loaders (Babel for lit, SVG, Less) and CSS rule tweaks. `fast-serve` doesn't run them; their dev counterpart lives in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](../features/vite-extend-file.md)).
+
+### Generator from plain Node
+
 - Heft's webpack configuration generator can be called from plain Node with serve mode on and production off: it returns entries and externals in about 0.7 s without a build. Useful for parity checks; `fast-serve` does not use it.
 - Cold dev build of the small test project ≈ 5 s (TypeScript 2.6 s, webpack 2.0 s).
 
@@ -58,6 +68,9 @@ Computed by heft, they become both the AMD `define` dependency list and the mani
 3. `config.json` `localizedResources` keys and `externals` keys.
 
 `tslib` and `@microsoft/load-themed-styles` are bundled. `config.json` `externals` appear in the manifest as `{ "type": "path", "path", "globalName"?, "globalDependencies"? }`: URLs as is, local files copied to `dist/`; `globalName` becomes a RequireJS `shim`.
+
+- In webpack's output a named import from a `config.json` external is a property read on the loaded module at runtime; `import * as x` of an AMD module that sets `__esModule` is the wrapper object, so its default is reached through the default import.
+- A tenant's Content Security Policy may block externals loaded from a CDN URL; that affects heft as much as `fast-serve`.
 
 ### Manifests and `manifests.js`
 
@@ -94,6 +107,7 @@ The consumer's `manifests.js` lists linked libraries' manifests with a base URL 
 
 ## Links
 
+- [Customizing the Vite config](../features/vite-extend-file.md)
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [SPFx development loop and what fast-serve replaces](../concepts/spfx-dev-loop.md)
@@ -103,6 +117,6 @@ The consumer's `manifests.js` lists linked libraries' manifests with a base URL 
 
 ## Evidence
 
-- Source: research (reverse engineering of `@microsoft/spfx-heft-plugins` 1.24.1 and sp-loader, `heft build`/`heft start` runs on the SPFx 1.24.1 test project, live observation on the tenant serving 1.25.0), project handoff notes
+- Source: research (reverse engineering of `@microsoft/spfx-heft-plugins` 1.24.1 and sp-loader, `@rushstack/heft-webpack5-plugin` webpack customization plugins, `heft build`/`heft start` runs on the SPFx 1.24.1 test project, live observation on the tenant serving 1.25.0), project handoff notes
 - Confidence: high (observed or read in shipped code); medium for export-name generation details
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

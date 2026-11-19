@@ -1,8 +1,8 @@
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
-import { loadOptionsFile, parsePort, resolveOptions } from './options.js';
+import { describe, expect, it, onTestFinished } from 'vitest';
+import { legacyOptionsFileHint, loadOptionsFile, parsePort, resolveOptions } from './options.js';
 
 describe('resolveOptions', () => {
   it('uses built-in defaults with zero config', () => {
@@ -118,8 +118,8 @@ describe('resolveOptions', () => {
 
 function projectWith(content?: string): string {
   const root = mkdtempSync(path.join(tmpdir(), 'fast-serve-options-'));
-  mkdirSync(path.join(root, 'config'));
-  if (content !== undefined) writeFileSync(path.join(root, 'config', 'fast-serve.json'), content);
+  mkdirSync(path.join(root, 'fast-serve'));
+  if (content !== undefined) writeFileSync(path.join(root, 'fast-serve', 'config.json'), content);
   return root;
 }
 
@@ -137,5 +137,30 @@ describe('loadOptionsFile', () => {
     expect(() => loadOptionsFile(projectWith('{ "open": true }'))).toThrow(/unknown option.*"open"/);
     expect(() => loadOptionsFile(projectWith('{ "port": "4321" }'))).toThrow(/"port"/);
     expect(() => loadOptionsFile(projectWith('{ "overlay": "no" }'))).toThrow(/"overlay"/);
+  });
+});
+
+function projectWithFiles(files: string[]): string {
+  const root = mkdtempSync(path.join(tmpdir(), 'fast-serve-legacy-'));
+  onTestFinished(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+  for (const file of files) {
+    mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    writeFileSync(path.join(root, file), '{ "port": 4500 }');
+  }
+  return root;
+}
+
+describe('legacyOptionsFileHint', () => {
+  it('asks to move config/fast-serve.json without reading it', () => {
+    const root = projectWithFiles(['config/fast-serve.json']);
+    expect(legacyOptionsFileHint(root)).toBe('config/fast-serve.json is not read anymore: move it to fast-serve/config.json (same options)');
+    expect(loadOptionsFile(root)).toEqual({});
+  });
+
+  it('stays silent when fast-serve/config.json exists or there is no old file', () => {
+    expect(legacyOptionsFileHint(projectWithFiles(['config/fast-serve.json', 'fast-serve/config.json']))).toBeUndefined();
+    expect(legacyOptionsFileHint(projectWithFiles([]))).toBeUndefined();
   });
 });

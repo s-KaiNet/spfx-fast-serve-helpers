@@ -27,6 +27,7 @@ Short definitions of SPFx, SharePoint, Vite and project terms used across the KB
 | `exportName` | `loaderConfig` field naming the module property holding a component's class in a multi-component bundle | [manifests and loader](component-manifests-and-loader.md) |
 | Extension | Application Customizer, ListView Command Set, Field Customizer or Form Customizer | [component types](spfx-component-types.md) |
 | Externals | imports that are never bundled and are resolved by the page (`sp-*`, React, loc strings, `config.json` `externals`) | [manifests and loader](component-manifests-and-loader.md) |
+| `fast-serve/` folder | the project folder holding all `fast-serve` files: `config.json` (options) and the optional `vite.extend.mts` | [CLI and options](../features/cli-and-options.md) |
 | Facade | the module `fast-serve` serves in place of an SPFx library import; it obtains the page's instance via `loadComponentById` | [manifests and loader](component-manifests-and-loader.md) |
 | Fast Refresh | React's hot update mechanism that keeps component state | [HMR](hmr-and-vite-terms.md) |
 | Full reload | reloading the SharePoint page when no module accepts an update | [HMR](hmr-and-vite-terms.md) |
@@ -48,7 +49,9 @@ Short definitions of SPFx, SharePoint, Vite and project terms used across the KB
 | `spfx-debug` | the `sessionStorage` key that makes debug mode sticky for a tab | [debug flow](sharepoint-debug-flow.md) |
 | SPFx library | any package shipping an SPFx library manifest (`@microsoft/sp-*`, ACE base, built library components) | [manifests and loader](component-manifests-and-loader.md) |
 | Theme token | `"[theme:name, default:value]"` in CSS, resolved from the page theme by `loadStyles` | [styles, localization, assets](styles-localization-assets.md) |
+| Vite extend file | `fast-serve/vite.extend.mts`, an optional Vite config merged under `fast-serve`'s settings; the dev counterpart of a webpack customization | [Vite config](../features/vite-extend-file.md) |
 | Warmup | transforming modules before the browser asks for them; not used by `fast-serve` | [HMR](hmr-and-vite-terms.md) |
+| Webpack customization | heft's `config/spfx-customize-webpack.js` or `config/webpack-patch.json` patch files that mutate SPFx's webpack config; not run by `fast-serve` | [heft pipeline](../references/spfx-heft-pipeline.md) |
 
 ## Links
 

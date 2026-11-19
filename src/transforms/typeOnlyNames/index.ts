@@ -3,6 +3,7 @@ import path from 'node:path';
 import { init } from 'es-module-lexer';
 import type { DevEnvironment, Plugin } from 'vite';
 import type { ServeContext } from '../../context.js';
+import { isConfigExternalFacadeId } from '../../externals/index.js';
 import { isInside, toPosix, toRootUrl } from '../../utils/paths.js';
 import { withoutQuery } from '../../utils/vite.js';
 import { isProjectScript, NODE_MODULES_ID, PROJECT_SCRIPT_ID } from '../projectSource.js';
@@ -122,7 +123,7 @@ async function findMissingNames<T extends ImportedName>(root: string, entries: r
 async function readRuntimeExports(environment: DevEnvironment, request: string, modulesBeingChecked: ReadonlySet<string>, visited = new Set<string>()): Promise<RuntimeExports> {
   if (visited.has(request)) return { names: new Set(), complete: true };
   visited.add(request);
-  if (modulesBeingChecked.has(request)) return UNKNOWN_EXPORTS;
+  if (modulesBeingChecked.has(request) || isConfigExternalFacadeId(request)) return UNKNOWN_EXPORTS;
 
   const transformed = await environment.transformRequest(request).catch(() => null);
   if (!transformed) return UNKNOWN_EXPORTS;

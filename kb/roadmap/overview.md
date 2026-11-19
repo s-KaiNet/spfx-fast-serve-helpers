@@ -13,14 +13,16 @@ tags:
 
 ## Summary
 
-`spfx-fast-serve-helpers` `1.24.0-beta.0` is feature-complete for its planned scope: web parts, extensions and ACEs of SPFx 1.24.x, with HMR and React Fast Refresh. What remains is one user verification (VS Code F5), the release decision, and a set of researched or deferred items. Nothing is pushed or published until the user decides; every next step starts only after the user agrees to it.
+`spfx-fast-serve-helpers` `1.24.0-beta.1` is feature-complete for its planned scope: web parts, extensions and ACEs of SPFx 1.24.x, with HMR and React Fast Refresh. What remains is one user verification (VS Code F5), the release decision, and a set of researched or deferred items. Nothing is pushed or published until the user decides; every next step starts only after the user agrees to it.
 
 ## Current Knowledge
 
 ### Status
 
-- All planned phases are done: the web part core (manifests, bundle shim, on-demand SPFx library facades, styles, localization, typings, certificate, options, version check), the follow-up phase (tsconfig `paths`, static-asset typings, `config.json` externals, TypeScript loc files, docs, performance) and the "Next" phase (project-only error forwarding, `const enum`/decorator checks, extensions with `serveConfigurations`, runtime errors in Vite's overlay with the `overlay` option, ACEs, removal of the startup warmup, `config/sass.json` `silenceDeprecations` in Vite's Sass compile).
-- Release acceptance was run on a fresh tarball in both test projects on the test tenant and passed; the overlay work was verified live afterwards (see [Local testing and consumer setup](../operations/local-testing-and-consumer-setup.md)).
+- All planned phases are done: the web part core (manifests, bundle shim, on-demand SPFx library facades, styles, localization, typings, certificate, options, version check), the follow-up phase (tsconfig `paths`, static-asset typings, `config.json` externals, TypeScript loc files, docs, performance) and the "Next" phase (project-only error forwarding, `const enum`/decorator checks, extensions with `serveConfigurations`, runtime errors in Vite's overlay with the `overlay` option, ACEs, removal of the startup warmup, `config/sass.json` `silenceDeprecations` in Vite's Sass compile, Sass `pkg:` URLs, webpack-like imports from `config.json` externals, hiding Node's HTTP/2 status-message warning).
+- Webpack customization support is done the user's way: the options file moved to `fast-serve/config.json`, the optional `fast-serve/vite.extend.mts` with a minimal public `defineConfig` entry, the startup hint for heft webpack customizations and the shipped `fast-serve-vite-config` agent skill (see [Customizing the Vite config](../features/vite-extend-file.md)). Translating webpack customizations was researched and rejected.
+- Live SharePoint debugging is packaged as the `spfx-debugging` agent skill (see [Live verification on a SharePoint tenant](../operations/live-verification.md)).
+- Release acceptance was run on a fresh tarball in both test projects on the test tenant and passed; the overlay work was verified live afterwards. The changes since then (extend file, externals imports, Sass `pkg:`) are covered by unit and integration tests; the Vite extend file design was verified live as a prototype, and a full acceptance run on the current version has not been recorded (see [Local testing and consumer setup](../operations/local-testing-and-consumer-setup.md)).
 - Cut by the user: theme-change monitoring and the `@pnp/spfx-property-controls` 3.13 already-hashed CSS case (see [Scope cuts](../decisions/scope-cuts.md)).
 
 ### Pending user actions
@@ -31,6 +33,7 @@ tags:
 | Decide whether to push the work and publish the package | open; nothing is pushed or published |
 | Agree the library components design | open; research done, option B recommended (see [Library components](library-components.md)) |
 | Decide on SPFx 1.23 support | open; research done, one package for 1.23–1.24 recommended (see [SPFx 1.23 support](spfx-1-23-support.md)) |
+| Type checking while serving with tsgo (the native TypeScript compiler), as an optional feature | idea only, discussed but not researched; today type checking is out of scope (see [Dev server only](../decisions/dev-server-only.md)) |
 
 ### Next steps (in order, each after the user agrees)
 
@@ -63,4 +66,4 @@ tags:
 
 - Source: project handoff notes (status, open issues, "Later" list, next steps), user instructions
 - Confidence: stated
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

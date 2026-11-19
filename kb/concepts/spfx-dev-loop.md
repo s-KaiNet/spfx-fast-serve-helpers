@@ -33,7 +33,7 @@ SPFx 1.22+ projects build with Heft. `heft start` is the classic development loo
 
 ### What `fast-serve` changes
 
-- `fast-serve` is a zero-config CLI from `spfx-fast-serve-helpers` that runs Vite programmatically. There is no user `vite.config` and no webpack.
+- `fast-serve` is a zero-config CLI from `spfx-fast-serve-helpers` that runs Vite programmatically. There is no user `vite.config` and no webpack; heft webpack customizations don't apply, and their development counterpart goes into the optional `fast-serve/vite.extend.mts` (see [Customizing the Vite config](../features/vite-extend-file.md)). Options live in `fast-serve/config.json`.
 - Nothing is bundled up front: the browser loads each source file as a native ES module, transformed on request. Server start takes about a second or less; an edit reaches the page in tens of milliseconds as a hot update.
 - It produces the same public contract SharePoint needs from `heft start`: `/temp/build/manifests.js` on `https://localhost:<port>`, component manifests and a classic AMD script per bundle. The AMD script is a small shim that hands over to the ES module graph.
 - It writes only typings (`temp/sass-ts`, `temp/static-asset-ts`) so the IDE knows new style classes and assets; no `lib/`, `dist/` or packaging output.
@@ -70,4 +70,4 @@ SPFx 1.22+ projects build with Heft. `heft start` is the classic development loo
 
 - Source: research (reverse-engineered SPFx 1.24.1 Heft pipeline and `heft start`), project docs, implementation behavior
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

@@ -153,13 +153,13 @@ describe('overlayError', () => {
 });
 
 describe('overlay hint', () => {
-  it('points the hint of Vite\'s overlay at config/fast-serve.json', () => {
+  it('points the hint of Vite\'s overlay at fast-serve/config.json', () => {
     const clientFile = createRequire(import.meta.url).resolve('vite').replace(/dist[\\/]node[\\/]index\.js$/, 'dist/client/client.mjs');
     const client = readFileSync(clientFile, 'utf8');
     expect(client).toContain('const hmrConfigName = __HMR_CONFIG_NAME__;');
     expect(client).toContain('h("code", { part: "config-option-name" }, "server.hmr.overlay")');
     const rewritten = rewriteOverlayHint(client);
-    expect(rewritten).toContain('const hmrConfigName = "config/fast-serve.json";');
+    expect(rewritten).toContain('const hmrConfigName = "fast-serve/config.json";');
     expect(rewritten).toContain('h("code", { part: "config-option-name" }, "overlay")');
   });
 });
@@ -214,7 +214,7 @@ describe('describeBrowserError in Vite', () => {
       return code;
     };
     const enabled = await clientCode(true);
-    expect(enabled).toContain('const hmrConfigName = "config/fast-serve.json";');
+    expect(enabled).toContain('const hmrConfigName = "fast-serve/config.json";');
     expect(enabled).toContain('"overlay")');
     expect(enabled).toContain('const enableOverlay = true;');
     expect(await clientCode(false)).toContain('const enableOverlay = false;');

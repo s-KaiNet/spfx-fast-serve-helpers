@@ -26,7 +26,7 @@ set -a; [ -f ./.env ] && . ./.env; set +a
 | `SPFX_DEBUG_CHROME` | no | Chrome binary; default: newest agent-browser-managed Chrome (`~/.agent-browser/browsers/chrome-*/chrome`), then `google-chrome`/`chromium` on PATH |
 | `SPFX_DEBUG_CDP_PORT` | no | Chrome remote debugging port, default `9333` |
 | `SPFX_DEBUG_DEV_SERVER_PORT` | no | dev server port, default `4321` |
-| `SPFX_SERVE_TENANT_DOMAIN` | no | read by fast-serve and heft for `{tenantDomain}` in `config/serve.json` / `config/fast-serve.json` |
+| `SPFX_SERVE_TENANT_DOMAIN` | no | read by fast-serve and heft for `{tenantDomain}` in `config/serve.json` / `fast-serve/config.json` |
 
 If a variable needed for the task is missing, **stop and ask the user**. Never guess tenant URLs, page URLs or profile paths, and never invent a profile. `.env` is git-ignored; `.env.example` lists the keys.
 

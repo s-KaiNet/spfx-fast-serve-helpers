@@ -7,11 +7,17 @@
     "fast-serve": "lib/cli.js"
   },
   "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
     "./package.json": "./package.json"
   },
+  "types": "./lib/index.d.ts",
   "files": [
     "lib",
-    "!lib/**/*.test.*"
+    "!lib/**/*.test.*",
+    "skills"
   ],
   "engines": {
     "node": ">=22.14.0 <23.0.0 || >=24.0.0 <25.0.0 || >=26.0.0 <27.0.0"
@@ -19,7 +25,7 @@
   "packageManager": "pnpm@12.11.2",
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
-    "build": "pnpm clean && tsc -p tsconfig.build.json && tsc -p src/runtime/tsconfig.json",
+    "build": "pnpm clean && tsc -p tsconfig.build.json && tsc -p tsconfig.types.json && tsc -p src/runtime/tsconfig.json",
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p src/runtime/tsconfig.json --noEmit",
     "lint": "oxlint --type-aware --deny-warnings",

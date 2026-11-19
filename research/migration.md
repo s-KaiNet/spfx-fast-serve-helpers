@@ -25,11 +25,12 @@
      "serve": "fast-serve"
    }
    ```
-4. Optionally set the page to open in `config/fast-serve.json`. Without it, `fast-serve` uses `config/serve.json` (`port`, the `serveConfigurations` page and extension parameters, `initialPage`), like `heft start`. `heft start --serve-config <name>` becomes `fast-serve --config <name>`. A serve configuration's own `pageUrl` wins over this `pageUrl` (the option replaces `serveConfigurations.default.pageUrl` and `initialPage`), so `--config <list configuration>` still opens its list:
+4. Optionally set the page to open in `fast-serve/config.json` (all `fast-serve` files of a project live in its `fast-serve/` folder). Without it, `fast-serve` uses `config/serve.json` (`port`, the `serveConfigurations` page and extension parameters, `initialPage`), like `heft start`. `heft start --serve-config <name>` becomes `fast-serve --config <name>`. A serve configuration's own `pageUrl` wins over this `pageUrl` (the option replaces `serveConfigurations.default.pageUrl` and `initialPage`), so `--config <list configuration>` still opens its list:
    ```json
    { "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx" }
    ```
-5. Run `npm run serve`, open the printed URL and click **Load debug scripts**.
+5. If the project customizes heft's webpack config (`config/spfx-customize-webpack.js`, `config/webpack-patch.json`), mirror what matters in development in `fast-serve/vite.extend.mts` ([vite-config.md](vite-config.md)); `fast-serve` prints a hint at start until the file exists.
+6. Run `npm run serve`, open the printed URL and click **Load debug scripts**.
 
 `heft start` and `fast-serve` use the same port by default (4321), so run only one of them at a time.
 
@@ -39,8 +40,9 @@ The classic spfx-fast-serve wrapped SPFx's gulp/webpack build. SPFx 1.22 replace
 
 1. Upgrade the project to SPFx 1.24 (for example with the CLI for Microsoft 365: `m365 spfx project upgrade`). Check that `heft build` works before you continue.
 2. Remove the old setup:
-   - the `fast-serve/` folder (`config.json`, `webpack.extend.js`);
+   - the old `fast-serve/config.json` (its `serve` options map to the new options below) and `fast-serve/webpack.extend.js` (its development-relevant parts go to `fast-serve/vite.extend.mts`);
    - `spfx-fast-serve-helpers` 1.21 (or earlier) from `devDependencies`.
+   The new package keeps the `fast-serve/` folder: `fast-serve/config.json` (options) and `fast-serve/vite.extend.mts` (optional Vite config).
 3. Follow [From `heft start`](#from-heft-start-spfx-122). The script name stays the same: `"serve": "fast-serve"`.
 
 Old settings (`fast-serve/config.json` `serve` section or CLI flags) and what replaces them:
@@ -51,13 +53,13 @@ Old settings (`fast-serve/config.json` `serve` section or CLI flags) and what re
 | `openUrl` | `pageUrl` (`--page-url`). The URL is printed with the debug query, not opened |
 | `locale` | `locale` (`--locale`) |
 | `hotRefresh` | always on: HMR with React Fast Refresh |
-| `config` (serve configuration) | `--config <name>` (or `"serveConfiguration"` in `config/fast-serve.json`): the `config/serve.json` `serveConfigurations` entry, as in heft (`--serve-config`) |
+| `config` (serve configuration) | `--config <name>` (or `"serveConfiguration"` in `fast-serve/config.json`): the `config/serve.json` `serveConfigurations` entry, as in heft (`--serve-config`) |
 | `isLibraryComponent` | not supported yet |
 | `fullScreenErrors` | `overlay` (`--no-overlay` to turn it off): compile errors and runtime errors from your code show in Vite's error overlay and the terminal |
 | `eslint` | not included: run ESLint separately |
 | `loggingLevel`, `debug`, `memory`, `reactProfiling` | removed |
 | `containers` | not supported yet (Docker/WSL) |
-| `webpack.extend.js` | no equivalent: there's no webpack, and `fast-serve` configures Vite itself (zero config) |
+| `webpack.extend.js` | `fast-serve/vite.extend.mts`, a Vite config merged into `fast-serve`'s ([vite-config.md](vite-config.md)): `webpackConfig` → the exported config, `transformConfig` → a Vite plugin with a `config()` hook. Optional: `fast-serve` configures Vite itself |
 
 ## What's different in development
 

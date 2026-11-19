@@ -21,7 +21,9 @@ type ShimLastServerError = import('./contracts.js').LastServerError;
 type ShimServerStatus = import('./contracts.js').ServerStatus;
 
 const MODULE_FETCH_FAILURE = /dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
-const MISSING_EXPORT = /does not provide an export named '([^']+)'|import not found: ([\w$]+)/;
+const MISSING_EXPORT = /(?:requested module '([^']*)' )?does not provide an export named '([^']+)'|import not found: ([\w$]+)/;
+const CONFIG_EXTERNAL_MODULE = /spfx-external(?:-cjs)?:([^?#]+)/;
+const CONFIG_EXTERNALS_DOCS = 'https://github.com/s-KaiNet/spfx-fast-serve-helpers#configjson-externals';
 const STATUS_POLL_MS = 1000;
 const UNREACHABLE_POLL_MAX_MS = 30_000;
 const UNREACHABLE_GIVE_UP_MS = 10 * 60_000;
@@ -83,7 +85,14 @@ function formatServerError(serverError: ShimLastServerError): string {
 const FAST_SERVE_PREFIX = '[fast-serve] ';
 const REPORTED_IN_TERMINAL = Symbol.for('fast-serve.reported-in-terminal');
 
-function missingExportHint(name: string): string {
+function missingExportHint(name: string, moduleUrl: string | undefined): string {
+  const configExternal = moduleUrl === undefined ? undefined : CONFIG_EXTERNAL_MODULE.exec(moduleUrl)?.[1];
+  if (configExternal !== undefined) {
+    return (
+      `. "${name}" is not provided by the config/config.json external "${decodeURIComponent(configExternal)}" ` +
+      `(the loaded script doesn't define that property). See ${CONFIG_EXTERNALS_DOCS}`
+    );
+  }
   return (
     `. "${name}" has no runtime value in that module: it is probably a TypeScript-only declaration imported without \`type\` ` +
     '(an interface, a type, or a `const enum` that only exists in .d.ts files, which heft inlines but fast-serve compiles file by file). ' +
@@ -102,7 +111,7 @@ async function toBundleLoadError(error: unknown): Promise<Error> {
       : `${reason}. A module failed to compile (syntax or transform error) or the dev server is not reachable: check the fast-serve terminal`;
   }
   const missingExport = MISSING_EXPORT.exec(reason);
-  if (missingExport) reason += missingExportHint(missingExport[1] ?? missingExport[2] ?? '');
+  if (missingExport) reason += missingExportHint(missingExport[2] ?? missingExport[3] ?? '', missingExport[1]);
   if (status) {
     reloadAfterNextFileChange(status.fileRevision);
     reason += ' (the page reloads after the next file change)';

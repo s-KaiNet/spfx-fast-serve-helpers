@@ -33,6 +33,7 @@ export function fastServePlugins(context: ServeContext, https: HttpsCredentials)
     stylesPlugin(context),
     scssTypingsPlugin(context),
     assetTypingsPlugin(context),
+    externals.importsPlugin,
     ...transformPlugins(context),
     react(),
   ];

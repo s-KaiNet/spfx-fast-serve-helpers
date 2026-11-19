@@ -29,7 +29,7 @@ The package is a Node ESM CLI plus a small browser runtime, developed with pnpm,
 
 | Script | What it does |
 |---|---|
-| `pnpm build` | cleans `lib/`, then compiles the Node code and the browser runtime with TypeScript 7 (two separate compilations) |
+| `pnpm build` | cleans `lib/`, then compiles the Node code, the type declarations of the public entry (`defineConfig` and types) and the browser runtime with TypeScript 7 |
 | `pnpm dev` | watch build of the Node code only; run `pnpm build` after changing browser runtime code |
 | `pnpm typecheck` | type-checks both the Node code and the runtime without emitting |
 | `pnpm lint` | `oxlint --type-aware --deny-warnings` (type-aware rules via `oxlint-tsgolint`; any warning fails) |
@@ -42,7 +42,7 @@ The lint configuration (`.oxlintrc.json`) turns the correctness, suspicious and 
 
 - **Node code**: strict TypeScript, `NodeNext` modules (relative imports carry `.js` extensions), ES2023, `verbatimModuleSyntax`. Source maps are on for local development, off in the published build; test files are excluded from the build.
 - **Browser runtime**: its own DOM-only configuration (no Node types), ES2022, compiled into a runtime folder inside `lib/`. These files are served to, or concatenated into generated scripts for, the SharePoint page (the bundle shim, the library loader, themed styles, browser error reporting). When tests run from sources, runtime files are transpiled on the fly, so tests don't need a prior build.
-- The published package contains only `lib/` without test files; `package.json` `exports` exposes only `./package.json`, and the `fast-serve` bin is the entry point.
+- The published package contains `lib/` without test files, plus the `skills/` folder with the `fast-serve-vite-config` agent skill. `package.json` `exports` exposes the public entry (`defineConfig` and types, with declarations emitted for that entry only) and `./package.json`; the `fast-serve` bin is the CLI entry point. Current version: `1.24.0-beta.1`.
 
 ### Conventions
 
@@ -71,4 +71,4 @@ The lint configuration (`.oxlintrc.json`) turns the correctness, suspicious and 
 
 - Source: package manifest and TypeScript/oxlint configs, package code layout notes, repository agent instructions, project handoff notes
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

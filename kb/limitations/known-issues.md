@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-Open problems that are not design limits: a Field Customizer that the test tenant never instantiates (with `heft start` too), an occasional page-load hang seen before the error-forwarding rework (skipped; HTTP/1.1 is the likely fix if it returns), gaps in terminal error forwarding, an overlay hint that depends on the text of Vite's client, and an unverified VS Code F5 setup. Each entry states the cause, status and what to do.
+Open problems that are not design limits: a Field Customizer that the test tenant never instantiates (with `heft start` too), an occasional page-load hang seen before the error-forwarding rework (skipped; HTTP/1.1 is the likely fix if it returns), gaps in terminal error forwarding, an overlay hint that depends on the text of Vite's client, possible drift between a webpack customization and the Vite extend file, and an unverified VS Code F5 setup. Each entry states the cause, status and what to do.
 
 ## Current Knowledge
 
@@ -37,13 +37,18 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 
 ### Overlay footer hint depends on Vite's client text (status: fragile)
 
-- The overlay's hint is redirected to the `overlay` option of `config/fast-serve.json` by rewriting two text tokens of Vite's client. A Vite upgrade that changes that text silently drops the hint (the overlay still works); a unit test checks the tokens exist in the installed Vite. Recheck when bumping Vite.
+- The overlay's hint is redirected to the `overlay` option of `fast-serve/config.json` by rewriting two text tokens of Vite's client. A Vite upgrade that changes that text silently drops the hint (the overlay still works); a unit test checks the tokens exist in the installed Vite. Recheck when bumping Vite.
 
 ### Other fragile dependencies
 
 - `@microsoft/sp-lodash-subset` ships an AMD blob in its ESM folder; its export names are read by evaluating it.
 - Oxc's automatic tsconfig lookup must stay off (the SPFx rig's `importsNotUsedAsValues: "remove"` would keep type-only imports).
 - Plugins used in pre-bundling need hook filters, or pre-bundling gets about twice as slow.
+- Deleting a loaded `fast-serve/vite.extend.*` while running relies on detaching the file from Vite's own config-restart bookkeeping before the full restart; recheck on Vite upgrades.
+
+### Vite extend file can drift from the webpack customization (status: by design)
+
+- Once `fast-serve/vite.extend.*` exists, the startup hint is silent; a later change to the heft webpack customization is not detected. Importing the same helpers in both files, and the shipped `fast-serve-vite-config` agent skill referenced from the project's `AGENTS.md`, are the mitigation (see [Customizing the Vite config](../features/vite-extend-file.md)). Severity: medium for projects with changing customizations.
 
 ### VS Code F5 (status: open)
 
@@ -61,4 +66,4 @@ Open problems that are not design limits: a Field Customizer that the test tenan
 
 - Source: project handoff notes (open issues, gotchas, page-load hang findings), user docs (errors), implementation behavior (browser-errors component), live checks on the test tenant
 - Confidence: high; the HTTP/1.1 fix is an untested hypothesis (uncertain)
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

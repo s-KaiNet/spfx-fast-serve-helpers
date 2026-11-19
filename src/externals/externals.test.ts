@@ -83,12 +83,60 @@ describe('facades', () => {
     expect(renderChunkPreload({ libraries: [], externals: [] })).toBe('');
   });
 
-  it('loads config externals through RequireJS and unwraps ES module interop', () => {
-    const code = renderExternalEsmFacade('jquery', ['ajax']);
+  it('loads config externals through RequireJS, unwraps ES module interop and exposes the raw module object', () => {
+    const code = renderExternalEsmFacade('jquery');
     expect(code).toContain('const external = await window.__spfxFastServe.loadExternal("jquery");');
-    expect(code).toContain('export default (hasExports && external.__esModule ? external.default : external);');
-    expect(code).toContain('const __e0 = hasExports ? external["ajax"] : undefined;\nexport { __e0 as ajax };');
+    expect(code).toContain('export default (isEsModule ? external.default : external);');
+    expect(code).toContain('export { external as __spfxExternalModule };');
+    expect(code).not.toContain('ajax');
     expect(renderExternalCommonJsFacade('jquery')).toBe('module.exports = window.__spfxFastServe.loadedExternal("jquery");\n');
+  });
+});
+
+describe('config external facade at runtime', () => {
+  const host = globalThis as { window?: unknown };
+  let outDir: string | undefined;
+
+  afterEach(() => {
+    delete host.window;
+    if (outDir) rmSync(outDir, { recursive: true, force: true });
+  });
+
+  async function importFacade(external: unknown, fileName: string) {
+    host.window = { __spfxFastServe: { loadExternal: () => Promise.resolve(external) } };
+    outDir ??= mkdtempSync(path.join(tmpdir(), 'fast-serve-facade-'));
+    const file = path.join(outDir, fileName);
+    writeFileSync(file, renderExternalEsmFacade('lib'));
+    return (await import(pathToFileURL(file).href)) as { default: unknown; __spfxExternalModule: unknown; __spfxExternalNamespace: Record<string, unknown> };
+  }
+
+  it('gives the raw object, the default by the webpack __esModule rule and a webpack-like namespace', async () => {
+    const ejs = { render: () => 'rendered' };
+    const facade = await importFacade(ejs, 'ejs.mjs');
+    expect(facade.__spfxExternalModule).toBe(ejs);
+    expect(facade.default).toBe(ejs);
+    expect(facade.__spfxExternalNamespace.render).toBe(ejs.render);
+    expect(facade.__spfxExternalNamespace.default).toBe(ejs);
+
+    const Chart = Object.assign(
+      class {
+        readonly kind = 'chart';
+      },
+      { exec: () => undefined },
+    );
+    const charts = await importFacade(Chart, 'charts.mjs');
+    expect(charts.__spfxExternalModule).toBe(Chart);
+    expect(charts.default).toBe(Chart);
+    expect(charts.__spfxExternalNamespace.default).toBe(Chart);
+
+    const transpiled = { __esModule: true, default: 'value', named: 1 };
+    const esModule = await importFacade(transpiled, 'es.mjs');
+    expect(esModule.default).toBe('value');
+    expect(esModule.__spfxExternalNamespace).toBe(transpiled);
+
+    const empty = await importFacade(undefined, 'empty.mjs');
+    expect(empty.default).toBeUndefined();
+    expect(empty.__spfxExternalModule).toBeUndefined();
   });
 });
 
@@ -115,8 +163,17 @@ describe('createExternals', () => {
     expect(resolveId('legacy-plugin', '/src/a.ts')).toBe('\0spfx-external:legacy-plugin');
     expect(resolveId('missing-file', '/src/a.ts')).toBeNull();
     expect(resolveId('@microsoft/sp-core-library', '/src/a.ts')).toBe('\0spfx-library:@microsoft/sp-core-library');
-    expect(await load('\0spfx-external:jquery')).toBe(renderExternalEsmFacade('jquery', ['ajax', 'fn']));
-    expect(await load('\0spfx-external:legacy-plugin')).toBe(renderExternalEsmFacade('legacy-plugin', []));
+    expect(await load('\0spfx-external:jquery')).toBe(renderExternalEsmFacade('jquery'));
+    expect(await load('\0spfx-external:legacy-plugin')).toBe(renderExternalEsmFacade('legacy-plugin'));
+  });
+
+  it('pre-bundles imports of config externals through the CommonJS facade, SPFx libraries keep the ESM facade', () => {
+    const { externals } = createFixtureExternals();
+    const resolve = prebundlePlugin(externals.plugin).resolveId as { handler: (source: string, importer: string | undefined, options: { kind: string }) => string | null };
+    expect(resolve.handler('jquery', '/m/index.js', { kind: 'import-statement' })).toBe('\0spfx-external-cjs:jquery');
+    expect(resolve.handler('jquery', '/m/index.js', { kind: 'dynamic-import' })).toBe('\0spfx-external-cjs:jquery');
+    expect(resolve.handler('jquery', '/m/index.js', { kind: 'require-call' })).toBe('\0spfx-external-cjs:jquery');
+    expect(resolve.handler('@microsoft/sp-core-library', '/m/index.js', { kind: 'import-statement' })).toBe('\0spfx-library:@microsoft/sp-core-library');
   });
 
   it('serves local external files as classic scripts', async () => {
@@ -222,9 +279,10 @@ describe('pre-bundling with facades', () => {
       version: (pageInstances.get(core.name) as { Version: unknown }).Version,
       escape: (pageInstances.get(lodash.name) as { escape: unknown }).escape,
       ajax: jquery.ajax,
+      namedAjax: jquery.ajax,
       jqueryVersion: '3.7.1',
     });
-    expect(requestedExternals).toEqual(['jquery', 'jquery']);
+    expect(requestedExternals).toEqual(['jquery']);
     expect(requested.toSorted()).toEqual([core.name, core.name, lodash.name]);
   });
 });

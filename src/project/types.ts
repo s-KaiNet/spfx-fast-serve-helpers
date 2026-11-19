@@ -74,6 +74,4 @@ export interface ConfigExternal {
   source: ConfigExternalSource;
   globalName?: string;
   globalDependencies?: string[];
-
-  packageDir?: string;
 }

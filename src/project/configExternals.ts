@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { isObject } from '../utils/guards.js';
 import { toPosix } from '../utils/paths.js';
-import { findPackageDirectory } from './libraries.js';
 import { findSourceFile } from './sourcePaths.js';
 import type { ConfigExternal, ConfigExternalSource, SpfxLibrary } from './types.js';
 
@@ -49,7 +48,7 @@ export function readConfigExternals(
           '(it must be a valid, non-circular entry in "externals" and must not be an SPFx library), skipped',
       );
     }
-    const external = source && missingDependency === undefined ? toExternal(root, name, entry, source) : undefined;
+    const external = source && missingDependency === undefined ? toExternal(name, entry, source) : undefined;
     resolved.set(name, external ?? null);
     return external;
   };
@@ -83,13 +82,11 @@ function resolveSource(root: string, name: string, externalPath: string, logger:
   return undefined;
 }
 
-function toExternal(root: string, name: string, entry: ExternalEntry, source: ConfigExternalSource): ConfigExternal {
-  const packageDir = findPackageDirectory(name, root);
+function toExternal(name: string, entry: ExternalEntry, source: ConfigExternalSource): ConfigExternal {
   return {
     name,
     source,
     ...(entry.globalName === undefined ? {} : { globalName: entry.globalName }),
     ...(entry.globalDependencies === undefined ? {} : { globalDependencies: entry.globalDependencies }),
-    ...(packageDir === undefined ? {} : { packageDir }),
   };
 }

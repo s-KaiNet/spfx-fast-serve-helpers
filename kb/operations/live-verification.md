@@ -15,9 +15,27 @@ tags:
 
 ## Summary
 
-Everything that involves the SharePoint page (manifest loading, the bundle shim, SPFx libraries, HMR, overlay, extensions, ACEs) is verified live on the dev tenant by an agent driving a headless Chrome through agent-browser. Chrome is started manually with a saved, logged-in profile and flags that accept the dev certificate and skip Local Network Access checks; agent-browser connects over CDP. This page is the procedure, the useful checks, how to prove a hot update, and the cleanup rules. The procedure is packaged as the `spfx-debugging` agent skill, configured through environment variables in a git-ignored `.env` file.
+Everything that involves the SharePoint page (manifest loading, the bundle shim, SPFx libraries, HMR, overlay, extensions, ACEs) is verified live on the dev tenant by an agent driving a headless Chrome through agent-browser. Chrome is started manually with a saved, logged-in profile and flags that accept the dev certificate and skip Local Network Access checks; agent-browser connects over CDP. This page is the procedure, the useful checks, how to prove a hot update, and the cleanup rules. The procedure is packaged as the repository's `spfx-debugging` agent skill, configured only through environment variables in a git-ignored `.env` file.
 
 ## Current Knowledge
+
+### The `spfx-debugging` skill
+
+- A repository agent skill for live-debugging web parts, extensions and ACEs served by `fast-serve` or `heft start` inside a real SharePoint page: it starts and stops the headless Chrome on the saved profile with the right flags, builds debug URLs, and documents the checks, the hot-update test, pitfalls and cleanup described on this page.
+- Configuration is only environment variables loaded from the project's `.env` (git-ignored; an example file lists the keys):
+
+| Variable | Required | Meaning |
+|---|---|---|
+| `SPFX_DEBUG_BROWSER_PROFILE` | yes | Chrome user data folder already signed in to the tenant |
+| `SPFX_DEBUG_PAGE_URL` | for web parts | SharePoint page that holds the web parts |
+| `SPFX_DEBUG_WORKBENCH_URL` | no | hosted workbench, for ACEs (retired on 2026-12-01) |
+| `SPFX_DEBUG_LIST_URL` | no | list view for Command Sets and Field Customizers |
+| `SPFX_DEBUG_CHROME` | no | Chrome binary (default: the newest agent-browser-managed Chrome, then one on `PATH`) |
+| `SPFX_DEBUG_CDP_PORT` | no | remote debugging port, default `9333` |
+| `SPFX_DEBUG_DEV_SERVER_PORT` | no | dev server port, default `4321` |
+| `SPFX_SERVE_TENANT_DOMAIN` | no | `{tenantDomain}` for `config/serve.json` and `fast-serve/config.json` |
+
+- If a variable needed for the task is missing, the agent stops and asks; tenant URLs, page URLs and profile paths are never guessed.
 
 ### Prerequisites
 
@@ -97,6 +115,6 @@ For timings, network and console capture without agent-browser, the benchmark ha
 
 ## Evidence
 
-- Source: project handoff notes (live debugging procedure, pitfalls), browser profile instructions, live verification runs on the tenant
+- Source: project handoff notes (live debugging procedure, pitfalls), the `spfx-debugging` skill, browser profile instructions, live verification runs on the tenant
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

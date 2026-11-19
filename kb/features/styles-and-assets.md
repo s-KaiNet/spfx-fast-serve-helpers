@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-style class names, theme tokens resolve against the SharePoint page's theme, and CSS-only styles shipped by SPFx libraries (`.module.scss.css`, as in PnP controls) are compiled with the project's own `@microsoft/sp-css-loader`. Sass `silenceDeprecations` from `config/sass.json` applies as in heft. Static assets are served as dev server URLs. `fast-serve` keeps `temp/sass-ts` and `temp/static-asset-ts` typings up to date exactly as `heft build` would, so new style classes and assets are typed without a build.
+Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-style class names, theme tokens resolve against the SharePoint page's theme, and CSS-only styles shipped by SPFx libraries (`.module.scss.css`, as in PnP controls) are compiled with the project's own `@microsoft/sp-css-loader`. Sass `silenceDeprecations` from `config/sass.json` applies as in heft, and Sass `pkg:` URLs resolve through Sass's own Node package importer. Static assets are served as dev server URLs. `fast-serve` keeps `temp/sass-ts` and `temp/static-asset-ts` typings up to date exactly as `heft build` would, so new style classes and assets are typed without a build.
 
 ## Behavior
 
@@ -23,6 +23,7 @@ Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-styl
 
 - `.module.scss`, `.scss` and `.css` are compiled by Vite (Sass for SCSS). CSS modules get SPFx-style names, `<local>_<8-character hash>`, and camelCase locals, so `styles.helloWorld` works as with heft.
 - `~` prefixes in Sass imports (`@import '~@fluentui/...'`) work, as with webpack's Sass loader.
+- **Sass `pkg:` URLs**: `@use`, `@forward` and `@import` with `pkg:` URLs (for example `@import 'pkg:@fluentui/react/dist/sass/References.scss';`) work in project files and inside packages. They resolve through Sass's `NodePackageImporter` from the same Sass package Vite compiles with (`sass-embedded`, then `sass`, looked up from the project first; `pkg:` needs Sass 1.71+, older versions don't support it). That importer follows the package's `exports`, `sass` and `style` fields, while heft looks the path up in the file system, so a bare `pkg:name` import without a file path can resolve to a different file than in `heft build`. The `temp/sass-ts` typings still use heft's own resolver.
 - CSS source maps are on.
 - **Sass deprecations**: `silenceDeprecations` from `config/sass.json`, merged through `extends` with the SPFx rig (whose default silences `mixed-decls`, `import`, `global-builtin` and `color-functions`), is passed to Vite's Sass compile like in heft, so for example the `@import` warnings of Fluent UI's `References.scss` aren't printed. Without the setting nothing is silenced. The other `config/sass.json` settings are used only for the typings. Editing the project's `config/sass.json` restarts the dev server.
 - Style edits hot-swap without re-rendering (see [HMR and Fast Refresh](hmr-and-fast-refresh.md)).
@@ -73,4 +74,4 @@ Project SCSS and CSS (including CSS modules) are compiled by Vite with SPFx-styl
 
 - Source: user docs, library SCSS research (all 64 PnP `.module.scss.css` files compared with the heft bundle), project handoff notes, implementation behavior (styles and assets components, themed-styles runtime); verified live during acceptance (theme tokens, SCSS swap, PnP controls)
 - Confidence: high
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

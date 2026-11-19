@@ -37,6 +37,11 @@ tags:
 - A localized command title in a Command Set manifest (`"title": { "id": "$…" }`) isn't resolved (heft fills it from the loc file). Use `"default"` texts. Severity: low.
 - Icon paths: relative `./` icon paths are served from `src`; `"icons/x.png"` without `./` is passed through as heft does and resolves against the dev server root.
 
+### Build customizations and externals
+
+- Heft webpack customizations are never run or translated: their development counterpart goes into `fast-serve/vite.extend.mts` (see [Customizing the Vite config](../features/vite-extend-file.md)). Severity: medium, by design.
+- `export * from '<external>'` re-exports nothing from a `config/config.json` external (its names exist only at runtime); `fast-serve` warns. Re-export the needed names explicitly. Severity: low.
+
 ### Hosts and environments
 
 - `localhost` only: no tunnels (ngrok), containers, Docker/WSL-specific setup, or Teams hosts. Remote development works only by forwarding the port so the browser still reaches `https://localhost:<port>` (see [Environment and browser gotchas](environment-and-browser-gotchas.md)).
@@ -56,4 +61,4 @@ tags:
 
 - Source: user docs (requirements, limitations, troubleshooting), library-components research (live prototype on the test tenant), library CSS research, project handoff notes, implementation behavior (project model, version check)
 - Confidence: high; app-catalog library behavior is inferred (medium)
-- Last checked: 2026-11-18
+- Last checked: 2026-11-19

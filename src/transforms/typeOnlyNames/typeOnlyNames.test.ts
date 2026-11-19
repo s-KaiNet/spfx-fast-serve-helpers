@@ -198,6 +198,21 @@ describe('typeOnlyNamesGuardPlugin in Vite', () => {
     await vite.environments.client.transformRequest('/src/index.ts');
     expect(errors[0]).toMatch(/"IPropertyPaneConfiguration" is not a runtime export of sp-lib/);
   });
+
+  it('never flags names re-exported from config.json external facades, whose exports are only known at runtime', async () => {
+    const externalFacade: Plugin = {
+      name: 'external-facade',
+      resolveId: (source) => (source === 'ejs' ? '\0spfx-external:ejs' : null),
+      load: (id) => (id === '\0spfx-external:ejs' ? 'const external = {};\nexport default external;\nexport { external as __spfxExternalModule };\n' : null),
+    };
+    const vite = await serve(
+      { 'src/index.ts': "export { render } from 'ejs';\nexport { compile } from './barrel';\n", 'src/barrel.ts': "export * from 'ejs';\n" },
+      [externalFacade],
+    );
+    const result = await vite.environments.client.transformRequest('/src/index.ts');
+    expect(errors).toEqual([]);
+    expect(runtimeExportNames(result?.code)).toEqual(['render', 'compile']);
+  });
 });
 
 describe('findMetadataTypeImports', () => {
