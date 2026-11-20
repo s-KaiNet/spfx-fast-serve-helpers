@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-`npm install --save-dev <tarball>` fails with `ERESOLVE` in an SPFx 1.24 project whose `css-loader` resolves to 7.1.2 or 7.1.3: those versions declare the optional peer `@rspack/core@"0.x || 1.x"`, and `fast-serve` brings `@rspack/core` 2. There is no package-side fix; the user-side fix is to update `css-loader` to 7.1.4 or newer in the same install command, the fallback is `--legacy-peer-deps`.
+`npm install --save-dev spfx-fast-serve-helpers@beta` (or a packed tarball) fails with `ERESOLVE` in an SPFx 1.24 project whose `css-loader` resolves to 7.1.2 or 7.1.3: those versions declare the optional peer `@rspack/core@"0.x || 1.x"`, and `fast-serve` brings `@rspack/core` 2. There is no package-side fix; the user-side fix is to update `css-loader` to 7.1.4 or newer in the same install command, the fallback is `--legacy-peer-deps`.
 
 ## Current Knowledge
 
@@ -26,7 +26,7 @@ tags:
 
 ### Fixes for users
 
-- `npm install --save-dev css-loader@^7.1.4 <tarball>`: one command, no flags; `@microsoft/sp-css-loader`'s `~7.1.2` accepts it and heft's production build works with it.
+- `npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta`: one command, no flags; `@microsoft/sp-css-loader`'s `~7.1.2` accepts it and heft's production build works with it.
 - Keep the old `css-loader`: `--legacy-peer-deps`, or `legacy-peer-deps=true` in the project's `.npmrc` so later `npm install` runs don't fail either.
 
 ### Why the package can't fix it

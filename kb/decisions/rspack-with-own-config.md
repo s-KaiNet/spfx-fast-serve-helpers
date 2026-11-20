@@ -35,7 +35,7 @@ The Rspack implementation of `fast-serve` builds its Rspack configuration from s
 - Robust against heft-internal changes; output format parity (manifests, AMD dependency lists, CSS class names) must be checked by tests against heft's output instead of being inherited.
 - Many Vite-era features become unnecessary (AMD shim, top-level-await library facades, `require()` and AMD rewrites, type-only re-export guard), because webpack semantics already match heft's.
 - Heft webpack customizations are not applied; an optional extend file with an Rspack configuration is the planned escape hatch.
-- The package is versioned `1.24.0-rspack.<n>` while it is compared with the Vite implementation.
+- The package was versioned `1.24.0-rspack.<n>` while it was compared with the Vite implementation; after the comparison it became the main v1.24 line, versioned `1.24.0-beta.<n>` from `1.24.0-beta.5` and published under the npm `beta` tag. The Vite implementation is kept on branch `vite` as history and is no longer developed.
 
 ## Links
 
@@ -46,6 +46,6 @@ The Rspack implementation of `fast-serve` builds its Rspack configuration from s
 
 ## Evidence
 
-- Source: user decision for the Rspack branch (2026-11-19), Rspack prototype research
+- Source: user decision when the Rspack implementation was started (2026-11-19), Rspack prototype research; user decision to make it the main v1.24 line (2026-11-20)
 - Confidence: high
-- Last checked: 2026-11-19
+- Last checked: 2026-11-20

@@ -25,8 +25,8 @@ describe('runCli', () => {
     expect(result.startServer).not.toHaveBeenCalled();
   });
 
-  it('uses an Rspack prerelease version', () => {
-    expect(packageVersion).toMatch(/^1\.24\.0-rspack\.\d+$/);
+  it('uses a 1.24 release or beta version', () => {
+    expect(packageVersion).toMatch(/^1\.24\.\d+(-beta\.\d+)?$/);
   });
 
   it('fails on unknown options', async () => {

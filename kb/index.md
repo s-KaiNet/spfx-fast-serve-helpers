@@ -1,6 +1,6 @@
 # KB index
 
-Knowledge base for the **Rspack implementation** of `fast-serve` (separate from the Vite implementation's KB).
+Knowledge base for `fast-serve` on SPFx 1.24, built on Rspack: the main v1.24 line (`1.24.0-beta.5`). The earlier Vite implementation keeps its own KB on branch `vite` (history only).
 
 ## Core
 

@@ -1,4 +1,6 @@
-# Plan: fast-serve on Rspack (branch `rspack`)
+# Plan: fast-serve on Rspack
+
+> **Completed.** This plan was carried out on the former `rspack` branch (versions `1.24.0-rspack.<n>`, named below as history). The Rspack implementation is now the main v1.24 line (branch `v1.24`, `1.24.0-beta.5`); the Vite implementation it was compared with is kept on branch `vite` (history only). Where the text below says "branch `v1.24`" or "the v1.24 `kb/`" for the Vite reference, read branch `vite`.
 
 Goal: the same product as the Vite version (branch `v1.24`, `1.24.0-beta.3`): a zero-config `fast-serve` CLI replacing `heft start` for SPFx 1.24.x, serving web parts, extensions and ACEs on a real SharePoint page with HMR and React Fast Refresh, built on Rspack (`@rspack/core`, `@rspack/dev-server`, `@rspack/plugin-react-refresh`, `builtin:swc-loader`). Then compare it with Vite fast-serve and `heft start` (task R24; Vite `bundledDev` dropped from the comparison).
 
@@ -257,4 +259,4 @@ Key differences from the Vite version, decided up front:
 1. ~~CSS: project `@microsoft/sp-css-loader` or an own pipeline?~~ Decided in R11: `sp-css-loader`, class names verified equal to heft's.
 2. ~~Extend file format: `.mjs` only, or also `.mts`?~~ Decided in R18: all of `.mjs`/`.mts`/`.js`/`.ts`/`.cjs`/`.cts`, bundled by fast-serve with Rspack + SWC (works on Node 22.14).
 3. ~~Several bundles: per-runtime hot-update global plugin vs `MultiCompiler`?~~ Decided in R5 by measurement: one compilation with a hot-update fan-out (see R5).
-4. Package identity: same name `spfx-fast-serve-helpers` with `-rspack.N` prerelease versions; is a publish of the Rspack line planned (dist-tag), or only local tarballs until the benchmark decides?
+4. ~~Package identity: same name `spfx-fast-serve-helpers` with `-rspack.N` prerelease versions; is a publish of the Rspack line planned (dist-tag), or only local tarballs until the benchmark decides?~~ Decided: the Rspack implementation became the main v1.24 line, published as `1.24.0-beta.<n>` (from `beta.5`) under the npm `beta` tag.

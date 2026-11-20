@@ -1,6 +1,6 @@
-# spfx-fast-serve-helpers (Rspack line)
+# spfx-fast-serve-helpers
 
-> **Preview.** The Rspack implementation of `fast-serve` for SharePoint Framework **1.24.x** (Heft) projects, versions `1.24.0-rspack.<n>`. The Vite implementation (`1.24.0-beta.<n>`) lives on branch `v1.24`. Both have the same CLI, options and page behaviour; this line exists to compare them on real projects.
+> **Beta.** `fast-serve` for SharePoint Framework **1.24.x** (Heft) projects, versions `1.24.0-beta.<n>`, published under the npm `beta` tag. From `1.24.0-beta.5` it is built on Rspack; the earlier 1.24 betas (up to `1.24.0-beta.3`) were built on Vite and are no longer developed (see [Migrating](#migrating)).
 
 A dev-server-only replacement for `heft start`: it compiles your web parts, extensions and Adaptive Card Extensions with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds, type checks and packaging stay on Heft (`heft build`, `heft package-solution`).
 
@@ -14,17 +14,17 @@ Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rs
 
 ## Install
 
-The Rspack line is not published; install a packed tarball:
+Install the beta from npm:
 
 ```sh
-npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.14.tgz
+npm install --save-dev spfx-fast-serve-helpers@beta
 npx heft trust-dev-cert                     # once per machine
 ```
 
 **npm `ERESOLVE` with `css-loader`:** a project with `css-loader` 7.1.2 or 7.1.3 (a direct devDependency, or locked at that version) fails with `ERESOLVE ... peerOptional @rspack/core@"0.x || 1.x" from css-loader@7.1.2`, because those versions don't accept Rspack 2. `css-loader` 7.1.4 and newer accept it, and SPFx's `@microsoft/sp-css-loader` (`~7.1.2`) works with them, so update it in the same command:
 
 ```sh
-npm install --save-dev css-loader@^7.1.4 /path/to/spfx-fast-serve-helpers-1.24.0-rspack.14.tgz
+npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta
 ```
 
 If you must keep the old `css-loader`, install with `--legacy-peer-deps` (or put `legacy-peer-deps=true` in the project's `.npmrc`, which also covers later `npm install` runs). The package can't avoid this itself: npm puts `@rspack/core` at the top of `node_modules`, where the project's `css-loader` checks its peer range, and `@rspack/dev-server` requires `@rspack/core` as a peer, so it can't be hidden under another name; `overrides` only work in the project's own `package.json`. pnpm and yarn only warn.
@@ -96,7 +96,7 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page; errors still go to the terminal and the browser console |
 | `deployedLibraries` | (file only) | package names of [linked SPFx library projects](#library-components) to load from SharePoint (the deployed copy) instead of compiling their `src` |
 
-An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` with the list of supported keys. `amdPackages` (a Vite-line option) is ignored with a warning. `config/fast-serve.json` from early betas is not read (a warning asks to move it). HTTPS is always on, with the SPFx development certificate.
+An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` with the list of supported keys. `amdPackages` (an option of the Vite-based betas) is ignored with a warning. `config/fast-serve.json` from early betas is not read (a warning asks to move it). HTTPS is always on, with the SPFx development certificate.
 
 ## What is served and how
 
@@ -245,7 +245,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 - React and react-dom are bundled from the project in their development build (heft declares them as externals that the page provides); Fast Refresh needs that.
 - The Field Customizer on our test tenant is never instantiated by SharePoint, with `heft start` too.
 
-**From the Vite line (`1.24.0-beta.<n>`):** same CLI, options and `fast-serve/config.json`. Replace `fast-serve/vite.extend.mts` with `fast-serve/rspack.extend.mjs` (Rspack/webpack config instead of Vite config; `define` → `rspack.DefinePlugin`, `resolve.alias` stays). `amdPackages` is ignored: Rspack bundles AMD/UMD dependencies itself. Differences you will notice: the server compiles everything before "ready" (Vite compiles on request), a page loads a few bundles instead of one request per module, `require()` and `const enum` across files follow webpack, and errors use `fast-serve`'s own overlay.
+**From the Vite-based betas (up to `1.24.0-beta.3`):** same CLI, options and `fast-serve/config.json`. Replace `fast-serve/vite.extend.mts` with `fast-serve/rspack.extend.mjs` (Rspack/webpack config instead of Vite config; `define` → `rspack.DefinePlugin`, `resolve.alias` stays). `amdPackages` is ignored: Rspack bundles AMD/UMD dependencies itself. Differences you will notice: the server compiles everything before "ready" (Vite compiles on request), a page loads a few bundles instead of one request per module, `require()` and `const enum` across files follow webpack, and errors use `fast-serve`'s own overlay.
 
 ## Troubleshooting
 
@@ -254,7 +254,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `No valid SPFx development certificate found` | `npx heft trust-dev-cert` |
 | "Error loading debug manifests" | `fast-serve` isn't running, or the browser doesn't trust the certificate (trust it and restart the browser); allow access to local network devices if Chrome/Edge asks |
 | "Error loading debug manifests" after stopping `fast-serve` | the debug query sticks to the tab (`sessionStorage`): open the page in a new tab without the query |
-| `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 <tarball>`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
+| `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: stop it or use `--port` |
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served by themselves) |
@@ -283,5 +283,7 @@ pnpm lint         # oxlint, type-aware
 pnpm typecheck
 pnpm test         # vitest: unit tests and real Rspack compiles against fixtures
 ```
+
+The Vite implementation of the earlier betas is kept on branch `vite` for history; it is no longer developed.
 
 License: MIT.

@@ -37,7 +37,7 @@ function contextFor(root: string): FastServeContext {
     serveConfiguration: 'default',
     pageUrl: undefined,
     spfxVersion: '1.24.1',
-    fastServeVersion: '1.24.0-rspack.10',
+    fastServeVersion: '1.24.0-beta.5',
     rspackVersion: '2.3.3',
   };
 }

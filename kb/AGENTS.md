@@ -1,6 +1,6 @@
 # KB rules
 
-This folder is the project knowledge base for the **Rspack implementation** of `spfx-fast-serve-helpers` (the `fast-serve` dev server for SPFx built on Rspack). It is separate from the knowledge base of the Vite implementation: facts about the Vite version appear here only as lessons or comparisons, clearly labelled. It holds knowledge, not a map of files.
+This folder is the project knowledge base of `spfx-fast-serve-helpers` for SPFx 1.24 (the `fast-serve` dev server, built on Rspack; the main v1.24 line from `1.24.0-beta.5`). The earlier Vite implementation (branch `vite`, history only) has its own knowledge base on that branch: facts about the Vite version appear here only as lessons or comparisons, clearly labelled. It holds knowledge, not a map of files.
 
 - **Current truth only.** Pages describe how things are now. Rewrite superseded facts instead of keeping history; history lives only as compact entries in [log.md](log.md).
 - **Markdown only.** No scripts, generated files, raw source copies or manifests under `kb/`.

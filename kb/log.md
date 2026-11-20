@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 23:30 | update | Rspack implementation is the main v1.24 line (`1.24.0-beta.5`)
+
+- Changed: `kb/AGENTS.md`, `kb/index.md`, `kb/decisions/rspack-with-own-config.md`, `kb/roadmap/overview.md`, `kb/operations/final-benchmark.md`, `kb/limitations/npm-css-loader-peer-conflict.md`
+- Outcome: the KB now describes the main v1.24 line, versioned `1.24.0-beta.<n>` from `1.24.0-beta.5` and published under the npm `beta` tag; the Vite implementation (earlier betas up to `1.24.0-beta.3`) is kept on branch `vite` as history with its own KB; the publishing question is closed; `1.24.0-rspack.<n>` mentions stay as history
+
 ## 2026-11-20 22:30 | ingest | tunnel mode with TunnelServePlugin (T1, `1.24.0-rspack.19`)
 
 - Changed: `kb/features/tunnel-mode.md` (new), `kb/features/errors-and-diagnostics.md`, `kb/features/dev-server.md`, `kb/features/localization.md`, `kb/features/rspack-extend-file.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/index.md`
