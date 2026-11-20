@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 01:21 | ingest | final benchmark (R24)
+
+- Changed: `kb/operations/final-benchmark.md` (new), `kb/roadmap/overview.md`, `kb/features/performance-and-cache.md`, `kb/index.md`
+- Outcome: Rspack line vs Vite line vs `heft start` on 100/250/500 generated components recorded (bundled dev mode dropped): heft-level page loads with 3 requests for Rspack, Vite slower from 100 components and growing about 0.47 s per 100, Rspack's start + first render ahead of Vite, Vite's edit loop 3–5× faster, both keep state, heft's two-bundle HMR never applies; recommendation and unmeasured items listed
+
 ## 2026-11-20 01:30 | ingest | persistent cache, docs reconcile, acceptance run (R21, R22, R23)
 
 - Changed: `kb/features/performance-and-cache.md` (new), `kb/operations/acceptance-run.md` (new), `kb/features/dev-server.md`, `kb/features/rspack-compile.md`, `kb/features/project-restarts.md`, `kb/features/styles-and-typings.md`, `kb/features/extensions-and-aces.md`, `kb/features/typescript-and-tsconfig.md`, `kb/features/hmr.md`, `kb/references/rspack.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/index.md`

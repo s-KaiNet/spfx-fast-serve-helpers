@@ -64,6 +64,7 @@ Rebuilds (unchanged): spfx-bench leaf/mid TSX 65–140 ms, SCSS 100–180 ms; sp
 - [Restarts on project changes](project-restarts.md)
 - [Styles, theme tokens and typings](styles-and-typings.md)
 - [Rspack facts and references](../references/rspack.md)
+- [Final benchmark against Vite fast-serve and heft start](../operations/final-benchmark.md)
 
 ## Evidence
 

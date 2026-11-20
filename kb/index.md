@@ -41,6 +41,7 @@ Bundler-independent SPFx platform concepts.
 ## Operations
 
 - [Acceptance run on the test projects](operations/acceptance-run.md): procedure (copies, tarball, live checks with a page marker and DOM timing) and the last results for every component type, HMR across bundles, errors, restarts, extend file, locale, cache and heft build. Tags: acceptance, live-verification. Status: current.
+- [Final benchmark against Vite fast-serve and heft start](operations/final-benchmark.md): 100/250/500 generated components, two bundles, 3 starts per cell; start, start + first render, cold/F5 load, requests, bytes, server CPU, edit → DOM with state check, memory, scaling per 100 components, crossover, recommendation (Rspack from about 100 components, Vite for small projects), heft's two-bundle HMR not applying. Tags: benchmark, performance. Status: current.
 
 ## Decisions
 
