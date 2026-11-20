@@ -47,13 +47,15 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 ### Overlay
 
 - One overlay per page, however many bundles (each with its own dev-server client) are on it, and also when SharePoint evaluates a failing bundle several times (seen: three times for one bundle with a syntax error).
-- Compile errors: shown when a rebuild fails, closed by the next rebuild; runtime errors: the server's formatted text (message, project location, code frame). A runtime error never replaces a compile error that is shown.
+- Compile errors: shown when a rebuild fails, closed when the next rebuild starts; runtime errors: the server's formatted text (message, project location, code frame). A runtime error never replaces a compile error that is shown.
+- A runtime-error overlay closes on the first successful rebuild with new output after an edit: the dev-server clients post `webpackInvalid` and then `webpackOk`, or `webpackWarnings` when the build has only warnings (the client never posts `webpackOk` then). If the updated code throws again (Fast Refresh re-renders the component, or the handler runs again), the overlay opens again. It stays open on a client's initial `ok` (a bundle connecting later) and on `still-ok` (nothing changed, so nothing re-runs). An answer for an error reported before the update is ignored, and an identical overlay is not redrawn.
+- The server answers a repeated error with the overlay content again and only skips printing it to the terminal, so an error that survives an edit is shown again.
 - Esc, × or a click outside closes it. `--no-overlay` or `"overlay": false` in `fast-serve/config.json` turns it off for compile and runtime errors; the terminal and browser console still get them. The overlay's footer names that option.
 
 ### Bundle load failures
 
 - The readable message replaces `[object Object]` in the error boxes of the bundle's web parts for a minute after the failure, e.g. `[fast-serve] bundle "hello-world-web-part" could not be loaded: a module in it failed to compile; the page reloads after the fix. Details are in the fast-serve terminal.`
-- After a load failure the page reloads on the first successful rebuild that follows a change.
+- After a load failure the page reloads on the first successful rebuild that follows a change, also a build with only warnings; because the dev server sends a build's warnings before its errors, that reload waits 100 ms and is cancelled when errors follow.
 - A missing `config.json` external is named with its URL or path and the advice to check `config/config.json` and that SharePoint can reach it (the tenant CSP blocks most CDNs, as with heft).
 
 ## Implementation Notes
@@ -66,6 +68,8 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 ## Edge Cases
 
 - A runtime error inside a dependency without any project frame on the stack is not forwarded, even when project code triggered it asynchronously.
+- A typo in a React hook name (`React.useState1`, `useState1` without an import, `import { useState1 } from 'react'`) is a runtime error, never a compile error: React comes in as an external, so Rspack can't check its exports, and the dev loop does not type-check.
+- An overlay closes after any successful rebuild with new output, also when the edit didn't touch the failing code; the error comes back only when that code runs again.
 - An external whose script fails to load prevents the bundle from running at all; only the page runtime sees it, so the reason is reported but nothing reloads automatically (fixing `config/config.json` needs a restart).
 
 ## Links
@@ -79,5 +83,6 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 ## Evidence
 
 - Source: implementation behaviour, unit tests, integration test with a real dev server and a fake page with two bundles; live on SharePoint Online with spfx-rea and spfx-bench copies (2026-11-19): syntax error → one overlay (Rspack's overlay showed three), cleared after the fix; throw in an `onClick` and in a render → terminal `Second.tsx:12` / `:9` with code frame, printed once; syntax error at page load → readable error boxes and reload after the fix; missing external URL → named in terminal and error boxes; two bundles on one page → one overlay.
+- Source (2026-11-20, `1.24.0-rspack.12`, live on a spfx-rea copy): runtime-error overlays from `React.useState1`, `useState1` and `import { useState1 }` stayed after the fix before the change; afterwards they close after the fix, re-open after an edit that keeps the error, close with state kept after an `onClick` error fix, and close after a fix whose build has one warning; dev-server client sends `webpackWarnings` without `webpackOk` for warnings-only builds (read from `@rspack/dev-server` 2.2.2).
 - Confidence: high
-- Last checked: 2026-11-19
+- Last checked: 2026-11-20

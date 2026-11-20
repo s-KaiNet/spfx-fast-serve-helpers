@@ -11,14 +11,21 @@ interface RequireJsError {
   requireModules?: unknown;
 }
 
+type OverlaySource = 'compile' | 'runtime';
+
 interface FastServeOverlay {
-  show(source: 'compile' | 'runtime', content: OverlayContent): void;
-  hideCompileErrors(): void;
+  show(source: OverlaySource, content: OverlayContent): void;
+  hide(source: OverlaySource): void;
 }
 
 const DEV_TOOLING_PREFIXES = ['[rspack-dev-server]', '[HMR]', '[fast-serve]'];
 
-type DevServerMessage = { type: 'webpackErrors'; data: unknown } | { type: 'webpackInvalid' | 'webpackOk' | 'webpackStillOk' };
+const DEV_SERVER_MESSAGES = ['webpackErrors', 'webpackWarnings', 'webpackInvalid', 'webpackOk', 'webpackStillOk'] as const;
+
+interface DevServerMessage {
+  type: (typeof DEV_SERVER_MESSAGES)[number];
+  data?: unknown;
+}
 
 function describeValue(value: unknown): string {
   if (typeof value === 'string') return value;
@@ -49,7 +56,7 @@ function isDevToolingMessage(args: readonly unknown[]): boolean {
 function isDevServerMessage(data: unknown): data is DevServerMessage {
   if (typeof data !== 'object' || data === null) return false;
   const { type } = data as { type?: unknown };
-  return type === 'webpackErrors' || type === 'webpackInvalid' || type === 'webpackOk' || type === 'webpackStillOk';
+  return DEV_SERVER_MESSAGES.some((known) => known === type);
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, style: string, text = ''): HTMLElementTagNameMap[K] {
@@ -61,11 +68,13 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, style: string, t
 
 function createOverlay(): FastServeOverlay {
   let host: HTMLElement | undefined;
-  let shownSource: 'compile' | 'runtime' | undefined;
+  let shownSource: OverlaySource | undefined;
+  let shownText = '';
   const hide = (): void => {
     host?.remove();
     host = undefined;
     shownSource = undefined;
+    shownText = '';
   };
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') hide();
@@ -73,6 +82,7 @@ function createOverlay(): FastServeOverlay {
   return {
     show(source, { title, text }) {
       if (source === 'runtime' && shownSource === 'compile') return;
+      if (source === shownSource && `${title}\n${text}` === shownText) return;
       hide();
       host = element('div', 'position:fixed;top:0;left:0;width:100vw;height:100vh;margin:0;padding:0;z-index:2147483647;');
       host.id = 'fast-serve-error-overlay';
@@ -89,7 +99,7 @@ function createOverlay(): FastServeOverlay {
         'margin-top:20px;color:#9a9a9a;font:13px/1.4 Segoe UI,sans-serif;',
         source === 'compile'
           ? 'Fix the error and save: the overlay closes after the rebuild. Esc or × closes it. Turn it off with --no-overlay or "overlay": false in fast-serve/config.json.'
-          : 'The error is also printed in the fast-serve terminal. Esc or × closes this overlay. Turn it off with --no-overlay or "overlay": false in fast-serve/config.json.',
+          : 'The error is also printed in the fast-serve terminal. The overlay closes after the next successful update and opens again if the error repeats. Esc or × closes it. Turn it off with --no-overlay or "overlay": false in fast-serve/config.json.',
       );
       panel.append(close, heading, body, footer);
       backdrop.append(panel);
@@ -99,9 +109,10 @@ function createOverlay(): FastServeOverlay {
       root.append(backdrop);
       document.body.append(host);
       shownSource = source;
+      shownText = `${title}\n${text}`;
     },
-    hideCompileErrors() {
-      if (shownSource === 'compile') hide();
+    hide(source) {
+      if (shownSource === source) hide();
     },
   };
 }
@@ -115,11 +126,15 @@ export function installFastServePage(config: PageRuntimeConfig): void {
   const MAX_MESSAGE_LENGTH = 4000;
   const UNREADABLE_ERROR = '[object Object]';
   const REVEAL_WINDOW_MS = 60_000;
+  const WARNINGS_SETTLE_MS = 100;
   const LOAD_FAILURE = /Could not load (\S+) in require/;
   const forwardedErrors = new WeakSet();
   const overlay = createOverlay();
   let failedBundles = false;
   let rebuiltAfterFailure = false;
+  let rebuilding = false;
+  let updateGeneration = 0;
+  let pendingReload: ReturnType<typeof setTimeout> | undefined;
 
   function claimError(value: unknown): boolean {
     if (typeof value !== 'object' || value === null) return true;
@@ -133,11 +148,12 @@ export function installFastServePage(config: PageRuntimeConfig): void {
   }
 
   function send(sent: BrowserErrorReport): void {
+    const sentInGeneration = updateGeneration;
     const body = JSON.stringify({ ...sent, message: sent.message.slice(0, MAX_MESSAGE_LENGTH) });
     fetch(config.reportUrl, { method: 'POST', mode: 'cors', credentials: 'omit', headers: { 'Content-Type': 'text/plain' }, body })
       .then((response) => (response.ok ? (response.json() as Promise<BrowserErrorResponse>) : {}))
       .then(({ overlay: overlayContent, pageMessage }: BrowserErrorResponse) => {
-        if (overlayContent && config.overlay) overlay.show('runtime', overlayContent);
+        if (overlayContent && config.overlay && sentInGeneration === updateGeneration) overlay.show('runtime', overlayContent);
         if (pageMessage && sent.bundle !== undefined) revealInErrorBoxes(sent.bundle, pageMessage);
       })
       .catch(() => undefined);
@@ -178,15 +194,54 @@ export function installFastServePage(config: PageRuntimeConfig): void {
     }, REVEAL_WINDOW_MS);
   }
 
-  function onDevServerMessage(message: DevServerMessage): void {
-    if (message.type === 'webpackErrors') {
-      const errors = Array.isArray(message.data) ? message.data.filter((error): error is string => typeof error === 'string') : [];
-      if (config.overlay && errors.length > 0) overlay.show('compile', { title: errors.length === 1 ? 'Compile error' : `Compile errors (${errors.length})`, text: errors.join('\n\n') });
+  function showCompileErrors(data: unknown): void {
+    const errors = Array.isArray(data) ? data.filter((error): error is string => typeof error === 'string') : [];
+    if (config.overlay && errors.length > 0) overlay.show('compile', { title: errors.length === 1 ? 'Compile error' : `Compile errors (${errors.length})`, text: errors.join('\n\n') });
+  }
+
+  function finishUpdate(): void {
+    overlay.hide('compile');
+    if (rebuilding) {
+      updateGeneration += 1;
+      overlay.hide('runtime');
+    }
+    rebuilding = false;
+  }
+
+  function reloadAfterFailureFix(): void {
+    if (rebuiltAfterFailure) window.location.reload();
+  }
+
+  function cancelPendingReload(): void {
+    clearTimeout(pendingReload);
+    pendingReload = undefined;
+  }
+
+  function onDevServerMessage({ type, data }: DevServerMessage): void {
+    if (type === 'webpackWarnings') {
+      finishUpdate();
+      if (rebuiltAfterFailure) pendingReload ??= setTimeout(reloadAfterFailureFix, WARNINGS_SETTLE_MS);
       return;
     }
-    overlay.hideCompileErrors();
-    if (message.type === 'webpackInvalid' && failedBundles) rebuiltAfterFailure = true;
-    if (message.type === 'webpackOk' && rebuiltAfterFailure) window.location.reload();
+    cancelPendingReload();
+    if (type === 'webpackErrors') {
+      rebuilding = false;
+      showCompileErrors(data);
+      return;
+    }
+    if (type === 'webpackInvalid') {
+      overlay.hide('compile');
+      rebuilding = true;
+      if (failedBundles) rebuiltAfterFailure = true;
+      return;
+    }
+    if (type === 'webpackStillOk') {
+      overlay.hide('compile');
+      rebuilding = false;
+      return;
+    }
+    finishUpdate();
+    reloadAfterFailureFix();
   }
 
   window.addEventListener('message', (event) => {

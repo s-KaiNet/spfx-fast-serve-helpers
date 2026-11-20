@@ -87,6 +87,7 @@ SIGINT and SIGTERM wait for a running restart, close the current dev server and 
 - [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)
 - [SPFx component types](../concepts/spfx-component-types.md)
 - [Roadmap overview](../roadmap/overview.md)
+- [npm peer conflict with css-loader 7.1.2](../limitations/npm-css-loader-peer-conflict.md): install fails with `ERESOLVE` when the project's `css-loader` is older than 7.1.4
 
 ## Evidence
 

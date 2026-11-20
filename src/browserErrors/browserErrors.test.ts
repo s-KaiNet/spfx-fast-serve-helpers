@@ -186,6 +186,15 @@ describe('BrowserErrorReporter', () => {
     expect(logged).toHaveLength(2);
   });
 
+  it('answers a repeated error with the overlay again without printing it twice', async () => {
+    const { instance, logged } = reporter();
+    const thrown = report({ name: 'TypeError', message: 'useState1 is not a function', stack: projectStack() });
+    const first = await instance.report(thrown);
+    expect(await instance.report(thrown)).toEqual(first);
+    expect(first.overlay?.title).toBe('Uncaught runtime error');
+    expect(logged).toHaveLength(1);
+  });
+
   it('reports bundle load failures with a page message', async () => {
     const { instance, logged } = reporter();
     const response = await instance.report(report({ kind: 'load-error', bundle: 'hello-web-part', requireType: 'define', message: 'Module build failed' }));

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 12:10 | ingest | overlay closes after the fix, npm css-loader peer conflict (R25)
+
+- Changed: `kb/features/errors-and-diagnostics.md`, `kb/limitations/npm-css-loader-peer-conflict.md` (new), `kb/features/cli-and-options.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: runtime-error overlay now closes on the first successful update after an edit (also warnings-only builds, which post `webpackWarnings` instead of `webpackOk`) and re-opens when the error repeats; reload after a load failure also follows warnings-only builds; hook-name typos recorded as runtime-only errors; npm `ERESOLVE` with `css-loader` 7.1.2/7.1.3 documented with the `css-loader@^7.1.4` and `--legacy-peer-deps` fixes and why no package-side fix exists
+
 ## 2026-11-20 01:21 | ingest | final benchmark (R24)
 
 - Changed: `kb/operations/final-benchmark.md` (new), `kb/roadmap/overview.md`, `kb/features/performance-and-cache.md`, `kb/index.md`

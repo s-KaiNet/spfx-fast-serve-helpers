@@ -37,9 +37,10 @@ export class BrowserErrorReporter {
     const frames = await this.mapFrames(report.stack || report.callStack);
     if (report.kind === 'load-error') return this.reportLoadError(report, frames);
     if (!frames.some((frame) => frame.project)) return {};
-    if (this.isRepeated(errorSignature(report, frames))) return {};
+    const repeated = this.isRepeated(errorSignature(report, frames));
+    if (repeated && report.kind === 'console-error') return {};
     const text = formatBrowserError(report, frames, readSourceFile);
-    this.options.logger.error(text);
+    if (!repeated) this.options.logger.error(text);
     if (!this.options.overlay || report.kind === 'console-error') return {};
     return { overlay: { title: overlayTitle(report), text: stripVTControlCharacters(text) } };
   }

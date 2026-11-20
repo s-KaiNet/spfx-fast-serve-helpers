@@ -17,9 +17,17 @@ Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rs
 The Rspack line is not published; install a packed tarball:
 
 ```sh
-npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.10.tgz
+npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.12.tgz
 npx heft trust-dev-cert                     # once per machine
 ```
+
+**npm `ERESOLVE` with `css-loader`:** a project with `css-loader` 7.1.2 or 7.1.3 (a direct devDependency, or locked at that version) fails with `ERESOLVE ... peerOptional @rspack/core@"0.x || 1.x" from css-loader@7.1.2`, because those versions don't accept Rspack 2. `css-loader` 7.1.4 and newer accept it, and SPFx's `@microsoft/sp-css-loader` (`~7.1.2`) works with them, so update it in the same command:
+
+```sh
+npm install --save-dev css-loader@^7.1.4 /path/to/spfx-fast-serve-helpers-1.24.0-rspack.12.tgz
+```
+
+If you must keep the old `css-loader`, install with `--legacy-peer-deps` (or put `legacy-peer-deps=true` in the project's `.npmrc`, which also covers later `npm install` runs). The package can't avoid this itself: npm puts `@rspack/core` at the top of `node_modules`, where the project's `css-loader` checks its peer range, and `@rspack/dev-server` requires `@rspack/core` as a peer, so it can't be hidden under another name; `overrides` only work in the project's own `package.json`. pnpm and yarn only warn.
 
 `@rspack/core`, `@rspack/dev-server`, `@rspack/plugin-react-refresh` and `sass-loader` are dependencies of this package, so the project needs no Rspack or webpack packages. From the project it uses what heft uses too: React and react-dom (development build, for Fast Refresh), `@microsoft/sp-css-loader`, `sass-embedded` (or `sass`) and `@rushstack/heft-sass-plugin` (SCSS typings).
 
@@ -140,7 +148,7 @@ Several bundles on one page all hot-update. Keep setup (icons, PnPjs, listeners)
 ## Errors
 
 - **Compile errors and warnings** go to the terminal with project-relative paths and a code frame (`error in src/…` and `rebuilt in 46 ms (src/…): 1 error`) and to one overlay over the page; the next successful rebuild closes it.
-- **Runtime errors from your code** (uncaught errors, unhandled rejections, `console.error` with a frame in your code) are forwarded to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay (Esc, × or a click outside closes it). SharePoint's own errors stay in the browser console.
+- **Runtime errors from your code** (uncaught errors, unhandled rejections, `console.error` with a frame in your code) are forwarded to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay. The next successful rebuild with new output (also one with only warnings) closes it; if the updated code throws again, it opens again. Esc, × or a click outside closes it too. SharePoint's own errors stay in the browser console.
 - **A bundle that fails to load** shows a readable reason in the web part's error box instead of `[object Object]` (compile error, missing `config.json` external or SPFx library), and the page reloads after the fix.
 - `--no-overlay` / `"overlay": false` turns the overlay off; terminal and console still get everything.
 
@@ -188,6 +196,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `No valid SPFx development certificate found` | `npx heft trust-dev-cert` |
 | "Error loading debug manifests" | `fast-serve` isn't running, or the browser doesn't trust the certificate (trust it and restart the browser); allow access to local network devices if Chrome/Edge asks |
 | "Error loading debug manifests" after stopping `fast-serve` | the debug query sticks to the tab (`sessionStorage`): open the page in a new tab without the query |
+| `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 <tarball>`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: stop it or use `--port` |
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served) |

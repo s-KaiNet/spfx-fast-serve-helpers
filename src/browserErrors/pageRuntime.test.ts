@@ -21,7 +21,9 @@ interface RuntimePage {
   console: { error: (...args: unknown[]) => void };
 }
 
-function startPage(config: PageRuntimeConfig = CONFIG, respond: (report: BrowserErrorReport) => BrowserErrorResponse = () => ({})): RuntimePage {
+type Responder = (report: BrowserErrorReport) => BrowserErrorResponse | Promise<BrowserErrorResponse>;
+
+function startPage(config: PageRuntimeConfig = CONFIG, respond: Responder = () => ({})): RuntimePage {
   const sent: BrowserErrorReport[] = [];
   const page = createFakePage({
     externals: {},
@@ -29,7 +31,7 @@ function startPage(config: PageRuntimeConfig = CONFIG, respond: (report: Browser
       if (url !== config.reportUrl || typeof init?.body !== 'string') return Promise.reject(new Error(`unexpected fetch ${url}`));
       const report = JSON.parse(init.body) as BrowserErrorReport;
       sent.push(report);
-      return Promise.resolve(new Response(JSON.stringify(respond(report))));
+      return Promise.resolve(respond(report)).then((answer) => new Response(JSON.stringify(answer)));
     },
   });
   page.evaluate(renderPageScript(config));
@@ -48,6 +50,17 @@ function overlayText(host: FakeNode | undefined): string {
 function devServerMessage(page: FakePage, data: unknown): void {
   page.dispatch('message', { data, source: page.window });
 }
+
+function rebuild(page: FakePage, result: 'webpackOk' | 'webpackWarnings' | 'webpackStillOk', clients = 1): void {
+  for (let client = 0; client < clients; client++) devServerMessage(page, { type: 'webpackInvalid' });
+  for (let client = 0; client < clients; client++) devServerMessage(page, result === 'webpackWarnings' ? { type: result, data: ['warning'] } : { type: result });
+}
+
+function throwFromBundle(page: FakePage, message: string): void {
+  page.dispatch('error', { error: Object.assign(new Error(message), { stack: `Error: ${message}\n    at Second (${DIST}hello-web-part.js:9:5)` }) });
+}
+
+const RUNTIME_OVERLAY: Responder = (report) => ({ overlay: { title: 'Uncaught runtime error', text: `[Unhandled error] ${report.name}: ${report.message}` } });
 
 describe('fast-serve page runtime', () => {
   it('forwards errors with a frame in a served bundle once per error object', async () => {
@@ -115,7 +128,6 @@ describe('fast-serve page runtime', () => {
     const { page, overlays } = startPage();
     const errors = { type: 'webpackErrors', data: ['ERROR in ./src/a.tsx\n× Syntax Error'] };
     for (let client = 0; client < 3; client++) devServerMessage(page, errors);
-    devServerMessage(page, { type: 'webpackWarnings', data: ['ignored'] });
     page.dispatch('message', { data: errors, source: {} });
     expect(overlays()).toHaveLength(1);
     expect(overlayText(overlays()[0])).toContain('[fast-serve] Compile error');
@@ -139,6 +151,77 @@ describe('fast-serve page runtime', () => {
     expect(overlays()).toHaveLength(0);
   });
 
+  it('closes a runtime error overlay after the next successful rebuild from any dev-server client', async () => {
+    const { page, overlays } = startPage(CONFIG, RUNTIME_OVERLAY);
+    throwFromBundle(page, 'useState1 is not a function');
+    await delay(10);
+    expect(overlays()).toHaveLength(1);
+    devServerMessage(page, { type: 'webpackOk' });
+    devServerMessage(page, { type: 'webpackInvalid' });
+    expect(overlays()).toHaveLength(1);
+    devServerMessage(page, { type: 'webpackOk' });
+    devServerMessage(page, { type: 'webpackOk' });
+    expect(overlays()).toHaveLength(0);
+    expect(page.reloads()).toBe(0);
+  });
+
+  it('closes a runtime error overlay after a rebuild that has only warnings', async () => {
+    const { page, overlays } = startPage(CONFIG, RUNTIME_OVERLAY);
+    throwFromBundle(page, 'useState1 is not defined');
+    await delay(10);
+    rebuild(page, 'webpackWarnings', 2);
+    expect(overlays()).toHaveLength(0);
+  });
+
+  it('keeps a runtime error overlay when the rebuild produced nothing new', async () => {
+    const { page, overlays } = startPage(CONFIG, RUNTIME_OVERLAY);
+    throwFromBundle(page, 'boom');
+    await delay(10);
+    rebuild(page, 'webpackStillOk');
+    expect(overlays()).toHaveLength(1);
+  });
+
+  it('opens the overlay again when the error repeats after the update, without redrawing an identical one', async () => {
+    const { page, overlays } = startPage(CONFIG, RUNTIME_OVERLAY);
+    throwFromBundle(page, 'boom');
+    await delay(10);
+    const first = overlays()[0];
+    throwFromBundle(page, 'boom');
+    await delay(10);
+    expect(overlays()[0]).toBe(first);
+    rebuild(page, 'webpackOk');
+    expect(overlays()).toHaveLength(0);
+    throwFromBundle(page, 'boom');
+    await delay(10);
+    expect(overlays()).toHaveLength(1);
+    expect(overlayText(overlays()[0])).toContain('[Unhandled error] Error: boom');
+  });
+
+  it('ignores an answer about an error that was raised before the update', async () => {
+    const answers: ((response: BrowserErrorResponse) => void)[] = [];
+    const { page, overlays } = startPage(CONFIG, () => new Promise<BrowserErrorResponse>((resolve) => {
+      answers.push(resolve);
+    }));
+    throwFromBundle(page, 'old code');
+    await delay(10);
+    rebuild(page, 'webpackOk');
+    expect(answers).toHaveLength(1);
+    answers[0]?.({ overlay: { title: 'Uncaught runtime error', text: 'old code' } });
+    await delay(10);
+    expect(overlays()).toHaveLength(0);
+  });
+
+  it('closes a compile error overlay after the fix, also when the fixed build has warnings', () => {
+    const { page, overlays } = startPage();
+    devServerMessage(page, { type: 'webpackErrors', data: ['compile'] });
+    devServerMessage(page, { type: 'webpackWarnings', data: ['warning'] });
+    expect(overlays()).toHaveLength(0);
+    devServerMessage(page, { type: 'webpackErrors', data: ['compile'] });
+    expect(overlays()).toHaveLength(1);
+    rebuild(page, 'webpackWarnings');
+    expect(overlays()).toHaveLength(0);
+  });
+
   it('shows no overlay when it is turned off', async () => {
     const { page, overlays, sent } = startPage({ ...CONFIG, overlay: false }, () => ({ overlay: { title: 't', text: 'x' } }));
     devServerMessage(page, { type: 'webpackErrors', data: ['compile'] });
@@ -157,6 +240,19 @@ describe('fast-serve page runtime', () => {
     expect(page.reloads()).toBe(0);
     devServerMessage(page, { type: 'webpackInvalid' });
     devServerMessage(page, { type: 'webpackOk' });
+    expect(page.reloads()).toBe(1);
+  });
+
+  it('reloads after a bundle load failure when the fixed build has only warnings, not when errors follow them', async () => {
+    const { page, console } = startPage();
+    console.error('Could not load hello-web-part in require.', Object.assign(new Error('Module build failed'), { requireType: 'define', requireModules: ['hello-web-part'] }));
+    devServerMessage(page, { type: 'webpackInvalid' });
+    devServerMessage(page, { type: 'webpackWarnings', data: ['warning'] });
+    devServerMessage(page, { type: 'webpackErrors', data: ['still broken'] });
+    await delay(150);
+    expect(page.reloads()).toBe(0);
+    rebuild(page, 'webpackWarnings');
+    await delay(150);
     expect(page.reloads()).toBe(1);
   });
 });
