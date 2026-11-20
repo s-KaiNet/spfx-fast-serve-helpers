@@ -45,9 +45,8 @@ SPFx components under development run inside a real SharePoint page that is open
 
 ### Hosts
 
-- Regular SharePoint pages (site pages, list views, list forms) are the main host.
-- The SharePoint Online hosted workbench (`/_layouts/15/workbench.aspx`) still accepts the debug query and keeps an unsaved canvas across reloads, but it is deprecated and retired on 2026-12-01; Microsoft's ACE tutorial now uses a test page. Besides `debugManifestsFile` it always probes the classic default `localhost:4321` and warns "Your web part will not appear in the toolbox" when nothing answers there; the debug manifests' components are listed anyway (details in [Extensions and ACEs](../features/extensions-and-aces.md)).
-- Interaction with ACEs (buttons, quick views) is disabled in edit mode: use Preview on the workbench or a saved page in read mode.
+- Regular SharePoint pages (site pages, list views, list forms) are the only host. Microsoft's guidance since SPFx 1.23: test on ordinary pages with the SPFx debug toolbar; current projects have no local test surface, and `initialPage` in `config/serve.json` should name a real page. `fast-serve` warns about and ignores a page URL that points to the deprecated SharePoint Online workbench (retirement December 1, 2026).
+- ACEs are added from the toolbox of a page in edit mode; interaction with them (buttons, quick views) is disabled in edit mode and works on a saved page in read mode ([Extensions and ACEs](../features/extensions-and-aces.md)).
 
 ## Links
 
@@ -59,4 +58,4 @@ SPFx components under development run inside a real SharePoint page that is open
 
 - Source: research (live observation on a SharePoint Online tenant, shipped sp-loader and `@microsoft/spfx-heft-plugins` 1.24.1 code), project docs
 - Confidence: high
-- Last checked: 2026-11-19 (carried over from the Vite implementation's KB; bundler-independent)
+- Last checked: 2026-11-19 (carried over from the Vite implementation's KB; bundler-independent); hosts updated 2026-11-20 from Microsoft Learn (SPFx 1.23 release notes, "Set up your SharePoint Framework development environment", "Build your first SharePoint Adaptive Card Extension")

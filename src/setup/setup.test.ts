@@ -39,7 +39,7 @@ describe('prepareServe', () => {
     const setup = prepareServe({ root: fixture, logger, env: { SPFX_SERVE_TENANT_DOMAIN: 'contoso.sharepoint.com' } });
     expect(setup.root).toBe(fixture);
     expect(setup.spfxVersion).toEqual({ kind: 'installed', version: '1.24.1', packageName: '@microsoft/sp-core-library' });
-    expect(setup.options).toMatchObject({ port: 4400, locale: 'en-us', pageUrl: 'https://contoso.sharepoint.com/_layouts/workbench.aspx' });
+    expect(setup.options).toMatchObject({ port: 4400, locale: 'en-us', pageUrl: 'https://contoso.sharepoint.com/sites/dev/SitePages/Test.aspx' });
     expect(setup.project.bundles().map((bundle) => bundle.name)).toEqual(['hello-web-part', 'card-adaptive-card-extension', 'banner-application-customizer']);
   });
 
@@ -130,7 +130,7 @@ describe('describeSetup', () => {
       `spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
       'port 4400 (https://localhost:4400), locale en-us, overlay off',
       'serve configuration: none',
-      'page: https://{tenantDomain}/_layouts/workbench.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
+      'page: https://{tenantDomain}/sites/dev/SitePages/Test.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
       'bundle hello-web-part: HelloWebPart (WebPart)',
       'bundle card-adaptive-card-extension: CardAdaptiveCardExtension (AdaptiveCardExtension)',
       'bundle banner-application-customizer: BannerApplicationCustomizer (ApplicationCustomizer)',

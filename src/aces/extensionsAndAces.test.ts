@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../logger.js';
+import { ACE_PAGE_HINT } from './aceBanner.js';
 import type { DebugManifest } from '../manifests/index.js';
 import { startDevServer, type RunningDevServer } from '../server/index.js';
 import { prepareServe } from '../setup/index.js';
@@ -108,7 +109,7 @@ describe('extensions and an Adaptive Card Extension served with a serve configur
     rmSync(root, { recursive: true, force: true });
   });
 
-  it('prints the list page of the selected configuration with the extension query and the hosted workbench', () => {
+  it('prints the list page of the selected configuration with the extension query and the web-part query for Adaptive Card Extensions', () => {
     expect(messages.filter((message) => message.startsWith('error:') || message.startsWith('warn:'))).toEqual([]);
     const encodedOrigin = encodeURIComponent(origin);
     const customActions = encodeURIComponent(
@@ -120,7 +121,8 @@ describe('extensions and an Adaptive Card Extension served with a serve configur
         'info: Adaptive Card Extensions: HelloAdaptiveCardExtension',
         'info: serve configuration: commands',
         `info: open: https://contoso.sharepoint.com/sites/dev/Lists/Tasks/AllItems.aspx?debugManifestsFile=${encodedOrigin}%2Ftemp%2Fbuild%2Fmanifests.js&noredir=true&loadSPFX=true&customActions=${customActions}#top`,
-        `info: hosted workbench (keeps an unsaved canvas, retired on 2026-12-01): https://contoso.sharepoint.com/sites/dev/_layouts/15/workbench.aspx?debugManifestsFile=${encodedOrigin}%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true`,
+        `info: ${ACE_PAGE_HINT}`,
+        `info: to add them, open a SharePoint page with the web-part debug query: ?debugManifestsFile=${encodedOrigin}%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true`,
       ]),
     );
   });

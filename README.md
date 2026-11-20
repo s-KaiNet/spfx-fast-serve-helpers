@@ -68,12 +68,13 @@ npm run serve -- --config commands
 
 - `customActions` (Application Customizers, ListView Command Sets), `fieldCustomizers` and `formCustomizer` become `loadSPFX=true` plus the JSON parameters, or the form parameters (`componentId`, `PageType`, `RootFolder`, `ID`, `ContentTypeID`, `properties`). As in heft, `debug=true` is left out then.
 - Page order (heft's, with the `pageUrl` option in place of heft's fallbacks): the selected configuration's `pageUrl` unless it is `default` → the `pageUrl` option → `serveConfigurations.default.pageUrl` → `initialPage`. `{tenantDomain}` is replaced with `SPFX_SERVE_TENANT_DOMAIN`. The page's own query is replaced, a `#hash` kept.
+- Use a SharePoint page. Microsoft retires the SharePoint Online workbench (`/_layouts/workbench.aspx`, the `initialPage` the generator may write) on December 1, 2026: `fast-serve` warns about a page URL that points to it and ignores it.
 - An unknown `--config` name warns with the available names and falls back to `default`. At start `fast-serve` warns about configurations that can't work: ids that aren't your extensions, a component of the wrong kind for its slot, unknown locations, the generator's placeholders (`InternalFieldName`, `/sites/mySite/Lists/MyList`).
 - Editing `config/serve.json` restarts `fast-serve` and prints the new URL.
 
 ### Adaptive Card Extensions
 
-ACEs load with the web-part debug query: open a page with it, edit the page and add the card from the toolbox. Card actions and quick views work in preview/read mode only. When the page is a regular page, `fast-serve` also prints the site's hosted workbench (`<site>/_layouts/15/workbench.aspx` with the debug query), which keeps an unsaved canvas across reloads; Microsoft retires it on December 1, 2026. On a port other than 4321 the workbench warns "Your web part will not appear in the toolbox" because it also probes `localhost:4321`: dismiss it, the toolbox has your components anyway.
+ACEs load with the web-part debug query on a SharePoint page, as in [Microsoft's ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension): open your test page with it, edit the page and add the card from the toolbox. Card actions and quick views are disabled in edit mode: they work in read mode, on a saved page. When the selected serve configuration loads extensions, `fast-serve` also prints the web-part debug query for adding ACEs.
 
 Quick-view templates (JSON imports), images and the lazily loaded property pane (`import()` → `chunk.<name>.js`) come from the dev server; `@microsoft/sp-adaptive-card-extension-base` and the other SPFx libraries come from the page.
 
@@ -231,7 +232,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `<name> is an SPFx library project: run fast-serve in a consumer project` | link the library into a web part project and run `fast-serve` there (see [Library components](#library-components)) |
 | a linked library still loads its deployed version | the link is a copy (pnpm/yarn `file:`), the package is listed in `deployedLibraries`, or its entry has no source under `src/` (warning at start) |
 | `ReferenceError` for a webpack `DefinePlugin` constant, `Module not found` for a webpack alias | mirror the customization in `fast-serve/rspack.extend.mjs` |
-| "Your web part will not appear in the toolbox" on the hosted workbench | the workbench probes `localhost:4321`; dismiss it |
+| `… is the deprecated SharePoint Online workbench (retirement: December 1, 2026)` | set `initialPage` in `config/serve.json` (or `pageUrl`) to a page of your site |
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
 | stale or strange output after a dependency change outside the lock file (a linked package, a manual edit in `node_modules`) | delete `temp/fast-serve/cache` and start again |
 | `<file> imports "<library>/lib/…", a deep import into the SPFx library <library>` | in that file, import from the library's root if it exports the name |

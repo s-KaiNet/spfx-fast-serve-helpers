@@ -21,7 +21,6 @@ set -a; [ -f ./.env ] && . ./.env; set +a
 |---|---|---|
 | `SPFX_DEBUG_BROWSER_PROFILE` | yes | Chrome user data dir that is already signed in to the tenant |
 | `SPFX_DEBUG_PAGE_URL` | for web parts | SharePoint page that has the web parts on it |
-| `SPFX_DEBUG_WORKBENCH_URL` | no | hosted workbench `…/_layouts/15/workbench.aspx` (ACEs; retired by Microsoft on 2026-12-01) |
 | `SPFX_DEBUG_LIST_URL` | no | list view for Command Sets / Field Customizers |
 | `SPFX_DEBUG_CHROME` | no | Chrome binary; default: newest agent-browser-managed Chrome (`~/.agent-browser/browsers/chrome-*/chrome`), then `google-chrome`/`chromium` on PATH |
 | `SPFX_DEBUG_CDP_PORT` | no | Chrome remote debugging port, default `9333` |
@@ -68,7 +67,7 @@ ab screenshot /tmp/spfx-debug.png
 
 ## 4. Safety rules
 
-- **View only by default.** Never edit, save, publish or delete SharePoint pages, lists or items unless the user explicitly allows it. Opening a page in edit mode autosaves a draft. To add a component without touching a page use the hosted workbench (unsaved canvas) or load the module by id (see checks).
+- **View only by default.** Never edit, save, publish or delete SharePoint pages, lists or items unless the user explicitly allows it. Opening a page in edit mode autosaves a draft. To check a component that isn't on the page without editing it, load the module by id (see checks).
 - Edit project source files only when the task needs it (HMR tests) and **restore them** afterwards (`git diff` / `git checkout -- <file>` only for files you changed).
 - Profiles, cookies and HAR files contain auth secrets: never print, copy or commit them; keep HARs out of repositories.
 - Stop only processes you started. Find them by pid or by a unique argument; note that `pkill -f <pattern>` / `pgrep -f` also match your own shell when the pattern is on its command line (use the pid file or a `[x]yz` pattern).
@@ -86,6 +85,6 @@ Then check `git status` in the SPFx project for leftover edits.
 
 ## References
 
-- [references/debug-urls.md](references/debug-urls.md): web parts, extensions, ACEs and the workbench, the "Allow debug scripts?" dialog.
+- [references/debug-urls.md](references/debug-urls.md): web parts, extensions, ACEs, the "Allow debug scripts?" dialog.
 - [references/checks.md](references/checks.md): eval snippets (HMR client, DOM, RequireJS modules, theme, network), loading by id, HMR test, what hot-updates vs reloads.
 - [references/pitfalls.md](references/pitfalls.md): known gotchas, error messages and remote (SSH) setups.

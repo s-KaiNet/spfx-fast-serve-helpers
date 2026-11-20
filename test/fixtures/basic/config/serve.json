@@ -1,5 +1,5 @@
 {
   "port": 4400,
   "https": true,
-  "initialPage": "https://{tenantDomain}/_layouts/workbench.aspx"
+  "initialPage": "https://{tenantDomain}/sites/dev/SitePages/Test.aspx"
 }

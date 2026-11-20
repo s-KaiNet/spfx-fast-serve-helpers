@@ -3,6 +3,7 @@ import path from 'node:path';
 import { DEFAULT_LOCALE, type ServeConfiguration } from '../project/index.js';
 import { isObject } from '../utils/guards.js';
 import { readOptionalJsoncFile } from '../utils/jsonc.js';
+import { isRetiredWorkbenchUrl, retiredWorkbenchWarning } from './retiredWorkbench.js';
 
 export interface FastServeOptions {
   port?: number;
@@ -64,13 +65,10 @@ export function resolveOptions(
   if (!/^[a-z]{2,3}(-[a-z0-9]+)*$/.test(locale)) throw new Error(`Invalid locale "${locale}" (expected e.g. "en-us")`);
   const warnings: string[] = [];
   const serveConfiguration = selectServeConfiguration(defaults.serveConfigurations, cli.serveConfiguration ?? file.serveConfiguration, warnings);
-  const namedConfigurationPage = serveConfiguration?.name === DEFAULT_SERVE_CONFIGURATION ? undefined : serveConfiguration?.pageUrl;
-  const pageUrlTemplate =
-    namedConfigurationPage ??
-    cli.pageUrl ??
-    file.pageUrl ??
-    defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl ??
-    defaults.initialPage;
+  const page = selectPage(cli, file, defaults, serveConfiguration);
+  const pointsToRetiredWorkbench = page !== undefined && isRetiredWorkbenchUrl(page.url);
+  if (pointsToRetiredWorkbench) warnings.push(retiredWorkbenchWarning(page.source, page.url));
+  const pageUrlTemplate = pointsToRetiredWorkbench ? undefined : page?.url;
   return {
     port,
     origin: `https://localhost:${port}`,
@@ -81,6 +79,28 @@ export function resolveOptions(
     overlay: cli.overlay ?? file.overlay ?? true,
     warnings,
   };
+}
+
+interface PageSetting {
+  source: string;
+  url: string;
+}
+
+function selectPage(
+  cli: FastServeOptions,
+  file: FastServeOptions,
+  defaults: OptionDefaults,
+  serveConfiguration: SelectedServeConfiguration | undefined,
+): PageSetting | undefined {
+  const namedConfigurationPage = serveConfiguration?.name === DEFAULT_SERVE_CONFIGURATION ? undefined : serveConfiguration?.pageUrl;
+  const candidates: { source: string; url: string | undefined }[] = [
+    { source: `config/serve.json serveConfigurations.${serveConfiguration?.name ?? ''}.pageUrl`, url: namedConfigurationPage },
+    { source: '--page-url', url: cli.pageUrl },
+    { source: `${OPTIONS_FILE} "pageUrl"`, url: file.pageUrl },
+    { source: `config/serve.json serveConfigurations.${DEFAULT_SERVE_CONFIGURATION}.pageUrl`, url: defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl },
+    { source: 'config/serve.json "initialPage"', url: defaults.initialPage },
+  ];
+  return candidates.find((candidate): candidate is PageSetting => candidate.url !== undefined);
 }
 
 function selectServeConfiguration(

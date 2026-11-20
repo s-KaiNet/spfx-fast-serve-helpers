@@ -1,7 +1,7 @@
 {
   "port": 4321,
   "https": true,
-  "initialPage": "https://{tenantDomain}/_layouts/workbench.aspx",
+  "initialPage": "https://{tenantDomain}/sites/dev/SitePages/Test.aspx",
   "serveConfigurations": {
     "default": {
       "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/home.aspx",

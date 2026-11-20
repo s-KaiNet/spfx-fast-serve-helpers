@@ -26,9 +26,9 @@ describe('readyBanner', () => {
   });
 
   it('prints the debug query and the missing tenant variable without a page URL', () => {
-    const options = resolveOptions({ defaults: { port: 4321, initialPage: 'https://{tenantDomain}/_layouts/workbench.aspx' } }, {});
+    const options = resolveOptions({ defaults: { port: 4321, initialPage: 'https://{tenantDomain}/sites/dev/SitePages/Test.aspx' } }, {});
     const lines = readyBanner(options, components.slice(0, 1), 5);
-    expect(lines).toContain('set SPFX_SERVE_TENANT_DOMAIN to resolve the page URL "https://{tenantDomain}/_layouts/workbench.aspx"');
+    expect(lines).toContain('set SPFX_SERVE_TENANT_DOMAIN to resolve the page URL "https://{tenantDomain}/sites/dev/SitePages/Test.aspx"');
     expect(lines).toContain('append to your SharePoint page URL: ?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true');
   });
 });

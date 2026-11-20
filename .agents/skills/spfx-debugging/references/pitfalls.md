@@ -7,8 +7,6 @@
 | scripts blocked by CSP | the debug parameters are missing, or the host isn't `localhost` |
 | "Allow debug scripts?" every time / nothing loads | the dialog wasn't confirmed: snapshot and click **Load debug scripts** |
 | LNA prompt "access other apps and services on this device" | user browsers: allow it; the headless Chrome skips it via `--disable-features=LocalNetworkAccessChecks` |
-| workbench shows unexpected or old components | the hosted workbench **also always** fetches `https://localhost:4321/temp/manifests.js`, besides `debugManifestsFile`. With two servers (for example another project on 4321 and yours on 4399) it mixes their components: use 4321 for the project under test or stop the other server only if it's yours |
-| workbench canvas has cards you didn't add | it keeps the unsaved canvas in browser storage, across reloads and sites; remove them, nothing is saved |
 | web part box shows `[object Object]` | SharePoint's rendering of a load error; read the browser console and the dev server terminal. fast-serve replaces it with `[fast-serve] Failed to load bundle …` plus the file and line |
 | `… older than … used by the project` | project SPFx newer than the tenant's; would fail in production too |
 | Field Customizer module loaded but `onInit` never runs | seen on some tenants/list experiences with `heft start` too; not a dev server bug. Check the module in RequireJS `defined`, report it |

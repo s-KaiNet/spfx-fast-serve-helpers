@@ -13,7 +13,8 @@ export function readyBanner(options: ResolvedOptions, components: readonly SpfxC
     if (options.pageUrlTemplate) lines.push(`set ${TENANT_DOMAIN_ENV} to resolve the page URL "${options.pageUrlTemplate}"`);
     lines.push(`append to your SharePoint page URL: ?${debugQuery(options.origin, serveConfiguration)}`);
   }
-  lines.push(...aceBannerLines(components, options.pageUrl, debugQuery(options.origin)));
+  const webPartQuery = debugQuery(options.origin);
+  lines.push(...aceBannerLines(components, debugQuery(options.origin, serveConfiguration) === webPartQuery ? undefined : webPartQuery));
   lines.push('the debug query sticks to the browser tab: after stopping fast-serve, open the page in a new tab');
   return lines;
 }

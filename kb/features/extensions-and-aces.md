@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-Extensions are served exactly like heft serves them: `--config <name>` (alias `--serve-config`, or `"serveConfiguration"` in `fast-serve/config.json`) picks a `config/serve.json` serve configuration, whose page and extension parameters become the printed `open:` URL. Startup warnings point out configurations that cannot work (unknown component ids, wrong extension kind, unknown locations, the generator's placeholders). ACEs need nothing special in the Rspack build: they are components like web parts, their quick-view templates, images and lazy property-pane chunks go through the normal compile, and the libraries of lazy chunks are declared on the bundle's `define`. The ready banner adds an ACE hint and, next to a regular page, the site's hosted workbench URL with the plain debug query.
+Extensions are served exactly like heft serves them: `--config <name>` (alias `--serve-config`, or `"serveConfiguration"` in `fast-serve/config.json`) picks a `config/serve.json` serve configuration, whose page and extension parameters become the printed `open:` URL. Startup warnings point out configurations that cannot work (unknown component ids, wrong extension kind, unknown locations, the generator's placeholders). ACEs need nothing special in the Rspack build: they are components like web parts, their quick-view templates, images and lazy property-pane chunks go through the normal compile, and the libraries of lazy chunks are declared on the bundle's `define`. The ready banner adds an ACE hint for testing on a SharePoint page and, when the opened URL carries the extension query, the plain web-part debug query.
 
 ## Behavior
 
@@ -39,12 +39,9 @@ Extensions are served exactly like heft serves them: `--config <name>` (alias `-
 | Lazy chunks | `import()` (the generator's property pane) becomes `chunk.<name>.js` loaded from the dev server's `/dist/`; its libraries (`@microsoft/sp-property-pane`) are hoisted onto the entry `define` and listed in the manifest's `scriptResources`, so no heft-style async-component loader is needed |
 | Edits | card views, quick views, templates, loc strings and the ACE class only reach the bundle entry → page reload |
 
-Banner: when the project has ACEs, one line explains where to add them (toolbox in edit mode; card actions and quick views only in preview/read mode). If the page is a regular page, a second line prints the hosted workbench of the page's site (`<site>/_layouts/15/workbench.aspx`, site = the path before `SitePages`, `Pages`, `Lists`, `_layouts`, `Shared Documents` or `Forms`, else `/sites|teams/<name>`, else the root) with the plain web-part debug query, and the retirement date 2026-12-01. No line for a workbench page or without a page.
+Banner: when the project has ACEs, one line explains how to use them on a SharePoint page (add from the toolbox in edit mode; card actions and quick views work in read mode, on a saved page). When the selected serve configuration loads extensions, the opened URL carries the extension query, so a second line prints the plain web-part debug query for adding ACEs.
 
-### Hosted workbench quirks
-
-- The workbench loads `debugManifestsFile` and additionally probes the classic default `localhost:4321` (`/temp/manifests.js`, `/temp/build/manifests.js`, http and https). When nothing answers there (fast-serve on another port), it shows a "Your web part will not appear in the toolbox" warning on every load. Dismiss it: the components from the debug manifests are in the toolbox anyway.
-- The unsaved canvas survives reloads, so an ACE edit reloads the page and the card reappears with the change.
+Testing flow (Microsoft's ACE tutorials since the online workbench's deprecation): serve, open a test SharePoint page with the web-part debug query, edit the page and add the ACE from the toolbox; card actions and quick views are disabled in edit mode, so the page is saved and the card used in read mode. An ACE already on a saved page or dashboard renders from the dev server with just the debug query.
 
 ### Live results (spfx-rea copy, SPFx 1.24.1 project on a 1.25 tenant, port 4431)
 
@@ -55,8 +52,8 @@ Banner: when the project has ACEs, one line explains where to add them (toolbox 
 | `--config commands` | list view with the printed URL; the Command Set loads, "Command Two" appears in the command bar (overflow menu in the narrow headless window), its dialog opens; command icon served |
 | Command Set class edit | page reload, dialog shows the new text |
 | `--config feedback_EditForm` | Form Customizer renders on `SPListForm.aspx`; a component edit hot-updates without reload |
-| ACE on the hosted workbench (printed URL) | listed in the toolbox as "Hello", card renders with the bundled logo; property pane loads `chunk.Hello-property-pane.js` and shows "Card title"; Preview → Quick view opens with the template |
-| ACE card view edit | page reload, the restored card shows the new text |
+| ACE added from the toolbox to an unsaved canvas (`1.24.0-rspack.5`; the page-based flow needs a saved page and was not rechecked) | listed in the toolbox as "Hello", card renders with the bundled logo; property pane loads `chunk.Hello-property-pane.js` and shows "Card title"; quick view opens with the template in preview |
+| ACE card view edit | page reload, the card shows the new text |
 | Field Customizer | not checked: SharePoint does not instantiate it on this tenant, also under `heft start` |
 
 ## Links
@@ -71,6 +68,6 @@ Banner: when the project has ACEs, one line explains where to add them (toolbox 
 
 ## Evidence
 
-- Source: implementation behavior (serve-configuration warnings and debug query ported from the Vite implementation, which matches heft); integration test with a real dev server on a fixture with an ACE (JSON template, image, lazy chunk), an Application Customizer and a Command Set; live checks in headless Chrome on SharePoint Online
+- Source: implementation behavior (serve-configuration warnings and debug query ported from the Vite implementation, which matches heft); integration test with a real dev server on a fixture with an ACE (JSON template, image, lazy chunk), an Application Customizer and a Command Set; live checks in headless Chrome on SharePoint Online; ACE testing flow from Microsoft Learn ("Build your first SharePoint Adaptive Card Extension", "SharePoint Framework Debug Toolbar")
 - Confidence: high
-- Last checked: 2026-11-19
+- Last checked: 2026-11-20

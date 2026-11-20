@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 19:30 | ingest | hosted workbench removed (`1.24.0-rspack.17`)
+
+- Changed: `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/spfx-component-types.md`, `kb/features/extensions-and-aces.md`, `kb/features/dev-server.md`, `kb/features/cli-and-options.md`, `kb/operations/acceptance-run.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: the site workbench URL in the ACE banner, its 4321 probe quirk and the workbench as a host removed (Microsoft retires the SharePoint Online workbench on December 1, 2026); ACEs documented with Microsoft's page-based flow (toolbox in edit mode, interaction on a saved page in read mode) and the web-part query line for serve configurations with extensions; a page URL pointing to the workbench is ignored with a warning
+
 ## 2026-11-20 19:30 | refactor | architecture review items 1–3 (1.24.0-rspack.16)
 
 - Changed: `kb/architecture/overview.md`, `kb/architecture/project-model.md`, `kb/features/rspack-compile.md`, `kb/features/local-library-projects.md`, `kb/features/project-restarts.md`, `kb/index.md`
