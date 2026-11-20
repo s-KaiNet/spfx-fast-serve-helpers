@@ -14,6 +14,7 @@ export type SourceReader = (file: string) => string | undefined;
 const HEADERS: Record<BrowserErrorReport['kind'], string> = {
   error: '[Unhandled error]',
   'unhandled-rejection': '[Unhandled rejection]',
+  'hot-update-error': '[Hot update error]',
   'console-error': '[console.error]',
   'load-error': '[Bundle load error]',
 };
@@ -21,6 +22,7 @@ const HEADERS: Record<BrowserErrorReport['kind'], string> = {
 const OVERLAY_TITLES: Record<BrowserErrorReport['kind'], string> = {
   error: 'Uncaught runtime error',
   'unhandled-rejection': 'Unhandled promise rejection',
+  'hot-update-error': 'Updated module failed to run',
   'console-error': 'console.error',
   'load-error': 'Bundle load error',
 };

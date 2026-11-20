@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay. A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js`, so it runs once per page before any bundle.
+Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js`, so it runs once per page before any bundle.
 
 ## Behavior
 
@@ -25,9 +25,11 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 | compile error / warning | yes (warnings too) | errors only | |
 | bundle can't load: a module failed to compile | short line pointing at the compile error | the compile error | readable `[fast-serve]` message; page reloads after the fix |
 | bundle can't load: `config.json` external or SPFx library script failed | yes, names the external (URL or path) or library (package, id, version) | | readable `[fast-serve]` message |
-| bundle can't load: its code threw while loading | yes, source-mapped with code frame | | readable `[fast-serve]` message |
+| bundle can't load: project code threw while loading | yes, source-mapped with code frame | yes | readable `[fast-serve]` message; page reloads after the fix |
+| bundle can't load: a dependency threw while loading (no project frame) | yes | | readable `[fast-serve]` message |
+| project module throws while a hot update evaluates it | yes, with a note that the page keeps the previous version | yes | |
 | uncaught error / unhandled rejection from project code | yes, source-mapped with code frame | yes | |
-| `console.error` from project code | yes | no | |
+| `console.error` from project code (strings or `Error` objects) | yes | no | |
 | SharePoint / third-party errors, rejections without a stack | no | no | |
 
 ### Terminal
@@ -35,7 +37,7 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 - Compile problems: `error in <path relative to the project>[:line:column]` (or `warning in …`) followed by Rspack's message with its code frame; the "Module build failed (from builtin:swc-loader)" wrapper is removed and the text dedented; identical problems are printed once.
 - One summary line per compile: `compiled in 640 ms` at start, `rebuilt in 42 ms (src/…/Second.tsx)` afterwards (at most two changed files, then `+n more`), with `: 1 error, 2 warnings` appended only when there are any.
 - Nothing else from Rspack or the dev server is printed (no banners, stats, progress or "Project is running at" lines, nothing on websocket connections or shutdown).
-- Browser errors: `[Unhandled error] TypeError: …`, `[Unhandled rejection] …`, `[console.error] …` or `[Bundle load error] bundle "<name>" could not be loaded: <reason>`, then the frames as `> <function> src/…:line`, a code frame for the first project frame, and the stack cut after the last project frame. The same error repeated within 2 s is printed once (React reports a render error several times).
+- Browser errors: `[Unhandled error] TypeError: …`, `[Unhandled rejection] …`, `[Hot update error] ReferenceError: …` (followed by the line `the page keeps running the previous version of this module until the error is fixed`), `[console.error] …` or `[Bundle load error] bundle "<name>" could not be loaded: <reason>`, then the frames as `> <function> src/…:line`, a code frame for the first project frame, and the stack cut after the last project frame. The same error repeated within 2 s is printed once (React reports a render error several times).
 
 ### Forwarding rule
 
@@ -43,6 +45,14 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 - The server maps every frame in a served file through that file's source map and prints the report only when at least one frame maps to an existing file of the project outside `node_modules`. React DOM's "The above error occurred…" message, `@pnp/telemetry-js` failures and SharePoint's errors therefore stay in the browser console.
 - Bundle load failures are always reported: SharePoint logs `Could not load <bundle> in require.` with the RequireJS error object; the runtime recognises the bundle names from the page's configuration.
 - Locations are `file:line` without a column: the development source maps are line-based (`cheap-module-source-map`), which keeps rebuilds fast.
+- A frame is mapped only when its own generated line has a mapping. Lines Rspack generates itself (the `__webpack_require__` import lines of a module, for example) have none, and a nearest-previous lookup would attribute them to the end of whatever module precedes them in the bundle (seen: `SecondWebPart.ts` named as `HelloWorldWebPart.ts:40`); such frames stay `dist/<bundle>.js:<line>` and don't count as project frames.
+
+### Errors while a module is evaluated
+
+- A component module that throws at its top level during a hot update (e.g. `import … from '…';asdfsdf`, which compiles as an expression statement) never reaches `window.onerror`: React Fast Refresh's self-accept error handler catches it, logs it with `console.error(error)` and keeps the module accepted, so the previous version keeps rendering. Without special handling this looked like a plain `console.error` (terminal only) and the page showed no change at all.
+- The page treats an `Error` object logged with `console.error` while any bundle on the page is in the HMR `apply` phase as a failed update: `[Hot update error]` in the terminal and the overlay `Updated module failed to run`. Each bundle's refresh entry tracks its own HMR status (`apply` → in the set of applying bundles; any other status → out), in a page-wide set the page runtime reads.
+- `console.error` outside an update stays terminal-only, also with an `Error` object: project code logs errors it handled (failed requests in a `catch`), which must not cover the page. React's own "The above error occurred…" log is a string; the render error itself arrives as an uncaught error, so render errors behave as before.
+- A module that is not a Fast Refresh boundary (web part class, a module exporting components and other values) makes the update fail and the page reload; the error then appears as a bundle load failure, with the overlay.
 
 ### Overlay
 
@@ -54,6 +64,7 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 
 ### Bundle load failures
 
+- When project code threw while the bundle was evaluated (RequireJS `define` error carrying the original error and stack), the formatted report also opens the overlay (`Bundle load error`); compile failures and missing externals or libraries don't (the compile error has its own overlay, the others have no code location).
 - The readable message replaces `[object Object]` in the error boxes of the bundle's web parts for a minute after the failure, e.g. `[fast-serve] bundle "hello-world-web-part" could not be loaded: a module in it failed to compile; the page reloads after the fix. Details are in the fast-serve terminal.`
 - After a load failure the page reloads on the first successful rebuild that follows a change, also a build with only warnings; because the dev server sends a build's warnings before its errors, that reload waits 100 ms and is cancelled when errors follow.
 - A missing `config.json` external is named with its URL or path and the advice to check `config/config.json` and that SharePoint can reach it (the tenant CSP blocks most CDNs, as with heft).
@@ -82,7 +93,8 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 
 ## Evidence
 
+- Source (2026-11-20, `1.24.0-rspack.18`, live on a spfx-rea copy): `…;asdfsdf` appended to an import line of a function component: before, hot update → terminal `[console.error] ReferenceError…`, no overlay, old component kept rendering (logged by Fast Refresh's self-accept error handler inside the HMR runtime's apply step); F5 → readable error boxes and terminal load error without overlay, with misattributed frames. After: hot update → overlay with `Second.tsx:1` and code frame, state of the old component kept; fix → overlay closed, Fast Refresh with state kept, no reload; F5 → overlay `Bundle load error` plus readable error boxes, frames correct, reload after the fix; same edit in the web part class → reload → load-error overlay; `console.error('…', 42)` and `console.error(new Error(…))` in an `onClick` → terminal only; `React.useState1` render error → `Uncaught runtime error` overlay as before, closed after the fix.
 - Source: implementation behaviour, unit tests, integration test with a real dev server and a fake page with two bundles; live on SharePoint Online with spfx-rea and spfx-bench copies (2026-11-19): syntax error → one overlay (Rspack's overlay showed three), cleared after the fix; throw in an `onClick` and in a render → terminal `Second.tsx:12` / `:9` with code frame, printed once; syntax error at page load → readable error boxes and reload after the fix; missing external URL → named in terminal and error boxes; two bundles on one page → one overlay.
 - Source (2026-11-20, `1.24.0-rspack.12`, live on a spfx-rea copy): runtime-error overlays from `React.useState1`, `useState1` and `import { useState1 }` stayed after the fix before the change; afterwards they close after the fix, re-open after an edit that keeps the error, close with state kept after an `onClick` error fix, and close after a fix whose build has one warning; dev-server client sends `webpackWarnings` without `webpackOk` for warnings-only builds (read from `@rspack/dev-server` 2.2.2).
 - Confidence: high
-- Last checked: 2026-11-20
+- Last checked: 2026-11-20 (`1.24.0-rspack.18`)

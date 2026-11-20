@@ -27,6 +27,7 @@ export interface BrowserErrorReporterOptions {
 const MAX_FRAMES = 12;
 const REPEAT_SUPPRESSION_MS = 2000;
 const NODE_MODULES = /[\\/]node_modules[\\/]/;
+const STALE_MODULE_HINT = 'the page keeps running the previous version of this module until the error is fixed';
 
 export class BrowserErrorReporter {
   private lastSignature = '';
@@ -40,10 +41,14 @@ export class BrowserErrorReporter {
     if (!frames.some((frame) => frame.project)) return {};
     const repeated = this.isRepeated(errorSignature(report, frames));
     if (repeated && report.kind === 'console-error') return {};
-    const text = formatBrowserError(report, frames, readSourceFile);
+    const text = formatBrowserError(report, frames, readSourceFile, report.kind === 'hot-update-error' ? STALE_MODULE_HINT : undefined);
     if (!repeated) this.options.logger.error(text);
-    if (!this.options.overlay || report.kind === 'console-error') return {};
-    return { overlay: { title: overlayTitle(report), text: stripVTControlCharacters(text) } };
+    if (report.kind === 'console-error') return {};
+    return this.overlayResponse(overlayTitle(report), text);
+  }
+
+  private overlayResponse(title: string, text: string): BrowserErrorResponse {
+    return this.options.overlay ? { overlay: { title, text: stripVTControlCharacters(text) } } : {};
   }
 
   async mapFrames(stack: string): Promise<MappedFrame[]> {
@@ -69,9 +74,10 @@ export class BrowserErrorReporter {
   private reportLoadError(report: BrowserErrorReport, frames: readonly MappedFrame[]): BrowserErrorResponse {
     const description = describeLoadError(report, this.options.loadErrorFacts());
     const pageMessage = loadErrorPageMessage(report, description);
-    if (this.isRepeated(`load\n${report.bundle ?? ''}\n${description.reason}`)) return { pageMessage };
-    this.options.logger.error(formatReport(loadErrorHeadline(report, description), description.showFrames ? frames : [], readSourceFile));
-    return { pageMessage };
+    const text = formatReport(loadErrorHeadline(report, description), description.showFrames ? frames : [], readSourceFile);
+    if (!this.isRepeated(`load\n${report.bundle ?? ''}\n${description.reason}`)) this.options.logger.error(text);
+    const thrownByProjectCode = description.showFrames && frames.some((frame) => frame.project);
+    return thrownByProjectCode ? { pageMessage, ...this.overlayResponse(overlayTitle(report), text) } : { pageMessage };
   }
 
   private isRepeated(signature: string): boolean {

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 20:40 | ingest | errors while a module is evaluated open the overlay (R28, `1.24.0-rspack.18`)
+
+- Changed: `kb/features/errors-and-diagnostics.md`, `kb/features/hmr.md`, `kb/roadmap/overview.md`
+- Outcome: a component that throws at its top level during a hot update was caught by Fast Refresh's error handler and logged with `console.error` (terminal only, page unchanged, old version still rendering); now an `Error` logged while a bundle is in the HMR `apply` phase is reported as a failed update with the overlay and a stale-page note; bundle load failures caused by project code open the overlay too; frames on generated lines without a mapping are no longer attributed to the preceding module. Plain `console.error` (also with `Error` objects) stays terminal-only
+
 ## 2026-11-20 19:30 | ingest | hosted workbench removed (`1.24.0-rspack.17`)
 
 - Changed: `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/spfx-component-types.md`, `kb/features/extensions-and-aces.md`, `kb/features/dev-server.md`, `kb/features/cli-and-options.md`, `kb/operations/acceptance-run.md`, `kb/roadmap/overview.md`, `kb/index.md`

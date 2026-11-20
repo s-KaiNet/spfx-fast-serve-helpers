@@ -91,6 +91,33 @@ describe('fast-serve page runtime', () => {
     expect(sent[0]?.callStack).toContain(`${DIST}hello-web-part.js`);
   });
 
+  it('shows an Error logged while a bundle applies a hot update as a failed update, other console.error calls stay in the terminal', async () => {
+    const { page, sent, overlays } = startPage(CONFIG, (report) => (report.kind === 'console-error' ? {} : { overlay: { title: 'Updated module failed to run', text: report.message } }));
+    page.evaluate(
+      [
+        'function moduleError(message) { const error = new ReferenceError(message); error.stack = `ReferenceError: ${message}\\n    at ./src/Second.tsx (' + DIST + 'hello-web-part.0a1b.hot-update.js:13:1)`; return error; }',
+        'function hotErrorHandler(error) { console.error(error); }',
+        'function logText(text) { console.error(text); }',
+        "function caughtByProjectCode() { console.error(moduleError('handled')); console.error('failed', 42); }",
+      ].join('\n'),
+      `${DIST}hello-web-part.js`,
+    );
+    page.evaluate('caughtByProjectCode()');
+    page.evaluate("globalThis[Symbol.for('fast-serve.hot-update.applying-bundles')] = new Set([{}]); hotErrorHandler(moduleError('asdfsdf is not defined')); logText('during the update');");
+    page.evaluate("globalThis[Symbol.for('fast-serve.hot-update.applying-bundles')].clear(); hotErrorHandler(moduleError('after the update'));");
+    await delay(10);
+    expect(sent.map(({ kind, message }) => [kind, message])).toEqual([
+      ['console-error', 'ReferenceError: handled'],
+      ['console-error', 'failed 42'],
+      ['hot-update-error', 'asdfsdf is not defined'],
+      ['console-error', 'during the update'],
+      ['console-error', 'ReferenceError: after the update'],
+    ]);
+    expect(sent[2]?.stack).toContain('hot-update.js:13:1');
+    expect(overlays()).toHaveLength(1);
+    expect(overlayText(overlays()[0])).toContain('asdfsdf is not defined');
+  });
+
   it('installs itself once per page', async () => {
     const { page, sent } = startPage();
     page.evaluate(renderPageScript(CONFIG));

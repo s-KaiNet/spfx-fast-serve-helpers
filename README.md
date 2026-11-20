@@ -177,8 +177,9 @@ Several bundles on one page all hot-update. Keep setup (icons, PnPjs, listeners)
 ## Errors
 
 - **Compile errors and warnings** go to the terminal with project-relative paths and a code frame (`error in src/…` and `rebuilt in 46 ms (src/…): 1 error`) and to one overlay over the page; the next successful rebuild closes it.
-- **Runtime errors from your code** (uncaught errors, unhandled rejections, `console.error` with a frame in your code) are forwarded to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay. The next successful rebuild with new output (also one with only warnings) closes it; if the updated code throws again, it opens again. Esc, × or a click outside closes it too. SharePoint's own errors stay in the browser console.
-- **A bundle that fails to load** shows a readable reason in the web part's error box instead of `[object Object]` (compile error, missing `config.json` external or SPFx library), and the page reloads after the fix.
+- **Runtime errors from your code** (uncaught errors, unhandled rejections, `console.error` with a frame in your code) are forwarded to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, `console.error` calls don't (your code may log errors it handles). The next successful rebuild with new output (also one with only warnings) closes it; if the updated code throws again, it opens again. Esc, × or a click outside closes it too. SharePoint's own errors stay in the browser console.
+- **Code that throws while a module runs** (for example a stray `asdf` after an import line, which compiles but fails with `ReferenceError`) opens the overlay too. During a hot update the page keeps showing the previous version of the component until the error is fixed, and the terminal says so. At page load the bundle can't load: the web part's error box shows the reason and the page reloads after the fix.
+- **A bundle that fails to load** shows a readable reason in the web part's error box instead of `[object Object]` (compile error, code that threw while loading, missing `config.json` external or SPFx library), and the page reloads after the fix.
 - `--no-overlay` / `"overlay": false` turns the overlay off; terminal and console still get everything.
 
 ## Performance

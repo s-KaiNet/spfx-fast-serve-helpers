@@ -26,10 +26,10 @@ export class BundleSourceMaps {
 
   async originOf(servedFile: string, line: number, column: number): Promise<SourcePosition | undefined> {
     const map = await this.mapOf(servedFile);
-    const origin = map?.findOrigin(line, column);
-    if (origin === undefined || !('fileName' in origin)) return undefined;
-    const position: SourcePosition = { file: sourceFilePath(this.root, origin.fileName), line: origin.lineNumber };
-    return this.withColumns() ? { ...position, column: origin.columnNumber } : position;
+    const entry = map?.findEntry(line - 1, column - 1);
+    if (entry === undefined || !('originalSource' in entry) || entry.generatedLine !== line - 1) return undefined;
+    const position: SourcePosition = { file: sourceFilePath(this.root, entry.originalSource), line: entry.originalLine + 1 };
+    return this.withColumns() ? { ...position, column: entry.originalColumn + 1 } : position;
   }
 
   private mapOf(servedFile: string): Promise<SourceMap | undefined> {

@@ -16,7 +16,7 @@ export { BundleSourceMaps, sourceFilePath } from './sourceMaps.js';
 export { parseStackFrames, servedFile } from './stackFrames.js';
 
 const MAX_REPORT_BYTES = 256 * 1024;
-const REPORT_KINDS = new Set(['error', 'unhandled-rejection', 'console-error', 'load-error']);
+const REPORT_KINDS = new Set(['error', 'unhandled-rejection', 'hot-update-error', 'console-error', 'load-error']);
 
 export class BrowserErrorsPlugin implements RspackPluginInstance {
   readonly sourceMaps: BundleSourceMaps;

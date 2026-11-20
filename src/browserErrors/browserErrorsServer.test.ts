@@ -26,6 +26,16 @@ const FIRST = (body: string): string =>
   `  ${body}\n` +
   '}\n';
 
+const BADGE = 'src/webparts/first/components/Badge.tsx';
+const BADGE_SOURCE = (version: string, statement = ''): string =>
+  `import * as React from 'react';${statement}\n` +
+  `(globalThis as unknown as Record<string, string>).badgeVersion = '${version}';\n` +
+  'export function Badge(): unknown {\n  return <span />;\n}\n';
+
+function overlaysOf(shown: FakePage): FakeNode[] {
+  return shown.body.childNodes.filter((node) => node.id === 'fast-serve-error-overlay');
+}
+
 async function waitFor(condition: () => boolean, description: string, deadline = Date.now() + 20_000): Promise<void> {
   if (condition()) return;
   if (Date.now() > deadline) throw new Error(`timed out waiting for ${description}`);
@@ -38,7 +48,24 @@ describe('compile errors and browser errors with a dev server and a page with tw
   let server: RunningDevServer;
   let page: FakePage;
   const messages: string[] = [];
-  const overlays = (): FakeNode[] => page.body.childNodes.filter((node) => node.id === 'fast-serve-error-overlay');
+  const overlays = (): FakeNode[] => overlaysOf(page);
+
+  const openPage = async (bundles: readonly string[]): Promise<FakePage> => {
+    const opened = createFakePage({ externals: fakeExternals, fetch: (url, init) => fetch(url, init) });
+    const manifests = await (await fetch(`${server.origin}/temp/build/manifests.js`)).text();
+    opened.loadAmdBundle(manifests);
+    const urls = bundles.map((bundle) => `${server.origin}/dist/${bundle}.js`);
+    const sources = await Promise.all(urls.map(async (url) => (await fetch(url)).text()));
+    sources.forEach((source, index) => {
+      try {
+        opened.loadAmdBundle(source, urls[index]);
+      } catch (error) {
+        const requireError = Object.assign(error as Error, { requireType: 'define', requireModules: [bundles[index]] });
+        (opened.globals.console as Console).error(`Could not load ${bundles[index]} in require.`, requireError);
+      }
+    });
+    return opened;
+  };
 
   beforeAll(async () => {
     root = mkdtempSync(path.join(tmpdir(), 'fast-serve-browser-errors-'));
@@ -47,10 +74,11 @@ describe('compile errors and browser errors with a dev server and a page with tw
     symlinkSync(path.dirname(projectRequire.resolve('@microsoft/sp-css-loader/package.json')), path.join(root, 'node_modules', '@microsoft', 'sp-css-loader'), 'dir');
     mkdirSync(path.join(root, 'src/webparts/first/components'), { recursive: true });
     writeFileSync(path.join(root, COMPONENT), FIRST("throw new Error('exploded');"));
+    writeFileSync(path.join(root, BADGE), BADGE_SOURCE('v1'));
     writeFileSync(
       path.join(root, 'src/webparts/first/FirstWebPart.ts'),
-      "import { Version } from '@microsoft/sp-core-library';\nimport { explode } from './components/First';\n" +
-        "(globalThis as unknown as Record<string, unknown>).explode = explode;\nexport default class FirstWebPart {\n  public readonly version: Version = Version.parse('1.0');\n}\n",
+      "import { Version } from '@microsoft/sp-core-library';\nimport { explode } from './components/First';\nimport { Badge } from './components/Badge';\n" +
+        "(globalThis as unknown as Record<string, unknown>).explode = explode;\n(globalThis as unknown as Record<string, unknown>).badge = Badge;\nexport default class FirstWebPart {\n  public readonly version: Version = Version.parse('1.0');\n}\n",
     );
     const certificate = selfSignedCertificate(root);
     tls.setDefaultCACertificates([...tls.getCACertificates('default'), certificate.cert]);
@@ -62,12 +90,7 @@ describe('compile errors and browser errors with a dev server and a page with tw
     const project = createProject(root, logger);
     const options = resolveOptions({ cli: { port: await freePort() }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root, project, options }, logger, https: certificate, outputPath: path.join(root, 'out') });
-    page = createFakePage({ externals: fakeExternals, fetch: (url, init) => fetch(url, init) });
-    const manifests = await (await fetch(`${server.origin}/temp/build/manifests.js`)).text();
-    page.loadAmdBundle(manifests);
-    const urls = ['single-web-part', 'shared-bundle'].map((bundle) => `${server.origin}/dist/${bundle}.js`);
-    const sources = await Promise.all(urls.map(async (url) => (await fetch(url)).text()));
-    sources.forEach((source, index) => page.loadAmdBundle(source, urls[index]));
+    page = await openPage(['single-web-part', 'shared-bundle']);
     await delay(1000);
   }, 60_000);
 
@@ -122,5 +145,38 @@ describe('compile errors and browser errors with a dev server and a page with tw
     await waitFor(() => overlays().length === 1, 'the runtime error overlay to open again');
     expect(overlays()[0]?.shadowRoot?.text).toContain('[fast-serve] Uncaught runtime error');
     page.dispatch('keydown', { key: 'Escape' });
+  }, 30_000);
+
+  it('shows a component that throws while a hot update evaluates it, keeps the previous version running', async () => {
+    messages.length = 0;
+    const reloadsBefore = page.reloads();
+    writeFileSync(path.join(root, BADGE), BADGE_SOURCE('v2', 'asdfsdf'));
+    await waitFor(() => overlays().length === 1, 'the failed update overlay');
+    expect(overlays()[0]?.shadowRoot?.text).toContain('[fast-serve] Updated module failed to run');
+    expect(overlays()[0]?.shadowRoot?.text).toContain("> 1 | import * as React from 'react';asdfsdf");
+    const reported = messages.filter((message) => message.startsWith('error: [')).map((message) => message.split('\n').slice(0, 3));
+    expect(reported).toEqual([
+      [
+        'error: [Hot update error] ReferenceError: asdfsdf is not defined',
+        'the page keeps running the previous version of this module until the error is fixed',
+        ` > ./${BADGE} ${BADGE}:1`,
+      ],
+    ]);
+    expect(page.globals.badgeVersion).toBe('v1');
+    expect(page.reloads()).toBe(reloadsBefore);
+  }, 30_000);
+
+  it('shows a bundle whose project code throws while it is loaded and reloads that page after the fix', async () => {
+    messages.length = 0;
+    const loaded = await openPage(['shared-bundle']);
+    await waitFor(() => overlaysOf(loaded).length === 1, 'the bundle load error overlay');
+    const text = overlaysOf(loaded)[0]?.shadowRoot?.text ?? '';
+    expect(text).toContain('[fast-serve] Bundle load error');
+    expect(text).toContain('[Bundle load error] bundle "shared-bundle" could not be loaded: ReferenceError: asdfsdf is not defined');
+    expect(text).toContain(` > ./${BADGE} ${BADGE}:1`);
+    expect(text).not.toContain('BannerApplicationCustomizer');
+    writeFileSync(path.join(root, BADGE), BADGE_SOURCE('v3'));
+    await waitFor(() => overlays().length === 0 && page.globals.badgeVersion === 'v3', 'the fixed update to apply');
+    await waitFor(() => loaded.reloads() > 0, 'the page with the failed bundle to reload');
   }, 30_000);
 });

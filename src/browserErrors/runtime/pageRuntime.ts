@@ -18,6 +18,8 @@ interface FastServeOverlay {
   hide(source: OverlaySource): void;
 }
 
+const HOT_UPDATE_APPLYING_BUNDLES = Symbol.for('fast-serve.hot-update.applying-bundles');
+
 const DEV_TOOLING_PREFIXES = ['[rspack-dev-server]', '[HMR]', '[fast-serve]'];
 
 const DEV_SERVER_MESSAGES = ['webpackErrors', 'webpackWarnings', 'webpackInvalid', 'webpackOk', 'webpackStillOk'] as const;
@@ -51,6 +53,11 @@ function errorDetails(value: unknown): ErrorDetails {
 function isDevToolingMessage(args: readonly unknown[]): boolean {
   const [first] = args;
   return typeof first === 'string' && DEV_TOOLING_PREFIXES.some((prefix) => first.startsWith(prefix));
+}
+
+function isApplyingHotUpdate(): boolean {
+  const applyingBundles = (window as unknown as Record<symbol, Set<unknown> | undefined>)[HOT_UPDATE_APPLYING_BUNDLES];
+  return applyingBundles !== undefined && applyingBundles.size > 0;
 }
 
 function isDevServerMessage(data: unknown): data is DevServerMessage {
@@ -273,6 +280,10 @@ export function installFastServePage(config: PageRuntimeConfig): void {
     }
     if (isDevToolingMessage(args)) return;
     const loggedError = args.find((arg) => arg instanceof Error);
+    if (loggedError !== undefined && isApplyingHotUpdate()) {
+      forward('hot-update-error', loggedError, errorDetails(loggedError));
+      return;
+    }
     const message = args.map(describeValue).join(' ');
     forward('console-error', loggedError, { name: 'console.error', message, stack: loggedError?.stack ?? '' }, new Error('console.error call site').stack ?? '');
   };

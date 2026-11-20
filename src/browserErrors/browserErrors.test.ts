@@ -39,6 +39,14 @@ describe('stack frames', () => {
     expect(servedFile('https://res-1.cdn.office.net/files/sp-pages.js', DIST)).toBeUndefined();
   });
 
+  it('maps only lines that have a mapping of their own', async () => {
+    const map = JSON.stringify({ version: 3, sources: ['webpack:///.././src/a.ts'], names: [], mappings: 'AAAA;;AAEA' });
+    const sourceMaps = new BundleSourceMaps('/p', (file) => Promise.resolve(file === 'bundle.js.map' ? map : undefined), () => false);
+    expect(await sourceMaps.originOf('bundle.js', 1, 5)).toEqual({ file: '/p/src/a.ts', line: 1 });
+    expect(await sourceMaps.originOf('bundle.js', 2, 5)).toBeUndefined();
+    expect(await sourceMaps.originOf('bundle.js', 3, 1)).toEqual({ file: '/p/src/a.ts', line: 3 });
+  });
+
   it('resolves webpack source names against the project root', () => {
     expect(sourceFilePath('/p', 'webpack:///.././src/a.tsx')).toBe('/p/src/a.tsx');
     expect(sourceFilePath('/home/u/p', 'webpack:///../../../../usr/lib/x.js')).toBe('/usr/lib/x.js');
@@ -137,14 +145,14 @@ describe('BrowserErrorReporter', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
-  function reporter(overlay = true, now = () => 0) {
+  function reporter(overlay = true, now = () => 0, compileFailed = true) {
     const logged: string[] = [];
     const sourceMaps = new BundleSourceMaps(
       root,
       (file) => Promise.resolve(file.endsWith('.js.map') ? readFileSync(path.join(root, file), 'utf8') : undefined),
       () => true,
     );
-    const facts: LoadErrorFacts = { root, configExternals: new Map(), libraries: new Map(), compileFailed: true };
+    const facts: LoadErrorFacts = { root, configExternals: new Map(), libraries: new Map(), compileFailed };
     const instance = new BrowserErrorReporter({ root, distUrl: DIST, overlay, logger: { error: (message) => logged.push(stripVTControlCharacters(message)) }, sourceMaps, loadErrorFacts: () => facts, now });
     return { instance, logged };
   }
@@ -222,6 +230,32 @@ describe('BrowserErrorReporter', () => {
     const response = await instance.report(report({ kind: 'load-error', bundle: 'hello-web-part', requireType: 'define', message: 'Module build failed' }));
     expect(logged).toEqual(['[Bundle load error] bundle "hello-web-part" could not be loaded: a module in it failed to compile (the compile error is printed above); the page reloads after the fix']);
     expect(response.pageMessage).toBe('[fast-serve] bundle "hello-web-part" could not be loaded: a module in it failed to compile; the page reloads after the fix. Details are in the fast-serve terminal.');
+    expect(response.overlay).toBeUndefined();
+  });
+
+  it('shows a bundle that failed to load because project code threw while it was evaluated in the overlay', async () => {
+    const { instance, logged } = reporter(true, () => 0, false);
+    const thrown = report({ kind: 'load-error', bundle: 'hello-web-part', requireType: 'define', name: 'TypeError', message: 'x', stack: projectStack() });
+    const response = await instance.report(thrown);
+    expect(logged[0]?.split('\n').slice(0, 2)).toEqual(['[Bundle load error] bundle "hello-web-part" could not be loaded: TypeError: x', ' > counter src/counter.ts:6:10']);
+    expect(response.overlay).toEqual({ title: 'Bundle load error', text: logged[0] });
+    expect(response.pageMessage).toBe('[fast-serve] bundle "hello-web-part" could not be loaded: TypeError: x. Details are in the fast-serve terminal.');
+    expect(await instance.report(thrown)).toEqual(response);
+    expect(logged).toHaveLength(1);
+    const withoutProjectFrame = await instance.report({ ...thrown, message: 'vendor', stack: `TypeError: vendor\n    at send (${DIST}vendor.js:3:1)` });
+    expect(withoutProjectFrame.overlay).toBeUndefined();
+    expect(await reporter(false, () => 0, false).instance.report(thrown)).toEqual({ pageMessage: response.pageMessage });
+  });
+
+  it('prints a module that failed during a hot update with a hint about the stale page and shows it in the overlay', async () => {
+    const { instance, logged } = reporter();
+    const response = await instance.report(report({ kind: 'hot-update-error', name: 'ReferenceError', message: 'asdfsdf is not defined', stack: projectStack() }));
+    expect(logged[0]?.split('\n').slice(0, 3)).toEqual([
+      '[Hot update error] ReferenceError: asdfsdf is not defined',
+      'the page keeps running the previous version of this module until the error is fixed',
+      ' > counter src/counter.ts:6:10',
+    ]);
+    expect(response.overlay).toEqual({ title: 'Updated module failed to run', text: logged[0] });
   });
 
   it('treats React replays of one render error as the same error', () => {

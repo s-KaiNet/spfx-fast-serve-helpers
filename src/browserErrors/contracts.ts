@@ -1,4 +1,4 @@
-export type BrowserErrorKind = 'error' | 'unhandled-rejection' | 'console-error' | 'load-error';
+export type BrowserErrorKind = 'error' | 'unhandled-rejection' | 'hot-update-error' | 'console-error' | 'load-error';
 
 export interface BrowserErrorReport {
   kind: BrowserErrorKind;
