@@ -7,6 +7,7 @@ import type { ConfigContribution } from '../rspack/contribution.js';
 import { resolveFromProject } from '../utils/heftProject.js';
 import { packageFile } from '../utils/packageFile.js';
 import { createCssClassNameGenerator, heftCssFileMapper } from './cssClassName.js';
+import { createSassPackageFolderImporter } from './sassPackageImporter.js';
 import { scssTypingsOnServerStart } from './scssTypings/index.js';
 
 const SP_CSS_LOADER = '@microsoft/sp-css-loader';
@@ -81,7 +82,7 @@ export function sassOptions(
     ...(silenceDeprecations && { silenceDeprecations: [...silenceDeprecations] }),
     ...(ignoreDeprecationsInDependencies && { quietDeps: true }),
     ...(loadPaths && { loadPaths: loadPaths.map((folder) => path.resolve(root, folder)) }),
-    ...(NodePackageImporter && { importers: [new NodePackageImporter(root)] }),
+    importers: [...(NodePackageImporter ? [new NodePackageImporter(root)] : []), createSassPackageFolderImporter(root)],
   };
 }
 

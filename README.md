@@ -17,14 +17,14 @@ Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rs
 The Rspack line is not published; install a packed tarball:
 
 ```sh
-npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.13.tgz
+npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.14.tgz
 npx heft trust-dev-cert                     # once per machine
 ```
 
 **npm `ERESOLVE` with `css-loader`:** a project with `css-loader` 7.1.2 or 7.1.3 (a direct devDependency, or locked at that version) fails with `ERESOLVE ... peerOptional @rspack/core@"0.x || 1.x" from css-loader@7.1.2`, because those versions don't accept Rspack 2. `css-loader` 7.1.4 and newer accept it, and SPFx's `@microsoft/sp-css-loader` (`~7.1.2`) works with them, so update it in the same command:
 
 ```sh
-npm install --save-dev css-loader@^7.1.4 /path/to/spfx-fast-serve-helpers-1.24.0-rspack.13.tgz
+npm install --save-dev css-loader@^7.1.4 /path/to/spfx-fast-serve-helpers-1.24.0-rspack.14.tgz
 ```
 
 If you must keep the old `css-loader`, install with `--legacy-peer-deps` (or put `legacy-peer-deps=true` in the project's `.npmrc`, which also covers later `npm install` runs). The package can't avoid this itself: npm puts `@rspack/core` at the top of `node_modules`, where the project's `css-loader` checks its peer range, and `@rspack/dev-server` requires `@rspack/core` as a peer, so it can't be hidden under another name; `overrides` only work in the project's own `package.json`. pnpm and yarn only warn.
@@ -103,7 +103,7 @@ An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` wi
 - **`config/config.json` externals** (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like with heft; local files are served next to the bundles. Imports follow webpack's semantics (named imports read from the loaded module, `import *` is the module, default import is `default` when `__esModule`, `export *` works).
 - **React** is the project's development build, bundled, with nested copies (for example PnP's) collapsed onto it.
 - **Localized strings** of the selected locale are bundled (AMD, TypeScript or ES loc files; non-AMD ones print heft's compatibility warning). Heft keeps them as separate per-locale scripts; with `fast-serve` the page language doesn't switch strings, `--locale` does.
-- **Styles:** `sass-loader` with the project's Sass, then the project's `@microsoft/sp-css-loader`, as in heft: CSS module class names are identical to heft's, theme tokens (`"[theme:themePrimary, default: #0078d4]"`) resolve against the page theme, `pkg:` and `~` imports work, `config/sass.json` `silenceDeprecations`, `ignoreDeprecationsInDependencies` and `loadPaths` apply.
+- **Styles:** `sass-loader` with the project's Sass, then the project's `@microsoft/sp-css-loader`, as in heft: CSS module class names are identical to heft's, theme tokens (`"[theme:themePrimary, default: #0078d4]"`) resolve against the page theme, `pkg:` and `~` imports resolve like heft (also into packages whose `exports` hide the Sass files, such as `~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss`), `config/sass.json` `silenceDeprecations`, `ignoreDeprecationsInDependencies` and `loadPaths` apply.
 - **TypeScript:** SWC (`builtin:swc-loader`) per file, with the tsconfig options that change emitted code (`experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, through `extends` and the rig), `paths`/`baseUrl` through Rspack's tsconfig resolver. Type-only re-exports are harmless (webpack semantics; their warnings are hidden). A `const enum` that exists only in a `.d.ts` can't be inlined per file: `fast-serve` reports a clear compile error.
 - **`require()` and AMD in dependencies** behave as in heft's webpack: `require('<literal>')` is resolved at build time, UMD dependencies use webpack's own `define` (full `lodash` works), SharePoint's RequireJS never sees them.
 - **Static assets** (images, fonts, …) get absolute dev-server URLs; `.sprite.svg` is inlined as source.

@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -88,7 +88,8 @@ async function heftCompile(root: string, files: string[]): Promise<string[]> {
 
 function heftClassName(root: string, sourceFile: string, className: string): string {
   const cssFile = path.join(root, 'lib', `${path.relative('src', sourceFile)}.css`);
-  return `${className}_${createHmac('sha1', cssFile).update(readFileSync(cssFile, 'utf8')).digest('hex').slice(0, 8)}`;
+  const cssAfterSourceMapLoader = readFileSync(cssFile, 'utf8').replace(/^\/\*# sourceMappingURL=[^\n]*\*\/\n$/m, '');
+  return `${className}_${createHmac('sha1', cssFile).update(cssAfterSourceMapLoader).digest('hex').slice(0, 8)}`;
 }
 
 function renderedClassName(source: string): string {
@@ -119,6 +120,51 @@ describe('Sass and CSS like heft', () => {
     expect(source).toContain('.globalThing{color:red}');
     expect(source).toMatch(/\.rs-btn\{background:url\(/);
     expect(result.assets.some((asset) => /^icon_[0-9a-f]+\.png$/.test(asset))).toBe(true);
+  }, 60_000);
+
+  it('resolves ~ and pkg: imports of files hidden by package exports from the package folder, like heft', async () => {
+    const hiddenPackage = 'node_modules/@contoso/hidden-sass';
+    const copy = styledFixture({
+      'config/sass.json': { ...heftSassJson, silenceDeprecations: ['import'] },
+      [`${hiddenPackage}/package.json`]: { name: '@contoso/hidden-sass', version: '1.0.0', exports: { '.': './index.js' } },
+      [`${hiddenPackage}/index.js`]: 'module.exports = {};\n',
+      [`${hiddenPackage}/dist/sass/_tokens.scss`]: "@import '~inner-sass/vars';\n$hidden-color: $inner-color;\n@mixin hidden {\n  color: $hidden-color;\n}\n",
+      [`${hiddenPackage}/node_modules/inner-sass/package.json`]: { name: 'inner-sass', version: '1.0.0', exports: { '.': './index.js' } },
+      [`${hiddenPackage}/node_modules/inner-sass/_vars.scss`]: '$inner-color: #107c10;\n',
+      [`${COMPONENTS}/TildeImport.module.scss`]: "@import '~@contoso/hidden-sass/dist/sass/tokens.scss';\n.tildeImport {\n  @include hidden;\n}\n",
+      [`${COMPONENTS}/TildeUse.module.scss`]: "@use '~@contoso/hidden-sass/dist/sass/tokens' as t;\n.tildeUse {\n  @include t.hidden;\n}\n",
+      [`${COMPONENTS}/PkgUse.module.scss`]: "@use 'pkg:@contoso/hidden-sass/dist/sass/tokens';\n.pkgUse {\n  @include tokens.hidden;\n}\n",
+      [`${COMPONENTS}/PkgImport.module.scss`]: "@import 'pkg:@contoso/hidden-sass/dist/sass/_tokens';\n.pkgImport {\n  @include hidden;\n}\n",
+      [`${COMPONENTS}/Hello.tsx`]: [
+        "import * as React from 'react';",
+        "import tildeImport from './TildeImport.module.scss';",
+        "import tildeUse from './TildeUse.module.scss';",
+        "import pkgUse from './PkgUse.module.scss';",
+        "import pkgImport from './PkgImport.module.scss';",
+        "import type { IHelloProps } from './IHelloProps';",
+        '',
+        'export function renderHello({ title }: IHelloProps): unknown {',
+        '  return <div className={`${tildeImport.tildeImport} ${tildeUse.tildeUse} ${pkgUse.pkgUse} ${pkgImport.pkgImport}`} title={title} />;',
+        '}',
+        '',
+      ].join('\n'),
+    });
+    const modules = ['TildeImport', 'TildeUse', 'PkgUse', 'PkgImport'];
+
+    const { result, messages, bundle } = await copy.compile();
+
+    expect(result.errors).toEqual([]);
+    expect(result.warnings).toEqual([]);
+    expect(messages).toEqual([]);
+    expect(await heftCompile(copy.root, modules.map((name) => `${COMPONENTS}/${name}.module.scss`))).toEqual([]);
+    expect(renderedClassName(bundle('single-web-part'))).toBe(
+      modules.map((name) => heftClassName(copy.root, `${COMPONENTS}/${name}.module.scss`, `${name[0]?.toLowerCase()}${name.slice(1)}`)).join(' '),
+    );
+    expect(copy.read(`lib/${path.relative('src', COMPONENTS)}/PkgUse.module.scss.css`)).toContain('color: #107c10');
+    const root = realpathSync(copy.root);
+    expect(result.fileDependencies).toEqual(
+      expect.arrayContaining([path.join(root, hiddenPackage, 'dist/sass/_tokens.scss'), path.join(root, hiddenPackage, 'node_modules/inner-sass/_vars.scss')]),
+    );
   }, 60_000);
 
   it('reports Sass deprecations that config/sass.json does not silence', async () => {

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 13:20 | ingest | Sass ~/pkg: imports like heft, development class-name hash (R27)
+
+- Changed: `kb/features/styles-and-typings.md`, `kb/index.md`, `kb/roadmap/overview.md`
+- Outcome: `~` and unresolved `pkg:` imports resolve from the package folder found from the importing file with `exports` ignored (classic `SPFabricCore.scss` template import compiles, nested `~` in imported packages works, dependencies reported for rebuilds); class names now hash the CSS as heft's development webpack sees it (`source-map-loader` removes the source-map comment line), equal to heft's development `dist/` bundles
+
 ## 2026-11-20 12:40 | ingest | deep library import warning only for project code (R26)
 
 - Changed: `kb/features/libraries-and-externals.md`, `kb/index.md`, `kb/roadmap/overview.md`

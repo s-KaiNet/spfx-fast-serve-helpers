@@ -32,8 +32,12 @@ export function heftCssFileMapper(root: string, configuration: SassConfiguration
     const relative = path.relative(sourceFolder, file);
     const cssRelative = configuration.doNotTrimOriginalFileExtension ? `${relative}.css` : relative.replace(SASS_SOURCE, '.css');
     const cssFile = path.join(cssFolder, cssRelative);
-    return { file: cssFile, css: configuration.sourceMap ? `${css}\n/*# sourceMappingURL=${path.basename(cssFile)}.map */\n` : css };
+    return { file: cssFile, css: configuration.sourceMap ? cssAfterHeftSourceMapLoader(css) : css };
   };
+}
+
+function cssAfterHeftSourceMapLoader(css: string): string {
+  return `${css}\n`;
 }
 
 function bundledCssFolder(folders: SassConfiguration['cssOutputFolders']): string | undefined {

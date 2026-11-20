@@ -7,6 +7,7 @@ export interface CompileResult {
   errors: string[];
   warnings: string[];
   assets: string[];
+  fileDependencies: string[];
 }
 
 export async function compileOnce(context: BuildContext, options: RspackConfigOptions = {}): Promise<CompileResult> {
@@ -25,6 +26,7 @@ export async function compileOnce(context: BuildContext, options: RspackConfigOp
       errors: (json.errors ?? []).map((error) => error.message),
       warnings: (json.warnings ?? []).map((warning) => warning.message),
       assets: (json.assets ?? []).map((asset) => asset.name),
+      fileDependencies: [...stats.compilation.fileDependencies],
     };
   } finally {
     await new Promise<void>((resolve) => {
