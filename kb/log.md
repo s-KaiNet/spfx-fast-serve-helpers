@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 19:30 | refactor | architecture review items 1–3 (1.24.0-rspack.16)
+
+- Changed: `kb/architecture/overview.md`, `kb/architecture/project-model.md`, `kb/features/rspack-compile.md`, `kb/features/local-library-projects.md`, `kb/features/project-restarts.md`, `kb/index.md`
+- Outcome: feature API separated from the composition root (no folder cycles, cross-folder imports through public entry modules); one named feature shape, a page channel (page reload, page script parts, server-started hooks) and explicit merge order documented; project model now has code roots, consumer/library roles and read-once caching; the stale in-place invalidation description removed. Behaviour unchanged (same terminal output and served files on a spfx-rea copy, live checks passed)
+
 ## 2026-11-20 15:40 | ingest | local library component projects compiled from source (L1–L4)
 
 - Changed: `kb/features/local-library-projects.md` (new), `kb/architecture/project-model.md`, `kb/features/libraries-and-externals.md`, `kb/features/cli-and-options.md`, `kb/features/project-restarts.md`, `kb/features/typescript-and-tsconfig.md`, `kb/features/hmr.md`, `kb/features/errors-and-diagnostics.md`, `kb/concepts/spfx-component-types.md`, `kb/operations/acceptance-run.md`, `kb/roadmap/overview.md`, `kb/index.md`

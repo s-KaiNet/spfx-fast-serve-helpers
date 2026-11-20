@@ -1,5 +1,5 @@
 import { createServer } from 'node:net';
-import { OPTIONS_FILE } from '../config/options.js';
+import { OPTIONS_FILE } from '../config/index.js';
 
 const LOOPBACK_ADDRESSES = ['127.0.0.1', '::1'];
 const UNAVAILABLE_ADDRESS_CODES = new Set(['EADDRNOTAVAIL', 'EAFNOSUPPORT']);

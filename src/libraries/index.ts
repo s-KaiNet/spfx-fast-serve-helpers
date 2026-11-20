@@ -1,6 +1,5 @@
 import type { LocalLibrary } from '../project/index.js';
-import type { BuildContext } from '../rspack/context.js';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 
 export function localLibraryAliases(libraries: readonly LocalLibrary[]): Record<string, string> {
   const alias: Record<string, string> = {};
@@ -11,6 +10,8 @@ export function localLibraryAliases(libraries: readonly LocalLibrary[]): Record<
   return alias;
 }
 
-export function localLibrariesContribution({ project }: Pick<BuildContext, 'project'>): ConfigContribution {
+export const localLibrariesFeature: Feature = { name: 'localLibraries', contribute: localLibrariesContribution };
+
+function localLibrariesContribution({ project }: Pick<FeatureContext, 'project'>): ConfigContribution {
   return { alias: localLibraryAliases(project.localLibraries()) };
 }

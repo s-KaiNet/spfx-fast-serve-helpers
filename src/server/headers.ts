@@ -1,11 +1,4 @@
-import type { ServerMiddleware } from '../rspack/contribution.js';
-
-export const CORS_HEADERS: Readonly<Record<string, string>> = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'HEAD, GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': '*',
-  'Access-Control-Allow-Private-Network': 'true',
-};
+import { CORS_HEADERS, type ServerMiddleware } from '../featureApi/index.js';
 
 const HOT_UPDATE_FILE = /\.hot-update\.(?:js|json)(?:[?#]|$)/;
 

@@ -81,7 +81,7 @@ describe('local SPFx library projects', () => {
     expect(project().configExternals().get('corp-legacy')?.source).toEqual({ type: 'url', url: 'https://cdn.contoso.com/corp-legacy-2.js' });
   });
 
-  it('adds the library model files to the restart triggers and invalidates on their change', () => {
+  it('adds the library model files to the restart triggers and lists the library as a code root', () => {
     const model = project();
     const files = model.modelFiles();
     for (const file of ['package.json', 'config/config.json', 'tsconfig.json', 'src/libraries/corpLib/CorpLibLibrary.manifest.json']) {
@@ -89,8 +89,11 @@ describe('local SPFx library projects', () => {
     }
     expect(files).not.toContain(path.join(library, 'config', 'serve.json'));
     expect(files).not.toContain(path.join(library, 'config', 'sass.json'));
-    expect(model.invalidate(path.join(library, 'config', 'config.json'))).toBe('model');
-    expect(model.invalidate(path.join(library, 'src', 'index.ts'))).toBeUndefined();
+    const [consumerRoot, libraryRoot, ...others] = model.codeRoots();
+    expect(consumerRoot?.project).toBe(model);
+    expect(libraryRoot).toMatchObject({ label: LIBRARY_PACKAGE, root: library, sourceDir: path.join(library, 'src') });
+    expect(libraryRoot?.project.role).toBe('library');
+    expect(others).toEqual([]);
   });
 
   it('follows library dependencies of libraries and leaves registry libraries as externals', () => {

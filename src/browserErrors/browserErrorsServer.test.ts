@@ -13,7 +13,7 @@ import { startDevServer, type RunningDevServer } from '../server/index.js';
 import { COMPILE_FIXTURE, fakeExternals } from '../testing/compileKit.js';
 import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
 import { createFakePage, type FakeNode, type FakePage } from '../testing/fakePage.js';
-import { BROWSER_ERRORS_PATH } from './index.js';
+import { BROWSER_ERRORS_PATH } from '../featureApi/index.js';
 
 const projectRequire = createRequire(import.meta.url);
 const COMPONENT = 'src/webparts/first/components/First.tsx';

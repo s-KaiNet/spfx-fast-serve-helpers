@@ -1,11 +1,8 @@
 import path from 'node:path';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { IncomingMessage } from 'node:http';
 import type { Compiler, RspackPluginInstance } from '@rspack/core';
-import { publicPathOf, type BuildContext } from '../rspack/context.js';
-import type { ConfigContribution, ServerMiddleware } from '../rspack/contribution.js';
-import { CORS_HEADERS } from '../server/headers.js';
-import { requestPath } from '../utils/http.js';
-import type { BrowserErrorReport, BrowserErrorResponse, PageRuntimeConfig } from './contracts.js';
+import { BROWSER_ERRORS_PATH, publicPath, requestPath, sendJson, type ConfigContribution, type Feature, type FeatureContext, type ServerMiddleware } from '../featureApi/index.js';
+import type { BrowserErrorReport, PageRuntimeConfig } from './contracts.js';
 import { BrowserErrorReporter } from './reporter.js';
 import { renderPageScript } from './pageScript.js';
 import { BundleSourceMaps } from './sourceMaps.js';
@@ -18,15 +15,8 @@ export { BrowserErrorReporter, errorSignature } from './reporter.js';
 export { BundleSourceMaps, sourceFilePath } from './sourceMaps.js';
 export { parseStackFrames, servedFile } from './stackFrames.js';
 
-export const BROWSER_ERRORS_PATH = '/fast-serve/browser-errors';
-
 const MAX_REPORT_BYTES = 256 * 1024;
 const REPORT_KINDS = new Set(['error', 'unhandled-rejection', 'console-error', 'load-error']);
-
-export interface BrowserErrorsFeature {
-  contribution: ConfigContribution;
-  pageScript: () => string;
-}
 
 export class BrowserErrorsPlugin implements RspackPluginInstance {
   readonly sourceMaps: BundleSourceMaps;
@@ -62,13 +52,14 @@ export class BrowserErrorsPlugin implements RspackPluginInstance {
   }
 }
 
-export function browserErrorsFeature(context: BuildContext): BrowserErrorsFeature {
-  const { root, project, options, logger } = context;
-  const distUrl = publicPathOf(context);
+export const browserErrorsFeature: Feature = { name: 'browserErrors', contribute: browserErrorsContribution };
+
+function browserErrorsContribution({ root, project, options, logger, page }: FeatureContext): ConfigContribution {
+  const distUrl = publicPath(options.origin);
   const plugin = new BrowserErrorsPlugin(root);
   const reporter = new BrowserErrorReporter({
     root,
-    libraryRoots: project.localLibraries().map((library) => library.root),
+    codeRoots: project.codeRoots().map((codeRoot) => codeRoot.root),
     distUrl,
     overlay: options.overlay,
     logger,
@@ -82,10 +73,8 @@ export function browserErrorsFeature(context: BuildContext): BrowserErrorsFeatur
     overlay: options.overlay,
     bundles: Object.fromEntries(project.bundles().map((bundle) => [bundle.name, bundle.components.map((component) => component.manifest.id)])),
   });
-  return {
-    contribution: { plugins: [plugin], middlewares: [reportsMiddleware(reporter)] },
-    pageScript: () => renderPageScript(pageConfig()),
-  };
+  page.addPageScript(() => renderPageScript(pageConfig()));
+  return { plugins: [plugin], middlewares: [reportsMiddleware(reporter)] };
 }
 
 function reportsMiddleware(reporter: BrowserErrorReporter): ServerMiddleware {
@@ -139,15 +128,5 @@ export function parseReport(body: string): BrowserErrorReport | undefined {
   if (typeof requireType === 'string') report.requireType = requireType;
   if (Array.isArray(requireModules)) report.requireModules = requireModules.filter((module): module is string => typeof module === 'string');
   return report;
-}
-
-function sendJson(res: ServerResponse, body: BrowserErrorResponse): void {
-  const text = JSON.stringify(body);
-  res.statusCode = 200;
-  for (const [header, value] of Object.entries(CORS_HEADERS)) res.setHeader(header, value);
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('Cache-Control', 'no-store');
-  res.setHeader('Content-Length', Buffer.byteLength(text));
-  res.end(text);
 }
 

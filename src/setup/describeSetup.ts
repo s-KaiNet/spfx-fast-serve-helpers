@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { TENANT_DOMAIN_ENV } from '../config/options.js';
+import { TENANT_DOMAIN_ENV } from '../config/index.js';
 import { packageName, packageVersion } from '../packageInfo.js';
 import type { SpfxComponent, SpfxProject } from '../project/index.js';
 import { toPosix } from '../utils/paths.js';
@@ -29,8 +29,8 @@ function describeComponent({ manifest, exportName }: SpfxComponent): string {
 }
 
 function localLibraryLines(project: SpfxProject): string[] {
-  const libraries = project.localLibraries();
+  const libraries = project.codeRoots().filter((codeRoot) => codeRoot.project.role === 'library');
   if (libraries.length === 0) return [];
-  const described = libraries.map(({ packageName: name, root }) => `${name} (${toPosix(path.relative(project.root, root))})`);
+  const described = libraries.map(({ label, root }) => `${label} (${toPosix(path.relative(project.root, root))})`);
   return [`SPFx libraries from source: ${described.join(', ')}`];
 }

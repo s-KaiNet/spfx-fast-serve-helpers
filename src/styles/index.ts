@@ -2,8 +2,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import type { RuleSetRule, RuleSetUseItem } from '@rspack/core';
 import type { SassConfiguration } from '../project/index.js';
-import type { BuildContext } from '../rspack/context.js';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { resolveFromProject } from '../utils/heftProject.js';
 import { packageFile } from '../utils/packageFile.js';
 import { createCssClassNameGenerator, heftCssFileMapper } from './cssClassName.js';
@@ -21,14 +20,16 @@ export interface SassPackage {
   NodePackageImporter?: new (entryPointDirectory: string) => object;
 }
 
-export async function stylesContribution(context: BuildContext): Promise<ConfigContribution> {
-  const { root, project, logger } = context;
+export const stylesFeature: Feature = { name: 'styles', contribute: stylesContribution };
+
+async function stylesContribution(context: FeatureContext): Promise<ConfigContribution> {
+  const { root, project, logger, page } = context;
   const sassConfiguration = await project.sassConfiguration().catch((): SassConfiguration => ({}));
-  const serverStarted = [scssTypingsOnServerStart(context, path.resolve(root, sassConfiguration.srcFolder ?? 'src'))];
+  page.onServerStarted(scssTypingsOnServerStart(context, path.resolve(root, sassConfiguration.srcFolder ?? 'src')));
   const spCssLoader = resolveFromProject(root, SP_CSS_LOADER);
   if (spCssLoader === undefined) {
     logger.warn(`${SP_CSS_LOADER} was not found (it ships with @microsoft/spfx-heft-plugins): styles can't be compiled, reinstall the project dependencies`);
-    return { serverStarted };
+    return {};
   }
   const generateCssClassName = createCssClassNameGenerator(heftCssFileMapper(root, sassConfiguration));
   const moduleCss: RuleSetUseItem = { loader: spCssLoader, options: { async: true, production: false, generateCssClassName } };
@@ -45,7 +46,7 @@ export async function stylesContribution(context: BuildContext): Promise<ConfigC
   } else {
     logger.warn('neither sass-embedded nor sass was found in the project: .scss files can\'t be compiled');
   }
-  return { rules, extensions: ['.css'], serverStarted };
+  return { rules, extensions: ['.css'] };
 }
 
 function hotStylesLoader(): RuleSetUseItem {

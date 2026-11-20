@@ -25,3 +25,20 @@ export function send(req: IncomingMessage, res: ServerResponse, contentType: str
   res.setHeader('Content-Length', Buffer.byteLength(body));
   res.end(req.method === 'HEAD' ? undefined : body);
 }
+
+export const CORS_HEADERS: Readonly<Record<string, string>> = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'HEAD, GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': '*',
+  'Access-Control-Allow-Private-Network': 'true',
+};
+
+export function sendJson(res: ServerResponse, body: unknown): void {
+  const text = JSON.stringify(body);
+  res.statusCode = 200;
+  for (const [header, value] of Object.entries(CORS_HEADERS)) res.setHeader(header, value);
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Content-Length', Buffer.byteLength(text));
+  res.end(text);
+}

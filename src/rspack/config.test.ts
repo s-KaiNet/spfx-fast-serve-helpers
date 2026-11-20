@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { multiComponentEntrySource } from '../entries/index.js';
 import type { Logger } from '../logger.js';
 import { createProject } from '../project/index.js';
-import { createRspackConfig, mergeContributions, type BuildContext } from './index.js';
+import type { BuildContext } from '../featureApi/index.js';
+import { createRspackConfig, FEATURES, mergeContributions } from './index.js';
 import { watchIgnored } from './config.js';
 
 const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
@@ -63,6 +64,34 @@ describe('createRspackConfig', () => {
   });
 });
 
+describe('feature order', () => {
+  it('assembles features in a fixed order', () => {
+    expect(FEATURES.map((feature) => feature.name)).toEqual([
+      'entries',
+      'localLibraries',
+      'typescript',
+      'externals',
+      'react',
+      'localization',
+      'assets',
+      'styles',
+      'defines',
+      'manifests',
+      'browserErrors',
+      'hmr',
+    ]);
+  });
+
+  it('puts the TypeScript rules before the style rules', async () => {
+    const rules = (await createRspackConfig(fixtureContext().context)).module?.rules ?? [];
+    const firstIndex = (matches: (rule: unknown) => boolean) => rules.findIndex(matches);
+    const typescript = firstIndex((rule) => JSON.stringify(rule).includes('builtin:swc-loader'));
+    const styles = firstIndex((rule) => JSON.stringify(rule).includes('sp-css-loader'));
+    expect(typescript).toBeGreaterThan(0);
+    expect(styles).toBeGreaterThan(typescript);
+  });
+});
+
 describe('multiComponentEntrySource', () => {
   it('re-exports each component under its export name', () => {
     const { context } = fixtureContext();
@@ -104,7 +133,12 @@ describe('mergeContributions', () => {
       extensions: ['.ts', '.css'],
       externals: ['lib', 'other'],
       middlewares: [],
-      serverStarted: [],
     });
+  });
+
+  it('lets a later feature win an alias, so the React alias overrides a linked library alias', () => {
+    expect(mergeContributions([{ alias: { react$: '/library/react' } }, { alias: { react$: '/project/react' } }]).alias).toEqual({ react$: '/project/react' });
+    const names = FEATURES.map((feature) => feature.name);
+    expect(names.indexOf('react')).toBeGreaterThan(names.indexOf('localLibraries'));
   });
 });

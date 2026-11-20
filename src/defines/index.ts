@@ -1,11 +1,13 @@
 import { rspack } from '@rspack/core';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature } from '../featureApi/index.js';
 
 export const DEFINES: Record<string, string> = {
   DEBUG: 'true',
   'process.env.NODE_ENV': JSON.stringify('development'),
 };
 
-export function definesContribution(): ConfigContribution {
+export const definesFeature: Feature = { name: 'defines', contribute: definesContribution };
+
+function definesContribution(): ConfigContribution {
   return { plugins: [new rspack.DefinePlugin(DEFINES)] };
 }

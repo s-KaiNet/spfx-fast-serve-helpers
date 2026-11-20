@@ -1,10 +1,11 @@
 import { rspack, type Compiler, type Configuration, type DevServer, type Stats } from '@rspack/core';
 import { RspackDevServer } from '@rspack/dev-server';
 import { withPersistentCache } from '../cache/index.js';
-import type { ResolvedOptions } from '../config/options.js';
+import type { ResolvedOptions } from '../config/index.js';
 import type { Logger } from '../logger.js';
 import { guardExtendConfig, mergeDevServer, mergeRspackConfig, projectRelative, type LoadedExtend } from '../extend/index.js';
-import { createRspackBuild, DIST_PATH, type BuildContext, type ServerMiddleware, type ServerStartedHook, type ServerStopper, type StartedServer } from '../rspack/index.js';
+import { DIST_PATH, type BuildContext, type ServerMiddleware, type ServerStopper } from '../featureApi/index.js';
+import { createRspackBuild, type ServedPageChannel } from '../rspack/index.js';
 import type { ServeSetup } from '../setup/index.js';
 import { loadDevCertificate, type HttpsCredentials } from './certificate.js';
 import { preflightMiddleware, responseHeaders } from './headers.js';
@@ -53,7 +54,7 @@ export async function prepareDevServer({ setup, logger, https, outputPath, hashS
     async listen(banner = 'full') {
       used = true;
       await assertPortFree(options.port);
-      return listenDevServer({ compiler, devServer, serverStarted: build.serverStarted, setup, logger, startedAt, banner });
+      return listenDevServer({ compiler, devServer, page: build.page, setup, logger, startedAt, banner });
     },
     async dispose() {
       if (!used) await closeCompiler(compiler);
@@ -77,23 +78,23 @@ function withExtend(config: Configuration, devServer: DevServer, extend: LoadedE
 interface ListenOptions {
   compiler: Compiler;
   devServer: DevServer;
-  serverStarted: readonly ServerStartedHook[];
+  page: ServedPageChannel;
   setup: Pick<ServeSetup, 'root' | 'project' | 'options'>;
   logger: Logger;
   startedAt: number;
   banner: ReadyBannerKind;
 }
 
-async function listenDevServer({ compiler, devServer, serverStarted, setup, logger, startedAt, banner }: ListenOptions): Promise<RunningDevServer> {
+async function listenDevServer({ compiler, devServer, page, setup, logger, startedAt, banner }: ListenOptions): Promise<RunningDevServer> {
   const { root, project, options } = setup;
-  const firstCompile = reportCompiles(compiler, root, project.localLibraries().map((library) => library.root), logger);
+  const firstCompile = reportCompiles(compiler, root, project.codeRoots().map((codeRoot) => codeRoot.root), logger);
   const server = new RspackDevServer(devServer, compiler);
   const stoppers: ServerStopper[] = [];
   let stopped: Promise<void> | undefined;
   const close = () => (stopped ??= stopDevServer(server, compiler, stoppers));
   try {
     await server.start();
-    const startedServer: StartedServer = {
+    page.serverStarted({
       firstCompile: firstCompile.then(
         () => undefined,
         () => undefined,
@@ -104,8 +105,7 @@ async function listenDevServer({ compiler, devServer, serverStarted, setup, logg
       onStop: (stopper) => {
         stoppers.push(stopper);
       },
-    };
-    for (const hook of serverStarted) hook(startedServer);
+    });
     await firstCompile;
   } catch (error) {
     await close();
@@ -140,12 +140,12 @@ export function devServerConfiguration(options: ResolvedOptions, https: HttpsCre
   };
 }
 
-function reportCompiles(compiler: Compiler, root: string, libraryRoots: readonly string[], logger: Logger): Promise<void> {
+function reportCompiles(compiler: Compiler, root: string, codeRoots: readonly string[], logger: Logger): Promise<void> {
   return new Promise((resolve, reject) => {
     let first = true;
     compiler.hooks.done.tap('fast-serve:report', (stats) => {
-      const changedFiles = first ? [] : changedProjectFiles(root, [...(compiler.modifiedFiles ?? []), ...(compiler.removedFiles ?? [])], libraryRoots);
-      logCompile(stats, { verb: first ? 'compiled' : 'rebuilt', root, libraryRoots, changedFiles }, logger);
+      const changedFiles = first ? [] : changedProjectFiles(root, [...(compiler.modifiedFiles ?? []), ...(compiler.removedFiles ?? [])], codeRoots);
+      logCompile(stats, { verb: first ? 'compiled' : 'rebuilt', root, codeRoots, changedFiles }, logger);
       first = false;
       resolve();
     });
@@ -159,14 +159,14 @@ function reportCompiles(compiler: Compiler, root: string, libraryRoots: readonly
 interface CompileReportContext {
   verb: 'compiled' | 'rebuilt';
   root: string;
-  libraryRoots: readonly string[];
+  codeRoots: readonly string[];
   changedFiles: readonly string[];
 }
 
-function logCompile(stats: Stats, { verb, root, libraryRoots, changedFiles }: CompileReportContext, logger: Logger): void {
+function logCompile(stats: Stats, { verb, root, codeRoots, changedFiles }: CompileReportContext, logger: Logger): void {
   const { errors = [], warnings = [], time = 0 } = stats.toJson({ all: false, errors: true, warnings: true, timings: true, moduleTrace: false, errorDetails: false });
-  const errorLines = formatCompileProblems('error', errors, root, libraryRoots);
-  const warningLines = formatCompileProblems('warning', warnings, root, libraryRoots);
+  const errorLines = formatCompileProblems('error', errors, root, codeRoots);
+  const warningLines = formatCompileProblems('warning', warnings, root, codeRoots);
   for (const error of errorLines) logger.error(error);
   for (const warning of warningLines) logger.warn(warning);
   logger.info(compileSummary({ verb, durationMs: time, changedFiles, errors: errorLines.length, warnings: warningLines.length }));

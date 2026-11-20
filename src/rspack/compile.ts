@@ -1,5 +1,5 @@
 import { rspack, type Stats } from '@rspack/core';
-import type { BuildContext } from './context.js';
+import type { BuildContext } from '../featureApi/index.js';
 import { createRspackConfig, type RspackConfigOptions } from './config.js';
 
 export interface CompileResult {

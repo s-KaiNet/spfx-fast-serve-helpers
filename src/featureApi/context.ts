@@ -1,6 +1,7 @@
-import type { ResolvedOptions } from '../config/options.js';
+import type { ResolvedOptions } from '../config/index.js';
 import type { Logger } from '../logger.js';
 import type { SpfxProject } from '../project/index.js';
+import type { PageChannel } from './pageChannel.js';
 
 export interface BuildContext {
   readonly root: string;
@@ -9,8 +10,6 @@ export interface BuildContext {
   readonly logger: Logger;
 }
 
-export const DIST_PATH = '/dist/';
-
-export function publicPathOf(context: BuildContext): string {
-  return `${context.options.origin}${DIST_PATH}`;
+export interface FeatureContext extends BuildContext {
+  readonly page: PageChannel;
 }

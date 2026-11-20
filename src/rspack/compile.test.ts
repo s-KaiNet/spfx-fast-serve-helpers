@@ -7,7 +7,8 @@ import vm from 'node:vm';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../logger.js';
 import { createProject } from '../project/index.js';
-import { compileOnce, type BuildContext, type CompileResult } from './index.js';
+import type { BuildContext } from '../featureApi/index.js';
+import { compileOnce, type CompileResult } from './index.js';
 
 const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
 const ORIGIN = 'https://localhost:4433';

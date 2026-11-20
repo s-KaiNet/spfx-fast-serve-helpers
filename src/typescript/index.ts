@@ -1,7 +1,6 @@
 import path from 'node:path';
 import type { RspackPluginInstance, RuleSetCondition, RuleSetRule, SwcLoaderOptions } from '@rspack/core';
-import type { BuildContext } from '../rspack/context.js';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { isInside } from '../utils/paths.js';
 import { classTransformDifference, classTransformOptions, type ClassTransformOptions } from './compilerOptions.js';
 import { AmbientConstEnums, constEnumCheckRule, ConstEnumsPlugin } from './constEnums/index.js';
@@ -14,12 +13,14 @@ const PROJECT_SCRIPT = /\.[cm]?[jt]sx?$/i;
 
 export const SWC_TARGET = 'es2020';
 
-interface CodeRoot {
+interface TypescriptRoot {
   root: string;
   tsconfigFile: string | undefined;
 }
 
-export function typescriptContribution({ root, project, logger }: Pick<BuildContext, 'root' | 'project' | 'logger'>): ConfigContribution {
+export const typescriptFeature: Feature = { name: 'typescript', contribute: typescriptContribution };
+
+function typescriptContribution({ root, project, logger }: Pick<FeatureContext, 'root' | 'project' | 'logger'>): ConfigContribution {
   const classes = classTransformOptions(project.tsconfigCompilerOptions());
   const libraries = project.localLibraries();
   for (const library of libraries) {
@@ -28,10 +29,7 @@ export function typescriptContribution({ root, project, logger }: Pick<BuildCont
       logger.warn(`${library.packageName}: its tsconfig compiles classes differently (${difference}); fast-serve compiles the library's src with the project's settings`);
     }
   }
-  const codeRoots: CodeRoot[] = [
-    { root, tsconfigFile: project.tsconfigPaths()?.files[0] },
-    ...libraries.map((library) => ({ root: library.root, tsconfigFile: library.project.tsconfigPaths()?.files[0] })),
-  ];
+  const codeRoots: TypescriptRoot[] = project.codeRoots().map((codeRoot) => ({ root: codeRoot.root, tsconfigFile: codeRoot.project.tsconfigPaths()?.files[0] }));
   const rules = [swcRule(/\.ts$/, false, classes), swcRule(/\.tsx$/, true, classes)];
   const plugins: RspackPluginInstance[] = [];
   for (const codeRoot of codeRoots) {
@@ -45,7 +43,7 @@ export function typescriptContribution({ root, project, logger }: Pick<BuildCont
   return { rules, extensions: ['.ts', '.tsx'], plugins };
 }
 
-function nestedRoots(root: string, codeRoots: readonly CodeRoot[]): string[] {
+function nestedRoots(root: string, codeRoots: readonly TypescriptRoot[]): string[] {
   return codeRoots.filter((other) => other.root !== root && isInside(root, other.root)).map((other) => other.root);
 }
 

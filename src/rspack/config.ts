@@ -1,20 +1,10 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type { Configuration } from '@rspack/core';
-import { assetsContribution } from '../assets/index.js';
-import { browserErrorsFeature } from '../browserErrors/index.js';
-import { definesContribution } from '../defines/index.js';
-import { entriesContribution } from '../entries/index.js';
-import { externalsContribution } from '../externals/index.js';
-import { hmrContribution } from '../hmr/index.js';
-import { localLibrariesContribution } from '../libraries/index.js';
-import { localizationContribution } from '../localization/index.js';
-import { manifestsContribution } from '../manifests/index.js';
-import { reactContribution } from '../react/index.js';
-import { stylesContribution } from '../styles/index.js';
-import { typescriptContribution } from '../typescript/index.js';
-import { publicPathOf, type BuildContext } from './context.js';
-import { mergeContributions, type ConfigContribution, type ServerMiddleware, type ServerStartedHook } from './contribution.js';
+import { publicPath, type BuildContext, type ServerMiddleware } from '../featureApi/index.js';
+import { contributionsInFeatureOrder, FEATURES } from './features.js';
+import { mergeContributions } from './merge.js';
+import { createPageChannel, type ServedPageChannel } from './pageChannel.js';
 
 export const OUTPUT_FOLDER = path.join('temp', 'fast-serve', 'dist');
 
@@ -26,28 +16,10 @@ export interface RspackConfigOptions {
   hashSalt?: string;
 }
 
-export async function featureContributions(context: BuildContext): Promise<ConfigContribution[]> {
-  const browserErrors = browserErrorsFeature(context);
-  return [
-    entriesContribution(context),
-    localLibrariesContribution(context),
-    typescriptContribution(context),
-    externalsContribution(context),
-    reactContribution(context),
-    localizationContribution(context),
-    assetsContribution(context),
-    await stylesContribution(context),
-    definesContribution(),
-    manifestsContribution(context, browserErrors.pageScript),
-    browserErrors.contribution,
-    hmrContribution(context),
-  ];
-}
-
 export interface RspackBuild {
   config: Configuration;
   middlewares: ServerMiddleware[];
-  serverStarted: ServerStartedHook[];
+  page: ServedPageChannel;
 }
 
 export async function createRspackConfig(context: BuildContext, options: RspackConfigOptions = {}): Promise<Configuration> {
@@ -55,7 +27,8 @@ export async function createRspackConfig(context: BuildContext, options: RspackC
 }
 
 export async function createRspackBuild(context: BuildContext, { outputPath, hashSalt }: RspackConfigOptions = {}): Promise<RspackBuild> {
-  const { entry, rules, plugins, alias, extensions, externals, middlewares, serverStarted } = mergeContributions(await featureContributions(context));
+  const page = createPageChannel();
+  const { entry, rules, plugins, alias, extensions, externals, middlewares } = mergeContributions(await contributionsInFeatureOrder(FEATURES, { ...context, page }));
   const uniqueName = uniqueNameOf(context);
   const config: Configuration = {
     mode: 'development',
@@ -64,7 +37,7 @@ export async function createRspackBuild(context: BuildContext, { outputPath, has
     entry,
     output: {
       path: outputPath ?? path.join(context.root, OUTPUT_FOLDER),
-      publicPath: publicPathOf(context),
+      publicPath: publicPath(context.options.origin),
       filename: '[name].js',
       chunkFilename: 'chunk.[name].js',
       library: { type: 'amd' },
@@ -95,7 +68,7 @@ export async function createRspackBuild(context: BuildContext, { outputPath, has
     watchOptions: { ignored: watchIgnored(context.root) },
     infrastructureLogging: { level: 'warn' },
   };
-  return { config, middlewares, serverStarted };
+  return { config, middlewares, page };
 }
 
 function uniqueNameOf({ project }: BuildContext): string {

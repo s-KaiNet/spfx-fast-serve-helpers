@@ -1,5 +1,5 @@
 import type { Configuration, DevServer } from '@rspack/core';
-import { OPTIONS_FILE } from '../config/options.js';
+import { OPTIONS_FILE } from '../config/index.js';
 
 export interface IgnoredKey {
   key: string;

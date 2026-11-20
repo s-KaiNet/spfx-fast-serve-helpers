@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-The project model is the plain-Node layer that reads every SPFx fact fast-serve needs from the project on disk: bundles and components, manifests, serve configurations, SPFx libraries, `config.json` externals, localized resources, the tsconfig chain and the merged `config/sass.json`. It never imports Rspack, caches each fact and invalidates only what a changed file affects. It is carried over from the Vite implementation, where it was already bundler-free; a snapshot of two real projects matches heft's own output.
+The project model is the plain-Node layer that reads every SPFx fact fast-serve needs from the project on disk: bundles and components, manifests, serve configurations, SPFx libraries, `config.json` externals, localized resources, the tsconfig chain and the merged `config/sass.json`. It never imports Rspack and reads each fact once per model; a project change builds a new model. It is carried over from the Vite implementation, where it was already bundler-free; a snapshot of two real projects matches heft's own output.
 
 ## Current Knowledge
 
@@ -27,7 +27,8 @@ The project model is the plain-Node layer that reads every SPFx fact fast-serve 
 | export names | in a bundle with several components (deduplicated by id), each gets `a`, `b`, `c`… in order, skipping JavaScript reserved words, counting skipped unsupported components like SPFx does; single-component bundles have none |
 | serve configuration | `config/serve.json` `port`, `initialPage`, `serveConfigurations` (`pageUrl`, `customActions` with `location`, `fieldCustomizers` with `id`, `formCustomizer` object, optional `properties`); a malformed entry is fatal and names its path |
 | SPFx libraries | packages reached transitively through dependencies that ship exactly one `dist/*.manifest.json` (or a library plus its root component); keyed by package name with id, version and folder; the project itself is excluded; linked library projects are not in this list unless listed in `deployedLibraries` (then id/version from the built manifest or the source manifest). Also `@microsoft/microsoft-graph-client` when installed, with heft's fixed component id and the installed version without prerelease suffix |
-| local library projects | dependencies (transitively, also through linked libraries) whose real path is outside `node_modules` and whose `config/config.json` has a `Library` component, minus `fast-serve/config.json` `deployedLibraries`; each gets the model run on its own root in library mode (entry source, loc, tsconfig, externals; only `package.json`, `config/config.json`, the Library manifest, tsconfig chain and local externals as model files), see [local library projects](../features/local-library-projects.md) |
+| local library projects | dependencies (transitively, also through linked libraries) whose real path is outside `node_modules` and whose `config/config.json` has a `Library` component, minus `fast-serve/config.json` `deployedLibraries`; each gets the model run on its own root in the library role (entry source, loc, tsconfig, externals; only `package.json`, `config/config.json`, the Library manifest, tsconfig chain and local externals as model files), see [local library projects](../features/local-library-projects.md) |
+| code roots | the project itself (labelled "the project") followed by each local library project (labelled with its package name), each with its root, `src` folder and model; every feature that treats code of several projects alike (TypeScript rules, Fast Refresh include, localized resources, deep-import warnings, browser-error frames, compile-problem paths and the changed-file list, the startup summary) reads this one list |
 | `config.json` externals | string or `{ path, globalName?, globalDependencies? }`; URLs kept, local paths resolved from the project root (`lib/` → `src/`); SPFx libraries win over an external of the same name; missing files, bad shapes and missing or circular global dependencies are skipped with a warning; local libraries' externals are merged in (the project's win on a name clash) |
 | localized resources | `localizedResources` patterns with `{locale}`; `lib/` paths map to `src/` (`.js`, then `.ts`), other paths (packages) stay; a missing locale falls back to `en-us` with a warning |
 | tsconfig | `tsconfig.json` and its `extends` chain (relative files, packages, rigs, arrays) merged in order; path mappings and `baseUrl` resolved relative to the declaring file; an unreadable chain is ignored with a warning |
@@ -38,9 +39,13 @@ The project model is the plain-Node layer that reads every SPFx fact fast-serve 
 
 heft treats `react`, `react-dom` and `react-dom/client` as SPFx libraries with fixed ids. The model does not: fast-serve bundles the project's development React for Fast Refresh. `@microsoft/microsoft-graph-client`, heft's fourth library without a manifest, is in the model.
 
-### Caching and invalidation
+### Roles
 
-Each fact is computed once. A changed file reports what changed: the tsconfig chain → `tsconfig`; `package.json` or `config/config.json` → everything, `model`; `config/serve.json`, a local external file or a source manifest → that fact, `model`; a model file of a local library → everything, `model`; `config/sass.json` → `sass`; any other file → nothing. The model lists the files that define it; the dev session watches them and [restarts](../features/project-restarts.md) with a fresh model instead of invalidating facts in place. The model also detects heft webpack customizations (`config/spfx-customize-webpack.js`, `config/webpack-patch.json` and its existing patch files) for the [startup hint](../features/rspack-extend-file.md#startup-hint-for-webpack-customizations).
+A model has one of two roles. The **consumer** role (the project fast-serve runs in) serves its components, warns when it also has a library component, and counts `config/serve.json` and `config/sass.json` among its model files. The **library** role (a linked library project read by the consumer) skips that warning and counts the Library manifest instead of the serve and Sass files.
+
+### Caching
+
+Each fact is read the first time it is needed and kept for the lifetime of the model (a fact that fails to read is read again on the next request); facts that depend on the locale are kept per locale. Nothing is invalidated in place: the model lists the files that define it (also those of its local libraries), the dev session watches them and [restarts](../features/project-restarts.md) with a fresh model. The model also detects heft webpack customizations (`config/spfx-customize-webpack.js`, `config/webpack-patch.json` and its existing patch files) for the [startup hint](../features/rspack-extend-file.md#startup-hint-for-webpack-customizations).
 
 ### Checked against heft
 
@@ -58,4 +63,4 @@ On copies of the two test projects the model was compared with heft's dumped web
 
 - Source: implementation behavior and unit tests on fake projects; model snapshot of copies of two SPFx 1.24.1 test projects compared with heft's webpack config dump and `dist` manifests; heft's non-standard externals list read from `@microsoft/spfx-heft-plugins`
 - Confidence: high
-- Last checked: 2026-11-19
+- Last checked: 2026-11-20

@@ -1,8 +1,7 @@
 import path from 'node:path';
 import { rspack } from '@rspack/core';
 import type { LocalizedResource } from '../project/index.js';
-import type { BuildContext } from '../rspack/context.js';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { toPosix } from '../utils/paths.js';
 import { moduleLocWrapperSource, readLocFileFormat } from './locFormat.js';
 
@@ -10,22 +9,14 @@ export { locFileFormat, moduleLocWrapperSource, type LocFileFormat } from './loc
 
 const LOC_WRAPPER_FOLDER = path.join('temp', 'fast-serve', 'loc');
 
-interface ResourceOwner {
-  label: string;
-  root: string;
-  resources: Iterable<LocalizedResource>;
-}
+export const localizationFeature: Feature = { name: 'localization', contribute: localizationContribution };
 
-export function localizationContribution({ root, project, options, logger }: BuildContext): ConfigContribution {
+function localizationContribution({ root, project, options, logger }: FeatureContext): ConfigContribution {
   const alias: Record<string, string> = {};
   const virtualModules: Record<string, string> = {};
   const owners = new Map<string, string>();
-  const sources: ResourceOwner[] = [
-    { label: 'the project', root, resources: project.localizedResources(options.locale).values() },
-    ...project.localLibraries().map((library) => ({ label: library.packageName, root: library.root, resources: library.project.localizedResources(options.locale).values() })),
-  ];
-  for (const source of sources) {
-    for (const resource of source.resources) {
+  for (const source of project.codeRoots()) {
+    for (const resource of source.project.localizedResources(options.locale).values()) {
       const owner = owners.get(resource.name);
       if (owner !== undefined) {
         logger.warn(`${resource.name}: localized resources with this name come from ${owner} and ${source.label}, using the ones from ${owner}`);

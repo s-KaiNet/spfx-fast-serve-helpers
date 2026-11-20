@@ -1,8 +1,19 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { DIST_PATH, publicPathOf, type BuildContext } from '../rspack/context.js';
-import type { ConfigContribution, PageReloader, ServerMiddleware } from '../rspack/contribution.js';
-import { decodedRequestPath, isReadRequest, requestPath, send } from '../utils/http.js';
+import {
+  decodedRequestPath,
+  DIST_PATH,
+  isReadRequest,
+  MANIFESTS_PATH,
+  publicPath,
+  requestPath,
+  send,
+  type BuildContext,
+  type ConfigContribution,
+  type Feature,
+  type FeatureContext,
+  type ServerMiddleware,
+} from '../featureApi/index.js';
 import { BundleExternals } from './bundleExternals.js';
 import { buildDebugManifests, renderManifestsModule } from './debugManifests.js';
 import { devIconFiles } from './iconUrls.js';
@@ -12,8 +23,6 @@ export { buildDebugManifests, renderManifestsModule, type DebugManifest, type Sc
 export { BundleExternals, externalRequestsByEntry } from './bundleExternals.js';
 export { devIconFiles } from './iconUrls.js';
 export { bundleScriptResources, COMPONENT_LOADER_PACKAGE } from './scriptResources.js';
-
-export const MANIFESTS_PATH = '/temp/build/manifests.js';
 
 const ICON_CONTENT_TYPES: Record<string, string> = {
   '.png': 'image/png',
@@ -29,9 +38,7 @@ export function bundleScriptPath(bundleName: string): string {
   return `${bundleName}.js`;
 }
 
-export type PageScript = () => string;
-
-export function renderDebugManifests(context: BuildContext, externals: BundleExternals, pageScript?: PageScript): string {
+export function renderDebugManifests(context: BuildContext, externals: BundleExternals, pageScripts = ''): string {
   const { root, project, options } = context;
   const libraries = project.libraries();
   const configExternals = project.configExternals();
@@ -39,30 +46,26 @@ export function renderDebugManifests(context: BuildContext, externals: BundleExt
     root,
     bundles: project.bundles(),
     origin: options.origin,
-    bundleBaseUrl: publicPathOf(context),
+    bundleBaseUrl: publicPath(options.origin),
     bundleScriptPath,
     scriptResources: (bundleName) => bundleScriptResources(externals.requestsOf(bundleName), libraries, configExternals),
   });
-  return (pageScript?.() ?? '') + renderManifestsModule(manifests);
+  return pageScripts + renderManifestsModule(manifests);
 }
 
-export function manifestsContribution(context: BuildContext, pageScript?: PageScript): ConfigContribution {
-  const reloaders: PageReloader[] = [];
+export const manifestsFeature: Feature = { name: 'manifests', contribute: manifestsContribution };
+
+function manifestsContribution(context: FeatureContext): ConfigContribution {
   const externals = new BundleExternals(() => {
-    for (const reloader of reloaders) reloader.reloadPages();
+    context.page.reloadPages();
   });
   return {
     plugins: [externals],
-    middlewares: [manifestsMiddleware(context, externals, pageScript), iconsMiddleware(context)],
-    serverStarted: [
-      (reloader) => {
-        reloaders.push(reloader);
-      },
-    ],
+    middlewares: [manifestsMiddleware(context, externals), iconsMiddleware(context)],
   };
 }
 
-function manifestsMiddleware(context: BuildContext, externals: BundleExternals, pageScript: PageScript | undefined): ServerMiddleware {
+function manifestsMiddleware(context: FeatureContext, externals: BundleExternals): ServerMiddleware {
   return {
     name: 'fast-serve:manifests',
     middleware: async (req, res, next) => {
@@ -72,7 +75,7 @@ function manifestsMiddleware(context: BuildContext, externals: BundleExternals, 
       }
       try {
         await externals.whenCompiled();
-        send(req, res, 'application/javascript; charset=utf-8', renderDebugManifests(context, externals, pageScript));
+        send(req, res, 'application/javascript; charset=utf-8', renderDebugManifests(context, externals, context.page.pageScripts()));
       } catch (error) {
         next(error);
       }

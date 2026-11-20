@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { OPTIONS_FILE } from '../config/options.js';
+import { OPTIONS_FILE } from '../config/index.js';
 import { localExternalFiles } from '../externals/index.js';
 import { extendFileCandidates, projectRelative } from '../extend/index.js';
 import type { SpfxProject } from '../project/index.js';

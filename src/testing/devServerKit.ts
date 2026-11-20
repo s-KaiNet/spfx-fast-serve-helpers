@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { createServer, type AddressInfo } from 'node:net';
 import path from 'node:path';
-import type { HttpsCredentials } from '../server/certificate.js';
+import type { HttpsCredentials } from '../server/index.js';
 
 export function selfSignedCertificate(folder: string): HttpsCredentials {
   const key = path.join(folder, 'key.pem');

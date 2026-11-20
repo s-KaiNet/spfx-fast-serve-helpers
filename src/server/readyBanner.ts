@@ -1,5 +1,5 @@
 import { aceBannerLines } from '../aces/index.js';
-import { TENANT_DOMAIN_ENV, type ResolvedOptions } from '../config/options.js';
+import { TENANT_DOMAIN_ENV, type ResolvedOptions } from '../config/index.js';
 import type { SpfxComponent } from '../project/index.js';
 import { debugPageUrl, debugQuery } from './debugUrl.js';
 

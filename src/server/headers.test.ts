@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CORS_HEADERS, responseHeaders } from './headers.js';
+import { CORS_HEADERS } from '../featureApi/index.js';
+import { responseHeaders } from './headers.js';
 
 describe('responseHeaders', () => {
   it('adds no-store to hot-update manifests and chunks', () => {

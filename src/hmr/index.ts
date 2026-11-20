@@ -1,15 +1,15 @@
-import path from 'node:path';
 import { rspack } from '@rspack/core';
 import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
-import type { BuildContext } from '../rspack/context.js';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { packageFile } from '../utils/packageFile.js';
 import { SharedHotUpdateGlobalPlugin } from './sharedHotUpdateGlobal.js';
 
 export { SharedHotUpdateGlobalPlugin } from './sharedHotUpdateGlobal.js';
 
-export function hmrContribution({ root, project }: BuildContext): ConfigContribution {
-  const sourceFolders = [path.join(root, 'src'), ...project.localLibraries().map((library) => library.sourceDir)];
+export const hmrFeature: Feature = { name: 'hmr', contribute: hmrContribution };
+
+function hmrContribution({ root, project }: FeatureContext): ConfigContribution {
+  const sourceFolders = project.codeRoots().map((codeRoot) => codeRoot.sourceDir);
   const refreshEntry = packageFile('./runtime/refreshEntry', import.meta.url);
   return {
     plugins: [

@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import type { Logger } from '../logger.js';
 import { createProject, type ProjectOptions } from '../project/index.js';
-import { compileOnce, type BuildContext, type CompileResult } from '../rspack/index.js';
+import type { BuildContext } from '../featureApi/index.js';
+import { compileOnce, type CompileResult } from '../rspack/index.js';
 
 export const COMPILE_FIXTURE = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
 export const LIBRARY_FIXTURE = fileURLToPath(new URL('../../test/fixtures/library', import.meta.url));

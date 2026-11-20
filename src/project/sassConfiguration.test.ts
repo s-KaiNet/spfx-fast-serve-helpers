@@ -62,15 +62,14 @@ describe('project Sass configuration', () => {
     expect(silencedBy(await withoutField.sassConfiguration())).toBeUndefined();
   });
 
-  it('reads config/sass.json again after it changes and reports it as a sass change', async () => {
+  it('reads config/sass.json once per model, so a changed file is read by the next model', async () => {
     const { root, project } = projectWith({ 'config/sass.json': { silenceDeprecations: ['import'] } });
-    const sassJson = path.join(root, 'config/sass.json');
     expect(silencedBy(await project.sassConfiguration())).toEqual(['import']);
 
-    writeFileSync(sassJson, JSON.stringify({ silenceDeprecations: ['slash-div'] }));
+    writeFileSync(path.join(root, 'config/sass.json'), JSON.stringify({ silenceDeprecations: ['slash-div'] }));
 
-    expect(project.invalidate(sassJson)).toBe('sass');
-    expect(silencedBy(await project.sassConfiguration())).toEqual(['slash-div']);
+    expect(silencedBy(await project.sassConfiguration())).toEqual(['import']);
+    expect(silencedBy(await createProject(root, { warn: () => undefined }).sassConfiguration())).toEqual(['slash-div']);
   });
 
   it('rejects an invalid config/sass.json', async () => {

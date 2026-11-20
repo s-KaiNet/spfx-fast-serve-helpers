@@ -2,10 +2,10 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, write
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { assetsContribution } from '../../assets/index.js';
+import { assetsFeature } from '../../assets/index.js';
 import type { Logger } from '../../logger.js';
 import { createProject } from '../../project/index.js';
-import type { StartedServer } from '../../rspack/index.js';
+import { createPageChannel, type PageServer } from '../../rspack/index.js';
 import { scssTypingsOnServerStart } from './index.js';
 
 const fixture = fileURLToPath(new URL('../../../test/fixtures/scss-typings/', import.meta.url));
@@ -32,7 +32,7 @@ const silentLogger: Logger = { info: () => undefined, warn: () => undefined, err
 
 const POLL = { timeout: 5000, interval: 25 };
 
-function startedServer(): StartedServer {
+function startedServer(): PageServer {
   return {
     firstCompile: Promise.resolve(),
     reloadPages: () => undefined,
@@ -66,9 +66,10 @@ describe('typings while serving', () => {
     const root = copyFixture();
     const typingsOf = (file: string) => path.join(root, 'temp/static-asset-ts', `${file}.d.ts`);
     writeFileSync(path.join(root, 'src/logo.png'), 'png');
-    const [hook] = assetsContribution({ root, logger: silentLogger }).serverStarted ?? [];
+    const page = createPageChannel();
+    await assetsFeature.contribute({ root, logger: silentLogger, project: createProject(root, silentLogger), options: { origin: 'https://localhost:4433', locale: 'en-us', overlay: true }, page });
 
-    hook?.(startedServer());
+    page.serverStarted(startedServer());
     await expect.poll(() => existsSync(typingsOf('logo.png')), POLL).toBe(true);
 
     writeFileSync(path.join(root, 'src/components/added.png'), 'png');

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { changedProjectFiles, compileSummary, formatCompileProblems, problemLocation, tidyMessage } from './compileReport.js';
+import { problemLocation } from '../rspack/index.js';
+import { changedProjectFiles, compileSummary, formatCompileProblems } from './compileReport.js';
 
 const ROOT = '/work/project';
 
@@ -41,21 +42,6 @@ describe('formatCompileProblems', () => {
   });
 });
 
-describe('problemLocation', () => {
-  it('prefers the resource of the module identifier and falls back to the module name', () => {
-    expect(problemLocation({ message: '', moduleIdentifier: `css|${ROOT}/src/a.module.scss|0||||}`, loc: '2:4' }, ROOT)).toBe('src/a.module.scss:2:4');
-    expect(problemLocation({ message: '', moduleIdentifier: '/elsewhere/lib/index.js?raw' }, ROOT)).toBe('/elsewhere/lib/index.js');
-    expect(problemLocation({ message: '', moduleName: './node_modules/pkg/index.js' }, ROOT)).toBe('node_modules/pkg/index.js');
-    expect(problemLocation({ message: '' }, ROOT)).toBeUndefined();
-  });
-});
-
-describe('tidyMessage', () => {
-  it('drops trailing blank lines and common indentation', () => {
-    expect(tidyMessage('\n    a\n      b   \n   \n')).toBe('a\n  b');
-  });
-});
-
 describe('compileSummary', () => {
   it('keeps the line short: time, changed files and only non-zero counts', () => {
     expect(compileSummary({ verb: 'compiled', durationMs: 640, changedFiles: [], errors: 0, warnings: 0 })).toBe('compiled in 640 ms');
@@ -68,7 +54,8 @@ describe('compileSummary', () => {
   });
 
   it('names changed files and problems of linked library projects relative to the project', () => {
-    expect(changedProjectFiles(ROOT, ['/work/corp-lib/src/Counter.tsx', '/elsewhere/x.ts', '/work/corp-lib'], ['/work/corp-lib'])).toEqual(['../corp-lib/src/Counter.tsx']);
-    expect(problemLocation({ message: '', moduleIdentifier: 'builtin:swc-loader!/work/corp-lib/src/Counter.tsx', loc: '3:1' }, ROOT, ['/work/corp-lib'])).toBe('../corp-lib/src/Counter.tsx:3:1');
+    const codeRoots = [ROOT, '/work/corp-lib'];
+    expect(changedProjectFiles(ROOT, ['/work/corp-lib/src/Counter.tsx', '/elsewhere/x.ts', '/work/corp-lib', `${ROOT}/src/a.ts`], codeRoots)).toEqual(['../corp-lib/src/Counter.tsx', 'src/a.ts']);
+    expect(problemLocation({ message: '', moduleIdentifier: 'builtin:swc-loader!/work/corp-lib/src/Counter.tsx', loc: '3:1' }, ROOT, codeRoots)).toBe('../corp-lib/src/Counter.tsx:3:1');
   });
 });

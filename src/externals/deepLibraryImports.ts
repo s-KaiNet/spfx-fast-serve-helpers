@@ -36,11 +36,11 @@ function codeRelativePath(file: string, codeRoot: string): string | undefined {
   return segments.includes('node_modules') ? undefined : segments.join('/');
 }
 
-export function projectRelativePath(file: string, projectRoot: string, libraryRoots: readonly string[] = []): string | undefined {
+export function projectRelativePath(file: string, projectRoot: string, codeRoots: readonly string[] = [projectRoot]): string | undefined {
   const realFile = realPath(file);
   const inProject = codeRelativePath(realFile, projectRoot);
   if (inProject !== undefined) return inProject;
-  if (!libraryRoots.some((libraryRoot) => codeRelativePath(realFile, realPath(libraryRoot)) !== undefined)) return undefined;
+  if (!codeRoots.some((codeRoot) => codeRelativePath(realFile, realPath(codeRoot)) !== undefined)) return undefined;
   return path.relative(realPath(projectRoot), realFile).split(path.sep).join('/');
 }
 
@@ -50,11 +50,11 @@ function deepLibraryOf(module: Module, libraryDirs: readonly LibraryDir[]): Libr
   return library && module.rawRequest.startsWith(`${library.packageName}/`) ? library : undefined;
 }
 
-function projectImporters(module: Module, moduleGraph: ModuleGraph, projectRoot: string, libraryRoots: readonly string[]): string[] {
+function projectImporters(module: Module, moduleGraph: ModuleGraph, projectRoot: string, codeRoots: readonly string[]): string[] {
   const importers = new Set<string>();
   for (const { originModule } of moduleGraph.getIncomingConnections(module)) {
     if (!(originModule instanceof NormalModule)) continue;
-    const importer = projectRelativePath(resourcePath(originModule), projectRoot, libraryRoots);
+    const importer = projectRelativePath(resourcePath(originModule), projectRoot, codeRoots);
     if (importer !== undefined) importers.add(importer);
   }
   return [...importers];
@@ -65,7 +65,7 @@ export function deepLibraryImports(
   moduleGraph: ModuleGraph,
   libraries: ReadonlyMap<string, SpfxLibrary>,
   projectRoot: string,
-  libraryRoots: readonly string[] = [],
+  codeRoots: readonly string[] = [projectRoot],
 ): DeepLibraryImport[] {
   const libraryDirs = [...libraries.values()].map(({ packageName, packageDir }) => ({ packageName, prefix: packageDir + path.sep }));
   const realProjectRoot = realPath(projectRoot);
@@ -73,7 +73,7 @@ export function deepLibraryImports(
   for (const module of modules) {
     const library = deepLibraryOf(module, libraryDirs);
     if (!library || !(module instanceof NormalModule)) continue;
-    const importers = projectImporters(module, moduleGraph, realProjectRoot, libraryRoots);
+    const importers = projectImporters(module, moduleGraph, realProjectRoot, codeRoots);
     if (importers.length === 0) continue;
     const known = found.get(module.rawRequest)?.importers ?? [];
     found.set(module.rawRequest, { request: module.rawRequest, packageName: library.packageName, importers: [...new Set([...known, ...importers])].toSorted() });
@@ -95,19 +95,19 @@ export class DeepLibraryImportsPlugin implements RspackPluginInstance {
   readonly #projectRoot: string;
   readonly #warn: (message: string) => void;
   readonly #warned = new Set<string>();
-  readonly #libraryRoots: readonly string[];
+  readonly #codeRoots: readonly string[];
 
-  constructor(libraries: ReadonlyMap<string, SpfxLibrary>, projectRoot: string, warn: (message: string) => void, libraryRoots: readonly string[] = []) {
+  constructor(libraries: ReadonlyMap<string, SpfxLibrary>, projectRoot: string, warn: (message: string) => void, codeRoots: readonly string[] = [projectRoot]) {
     this.#libraries = libraries;
     this.#projectRoot = projectRoot;
     this.#warn = warn;
-    this.#libraryRoots = libraryRoots;
+    this.#codeRoots = codeRoots;
   }
 
   apply(compiler: Compiler): void {
     compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation) => {
       compilation.hooks.finishModules.tap(PLUGIN_NAME, (modules) => {
-        for (const deepImport of deepLibraryImports(modules, compilation.moduleGraph, this.#libraries, this.#projectRoot, this.#libraryRoots)) {
+        for (const deepImport of deepLibraryImports(modules, compilation.moduleGraph, this.#libraries, this.#projectRoot, this.#codeRoots)) {
           const message = deepLibraryImportWarning(deepImport);
           if (this.#warned.has(message)) continue;
           this.#warned.add(message);

@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { legacyOptionsFileHint, loadOptionsFile, OPTIONS_FILE, resolveOptions, type FastServeOptions, type ResolvedOptions } from '../config/options.js';
+import { legacyOptionsFileHint, loadOptionsFile, OPTIONS_FILE, resolveOptions, type FastServeOptions, type ResolvedOptions } from '../config/index.js';
 import type { Logger } from '../logger.js';
 import { packageName, packageVersion } from '../packageInfo.js';
-import { assertSupportedSpfxVersion, createProject, findSpfxVersion, readLibraryComponent, type InstalledSpfxVersion, type SpfxProject } from '../project/index.js';
+import { assertSupportedSpfxVersion, createProject, findSpfxVersion, type InstalledSpfxVersion, type SpfxProject } from '../project/index.js';
 import { serveConfigurationWarnings } from './serveConfigurationWarnings.js';
 
 export interface ServeSetup {
@@ -41,7 +41,7 @@ export function prepareServe({ root, cli = {}, logger, env = process.env }: Prep
 }
 
 function noComponentsMessage(project: SpfxProject): string {
-  const library = readLibraryComponent(project.root, project.packageJson().version);
+  const library = project.libraryComponent();
   if (library === undefined) return 'No web parts, extensions or Adaptive Card Extensions found in config/config.json bundles.';
   return (
     `${project.packageJson().name ?? library.alias} is an SPFx library project: run fast-serve in a consumer project that depends on it ` +

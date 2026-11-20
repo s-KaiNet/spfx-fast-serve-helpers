@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/options.js';
+import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/index.js';
 import { DEFAULT_LOCALE } from './project/index.js';
 import { packageName, packageVersion } from './packageInfo.js';
 import { errorMessage } from './utils/errors.js';

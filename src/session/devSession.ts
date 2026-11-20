@@ -1,9 +1,7 @@
-import type { FastServeOptions } from '../config/options.js';
+import type { FastServeOptions } from '../config/index.js';
 import { ExtendLoadError, fastServeContext, findExtendFiles, loadExtendFile, projectRelative, webpackCustomizationHint, type LoadedExtend } from '../extend/index.js';
 import type { Logger } from '../logger.js';
-import { prepareDevServer, type PreparedDevServer, type RunningDevServer } from '../server/devServer.js';
-import type { HttpsCredentials } from '../server/certificate.js';
-import { assertPortFree } from '../server/port.js';
+import { assertPortFree, prepareDevServer, type HttpsCredentials, type PreparedDevServer, type RunningDevServer } from '../server/index.js';
 import { describeSetup, prepareServe, type ServeSetup } from '../setup/index.js';
 import { errorMessage } from '../utils/errors.js';
 import { watchFiles, type FileChange, type FileWatcher } from './fileWatcher.js';

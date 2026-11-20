@@ -51,7 +51,7 @@ The option set for this line: `port`, `pageUrl`, `locale`, `serveConfiguration`,
 
 - Bundler-free preparation (options, model, extend file) and the new compiler are created while the old server still runs; the old server and compiler are closed only when that succeeded. A prepared compiler that is no longer needed is closed.
 - File watching is per folder (non-recursive) with a content hash per watched file, so atomic saves and files in folders created later are seen; folders that don't exist yet are covered by watching the nearest existing parent.
-- Each restart builds a fresh project model; the model's own invalidation is not used by the session.
+- Each restart builds a fresh project model; the model never refreshes facts in place.
 - The webpack-customization hint and the setup summary are printed only at the first start.
 
 ## Links

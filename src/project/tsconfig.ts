@@ -2,7 +2,9 @@ import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { isObject, type JsonObject } from '../utils/guards.js';
+import { errorMessage } from '../utils/errors.js';
 import { readJsoncFile } from '../utils/jsonc.js';
+import type { ProjectLogger } from './types.js';
 
 export interface TsconfigLayer {
   readonly file: string;
@@ -58,4 +60,14 @@ function resolveExtends(extended: string, fromFile: string): string {
     }
   }
   throw new Error(`${fromFile} extends "${extended}", which cannot be resolved`);
+}
+
+export function readProjectTsconfig(tsconfigFile: string, logger: ProjectLogger): LoadedTsconfig | undefined {
+  if (!existsSync(tsconfigFile)) return undefined;
+  try {
+    return loadTsconfig(tsconfigFile);
+  } catch (error) {
+    logger.warn(`tsconfig.json is ignored: ${errorMessage(error)}`);
+    return undefined;
+  }
 }

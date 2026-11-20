@@ -1,5 +1,4 @@
-import type { BuildContext } from '../../rspack/context.js';
-import type { ServerStartedHook } from '../../rspack/contribution.js';
+import type { BuildContext, ServerStartedHook } from '../../featureApi/index.js';
 import { errorMessage } from '../../utils/errors.js';
 import { watchSourceFolder } from '../../utils/sourceWatcher.js';
 import { createScssTypings } from './scssTypings.js';

@@ -147,44 +147,34 @@ describe('createProject', () => {
     expect(warnings).toContain('ControlStrings: no "de-de" strings, using en-us');
   });
 
-  it('caches facts and invalidates them for model files only', () => {
+  it('reads each fact once for the lifetime of the model', () => {
     const { project } = fixtureProject();
-    const bundles = project.bundles();
-    expect(project.bundles()).toBe(bundles);
-    expect(project.invalidate(path.join(root, 'src/webparts/hello/components/Hello.tsx'))).toBeUndefined();
-    expect(project.bundles()).toBe(bundles);
-    expect(project.invalidate(path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'))).toBe('model');
-    expect(project.bundles()).not.toBe(bundles);
-    expect(project.bundles()).toEqual(bundles);
-    expect(project.invalidate(path.join(root, 'config/config.json'))).toBe('model');
+    for (const read of [() => project.bundles(), () => project.configExternals(), () => project.localizedResources('en-us'), () => project.tsconfigCompilerOptions(), () => project.codeRoots()]) {
+      expect(read()).toBe(read());
+    }
   });
 
-  it('reads tsconfig path aliases through extends and invalidates them separately', () => {
+  it('reads tsconfig path aliases through extends', () => {
     const { project } = fixtureProject();
     const paths = project.tsconfigPaths();
     expect(paths?.mappings).toEqual([{ prefix: '@components/', suffix: '', wildcard: true, targets: ['./src/webparts/hello/components/*'] }]);
-    expect(paths?.pathsBase).toBe(root);
+    expect(paths?.files).toEqual([path.join(root, 'tsconfig.json'), path.join(root, 'tsconfig.base.json')]);
     expect(project.tsconfigPaths()).toBe(paths);
-    const bundles = project.bundles();
-    expect(project.invalidate(path.join(root, 'tsconfig.base.json'))).toBe('tsconfig');
-    expect(project.tsconfigPaths()).not.toBe(paths);
-    expect(project.bundles()).toBe(bundles);
   });
 
-  it('merges compiler options through extends and re-reads them after a tsconfig change', () => {
+  it('lists the project as its only code root without linked libraries', () => {
+    const { project } = fixtureProject();
+    expect(project.role).toBe('consumer');
+    expect(project.codeRoots()).toEqual([{ label: 'the project', root, sourceDir: path.join(root, 'src'), project }]);
+  });
+
+  it('merges compiler options through extends', () => {
     const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
     try {
-      const project = createProject(projectRoot, { warn: () => undefined });
-      expect(project.tsconfigCompilerOptions()).toEqual({});
+      expect(createProject(projectRoot, { warn: () => undefined }).tsconfigCompilerOptions()).toEqual({});
       writeFileSync(path.join(projectRoot, 'base.json'), '{ "compilerOptions": { "experimentalDecorators": true, "target": "es5" } }');
       writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "extends": "./base.json", "compilerOptions": { "target": "es2022" } }');
-      expect(project.invalidate(path.join(projectRoot, 'tsconfig.json'))).toBe('tsconfig');
-      const options = project.tsconfigCompilerOptions();
-      expect(options).toEqual({ experimentalDecorators: true, target: 'es2022' });
-      expect(project.tsconfigCompilerOptions()).toBe(options);
-      writeFileSync(path.join(projectRoot, 'base.json'), '{ "compilerOptions": { "emitDecoratorMetadata": true } }');
-      expect(project.invalidate(path.join(projectRoot, 'base.json'))).toBe('tsconfig');
-      expect(project.tsconfigCompilerOptions()).toEqual({ emitDecoratorMetadata: true, target: 'es2022' });
+      expect(createProject(projectRoot, { warn: () => undefined }).tsconfigCompilerOptions()).toEqual({ experimentalDecorators: true, target: 'es2022' });
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -194,14 +184,12 @@ describe('createProject', () => {
     const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
     try {
       const warnings: string[] = [];
-      const project = createProject(projectRoot, { warn: (message) => warnings.push(message) });
-      expect(project.tsconfigPaths()).toBeUndefined();
+      const modelNow = () => createProject(projectRoot, { warn: (message) => warnings.push(message) });
+      expect(modelNow().tsconfigPaths()).toBeUndefined();
       writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "compilerOptions": { "strict": true } }');
-      expect(project.invalidate(path.join(projectRoot, 'tsconfig.json'))).toBe('tsconfig');
-      expect(project.tsconfigPaths()).toBeUndefined();
+      expect(modelNow().tsconfigPaths()).toBeUndefined();
       writeFileSync(path.join(projectRoot, 'tsconfig.json'), '{ "extends": "./missing.json" }');
-      project.invalidate(path.join(projectRoot, 'tsconfig.json'));
-      expect(project.tsconfigPaths()).toBeUndefined();
+      expect(modelNow().tsconfigPaths()).toBeUndefined();
       expect(warnings).toEqual([expect.stringMatching(/^tsconfig\.json is ignored: .*missing\.json/)]);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
@@ -244,14 +232,6 @@ describe('createProject', () => {
       'config/config.json externals "orphan-plugin": global dependency "not-defined" is not a usable external ' +
         '(it must be a valid, non-circular entry in "externals" and must not be an SPFx library), skipped',
     ]);
-  });
-
-  it('reloads the model when a local external file changes', () => {
-    const { project } = fixtureProject();
-    const externals = project.configExternals();
-    expect(project.invalidate(path.join(root, 'assets/legacy-plugin.js'))).toBe('model');
-    expect(project.configExternals()).not.toBe(externals);
-    expect(project.configExternals()).toEqual(externals);
   });
 
   it('skips externals whose global dependencies form a cycle', () => {

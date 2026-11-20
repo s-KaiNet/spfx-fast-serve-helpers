@@ -177,7 +177,7 @@ describe('BrowserErrorReporter', () => {
       const options = { root, distUrl: DIST, overlay: true, logger: { error: (message: string) => logged.push(stripVTControlCharacters(message)) }, sourceMaps, loadErrorFacts: () => facts };
       const stack = `TypeError: x\n    at counter (${DIST}library.js:${bundleLine}:${bundleColumn})`;
       expect(await new BrowserErrorReporter(options).report(report({ name: 'TypeError', message: 'x', stack }))).toEqual({});
-      const response = await new BrowserErrorReporter({ ...options, libraryRoots: [libraryRoot] }).report(report({ name: 'TypeError', message: 'x', stack }));
+      const response = await new BrowserErrorReporter({ ...options, codeRoots: [options.root, libraryRoot] }).report(report({ name: 'TypeError', message: 'x', stack }));
       expect(logged[0]?.split('\n').slice(0, 2)).toEqual(['[Unhandled error] TypeError: x', ` > counter ../${path.basename(libraryRoot)}/src/counter.ts:6:10`]);
       expect(logged[0]).toContain('> 6 |   return props.a.toUpperCase();');
       expect(response.overlay?.title).toBe('Uncaught runtime error');

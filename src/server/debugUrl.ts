@@ -1,4 +1,4 @@
-import { MANIFESTS_PATH } from '../manifests/index.js';
+import { MANIFESTS_PATH } from '../featureApi/index.js';
 import type { ServeConfiguration } from '../project/index.js';
 
 const FORM_CUSTOMIZER_JSON_PARAMETERS = new Set(['properties']);

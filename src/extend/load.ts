@@ -3,7 +3,7 @@ import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rspack, type Compiler, type Configuration, type ExternalItemFunctionData, type Stats } from '@rspack/core';
-import { problemLocation, tidyMessage } from '../server/compileReport.js';
+import { problemLocation, tidyMessage } from '../rspack/index.js';
 import { isObject } from '../utils/guards.js';
 import { packageFile } from '../utils/packageFile.js';
 import { isInside } from '../utils/paths.js';

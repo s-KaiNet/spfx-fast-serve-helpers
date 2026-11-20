@@ -1,13 +1,14 @@
 import path from 'node:path';
 import { rspack } from '@rspack/core';
 import type { SpfxBundle } from '../project/index.js';
-import type { BuildContext } from '../rspack/context.js';
-import type { ConfigContribution } from '../rspack/contribution.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { toPosix } from '../utils/paths.js';
 
 const VIRTUAL_ENTRY_FOLDER = path.join('temp', 'fast-serve', 'bundle-entries');
 
-export function entriesContribution({ root, project }: BuildContext): ConfigContribution {
+export const entriesFeature: Feature = { name: 'entries', contribute: entriesContribution };
+
+function entriesContribution({ root, project }: FeatureContext): ConfigContribution {
   const virtualModules: Record<string, string> = {};
   const entry: Record<string, string> = {};
   for (const bundle of project.bundles()) {

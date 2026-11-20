@@ -1,3 +1,9 @@
+export interface ProjectLogger {
+  warn: (message: string) => void;
+}
+
+export type ProjectRole = 'consumer' | 'library';
+
 export interface PackageJson {
   name?: string;
   version: string;

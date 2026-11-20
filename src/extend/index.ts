@@ -1,8 +1,8 @@
 import { rspackVersion } from '@rspack/core';
-import type { ResolvedOptions } from '../config/options.js';
+import type { ResolvedOptions } from '../config/index.js';
+import { publicPath } from '../featureApi/index.js';
 import { packageVersion } from '../packageInfo.js';
 import type { SpfxVersionSource } from '../project/index.js';
-import { DIST_PATH } from '../rspack/context.js';
 import type { FastServeContext } from './context.js';
 
 export { FAST_SERVE_ENV, type FastServeConfig, type FastServeConfigFunction, type FastServeContext, type FastServeEnv } from './context.js';
@@ -17,7 +17,7 @@ export function fastServeContext(root: string, options: ResolvedOptions, spfxVer
     root,
     port: options.port,
     origin: options.origin,
-    publicPath: `${options.origin}${DIST_PATH}`,
+    publicPath: publicPath(options.origin),
     locale: options.locale,
     serveConfiguration: options.serveConfiguration?.name,
     pageUrl: options.pageUrl,
