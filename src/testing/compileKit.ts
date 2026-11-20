@@ -4,10 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import type { Logger } from '../logger.js';
-import { createProject } from '../project/index.js';
+import { createProject, type ProjectOptions } from '../project/index.js';
 import { compileOnce, type BuildContext, type CompileResult } from '../rspack/index.js';
 
 export const COMPILE_FIXTURE = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
+export const LIBRARY_FIXTURE = fileURLToPath(new URL('../../test/fixtures/library', import.meta.url));
+export const LIBRARY_PACKAGE = '@contoso/corp-lib';
 export const TEST_ORIGIN = 'https://localhost:4433';
 
 export interface AmdModule {
@@ -25,13 +27,13 @@ export const fakeExternals: Record<string, unknown> = {
   '@microsoft/microsoft-graph-client': { GraphClient: FakeBaseClientSideWebPart },
 };
 
-export function recordingContext(root: string, locale: string, messages: string[]): BuildContext {
+export function recordingContext(root: string, locale: string, messages: string[], projectOptions: ProjectOptions = {}): BuildContext {
   const logger: Logger = {
     info: (message) => messages.push(`info: ${message}`),
     warn: (message) => messages.push(`warn: ${message}`),
     error: (message) => messages.push(`error: ${message}`),
   };
-  return { root, project: createProject(root, logger), options: { origin: TEST_ORIGIN, locale, overlay: true }, logger };
+  return { root, project: createProject(root, logger, projectOptions), options: { origin: TEST_ORIGIN, locale, overlay: true }, logger };
 }
 
 export function evaluateAmd(source: string, externals: Record<string, unknown> = fakeExternals, globals: Record<string, unknown> = {}): AmdModule {
@@ -64,7 +66,8 @@ export interface FixtureCopy {
   write(file: string, content: string | object): void;
   read(file: string): string;
   linkPackage(name: string): void;
-  compile(locale?: string): Promise<{ result: CompileResult; messages: string[]; bundle: (name: string) => string }>;
+  linkLocalPackage(name: string, packageRoot: string): void;
+  compile(locale?: string, projectOptions?: ProjectOptions): Promise<{ result: CompileResult; messages: string[]; bundle: (name: string) => string }>;
   remove(): void;
 }
 
@@ -86,14 +89,52 @@ export function copyCompileFixture(files: Record<string, string | object> = {}):
       mkdirSync(path.dirname(target), { recursive: true });
       symlinkSync(packageDirectory(name), target, 'dir');
     },
-    async compile(locale = 'en-us') {
+    linkLocalPackage(name, packageRoot) {
+      linkLocalPackage(root, name, packageRoot);
+    },
+    async compile(locale = 'en-us', projectOptions = {}) {
       const messages: string[] = [];
       const outputPath = path.join(root, 'out');
-      const result = await compileOnce(recordingContext(root, locale, messages), { outputPath });
+      const result = await compileOnce(recordingContext(root, locale, messages, projectOptions), { outputPath });
       return { result, messages, bundle: (name) => readFileSync(path.join(outputPath, `${name}.js`), 'utf8') };
     },
     remove() {
       rmSync(root, { recursive: true, force: true });
     },
   };
+}
+
+export interface LibraryCopy {
+  root: string;
+  write(file: string, content: string | object): void;
+  remove(): void;
+}
+
+export function copyLibraryFixture(files: Record<string, string | object> = {}): LibraryCopy {
+  const workspace = mkdtempSync(path.join(tmpdir(), 'fast-serve-library-'));
+  const root = path.join(workspace, 'corp-lib');
+  cpSync(LIBRARY_FIXTURE, root, { recursive: true });
+  const write = (file: string, content: string | object) => {
+    const target = path.join(root, file);
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, typeof content === 'string' ? content : JSON.stringify(content, undefined, 2));
+  };
+  for (const [file, content] of Object.entries(files)) write(file, content);
+  return {
+    root,
+    write,
+    remove() {
+      rmSync(workspace, { recursive: true, force: true });
+    },
+  };
+}
+
+export function linkLocalPackage(projectRoot: string, name: string, packageRoot: string): void {
+  const target = path.join(projectRoot, 'node_modules', name);
+  mkdirSync(path.dirname(target), { recursive: true });
+  symlinkSync(packageRoot, target, 'dir');
+  const packageFile = path.join(projectRoot, 'package.json');
+  const json = JSON.parse(readFileSync(packageFile, 'utf8')) as { dependencies?: Record<string, string> };
+  json.dependencies = { ...json.dependencies, [name]: `file:${packageRoot}` };
+  writeFileSync(packageFile, JSON.stringify(json, undefined, 2));
 }

@@ -35,6 +35,8 @@ Flags are parsed strictly: an unknown flag or a positional argument prints the e
 
 Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true }`. It must be a JSON object; `$schema` is ignored; an unknown key or a wrong value type is fatal and names the key and the supported keys.
 
+`deployedLibraries` (array of package names, file only) keeps linked SPFx library projects external, loaded from SharePoint, instead of compiling their `src` ([local library projects](local-library-projects.md)); a listed name that is no SPFx library dependency prints a warning.
+
 `amdPackages`, an option of the Vite implementation, is ignored with a warning: Rspack bundles AMD and UMD code in dependencies like heft does, so there is nothing to opt out of, and a configuration written for the Vite implementation keeps working.
 
 `config/fast-serve.json` (an early-beta location) is not read; when it exists and `fast-serve/config.json` doesn't, a warning asks to move it.
@@ -54,7 +56,7 @@ The page follows heft's order with the `pageUrl` option in place of heft's fallb
 
 ### Startup order and summary
 
-SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the extend file (`Rspack config: <file>` and guard warnings) or, without one, the [webpack-customization hint](rspack-extend-file.md#startup-hint-for-webpack-customizations), the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
+SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay; serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; `SPFx libraries from source: <package> (<relative path>)` when linked library projects were found; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the extend file (`Rspack config: <file>` and guard warnings) or, without one, the [webpack-customization hint](rspack-extend-file.md#startup-hint-for-webpack-customizations), the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
 
 ### Startup failures (exit code 1)
 

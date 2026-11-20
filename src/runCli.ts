@@ -36,6 +36,9 @@ The same options can be set in ${OPTIONS_FILE}:
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 
+Linked SPFx library projects (npm link, npm "file:", pnpm "link:"/"workspace:") are compiled
+from their src into your bundles; "deployedLibraries": ["<package>"] loads one from SharePoint instead.
+
 Optional Rspack config merged into fast-serve's (e.g. to mirror a heft webpack customization):
 ${EXTEND_FILE}, see ${RSPACK_CONFIG_DOCS_URL}
 fast-serve restarts when that file, config/*.json, ${OPTIONS_FILE}, package.json or tsconfig change.

@@ -13,9 +13,15 @@ export function externalsContribution({ root, project, logger }: BuildContext): 
   const localFiles = new LocalExternalFilesPlugin(localExternalFiles(configExternals.values()), () => {
     for (const reloader of reloaders) reloader.reloadPages();
   });
-  const deepImports = new DeepLibraryImportsPlugin(libraries, root, (message) => {
-    logger.warn(message);
-  });
+  const libraryRoots = project.localLibraries().map((library) => library.root);
+  const deepImports = new DeepLibraryImportsPlugin(
+    libraries,
+    root,
+    (message) => {
+      logger.warn(message);
+    },
+    libraryRoots,
+  );
   return {
     externals: [...libraries.keys(), ...configExternals.keys()].toSorted(),
     plugins: [localFiles, deepImports],

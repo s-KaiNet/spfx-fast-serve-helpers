@@ -83,7 +83,7 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
 
 ```jsonc
 // fast-serve/config.json (optional, JSON with comments)
-{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true }
+{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "deployedLibraries": [] }
 ```
 
 | Option | Flag | Meaning |
@@ -93,6 +93,7 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
 | `locale` | `--locale` | locale of the `localizedResources` strings, with a per-resource fallback to `en-us` |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` serve configuration (default `default`) |
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page; errors still go to the terminal and the browser console |
+| `deployedLibraries` | (file only) | package names of [linked SPFx library projects](#library-components) to load from SharePoint (the deployed copy) instead of compiling their `src` |
 
 An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` with the list of supported keys. `amdPackages` (a Vite-line option) is ignored with a warning. `config/fast-serve.json` from early betas is not read (a warning asks to move it). HTTPS is always on, with the SPFx development certificate.
 
@@ -107,6 +108,32 @@ An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` wi
 - **TypeScript:** SWC (`builtin:swc-loader`) per file, with the tsconfig options that change emitted code (`experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, through `extends` and the rig), `paths`/`baseUrl` through Rspack's tsconfig resolver. Type-only re-exports are harmless (webpack semantics; their warnings are hidden). A `const enum` that exists only in a `.d.ts` can't be inlined per file: `fast-serve` reports a clear compile error.
 - **`require()` and AMD in dependencies** behave as in heft's webpack: `require('<literal>')` is resolved at build time, UMD dependencies use webpack's own `define` (full `lodash` works), SharePoint's RequireJS never sees them.
 - **Static assets** (images, fonts, …) get absolute dev-server URLs; `.sprite.svg` is inlined as source.
+
+## Library components
+
+A library component project (`componentType: "Library"`) that the project depends on **through a link** is compiled from its `src` into your bundles, with hot updates. One command, in the consumer project; nothing to build or start in the library.
+
+```sh
+cd corp-lib && npm install          # the library's own dependencies
+cd ../my-web-parts
+npm install ../corp-lib             # npm "file:" = a symlink; or npm link, pnpm "link:"/"workspace:", npm/yarn workspaces
+npm run serve                       # SPFx libraries from source: corp-lib (../corp-lib)
+```
+
+- **Detection:** every dependency (also dependencies of linked libraries) whose real path is outside `node_modules` and whose `config/config.json` has a `Library` component. A library installed from a registry, or copied into `node_modules`, stays an SPFx library loaded from SharePoint by id.
+- **What is compiled:** `import 'corp-lib'` resolves to the source of the library entry (`./lib/index.js` → `src/index.ts`), `corp-lib/lib/x` to `src/x`. The library's `localizedResources`, tsconfig `paths`/`baseUrl` and `config.json` externals (listed in the debug manifest for the bundles that use them) apply; SCSS, theme tokens and React components work like your own. The library's React imports use your project's React.
+- **Edits:** follow the [HMR](#hmr) rules as if the files were yours: a library component → Fast Refresh with state kept; library styles → swapped; library loc strings → hot update when only components use them, page reload when they reach a web part or extension class; the library's `package.json`, `config/config.json`, manifest or tsconfig → `fast-serve` restarts.
+- **Opt-out:** `"deployedLibraries": ["corp-lib"]` in `fast-serve/config.json` loads that library from SharePoint: the version deployed to the tenant, by the id of its manifest (no debug manifest for it is served).
+- `fast-serve` in the library project itself stops with a message asking to run it in a consumer project.
+
+Limitations, because the library becomes part of your bundles:
+
+- One library instance **per bundle**, not per page: two of your bundles get two copies (module-level state, singletons and `instanceof` are not shared), and other solutions on the page use the deployed library.
+- `SPComponentLoader.loadComponentById('<library id>')` loads the deployed library (another instance), or fails if it isn't deployed.
+- pnpm and yarn classic `file:` dependencies copy the folder into `node_modules` and are not detected: use `link:`, `workspace:`, `npm link` or npm `file:`.
+- The library's `config/sass.json` is ignored (your project's applies); its class names are unique but differ from the library's own `heft` build.
+- The library's TypeScript compiles with your project's class options; `fast-serve` warns when the library's `experimentalDecorators`, `emitDecoratorMetadata` or `useDefineForClassFields` differ.
+- The library's other dependencies resolve from its own `node_modules` (install them), so a package used by both projects can be bundled twice, like in production.
 
 ## Customizing the Rspack config
 
@@ -141,7 +168,8 @@ Most webpack plugins have a `rspack.*` counterpart with the same name (`DefinePl
 | web part / extension / ACE class, what only it imports (services, ACE card and quick views, templates), loc files the class imports | page reload |
 | a module that exports components **and** other values (hooks, constants) | page reload |
 | a new import of an SPFx library or `config.json` external, or an edit of a local-file external | page reload (a bundle's AMD dependency list is fixed when it loads) |
-| `package.json`, `config/*.json`, `fast-serve/config.json`, tsconfig, manifests, the extend file | `fast-serve` restarts (≈0.1–0.5 s) and open pages reload by themselves |
+| `package.json`, `config/*.json`, `fast-serve/config.json`, tsconfig, manifests, the extend file (also a linked library's) | `fast-serve` restarts (≈0.1–0.5 s) and open pages reload by themselves |
+| a linked library's component, styles, loc strings | same as your own files (see [Library components](#library-components)) |
 
 Several bundles on one page all hot-update. Keep setup (icons, PnPjs, listeners) in `onInit`, not at module level: module code runs again on every hot update. A background tab delays Fast Refresh up to a second (browser timer throttling).
 
@@ -199,7 +227,9 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 <tarball>`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: stop it or use `--port` |
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
-| `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served) |
+| `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served by themselves) |
+| `<name> is an SPFx library project: run fast-serve in a consumer project` | link the library into a web part project and run `fast-serve` there (see [Library components](#library-components)) |
+| a linked library still loads its deployed version | the link is a copy (pnpm/yarn `file:`), the package is listed in `deployedLibraries`, or its entry has no source under `src/` (warning at start) |
 | `ReferenceError` for a webpack `DefinePlugin` constant, `Module not found` for a webpack alias | mirror the customization in `fast-serve/rspack.extend.mjs` |
 | "Your web part will not appear in the toolbox" on the hosted workbench | the workbench probes `localhost:4321`; dismiss it |
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
@@ -208,7 +238,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 
 ## Limitations
 
-- Web parts, extensions and Adaptive Card Extensions only: no library components.
+- Web parts, extensions and Adaptive Card Extensions are served; [library components](#library-components) only as linked source inside a consumer project.
 - Dev server only: no production build, type checking or linting.
 - `localhost` only; no Teams hosts.
 - A webpack customization that replaces a heft built-in rule (for example SVGR for `.svg`) can't be mirrored one to one: the extend file adds rules, it doesn't edit `fast-serve`'s.

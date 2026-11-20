@@ -4,7 +4,8 @@ import { isObject, type JsonObject } from '../utils/guards.js';
 import { readJsoncFile, readOptionalJsoncFile } from '../utils/jsonc.js';
 import { isInside, toPosix } from '../utils/paths.js';
 import { bundleExportNames } from './exportNames.js';
-import { findSpfxLibraries } from './libraries.js';
+import { scanLibraries, type LibraryScan } from './libraries.js';
+import { LIBRARY_COMPONENT_TYPE, readLibraryComponent } from './localLibraries.js';
 import { findSourceFile, LOC_EXTENSIONS, SOURCE_EXTENSIONS } from './sourcePaths.js';
 import { loadTsconfig, mergedCompilerOptions, type LoadedTsconfig } from './tsconfig.js';
 import { hasPathResolution, tsconfigPathsOf, type TsconfigPaths } from './tsconfigPaths.js';
@@ -31,6 +32,22 @@ export interface ProjectLogger {
 
 export type ProjectChange = 'model' | 'tsconfig' | 'sass';
 
+export interface ProjectOptions {
+  deployedLibraries?: readonly string[];
+  library?: boolean;
+}
+
+export interface LocalLibrary {
+  readonly packageName: string;
+  readonly root: string;
+  readonly id: string;
+  readonly alias: string;
+  readonly version: string;
+  readonly entryFile: string;
+  readonly sourceDir: string;
+  readonly project: SpfxProject;
+}
+
 export interface SpfxProject {
   readonly root: string;
   packageJson(): PackageJson;
@@ -41,6 +58,8 @@ export interface SpfxProject {
   components(): SpfxComponent[];
 
   libraries(): Map<string, SpfxLibrary>;
+
+  localLibraries(): LocalLibrary[];
 
   configExternals(): Map<string, ConfigExternal>;
 
@@ -59,7 +78,7 @@ export interface SpfxProject {
 
 const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension']);
 
-export function createProject(root: string, logger: ProjectLogger): SpfxProject {
+export function createProject(root: string, logger: ProjectLogger, projectOptions: ProjectOptions = {}): SpfxProject {
   const files = {
     packageJson: path.join(root, 'package.json'),
     config: path.join(root, 'config', 'config.json'),
@@ -119,6 +138,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
           .map((componentEntry) => toComponent(name, componentEntry));
         if (components.length > 0) result.push({ name, components });
       }
+      if (result.length > 0 && projectOptions.library !== true) warnAboutLibraryComponents();
       return result;
     });
 
@@ -131,8 +151,16 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     return [{ manifest: readManifest(manifestFile, packageJson().version), manifestFile, entrypoint: entry.entrypoint }];
   }
 
+  function warnAboutLibraryComponents(): void {
+    const alias = readLibraryComponent(root, packageJson().version)?.alias;
+    if (alias !== undefined) {
+      logger.warn(`${alias}: library components are not served (SharePoint loads the deployed copy); projects that link this one as a dependency compile its src`);
+    }
+  }
+
   function isSupported({ manifest }: ComponentEntry): boolean {
     if (SUPPORTED_COMPONENT_TYPES.has(manifest.componentType)) return true;
+    if (manifest.componentType === LIBRARY_COMPONENT_TYPE) return false;
     logger.warn(`${manifest.alias}: componentType "${manifest.componentType}" is not supported yet, skipped`);
     return false;
   }
@@ -145,11 +173,43 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     return { bundleName, manifest, manifestFile, entryFile, ...(exportName === undefined ? {} : { exportName }) };
   }
 
-  const libraries = (): Map<string, SpfxLibrary> =>
-    cached('libraries', () => findSpfxLibraries(root));
+  const libraryScan = (): LibraryScan =>
+    cached('libraries', () => scanLibraries(root, { deployedLibraries: projectOptions.deployedLibraries ?? [] }));
+
+  const libraries = (): Map<string, SpfxLibrary> => libraryScan().deployed;
+
+  const localLibraries = (): LocalLibrary[] =>
+    cached('localLibraries', () => [...libraryScan().local.values()].flatMap(({ packageName, root: libraryRoot }) => loadLocalLibrary(packageName, libraryRoot)));
+
+  function loadLocalLibrary(packageName: string, libraryRoot: string): LocalLibrary[] {
+    const libraryLogger: ProjectLogger = {
+      warn: (message) => {
+        logger.warn(`${packageName}: ${message}`);
+      },
+    };
+    const project = createProject(libraryRoot, libraryLogger, { library: true });
+    const component = readLibraryComponent(libraryRoot, project.packageJson().version);
+    const entryFile = component && findSourceFile(libraryRoot, component.entrypoint, SOURCE_EXTENSIONS);
+    if (!component || !entryFile) {
+      libraryLogger.warn(`the source of the library entry ${component?.entrypoint ?? ''} was not found under src/, the package is bundled from its main file`);
+      return [];
+    }
+    const { id, alias, version } = component;
+    return [{ packageName, root: libraryRoot, id, alias, version, entryFile, sourceDir: path.join(libraryRoot, 'src'), project }];
+  }
+
+  const ownConfigExternals = (): Map<string, ConfigExternal> =>
+    cached('ownExternals', () => readConfigExternals(root, buildConfig().externals, libraries(), logger));
 
   const configExternals = (): Map<string, ConfigExternal> =>
-    cached('externals', () => readConfigExternals(root, buildConfig().externals, libraries(), logger));
+    cached('externals', () => {
+      const merged = new Map<string, ConfigExternal>();
+      for (const library of localLibraries()) {
+        for (const [name, external] of library.project.configExternals()) if (!merged.has(name)) merged.set(name, external);
+      }
+      for (const [name, external] of ownConfigExternals()) merged.set(name, external);
+      return merged;
+    });
 
   const localFileExternals = (): string[] =>
     [...configExternals().values()].flatMap(({ source }) => (source.type === 'file' ? [source.file] : []));
@@ -197,6 +257,11 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
 
   const tsconfigFiles = (): readonly string[] => tsconfig()?.files ?? [files.tsconfig];
 
+  const roleModelFiles = (): string[] =>
+    projectOptions.library === true ? [readLibraryComponent(root, packageJson().version)?.manifestFile ?? ''].filter(Boolean) : [files.serve, files.sass];
+
+  const localLibraryFiles = (): string[] => localLibraries().flatMap((library) => library.project.modelFiles());
+
   const components = (): SpfxComponent[] => bundles().flatMap((bundle) => bundle.components);
 
   return {
@@ -206,6 +271,7 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     bundles,
     components,
     libraries,
+    localLibraries,
     configExternals,
     localizedResources,
     tsconfigPaths: () => {
@@ -221,11 +287,11 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
     modelFiles: () => [
       files.packageJson,
       files.config,
-      files.serve,
-      files.sass,
+      ...roleModelFiles(),
       ...components().map((c) => c.manifestFile),
       ...tsconfigFiles(),
       ...localFileExternals(),
+      ...localLibraryFiles(),
     ],
     invalidate(file) {
       const changed = path.resolve(file);
@@ -245,8 +311,13 @@ export function createProject(root: string, logger: ProjectLogger): SpfxProject 
         cache.delete('serve');
         return 'model';
       }
+      if (localLibraryFiles().includes(changed)) {
+        cache.clear();
+        return 'model';
+      }
       if (localFileExternals().includes(changed)) {
         cache.delete('externals');
+        cache.delete('ownExternals');
         return 'model';
       }
       if (changed.endsWith('.manifest.json') && isInside(sourceDir, changed)) {

@@ -66,4 +66,9 @@ describe('compileSummary', () => {
   it('lists changed files inside the project relative to it', () => {
     expect(changedProjectFiles(ROOT, [`${ROOT}/src/b.ts`, `${ROOT}/src/a.ts`, '/elsewhere/x.ts', ROOT, `${ROOT}/src/a.ts`])).toEqual(['src/a.ts', 'src/b.ts']);
   });
+
+  it('names changed files and problems of linked library projects relative to the project', () => {
+    expect(changedProjectFiles(ROOT, ['/work/corp-lib/src/Counter.tsx', '/elsewhere/x.ts', '/work/corp-lib'], ['/work/corp-lib'])).toEqual(['../corp-lib/src/Counter.tsx']);
+    expect(problemLocation({ message: '', moduleIdentifier: 'builtin:swc-loader!/work/corp-lib/src/Counter.tsx', loc: '3:1' }, ROOT, ['/work/corp-lib'])).toBe('../corp-lib/src/Counter.tsx:3:1');
+  });
 });

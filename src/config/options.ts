@@ -14,6 +14,8 @@ export interface FastServeOptions {
   serveConfiguration?: string;
 
   overlay?: boolean;
+
+  deployedLibraries?: string[];
 }
 
 export interface SelectedServeConfiguration extends ServeConfiguration {
@@ -141,7 +143,12 @@ export function loadOptionsFile(root: string, warn: (message: string) => void = 
     else if (key === 'locale' && typeof value === 'string') options.locale = value;
     else if (key === 'serveConfiguration' && typeof value === 'string') options.serveConfiguration = value;
     else if (key === 'overlay' && typeof value === 'boolean') options.overlay = value;
-    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay)`);
+    else if (key === 'deployedLibraries' && isStringArray(value)) options.deployedLibraries = value;
+    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries)`);
   }
   return options;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
 }

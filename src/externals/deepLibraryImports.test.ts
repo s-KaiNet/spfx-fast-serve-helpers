@@ -46,6 +46,12 @@ describe('projectRelativePath', () => {
     expect(projectRelativePath(path.join(root, 'src/vendor/node_modules/inner/index.js'), root)).toBeUndefined();
   });
 
+  it('treats the code of linked library projects as project code, relative to the project', () => {
+    expect(projectRelativePath(path.join(root, 'node_modules/shared/lib/index.js'), root, [path.join(workspace, 'shared')])).toBe('../shared/lib/index.js');
+    expect(projectRelativePath(path.join(workspace, 'shared/lib/index.js'), root, [path.join(root, 'node_modules/shared')])).toBe('../shared/lib/index.js');
+    expect(projectRelativePath(path.join(root, 'node_modules/graph/lib/index.js'), root, [path.join(workspace, 'shared')])).toBeUndefined();
+  });
+
   it('rejects files outside the project root, including linked packages', () => {
     expect(projectRelativePath(path.join(root, 'node_modules/shared/lib/index.js'), root)).toBeUndefined();
     expect(projectRelativePath(path.join(workspace, 'shared/lib/index.js'), root)).toBeUndefined();

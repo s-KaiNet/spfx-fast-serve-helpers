@@ -14,10 +14,10 @@ export function declaresOnlyType(source: string, name: string): boolean {
 }
 
 export class TypeOnlyNamesPlugin implements RspackPluginInstance {
-  readonly #root: string;
+  readonly #roots: readonly string[];
 
-  constructor(root: string) {
-    this.#root = root;
+  constructor(roots: string | readonly string[]) {
+    this.#roots = typeof roots === 'string' ? [roots] : roots;
   }
 
   apply(compiler: Compiler): void {
@@ -42,6 +42,6 @@ export class TypeOnlyNamesPlugin implements RspackPluginInstance {
   }
 
   #isProjectFile(file: string | undefined): file is string {
-    return file !== undefined && isInside(this.#root, file) && !NODE_MODULES.test(file);
+    return file !== undefined && this.#roots.some((root) => isInside(root, file)) && !NODE_MODULES.test(file);
   }
 }

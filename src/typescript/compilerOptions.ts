@@ -18,3 +18,16 @@ export function classTransformOptions(compilerOptions: JsonObject): ClassTransfo
     useDefineForClassFields,
   };
 }
+
+const CLASS_OPTION_NAMES: Record<keyof ClassTransformOptions, string> = {
+  legacyDecorators: 'experimentalDecorators',
+  decoratorMetadata: 'emitDecoratorMetadata',
+  useDefineForClassFields: 'useDefineForClassFields',
+};
+
+export function classTransformDifference(project: ClassTransformOptions, library: ClassTransformOptions): string | undefined {
+  const differences = (Object.keys(CLASS_OPTION_NAMES) as (keyof ClassTransformOptions)[])
+    .filter((key) => project[key] !== library[key])
+    .map((key) => `${CLASS_OPTION_NAMES[key]}: ${String(library[key])} in the library, ${String(project[key])} in the project`);
+  return differences.length === 0 ? undefined : differences.join(', ');
+}

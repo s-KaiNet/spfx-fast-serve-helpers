@@ -86,7 +86,7 @@ interface ListenOptions {
 
 async function listenDevServer({ compiler, devServer, serverStarted, setup, logger, startedAt, banner }: ListenOptions): Promise<RunningDevServer> {
   const { root, project, options } = setup;
-  const firstCompile = reportCompiles(compiler, root, logger);
+  const firstCompile = reportCompiles(compiler, root, project.localLibraries().map((library) => library.root), logger);
   const server = new RspackDevServer(devServer, compiler);
   const stoppers: ServerStopper[] = [];
   let stopped: Promise<void> | undefined;
@@ -140,12 +140,12 @@ export function devServerConfiguration(options: ResolvedOptions, https: HttpsCre
   };
 }
 
-function reportCompiles(compiler: Compiler, root: string, logger: Logger): Promise<void> {
+function reportCompiles(compiler: Compiler, root: string, libraryRoots: readonly string[], logger: Logger): Promise<void> {
   return new Promise((resolve, reject) => {
     let first = true;
     compiler.hooks.done.tap('fast-serve:report', (stats) => {
-      const changedFiles = first ? [] : changedProjectFiles(root, [...(compiler.modifiedFiles ?? []), ...(compiler.removedFiles ?? [])]);
-      logCompile(stats, { verb: first ? 'compiled' : 'rebuilt', root, changedFiles }, logger);
+      const changedFiles = first ? [] : changedProjectFiles(root, [...(compiler.modifiedFiles ?? []), ...(compiler.removedFiles ?? [])], libraryRoots);
+      logCompile(stats, { verb: first ? 'compiled' : 'rebuilt', root, libraryRoots, changedFiles }, logger);
       first = false;
       resolve();
     });
@@ -159,13 +159,14 @@ function reportCompiles(compiler: Compiler, root: string, logger: Logger): Promi
 interface CompileReportContext {
   verb: 'compiled' | 'rebuilt';
   root: string;
+  libraryRoots: readonly string[];
   changedFiles: readonly string[];
 }
 
-function logCompile(stats: Stats, { verb, root, changedFiles }: CompileReportContext, logger: Logger): void {
+function logCompile(stats: Stats, { verb, root, libraryRoots, changedFiles }: CompileReportContext, logger: Logger): void {
   const { errors = [], warnings = [], time = 0 } = stats.toJson({ all: false, errors: true, warnings: true, timings: true, moduleTrace: false, errorDetails: false });
-  const errorLines = formatCompileProblems('error', errors, root);
-  const warningLines = formatCompileProblems('warning', warnings, root);
+  const errorLines = formatCompileProblems('error', errors, root, libraryRoots);
+  const warningLines = formatCompileProblems('warning', warnings, root, libraryRoots);
   for (const error of errorLines) logger.error(error);
   for (const warning of warningLines) logger.warn(warning);
   logger.info(compileSummary({ verb, durationMs: time, changedFiles, errors: errorLines.length, warnings: warningLines.length }));

@@ -134,6 +134,11 @@ describe('loadOptionsFile', () => {
     expect(loadOptionsFile(root)).toEqual({ port: 4500, pageUrl: 'https://x/y', locale: 'nl-nl', serveConfiguration: 'rating', overlay: false });
   });
 
+  it('reads the libraries to load from SharePoint', () => {
+    expect(loadOptionsFile(projectWith('{ "deployedLibraries": ["@contoso/corp-lib"] }'))).toEqual({ deployedLibraries: ['@contoso/corp-lib'] });
+    expect(() => loadOptionsFile(projectWith('{ "deployedLibraries": "@contoso/corp-lib" }'))).toThrow(/"deployedLibraries"/);
+  });
+
   it('rejects unknown options and wrong types', () => {
     expect(() => loadOptionsFile(projectWith('{ "open": true }'))).toThrow(/unknown option.*"open"/);
     expect(() => loadOptionsFile(projectWith('{ "port": "4321" }'))).toThrow(/"port"/);

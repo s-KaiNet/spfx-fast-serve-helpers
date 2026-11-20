@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it, onTestFinished } from 'vitest';
 import type { Logger } from '../logger.js';
 import { packageVersion } from '../packageInfo.js';
+import { copyLibraryFixture, LIBRARY_PACKAGE, linkLocalPackage } from '../testing/compileKit.js';
 import { describeSetup, prepareServe } from './index.js';
 
 const fixture = fileURLToPath(new URL('../../test/fixtures/basic', import.meta.url));
@@ -52,7 +53,7 @@ describe('prepareServe', () => {
     expect(setup.options).toMatchObject({ port: 4600, locale: 'de-de', pageUrl: undefined });
     expect(messages).toEqual([
       'warn: fast-serve/config.json: "amdPackages" is ignored (not needed: AMD and UMD code in dependencies is bundled like in heft)',
-      'warn: ToolsLibrary: componentType "Library" is not supported yet, skipped',
+      'warn: ToolsLibrary: library components are not served (SharePoint loads the deployed copy); projects that link this one as a dependency compile its src',
       'warn: serve configuration "nope" not found in config/serve.json "serveConfigurations" (the file has none)',
     ]);
     expect(prepareServe({ root: fixtureCopy({ 'config/fast-serve.json': '{}' }), logger, env: {} }).options.port).toBe(4400);
@@ -90,6 +91,34 @@ describe('prepareServe', () => {
     expect(() => prepareServe({ root: newer, logger })).toThrow(/Unsupported SPFx version: this project uses SPFx 1\.25\.0/);
     const empty = fixtureCopy({ 'config/config.json': '{ "bundles": {} }' });
     expect(() => prepareServe({ root: empty, logger })).toThrow(/No web parts, extensions or Adaptive Card Extensions/);
+  });
+
+  it('asks to run fast-serve in a consumer project when run in a library project', () => {
+    const library = fixtureCopy({
+      'config/config.json': JSON.stringify({ bundles: { lib: { components: [{ entrypoint: './lib/index.js', manifest: './src/Lib.manifest.json' }] } } }),
+      'src/Lib.manifest.json': JSON.stringify({ id: '5c1d6a0e-1f7b-4a8e-9d43-2b7f0c9e1a11', alias: 'CorpLibLibrary', componentType: 'Library', version: '*' }),
+    });
+    expect(() => prepareServe({ root: library, logger: recordingLogger().logger })).toThrow(
+      /^basic-fixture is an SPFx library project: run fast-serve in a consumer project that depends on it/,
+    );
+  });
+
+  it('lists linked libraries compiled from source and checks the deployedLibraries option', () => {
+    const library = copyLibraryFixture();
+    onTestFinished(() => {
+      library.remove();
+    });
+    const root = fixtureCopy();
+    linkLocalPackage(root, LIBRARY_PACKAGE, library.root);
+    const { logger, messages } = recordingLogger();
+    const lines = describeSetup(prepareServe({ root, logger, env: {} }));
+    expect(lines).toContain(`SPFx libraries from source: ${LIBRARY_PACKAGE} (${path.relative(root, library.root).split(path.sep).join('/')})`);
+    mkdirSync(path.join(root, 'fast-serve'));
+    writeFileSync(path.join(root, 'fast-serve', 'config.json'), JSON.stringify({ deployedLibraries: [LIBRARY_PACKAGE, 'missing-lib'] }));
+    const optedOut = prepareServe({ root, logger, env: {} });
+    expect(optedOut.project.localLibraries()).toEqual([]);
+    expect(optedOut.project.libraries().has(LIBRARY_PACKAGE)).toBe(true);
+    expect(messages.filter((message) => message.includes('deployedLibraries'))).toEqual(['warn: fast-serve/config.json: "deployedLibraries" lists "missing-lib", which is not an SPFx library dependency of this project']);
   });
 });
 

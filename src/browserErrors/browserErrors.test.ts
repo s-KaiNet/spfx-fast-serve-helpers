@@ -164,6 +164,28 @@ describe('BrowserErrorReporter', () => {
     expect(response.overlay?.text).toBe(logged[0]);
   });
 
+  it('counts frames from linked library projects as project frames', async () => {
+    const libraryRoot = `${root}-corp-lib`;
+    mkdirSync(path.join(libraryRoot, 'src'), { recursive: true });
+    writeFileSync(path.join(libraryRoot, 'src', 'counter.ts'), SOURCE);
+    const payload = JSON.parse(readFileSync(path.join(root, 'bundle.js.map'), 'utf8')) as Record<string, unknown>;
+    writeFileSync(path.join(root, 'library.js.map'), JSON.stringify({ ...payload, sources: [`webpack:///../../${path.basename(libraryRoot)}/src/counter.ts`] }));
+    try {
+      const logged: string[] = [];
+      const sourceMaps = new BundleSourceMaps(root, (file) => Promise.resolve(file.endsWith('.js.map') ? readFileSync(path.join(root, file), 'utf8') : undefined), () => true);
+      const facts: LoadErrorFacts = { root, configExternals: new Map(), libraries: new Map(), compileFailed: false };
+      const options = { root, distUrl: DIST, overlay: true, logger: { error: (message: string) => logged.push(stripVTControlCharacters(message)) }, sourceMaps, loadErrorFacts: () => facts };
+      const stack = `TypeError: x\n    at counter (${DIST}library.js:${bundleLine}:${bundleColumn})`;
+      expect(await new BrowserErrorReporter(options).report(report({ name: 'TypeError', message: 'x', stack }))).toEqual({});
+      const response = await new BrowserErrorReporter({ ...options, libraryRoots: [libraryRoot] }).report(report({ name: 'TypeError', message: 'x', stack }));
+      expect(logged[0]?.split('\n').slice(0, 2)).toEqual(['[Unhandled error] TypeError: x', ` > counter ../${path.basename(libraryRoot)}/src/counter.ts:6:10`]);
+      expect(logged[0]).toContain('> 6 |   return props.a.toUpperCase();');
+      expect(response.overlay?.title).toBe('Uncaught runtime error');
+    } finally {
+      rmSync(libraryRoot, { recursive: true, force: true });
+    }
+  });
+
   it('drops errors without a project frame and keeps console.error out of the overlay', async () => {
     const { instance, logged } = reporter();
     expect(await instance.report(report({ stack: `Error: telemetry\n    at send (${DIST}vendor.js:3:1)\n    at https://contoso.sharepoint.com/sp.js:1:1` }))).toEqual({});

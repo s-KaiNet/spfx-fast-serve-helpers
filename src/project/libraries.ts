@@ -2,7 +2,8 @@ import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { isObject, type JsonObject } from '../utils/guards.js';
 import { readJsoncFile } from '../utils/jsonc.js';
-import type { SpfxLibrary } from './types.js';
+import { isOutsideNodeModules, readLibraryComponent } from './localLibraries.js';
+import type { LocalLibraryPackage, SpfxLibrary } from './types.js';
 
 const MANIFEST_FILE = /^[^.\\/]+\.manifest\.json$/;
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'optionalDependencies'] as const;
@@ -15,29 +16,60 @@ interface LibraryManifest {
   rootComponentId?: string;
 }
 
-export function findSpfxLibraries(root: string): Map<string, SpfxLibrary> {
+export interface LibraryScan {
+  deployed: Map<string, SpfxLibrary>;
+  local: Map<string, LocalLibraryPackage>;
+}
+
+export interface LibraryScanOptions {
+  deployedLibraries?: readonly string[];
+}
+
+export function scanLibraries(root: string, { deployedLibraries = [] }: LibraryScanOptions = {}): LibraryScan {
   const libraries = new Map<string, SpfxLibrary>();
+  const local = new Map<string, LocalLibraryPackage>();
   const visited = new Set<string>();
   const projectJson = readPackageJson(root);
   const projectName = typeof projectJson.name === 'string' ? projectJson.name : undefined;
+  const projectDir = realDirectory(root);
   const queue = dependencyNames(projectJson).map((packageName) => ({ packageName, fromDir: root }));
 
   for (let next = queue.shift(); next; next = queue.shift()) {
-    const packageDir = findPackageDirectory(next.packageName, next.fromDir);
+    const { packageName } = next;
+    const packageDir = findPackageDirectory(packageName, next.fromDir);
     if (!packageDir || visited.has(packageDir)) continue;
     visited.add(packageDir);
-    const manifests = readDistManifests(packageDir);
-    if (manifests.length === 0) continue;
-    const library = singleLibraryManifest(manifests);
-    if (library && next.packageName !== projectName && !libraries.has(next.packageName)) {
-      libraries.set(next.packageName, { packageName: next.packageName, id: library.id, version: library.version, packageDir });
+    const packageJson = readPackageJson(packageDir);
+    const isProject = packageName === projectName || packageDir === projectDir;
+    const localLibrary = isProject || !isOutsideNodeModules(packageDir) ? undefined : readLibraryComponent(packageDir, stringVersion(packageJson));
+    if (localLibrary && !deployedLibraries.includes(packageName)) {
+      if (!local.has(packageName)) local.set(packageName, { packageName, root: packageDir });
+    } else {
+      const manifests = readDistManifests(packageDir);
+      const manifest = singleLibraryManifest(manifests) ?? localLibrary;
+      if (manifest && !isProject && !libraries.has(packageName)) {
+        libraries.set(packageName, { packageName, id: manifest.id, version: manifest.version, packageDir });
+      }
+      if (manifests.length === 0 && !localLibrary) continue;
     }
-    for (const packageName of dependencyNames(readPackageJson(packageDir))) queue.push({ packageName, fromDir: packageDir });
+    for (const dependency of dependencyNames(packageJson)) queue.push({ packageName: dependency, fromDir: packageDir });
   }
   for (const library of librariesWithoutManifest(root)) {
-    if (!libraries.has(library.packageName)) libraries.set(library.packageName, library);
+    if (!libraries.has(library.packageName) && !local.has(library.packageName)) libraries.set(library.packageName, library);
   }
-  return libraries;
+  return { deployed: libraries, local };
+}
+
+function realDirectory(dir: string): string {
+  try {
+    return realpathSync(dir);
+  } catch {
+    return path.resolve(dir);
+  }
+}
+
+function stringVersion(packageJson: JsonObject): string {
+  return typeof packageJson.version === 'string' ? packageJson.version : '0.0.0';
 }
 
 function librariesWithoutManifest(root: string): SpfxLibrary[] {

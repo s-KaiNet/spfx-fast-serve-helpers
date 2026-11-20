@@ -19,7 +19,7 @@ SPFx libraries and `config/config.json` `externals` are AMD externals of the bun
 
 ### SPFx libraries
 
-- Every dependency (walked transitively) that ships an SPFx library manifest, plus `@microsoft/microsoft-graph-client`, is an external by exact request: all `@microsoft/sp-*` libraries, `@microsoft/sp-adaptive-card-extension-base`, and third-party library components. React stays bundled (development build, see [Rspack compile](rspack-compile.md)).
+- Every dependency (walked transitively) that ships an SPFx library manifest, plus `@microsoft/microsoft-graph-client`, is an external by exact request: all `@microsoft/sp-*` libraries, `@microsoft/sp-adaptive-card-extension-base`, and third-party library components. React stays bundled (development build, see [Rspack compile](rspack-compile.md)). A library component project linked into the project (real path outside `node_modules`) is not an external: it is compiled from source ([local library projects](local-library-projects.md)).
 - `scriptResources` gets `{ type: 'component', id, version }` (the installed library's id and version) for each library the bundle uses, including libraries used only in lazy `import()` chunks (Rspack hoists them onto the entry `define`), plus `@microsoft/sp-loader`. The tenant serves the highest version with the same major (a 1.24.1 project on a 1.25 tenant works).
 - **Deep imports** into a library (`@microsoft/sp-core-library/lib/Version`) are bundled from `node_modules`, like heft (its externals match exact requests only); the deep file's own imports of libraries stay externals and are listed. fast-serve warns only when project code makes the deep import (a file under the project root, outside any `node_modules`, compared by real path so pnpm and linked packages count as dependencies); deep imports made by dependencies are bundled silently, like heft, because the user can't change them. The warning names the importing file project-relative (`src/webparts/x/X.tsx imports "<library>/lib/…", a deep import into the SPFx library <library>: it is bundled as a separate copy, not the instance SharePoint loads; import from "<library>" instead`), one line per request with the first importer and a count of the others; the same line is not repeated on rebuilds, a changed importer list prints again. Mapping deep imports to the library's root module was tried and rejected: the root does not re-export everything a deep module exports (a deep default import became `undefined`).
 
@@ -54,6 +54,7 @@ SPFx libraries and `config/config.json` `externals` are AMD externals of the bun
 - [Dev server, debug manifests and debug URL](dev-server.md)
 - [HMR and React Fast Refresh](hmr.md)
 - [Localized strings](localization.md)
+- [Local library component projects](local-library-projects.md)
 
 ## Evidence
 

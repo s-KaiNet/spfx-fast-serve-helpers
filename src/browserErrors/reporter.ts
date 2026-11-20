@@ -15,6 +15,7 @@ export interface MappedFrame extends DisplayFrame {
 
 export interface BrowserErrorReporterOptions {
   root: string;
+  libraryRoots?: readonly string[];
   distUrl: string;
   overlay: boolean;
   logger: Pick<Logger, 'error'>;
@@ -58,9 +59,10 @@ export class BrowserErrorReporter {
   private async mapFrame(method: string, file: string, line: number, column: number): Promise<MappedFrame> {
     const origin = await this.options.sourceMaps.originOf(file, line, column);
     if (origin === undefined) return { method, location: `dist/${file}`, line, column, project: false };
-    const { root } = this.options;
-    const project = isInside(root, origin.file) && !NODE_MODULES.test(origin.file) && existsSync(origin.file);
-    const location = isInside(root, origin.file) ? toPosix(path.relative(root, origin.file)) : toPosix(origin.file);
+    const { root, libraryRoots = [] } = this.options;
+    const codeRoots = [root, ...libraryRoots];
+    const project = codeRoots.some((codeRoot) => isInside(codeRoot, origin.file)) && !NODE_MODULES.test(origin.file) && existsSync(origin.file);
+    const location = isInside(root, origin.file) || project ? toPosix(path.relative(root, origin.file)) : toPosix(origin.file);
     const frame = { method, location, line: origin.line, project, ...(project ? { sourceFile: origin.file } : {}) };
     return origin.column === undefined ? frame : { ...frame, column: origin.column };
   }

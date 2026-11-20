@@ -8,11 +8,12 @@ import { SharedHotUpdateGlobalPlugin } from './sharedHotUpdateGlobal.js';
 
 export { SharedHotUpdateGlobalPlugin } from './sharedHotUpdateGlobal.js';
 
-export function hmrContribution({ root }: BuildContext): ConfigContribution {
+export function hmrContribution({ root, project }: BuildContext): ConfigContribution {
+  const sourceFolders = [path.join(root, 'src'), ...project.localLibraries().map((library) => library.sourceDir)];
   const refreshEntry = packageFile('./runtime/refreshEntry', import.meta.url);
   return {
     plugins: [
-      new ReactRefreshRspackPlugin({ include: path.join(root, 'src'), injectEntry: false }),
+      new ReactRefreshRspackPlugin({ include: sourceFolders, injectEntry: false }),
       new rspack.EntryPlugin(root, refreshEntry, { name: undefined }),
       new SharedHotUpdateGlobalPlugin(),
     ],

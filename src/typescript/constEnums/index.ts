@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import type { Compiler, RspackPluginInstance, RuleSetRule } from '@rspack/core';
+import type { Compiler, RspackPluginInstance, RuleSetCondition, RuleSetRule } from '@rspack/core';
 import { globSync } from 'tinyglobby';
 import { packageFile } from '../../utils/packageFile.js';
 import { isInside } from '../../utils/paths.js';
@@ -43,33 +43,35 @@ function readGlobalConstEnums(file: string): string[] {
   }
 }
 
-export function ambientEnumCheck(root: string, ambientEnums: AmbientConstEnums): ConstEnumCheck {
+export function ambientEnumCheck(displayRoot: string, ambientEnums: AmbientConstEnums): ConstEnumCheck {
   return (code, file) => {
     const declarations = ambientEnums.declarations;
     if (declarations.size === 0) return undefined;
     const uses = referencedGlobals(code, [...declarations.keys()]).map((name) => ({ name, declarationFile: declarations.get(name) ?? '' }));
-    return uses.length === 0 ? undefined : formatAmbientEnumMessage(root, file, uses);
+    return uses.length === 0 ? undefined : formatAmbientEnumMessage(displayRoot, file, uses);
   };
 }
 
-export function constEnumCheckRule(root: string, ambientEnums: AmbientConstEnums, exclude: RegExp): RuleSetRule {
+export function constEnumCheckRule(root: string, ambientEnums: AmbientConstEnums, exclude: RuleSetCondition, displayRoot: string = root): RuleSetRule {
   return {
     test: /\.tsx?$/,
     include: root,
     exclude,
     enforce: 'post',
     loader: packageFile('./constEnumLoader', import.meta.url),
-    options: { check: ambientEnumCheck(root, ambientEnums) },
+    options: { check: ambientEnumCheck(displayRoot, ambientEnums) },
   };
 }
 
 export class ConstEnumsPlugin implements RspackPluginInstance {
   readonly #root: string;
   readonly #ambientEnums: AmbientConstEnums;
+  readonly #displayRoot: string;
 
-  constructor(root: string, ambientEnums: AmbientConstEnums) {
+  constructor(root: string, ambientEnums: AmbientConstEnums, displayRoot: string = root) {
     this.#root = root;
     this.#ambientEnums = ambientEnums;
+    this.#displayRoot = displayRoot;
   }
 
   apply(compiler: Compiler): void {
@@ -86,7 +88,7 @@ export class ConstEnumsPlugin implements RspackPluginInstance {
           if (importer === undefined || request === undefined || !isInside(this.#root, importer)) return error;
           const declarationFile = findDeclarationOnlyModule(path.resolve(path.dirname(importer), request));
           if (declarationFile === undefined) return error;
-          const message = formatDeclarationImportMessage(this.#root, importer, request, declarationFile, exportedConstEnums(readFileSync(declarationFile, 'utf8')));
+          const message = formatDeclarationImportMessage(this.#displayRoot, importer, request, declarationFile, exportedConstEnums(readFileSync(declarationFile, 'utf8')));
           return Object.assign(new compiler.webpack.WebpackError(message), { module: error.module });
         });
         return Promise.resolve();

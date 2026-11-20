@@ -20,27 +20,31 @@ const BUILD_FAILED_WRAPPER = /^\s*× Module build failed \(from [^)]*\):\s*$/;
 const WRAPPED_CAUSE_ARROW = /^(\s*)╰─▶/;
 const MAX_LISTED_CHANGES = 2;
 
-export function formatCompileProblems(level: 'error' | 'warning', problems: readonly CompileProblem[], root: string): string[] {
+export function formatCompileProblems(level: 'error' | 'warning', problems: readonly CompileProblem[], root: string, libraryRoots: readonly string[] = []): string[] {
   const formatted = problems.map((problem) => {
-    const location = problemLocation(problem, root);
+    const location = problemLocation(problem, root, libraryRoots);
     const header = location === undefined ? level : `${level} in ${location}`;
     return `${header}\n${tidyMessage(problem.message)}`;
   });
   return [...new Set(formatted)];
 }
 
-export function problemLocation({ moduleIdentifier, moduleName, loc }: CompileProblem, root: string): string | undefined {
-  const file = moduleFile(moduleIdentifier, root) ?? moduleName?.replace(/^\.\//, '');
+export function problemLocation({ moduleIdentifier, moduleName, loc }: CompileProblem, root: string, libraryRoots: readonly string[] = []): string | undefined {
+  const file = moduleFile(moduleIdentifier, root, libraryRoots) ?? moduleName?.replace(/^\.\//, '');
   if (file === undefined || file === '') return undefined;
   return loc === undefined || loc === '' ? file : `${file}:${loc}`;
 }
 
-function moduleFile(moduleIdentifier: string | undefined, root: string): string | undefined {
+function moduleFile(moduleIdentifier: string | undefined, root: string, libraryRoots: readonly string[]): string | undefined {
   if (moduleIdentifier === undefined) return undefined;
   const segments = moduleIdentifier.slice(moduleIdentifier.lastIndexOf('!') + 1).split('|');
   const resource = segments.map((segment) => segment.split('?')[0] ?? '').find((segment) => path.isAbsolute(segment));
   if (resource === undefined) return undefined;
-  return isInside(root, resource) ? toPosix(path.relative(root, resource)) : toPosix(resource);
+  return isCodeFile(resource, root, libraryRoots) ? toPosix(path.relative(root, resource)) : toPosix(resource);
+}
+
+function isCodeFile(file: string, root: string, libraryRoots: readonly string[]): boolean {
+  return [root, ...libraryRoots].some((codeRoot) => isInside(codeRoot, file) && file !== codeRoot);
 }
 
 export function tidyMessage(message: string): string {
@@ -63,8 +67,8 @@ export function compileSummary({ verb, durationMs, changedFiles, errors, warning
   return `${verb} in ${durationMs} ms${changes}${counts.length > 0 ? `: ${counts.join(', ')}` : ''}`;
 }
 
-export function changedProjectFiles(root: string, files: Iterable<string>): string[] {
-  return [...new Set([...files].filter((file) => isInside(root, file) && file !== root).map((file) => toPosix(path.relative(root, file))))].toSorted();
+export function changedProjectFiles(root: string, files: Iterable<string>, libraryRoots: readonly string[] = []): string[] {
+  return [...new Set([...files].filter((file) => isCodeFile(file, root, libraryRoots)).map((file) => toPosix(path.relative(root, file))))].toSorted();
 }
 
 function plural(count: number, noun: string): string | undefined {

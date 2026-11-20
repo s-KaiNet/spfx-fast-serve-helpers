@@ -46,7 +46,7 @@ describe('createProject', () => {
       version: '1.2.3',
     });
     expect(aceBundle?.components[0]?.entryFile).toBe(path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.ts'));
-    expect(warnings).toEqual(['ToolsLibrary: componentType "Library" is not supported yet, skipped']);
+    expect(warnings).toEqual(['ToolsLibrary: library components are not served (SharePoint loads the deployed copy); projects that link this one as a dependency compile its src']);
   });
 
   it('rejects an extension manifest without extensionType', () => {

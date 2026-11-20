@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": { "@corp/*": ["src/shared/*"] }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 15:40 | ingest | local library component projects compiled from source (L1–L4)
+
+- Changed: `kb/features/local-library-projects.md` (new), `kb/architecture/project-model.md`, `kb/features/libraries-and-externals.md`, `kb/features/cli-and-options.md`, `kb/features/project-restarts.md`, `kb/features/typescript-and-tsconfig.md`, `kb/features/hmr.md`, `kb/features/errors-and-diagnostics.md`, `kb/concepts/spfx-component-types.md`, `kb/operations/acceptance-run.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: linked library projects detected and compiled from `src` in the consumer (aliases, loc, tsconfig `paths`, merged `config.json` externals, refresh include, per-root const enum/type-only checks, project-code treatment for warnings, problems, rebuild lines and browser errors, class-option warning, restart triggers); `deployedLibraries` opt-out; library-only message; live table on a generated library + spfx-rea copy (Fast Refresh across projects 102–113 ms with state, SCSS swap with tenant theme token, loc hot update, restart on library config, errors with `../corp-lib/…` paths, cached start)
+
 ## 2026-11-20 13:20 | ingest | Sass ~/pkg: imports like heft, development class-name hash (R27)
 
 - Changed: `kb/features/styles-and-typings.md`, `kb/index.md`, `kb/roadmap/overview.md`

@@ -24,6 +24,7 @@ tags:
 | `package.json`, `config/config.json` (bundles, components, externals, localized resources), `config/serve.json`, `config/sass.json`, `fast-serve/config.json` | restart |
 | the tsconfig chain (`tsconfig.json` and every file it `extends`, rig files included) | restart |
 | a component manifest in `src` | restart |
+| a linked library project's `package.json`, `config/config.json`, Library manifest or tsconfig chain ([local library projects](local-library-projects.md)) | restart, reason named relative to the project (`../corp-lib/config/config.json changed, …`) |
 | `fast-serve/rspack.extend.*` or any local file it imports | restart, see [Rspack extend file](rspack-extend-file.md) |
 | an extend file added or removed | restart |
 | a local-file `config.json` external | no restart: served live and the page reloads ([libraries and externals](libraries-and-externals.md)) |
@@ -44,7 +45,7 @@ Every server start uses a new compilation hash salt. The pages' dev-server clien
 
 ### Unchanged options
 
-The option set is final for this line: `port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay` (flags or `fast-serve/config.json`). A changed `fast-serve/config.json` or `config/serve.json` takes effect at the restart, including a new port.
+The option set for this line: `port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay` (flags or `fast-serve/config.json`) and the file-only `deployedLibraries`. A changed `fast-serve/config.json` or `config/serve.json` takes effect at the restart, including a new port.
 
 ## Implementation Notes
 

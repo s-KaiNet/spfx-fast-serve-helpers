@@ -1,4 +1,5 @@
-export { createProject, DEFAULT_LOCALE, type ProjectChange, type ProjectLogger, type SpfxProject } from './project.js';
+export { createProject, DEFAULT_LOCALE, type LocalLibrary, type ProjectChange, type ProjectLogger, type ProjectOptions, type SpfxProject } from './project.js';
+export { readLibraryComponent, type LibraryComponentSource } from './localLibraries.js';
 export { aliasCandidates, matchesPathAlias, type PathMapping, type TsconfigPaths } from './tsconfigPaths.js';
 export type * from './types.js';
 export { assertSupportedSpfxVersion, findSpfxVersion, type InstalledSpfxVersion, type SpfxVersionSource } from './spfxVersion.js';

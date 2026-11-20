@@ -18,7 +18,7 @@ describe('bundles with several components', () => {
       { alias: 'CardAdaptiveCardExtension', exportName: 'c', entryFile: path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.ts') },
       { alias: 'SecondWebPart', exportName: 'e', entryFile: path.join(root, 'src/webparts/second/SecondWebPart.ts') },
     ]);
-    expect(warnings).toEqual(['ToolsLibrary: componentType "Library" is not supported yet, skipped']);
+    expect(warnings).toEqual(['ToolsLibrary: library components are not served (SharePoint loads the deployed copy); projects that link this one as a dependency compile its src']);
   });
 
   it('leaves single-component bundles without an export name', () => {

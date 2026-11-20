@@ -60,6 +60,11 @@ export interface SpfxLibrary {
   packageDir: string;
 }
 
+export interface LocalLibraryPackage {
+  packageName: string;
+  root: string;
+}
+
 export interface LocalizedResource {
   name: string;
 

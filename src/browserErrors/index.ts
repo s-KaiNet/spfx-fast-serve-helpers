@@ -68,6 +68,7 @@ export function browserErrorsFeature(context: BuildContext): BrowserErrorsFeatur
   const plugin = new BrowserErrorsPlugin(root);
   const reporter = new BrowserErrorReporter({
     root,
+    libraryRoots: project.localLibraries().map((library) => library.root),
     distUrl,
     overlay: options.overlay,
     logger,

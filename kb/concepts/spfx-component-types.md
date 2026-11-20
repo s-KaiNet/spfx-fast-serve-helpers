@@ -27,7 +27,7 @@ An SPFx project can contain web parts, extensions (four kinds that matter here),
 | Field Customizer | `extensionType: "FieldCustomizer"` | `fieldCustomizers` keyed by field internal name on a list view; `onRenderCell` renders each cell | yes |
 | Form Customizer | `extensionType: "FormCustomizer"` | `formCustomizer` parameters on `_layouts/15/SPListForm.aspx` (`PageType` new/edit/view) | yes |
 | Adaptive Card Extension | `componentType: "AdaptiveCardExtension"`, `supportedHosts: ["Dashboard"]`, `cardSize` | added from the toolbox like a web part (a test page, or the hosted workbench until it retires) | yes |
-| Library component | `componentType: "Library"` | consumed by other SPFx components as a `component` script resource; deployed tenant-wide | not yet |
+| Library component | `componentType: "Library"` | consumed by other SPFx components as a `component` script resource; deployed tenant-wide | as linked source compiled into a consumer ([local library projects](../features/local-library-projects.md)) |
 
 Other extension types (`SearchQueryModifier`, `Unknown`) and other component types are skipped with a warning.
 

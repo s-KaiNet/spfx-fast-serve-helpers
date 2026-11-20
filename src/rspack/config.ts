@@ -7,6 +7,7 @@ import { definesContribution } from '../defines/index.js';
 import { entriesContribution } from '../entries/index.js';
 import { externalsContribution } from '../externals/index.js';
 import { hmrContribution } from '../hmr/index.js';
+import { localLibrariesContribution } from '../libraries/index.js';
 import { localizationContribution } from '../localization/index.js';
 import { manifestsContribution } from '../manifests/index.js';
 import { reactContribution } from '../react/index.js';
@@ -29,6 +30,7 @@ export async function featureContributions(context: BuildContext): Promise<Confi
   const browserErrors = browserErrorsFeature(context);
   return [
     entriesContribution(context),
+    localLibrariesContribution(context),
     typescriptContribution(context),
     externalsContribution(context),
     reactContribution(context),
