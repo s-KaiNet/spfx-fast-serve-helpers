@@ -3,15 +3,18 @@ import { rspack } from '@rspack/core';
 import type { LocalizedResource } from '../project/index.js';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { toPosix } from '../utils/paths.js';
+import { heftStringsMiddleware } from './heftStrings.js';
 import { moduleLocWrapperSource, readLocFileFormat } from './locFormat.js';
 
+export { evaluateStrings, heftStringsRequest, stringsModuleSource } from './heftStrings.js';
 export { locFileFormat, moduleLocWrapperSource, type LocFileFormat } from './locFormat.js';
 
 const LOC_WRAPPER_FOLDER = path.join('temp', 'fast-serve', 'loc');
 
 export const localizationFeature: Feature = { name: 'localization', contribute: localizationContribution };
 
-function localizationContribution({ root, project, options, logger }: FeatureContext): ConfigContribution {
+function localizationContribution(context: FeatureContext): ConfigContribution {
+  const { root, project, options, logger } = context;
   const alias: Record<string, string> = {};
   const virtualModules: Record<string, string> = {};
   const owners = new Map<string, string>();
@@ -40,5 +43,5 @@ function localizationContribution({ root, project, options, logger }: FeatureCon
   }
 
   const plugins = Object.keys(virtualModules).length === 0 ? [] : [new rspack.experiments.VirtualModulesPlugin(virtualModules)];
-  return { alias, plugins };
+  return { alias, plugins, middlewares: [heftStringsMiddleware(context)] };
 }

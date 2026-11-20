@@ -147,6 +147,14 @@ describe('createProject', () => {
     expect(warnings).toContain('ControlStrings: no "de-de" strings, using en-us');
   });
 
+  it('finds the strings file of one locale without a fallback or a warning', () => {
+    const { project, warnings } = fixtureProject();
+    expect(project.localizedResourceFile('HelloWebPartStrings', 'de-de')).toBe(path.join(root, 'src/webparts/hello/loc/de-de.js'));
+    expect(project.localizedResourceFile('ControlStrings', 'de-de')).toBeUndefined();
+    expect(project.localizedResourceFile('UnknownStrings', 'en-us')).toBeUndefined();
+    expect(warnings).toEqual([]);
+  });
+
   it('reads each fact once for the lifetime of the model', () => {
     const { project } = fixtureProject();
     for (const read of [() => project.bundles(), () => project.configExternals(), () => project.localizedResources('en-us'), () => project.tsconfigCompilerOptions(), () => project.codeRoots()]) {

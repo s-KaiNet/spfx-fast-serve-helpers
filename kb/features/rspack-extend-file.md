@@ -25,6 +25,7 @@ tags:
 - Content: a Rspack `Configuration`, a promise of one, or a function `(context, env) => Configuration` (sync or async), usually written as `defineConfig(fn)`. A CommonJS file's `module.exports` is its default export.
 - `context`: `root`, `port`, `origin`, `publicPath` (`https://localhost:<port>/dist/`), `locale`, `serveConfiguration`, `pageUrl`, `spfxVersion`, `fastServeVersion`, `rspackVersion`; frozen. `env`: `{ command: 'serve', mode: 'development' }`.
 - Public package entry: `defineConfig` (returns its argument, typed), `rspack` (re-exported from `@rspack/core`), types `Configuration`, `RspackPluginInstance`, `Plugin`, `RuleSetRule`, `ResolveAlias`, `ExternalItem`, `DevServer`, `Compiler`, `FastServeConfig`, `FastServeConfigFunction`, `FastServeContext`, `FastServeEnv`. The project needs no own `@rspack/core` dependency; an extend file in TypeScript type-checks against the installed package.
+- `TunnelServePlugin` (exported with its `TunnelServeOptions` type) is a marker plugin that fast-serve takes out of `plugins` and turns into [tunnel mode](tunnel-mode.md); the context still describes `localhost`, because it is computed before the file runs.
 - At start `fast-serve` prints `Rspack config: fast-serve/rspack.extend.mjs` when the file is used.
 
 ### Merging
@@ -35,7 +36,7 @@ tags:
 
 ### Guard rails (warn only)
 
-These keys are ignored, each with a warning that names the alternative; the server never stops because of them: `entry`, `mode`, `context`, `target`, `amd`, `externalsType`, every `output.*` key (`publicPath` points to `--port`/`"port"`), `devServer: false`, `devServer.port` (`--port` or `"port"` in `fast-serve/config.json`), `host`, `server`, `https`, `hot`, `liveReload`, `client` (`--no-overlay` / `"overlay"`), `webSocketServer`, `devMiddleware`, `allowedHosts`. `externals` are applied but warned about: the debug manifests don't list them, so SharePoint can only resolve them when the page already loaded them; `config/config.json` externals are the supported way.
+These keys are ignored, each with a warning that names the alternative; the server never stops because of them: `entry`, `mode`, `context`, `target`, `amd`, `externalsType`, every `output.*` key (`publicPath` points to `--port`/`"port"` and to `TunnelServePlugin`), `devServer: false`, `devServer.port` (`--port` or `"port"` in `fast-serve/config.json`), `host`, `server`, `https`, `hot`, `liveReload`, `client` (`--no-overlay` / `"overlay"`; the websocket URL follows the origin, `TunnelServePlugin` for a tunnel), `webSocketServer`, `devMiddleware`, `allowedHosts`. `externals` are applied but warned about: the debug manifests don't list them, so SharePoint can only resolve them when the page already loaded them; `config/config.json` externals are the supported way.
 
 ### Reloading and errors
 
@@ -49,7 +50,7 @@ When the project has `config/spfx-customize-webpack.js` or `config/webpack-patch
 
 ### Agent skill
 
-The package ships `skills/fast-serve-rspack-config/SKILL.md` (at `node_modules/spfx-fast-serve-helpers/skills/fast-serve-rspack-config/SKILL.md` in a project): workflow, template, webpack → Rspack mapping (DefinePlugin/EnvironmentPlugin/ProvidePlugin and other plugins by the same name on `rspack.`, aliases into `src` not `lib`, no Babel for lit or modern syntax, CSS rules usually unnecessary, new file types as rules, externals in `config/config.json`), the guarded keys and pitfalls (rule stacking, `JSON.stringify`, values fixed at start). Projects reference it from their `AGENTS.md`.
+The package ships `skills/fast-serve-rspack-config/SKILL.md` (at `node_modules/spfx-fast-serve-helpers/skills/fast-serve-rspack-config/SKILL.md` in a project): workflow, template, webpack → Rspack mapping (DefinePlugin/EnvironmentPlugin/ProvidePlugin and other plugins by the same name on `rspack.`, aliases into `src` not `lib`, no Babel for lit or modern syntax, CSS rules usually unnecessary, new file types as rules, externals in `config/config.json`), `TunnelServePlugin` for the classic tunnel flow, the guarded keys and pitfalls (rule stacking, `JSON.stringify`, values fixed at start). Projects reference it from their `AGENTS.md`.
 
 ## Implementation Notes
 

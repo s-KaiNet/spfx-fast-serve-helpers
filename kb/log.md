@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 22:30 | ingest | tunnel mode with TunnelServePlugin (T1, `1.24.0-rspack.19`)
+
+- Changed: `kb/features/tunnel-mode.md` (new), `kb/features/errors-and-diagnostics.md`, `kb/features/dev-server.md`, `kb/features/localization.md`, `kb/features/rspack-extend-file.md`, `kb/architecture/overview.md`, `kb/roadmap/overview.md`, `kb/index.md`
+- Outcome: classic manual tunnel flow documented (user-run tunnel, heft development package, marker plugin, public origin vs listen origin, websocket on 443, `no-store` bundles, mobile cache clearing, banner); heft's development package file names recorded (strings `<Name>_<locale>.js`, local externals `<name>_<md5>.<ext>`) and answered; page runtime now also the first module of every bundle; local end-to-end through a Cloudflare quick tunnel and the live normal-flow regression check recorded; ACE `@microsoft/sp-property-pane` listing gap noted
+
 ## 2026-11-20 20:40 | ingest | errors while a module is evaluated open the overlay (R28, `1.24.0-rspack.18`)
 
 - Changed: `kb/features/errors-and-diagnostics.md`, `kb/features/hmr.md`, `kb/roadmap/overview.md`

@@ -159,6 +159,34 @@ export default defineConfig(({ root, port }) => ({
 
 Most webpack plugins have a `rspack.*` counterpart with the same name (`DefinePlugin`, `ProvidePlugin`, `NormalModuleReplacementPlugin`, `IgnorePlugin`, `CopyRspackPlugin`…); aliases must point into `src` (not `lib`); tsconfig `paths` already work without aliases.
 
+## Serving through a tunnel
+
+For places where the debug query can't be used (Viva Connections and Teams on mobile, device-only bugs), `fast-serve` can serve a **deployed development package** through a tunnel you run yourself, like classic fast-serve's `NgrokServePlugin`. `fast-serve` doesn't start or manage the tunnel. The debug query can't point to a tunnel: SharePoint accepts `debugManifestsFile` only on `localhost`.
+
+1. **Start a tunnel with a fixed host name** that forwards to `https://localhost:<port>` (the tunnel must not verify the dev certificate), for example:
+   - Microsoft Dev Tunnels: `devtunnel host -p 4321 --protocol https --allow-anonymous` (persistent tunnel id);
+   - a named Cloudflare Tunnel on your own domain, or `cloudflared tunnel --url https://localhost:4321 --no-tls-verify` (quick tunnel: new host on every start);
+   - ngrok **paid plan** with a fixed domain: `ngrok http https://localhost:4321 --domain <host>`.
+2. **Point the development package at the tunnel:** in `config/serve.json` set `"hostname": "<tunnel host>"` and `"port": 443`.
+3. **Build and deploy a development package once:** `heft build` and `heft package-solution` (both **without** `--production`), then upload `sharepoint/solution/*.sppkg` to the app catalog. Its manifests load the bundles from `https://<tunnel host>:443/dist/`.
+4. **Add the plugin** to `fast-serve/rspack.extend.mjs`:
+   ```js
+   import { defineConfig, TunnelServePlugin } from 'spfx-fast-serve-helpers';
+
+   export default defineConfig(() => ({ plugins: [new TunnelServePlugin({ host: 'my-tunnel.example.com' })] }));
+   ```
+   `host` is the host name only (no `https://`, port or path); anything else is ignored with a warning.
+5. **Run `fast-serve`** (same port as the tunnel target) and open the page **without** the debug query, in a tab that never used it (the debug query sticks to the tab).
+
+In tunnel mode `fast-serve` still listens on `https://localhost:<port>`, but everything the page sees uses `https://<host>`: chunk and asset URLs, `manifests.js` base URLs, the HMR websocket (`wss://<host>:443`), browser-error forwarding and local-file externals. It also answers the file names heft's development package uses (strings scripts such as `dist/HelloWorldWebPartStrings_en-us.js`, content-hashed local externals); string edits still hot-update through the bundled copy. Bundles are sent with `Cache-Control: no-store`, and each bundle clears the tunnel's responses from SharePoint's `Site-*` caches (the mobile apps cache scripts). The overlay and terminal error forwarding run inside the bundles, so they work without `manifests.js`. The banner shows the tunnel origin and no debug query; the localhost debug-query flow doesn't work in tunnel mode (its scripts would come from the tunnel host). Remove the plugin to go back. The extend-file context (`origin`, `publicPath`) still describes `localhost`, because the plugin is read from that file.
+
+Risks and limits:
+- **Free ngrok doesn't work:** its warning page answers script requests with HTML. Use a paid ngrok plan, Dev Tunnels or a named Cloudflare tunnel.
+- **Your dev server is public** while the tunnel runs: anyone with the URL can read the bundles and source maps. Stop the tunnel when you're done and never deploy the development package to a production app catalog.
+- You need **app catalog rights**, and the development package replaces the deployed app with the same id. If SharePoint blocks the scripts, add the tunnel origin to the tenant's trusted script sources (exact host).
+- **Rebuild and redeploy** the package when the tunnel host changes (quick tunnels: every start) or when manifests change (new components, new SPFx library or `config.json` external, changed `config/config.json`); code edits don't need it.
+- The package's manifests are heft's, not `fast-serve`'s: a bundle dependency heft loads differently isn't listed (an ACE whose property pane imports `@microsoft/sp-property-pane` lists it on `fast-serve`'s bundle but not in heft's ACE manifest; not checked on a tenant yet).
+
 ## HMR
 
 | Edit | Result |
@@ -242,7 +270,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 
 - Web parts, extensions and Adaptive Card Extensions are served; [library components](#library-components) only as linked source inside a consumer project.
 - Dev server only: no production build, type checking or linting.
-- `localhost` only; no Teams hosts.
+- The debug query works on `localhost` only; Teams and mobile hosts need [tunnel mode](#serving-through-a-tunnel) with a deployed development package.
 - A webpack customization that replaces a heft built-in rule (for example SVGR for `.svg`) can't be mirrored one to one: the extend file adds rules, it doesn't edit `fast-serve`'s.
 - A `const enum` from a dependency's declarations (Fluent `IconNames`) has no runtime value: use string values.
 

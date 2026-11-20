@@ -78,6 +78,7 @@ describe('feature order', () => {
       'defines',
       'manifests',
       'browserErrors',
+      'tunnel',
       'hmr',
     ]);
   });

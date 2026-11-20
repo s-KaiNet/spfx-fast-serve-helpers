@@ -8,6 +8,7 @@ export {
   parsePort,
   resolveOptions,
   TENANT_DOMAIN_ENV,
+  withTunnelHost,
   type FastServeOptions,
   type ResolvedOptions,
 } from './options.js';

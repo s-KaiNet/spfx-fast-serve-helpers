@@ -3,7 +3,7 @@ import { readBundles } from './bundles.js';
 import { readConfigExternals } from './configExternals.js';
 import { scanLibraries } from './libraries.js';
 import { readLibraryComponent, type LibraryComponentSource } from './localLibraries.js';
-import { readLocalizedResources } from './localizedResources.js';
+import { findLocalizedResourceFile, readLocalizedResources } from './localizedResources.js';
 import { once, oncePerKey } from './memo.js';
 import { projectFiles, readBuildConfig, readPackageJson, readServeConfig, type ProjectFiles } from './projectFiles.js';
 import { loadSassConfiguration, type SassConfiguration } from './sassConfiguration.js';
@@ -59,6 +59,7 @@ export interface SpfxProject {
   codeRoots(): CodeRoot[];
   configExternals(): Map<string, ConfigExternal>;
   localizedResources(locale: string): Map<string, LocalizedResource>;
+  localizedResourceFile(name: string, locale: string): string | undefined;
   tsconfigPaths(): TsconfigPaths | undefined;
   tsconfigCompilerOptions(): JsonObject;
   sassConfiguration(): Promise<SassConfiguration>;
@@ -97,6 +98,7 @@ export function createProject(root: string, logger: ProjectLogger, { deployedLib
     codeRoots: once(() => [{ label: CONSUMER_LABEL, root, sourceDir: files.sourceDir, project }, ...localLibraries().map(libraryCodeRoot)]),
     configExternals,
     localizedResources: oncePerKey((locale: string) => readLocalizedResources(root, buildConfig(), locale, logger)),
+    localizedResourceFile: (name, locale) => findLocalizedResourceFile(root, buildConfig(), name, locale),
     tsconfigPaths: tsconfig.pathResolution,
     tsconfigCompilerOptions: tsconfig.compilerOptions,
     sassConfiguration: once(() => loadSassConfiguration(root, logger)),

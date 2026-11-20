@@ -66,9 +66,24 @@ export default defineConfig(({ root }) => ({
 | `devServer.proxy` / `devServer.headers` | `devServer.proxy` / `devServer.headers` |
 | `output.*`, `optimization`, `devtool`, `performance`, `stats`, `cache`, `mode`, Terser/Analyzer/ForkTsChecker/Copy plugins | **not needed in dev**: leave them out |
 
+## Serving through a tunnel (TunnelServePlugin)
+
+When the user wants the classic fast-serve tunnel flow (Viva Connections/Teams on mobile, `NgrokServePlugin` in an old `webpack.extend.js`), add `TunnelServePlugin` instead of touching `output.publicPath` or `devServer.client`:
+
+```js
+import { defineConfig, TunnelServePlugin } from 'spfx-fast-serve-helpers';
+
+export default defineConfig(() => ({ plugins: [new TunnelServePlugin({ host: 'my-tunnel.example.com' })] }));
+```
+
+- `host` is the tunnel's host name only: no `https://`, port or path (otherwise fast-serve warns and stays on localhost). Classic `new NgrokServePlugin({ host })` maps 1:1.
+- fast-serve doesn't start the tunnel. The user runs one with a **fixed** host forwarding to `https://localhost:<port>` (Dev Tunnels, a named Cloudflare tunnel or paid ngrok; free ngrok's warning page breaks script loads), sets `config/serve.json` `"hostname": "<host>"`, `"port": 443`, builds a development package (`heft build` and `heft package-solution` without `--production`) and deploys it to the app catalog. The page is opened **without** the debug query.
+- With the plugin, the debug-query flow on localhost doesn't work; remove the plugin to go back. The context's `origin`/`publicPath` still describe localhost.
+- Tell the user the risks: the dev server is public while the tunnel runs, the development package replaces the deployed app, and it needs a rebuild and redeploy when the host or the manifests change.
+
 ## Don't set (fast-serve owns them)
 
-fast-serve ignores these keys and prints a warning naming the alternative: `entry`, `mode`, `context`, `target`, `amd`, `externalsType`, every `output.*` key (SharePoint loads fast-serve's AMD bundles from `https://localhost:<port>/dist/`), `devServer: false`, `devServer.port`/`host`/`server`/`https`/`hot`/`liveReload`/`client`/`webSocketServer`/`devMiddleware`/`allowedHosts`.
+fast-serve ignores these keys and prints a warning naming the alternative: `entry`, `mode`, `context`, `target`, `amd`, `externalsType`, every `output.*` key (SharePoint loads fast-serve's AMD bundles from `https://localhost:<port>/dist/`, or from the tunnel host with `TunnelServePlugin`), `devServer: false`, `devServer.port`/`host`/`server`/`https`/`hot`/`liveReload`/`client`/`webSocketServer`/`devMiddleware`/`allowedHosts`.
 
 Port, page URL, locale, serve configuration and overlay are fast-serve options: `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`) or CLI flags (`--port`, `--page-url`, `--locale`, `--config`, `--no-overlay`).
 

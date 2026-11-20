@@ -31,3 +31,8 @@ function resolveLocalizedResource({ root, locale, logger }: ResourceLookup, name
   logger.warn(`${name}: no strings file found for "${pattern}"`);
   return undefined;
 }
+
+export function findLocalizedResourceFile(root: string, config: JsonObject, name: string, locale: string): string | undefined {
+  const pattern = isObject(config.localizedResources) ? config.localizedResources[name] : undefined;
+  return typeof pattern === 'string' ? findSourceFile(root, pattern.replaceAll('{locale}', locale), LOC_EXTENSIONS) : undefined;
+}

@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` runs `@rspack/dev-server` over HTTPS on `localhost:<port>` with the SPFx development certificate. It serves the [compiled AMD bundles](rspack-compile.md) from memory under `/dist/`, its own debug `manifests.js` at `/temp/build/manifests.js` (heft's path) and the relative icon files the manifests reference, nothing else from the project. Every response carries CORS and Private Network Access headers. After the first compile it prints a ready banner with the components and the SharePoint page URL plus the debug query for the chosen port. SIGINT/SIGTERM stop the server and the compiler cleanly. On spfx-rea, both web parts and the Banner customizer render on a real SharePoint page with three requests to the dev server per page load.
+`fast-serve` runs `@rspack/dev-server` over HTTPS on `localhost:<port>` with the SPFx development certificate. It serves the [compiled AMD bundles](rspack-compile.md) from memory under `/dist/`, its own debug `manifests.js` at `/temp/build/manifests.js` (heft's path) and the relative icon files the manifests reference, nothing else from the project. Every response carries CORS and Private Network Access headers. After the first compile it prints a ready banner with the components and the SharePoint page URL plus the debug query for the chosen port. SIGINT/SIGTERM stop the server and the compiler cleanly. With `TunnelServePlugin` the public origin becomes the tunnel host while the server keeps listening on `localhost` ([tunnel mode](tunnel-mode.md)). On spfx-rea, both web parts and the Banner customizer render on a real SharePoint page with three requests to the dev server per page load.
 
 ## Behavior
 
@@ -33,6 +33,7 @@ tags:
 | Compression | off (local traffic) |
 | Websocket client | added by the dev server to every bundle; connects to `wss://localhost:<port>/ws`; browser logging `warn`; its own overlay is off (fast-serve draws one overlay per page, see [Errors, overlay and terminal output](errors-and-diagnostics.md)) |
 | Browser errors | `POST /fast-serve/browser-errors` receives error reports from the page runtime and answers with overlay content or a readable load-error message |
+| heft package files | `GET /dist/<Name>_<locale>.js` answers a strings script of a heft development package as an AMD module, `GET /dist/<name>_<md5>.<ext>` a content-hashed local-file external (used by [tunnel mode](tunnel-mode.md)) |
 | HMR | `hot` and `liveReload` on: edits hot-update inside the bundles with React Fast Refresh, an update that nobody accepts falls back to a page reload; details in [HMR and React Fast Refresh](hmr.md) |
 | Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms (<changed files>)`, error and warning counts only when non-zero), errors and warnings with project-relative paths; the dev server's own banners and stats are silenced ([details](errors-and-diagnostics.md#terminal)) |
 

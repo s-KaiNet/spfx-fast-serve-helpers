@@ -10,6 +10,7 @@ import { localizationFeature } from '../localization/index.js';
 import { manifestsFeature } from '../manifests/index.js';
 import { reactFeature } from '../react/index.js';
 import { stylesFeature } from '../styles/index.js';
+import { tunnelFeature } from '../tunnel/index.js';
 import { typescriptFeature } from '../typescript/index.js';
 
 export const FEATURES: readonly Feature[] = [
@@ -24,6 +25,7 @@ export const FEATURES: readonly Feature[] = [
   definesFeature,
   manifestsFeature,
   browserErrorsFeature,
+  tunnelFeature,
   hmrFeature,
 ];
 

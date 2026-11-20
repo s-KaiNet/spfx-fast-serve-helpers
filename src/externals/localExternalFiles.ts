@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Compiler, RspackPluginInstance } from '@rspack/core';
+import { decodedRequestPath, DIST_PATH, isReadRequest, send, type ServerMiddleware } from '../featureApi/index.js';
 import type { ConfigExternal } from '../project/index.js';
 import { errorMessage } from '../utils/errors.js';
 
@@ -20,6 +21,36 @@ export function localExternalFiles(externals: Iterable<ConfigExternal>): LocalEx
 
 export function localExternalAssetName(name: string, file: string): string {
   return `${name}${path.extname(file)}`;
+}
+
+const HEFT_CONTENT_HASH = /^_[0-9a-f]{32}$/;
+
+export function heftLocalExternalFile(files: readonly LocalExternalFile[], urlPath: string): LocalExternalFile | undefined {
+  if (!urlPath.startsWith(DIST_PATH)) return undefined;
+  const requested = urlPath.slice(DIST_PATH.length);
+  return files.find(({ name, file }) => {
+    const extension = path.extname(file);
+    return requested.startsWith(name) && requested.endsWith(extension) && HEFT_CONTENT_HASH.test(requested.slice(name.length, requested.length - extension.length));
+  });
+}
+
+export function heftLocalExternalsMiddleware(files: readonly LocalExternalFile[]): ServerMiddleware {
+  return {
+    name: 'fast-serve:heft-local-externals',
+    middleware: async (req, res, next) => {
+      const urlPath = isReadRequest(req) ? decodedRequestPath(req) : undefined;
+      const external = urlPath === undefined ? undefined : heftLocalExternalFile(files, urlPath);
+      if (external === undefined) {
+        next();
+        return;
+      }
+      try {
+        send(req, res, 'application/javascript; charset=utf-8', await readFile(external.file));
+      } catch (error) {
+        next(error);
+      }
+    },
+  };
 }
 
 export class LocalExternalFilesPlugin implements RspackPluginInstance {

@@ -2,6 +2,8 @@
 
 Status 2026-11-20, against `1.24.0-rspack.17`. Research only: nothing in `src/` changed. Prototype files are in `/var/tmp/ngrok-research/`.
 
+Implemented in `1.24.0-rspack.19` (PLAN T1) as the classic manual flow: `TunnelServePlugin({ host })` in the extend file, the user's own tunnel and a heft development package; both gaps below (strings files, page runtime) are closed. No built-in provider and no `fast-serve package` command. Current behaviour: [kb/features/tunnel-mode.md](../../kb/features/tunnel-mode.md).
+
 ## TL;DR
 
 - **The classic recipe was never "a tunnel URL in the debug query".** Classic fast-serve (`NgrokServePlugin`, added 2021, helpers ≤ 1.21) only rewrote the webpack public path and the dev-server public host. The SharePoint side came from a **dev (non-`--ship`) package deployed to the app catalog**, built with `config/serve.json` `hostname: <ngrok host>`, `port: 443`. The deployed manifests pointed `internalModuleBaseUrls` at the tunnel, so Viva/Teams mobile (where no debug query is possible) loaded the bundles from the developer's machine.

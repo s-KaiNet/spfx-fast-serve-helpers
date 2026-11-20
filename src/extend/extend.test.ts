@@ -92,7 +92,7 @@ describe('guardExtendConfig', () => {
     });
     expect(guarded.ignored.map(({ key }) => key)).toEqual(['entry', 'mode', 'target', 'externalsType', 'output.publicPath', 'output.library', 'devServer.port', 'devServer.server', 'devServer.client']);
     expect(guarded.ignored.find(({ key }) => key === 'devServer.port')?.alternative).toBe('use --port or "port" in fast-serve/config.json');
-    expect(guarded.ignored.find(({ key }) => key === 'output.publicPath')?.alternative).toContain('use --port or "port" in fast-serve/config.json');
+    expect(guarded.ignored.find(({ key }) => key === 'output.publicPath')?.alternative).toContain('use --port or "port" in fast-serve/config.json; to serve through a tunnel add new TunnelServePlugin({ host })');
     expect(guarded.ignored.find(({ key }) => key === 'devServer.client')?.alternative).toContain('--no-overlay');
     expect(guarded.config).toEqual({ resolve: { alias: { '@src': '/project/src' } } });
     expect(guarded.devServer).toEqual({ proxy: [{ context: ['/api'], target: 'https://api.contoso.com' }] });

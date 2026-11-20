@@ -25,6 +25,7 @@ export interface StartDevServerOptions {
 
 export interface RunningDevServer {
   readonly origin: string;
+  readonly localOrigin: string;
   readonly close: () => Promise<void>;
 }
 
@@ -114,7 +115,7 @@ async function listenDevServer({ compiler, devServer, page, setup, logger, start
   const elapsedMs = Math.round(performance.now() - startedAt);
   if (banner === 'restart') logger.info(`restarted in ${elapsedMs} ms at ${options.origin}`);
   else for (const line of readyBanner(options, project.components(), elapsedMs)) logger.info(line);
-  return { origin: options.origin, close };
+  return { origin: options.origin, localOrigin: options.localOrigin, close };
 }
 
 export function devServerConfiguration(options: ResolvedOptions, https: HttpsCredentials, middlewares: readonly ServerMiddleware[]): DevServer {
@@ -129,15 +130,21 @@ export function devServerConfiguration(options: ResolvedOptions, https: HttpsCre
     historyApiFallback: false,
     setupExitSignals: false,
     server: { type: 'https', options: { cert: https.cert, key: https.key } },
-    headers: (req) => responseHeaders(req.url),
+    headers: (req) => responseHeaders(req.url, { noStoreBundles: options.tunnelHost !== undefined }),
     client: {
-      webSocketURL: { protocol: 'wss', hostname: 'localhost', port: options.port },
+      webSocketURL: webSocketUrl(options),
       logging: 'warn',
       overlay: false,
     },
     devMiddleware: { publicPath: DIST_PATH, stats: 'none' },
     setupMiddlewares: (builtIn) => [...builtIn, ...middlewares, preflightMiddleware()],
   };
+}
+
+const TUNNEL_PORT = 443;
+
+export function webSocketUrl({ tunnelHost, port }: Pick<ResolvedOptions, 'tunnelHost' | 'port'>): { protocol: string; hostname: string; port: number } {
+  return tunnelHost === undefined ? { protocol: 'wss', hostname: 'localhost', port } : { protocol: 'wss', hostname: tunnelHost, port: TUNNEL_PORT };
 }
 
 function reportCompiles(compiler: Compiler, root: string, codeRoots: readonly string[], logger: Logger): Promise<void> {

@@ -174,6 +174,24 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
     }
   });
 
+  it('answers the content-hashed local-external file names of a heft development package', async () => {
+    const hash = '0123456789abcdef0123456789abcdef';
+    const hashed = await fetch(`${origin}/dist/apexcharts_${hash}.js`);
+    expect(hashed.status).toBe(200);
+    expect(await hashed.text()).toBe(readFileSync(path.join(root, 'externals', 'apexcharts.js'), 'utf8'));
+    expect((await fetch(`${origin}/dist/apexcharts_${hash.slice(1)}.js`)).status).toBe(404);
+    expect((await fetch(`${origin}/dist/ejs_${hash}.js`)).status).toBe(404);
+  });
+
+  it('answers the strings files of a heft development package with AMD modules of the same strings', async () => {
+    expect(await servedStrings(`${origin}/dist/ProbeStrings_en-us.js`)).toEqual({ status: 200, exports: { Title: 'Probe title' } });
+    expect(await servedStrings(`${origin}/dist/ProbeStrings_de-de.js`)).toEqual({ status: 200, exports: { Title: 'Sondentitel' } });
+    expect(await servedStrings(`${origin}/dist/ContosoControlStrings_de-de.js`)).toEqual({ status: 200, exports: { SearchLabel: 'Suchen' } });
+    expect(await servedStrings(`${origin}/dist/TsStrings_en-us.js`)).toMatchObject({ status: 200, exports: { Greeting: 'Hi from a TypeScript loc file' } });
+    expect((await servedStrings(`${origin}/dist/ProbeStrings_fr-fr.js`)).status).toBe(404);
+    expect((await servedStrings(`${origin}/dist/UnknownStrings_en-us.js`)).status).toBe(404);
+  });
+
   it('reads named, namespace and default imports from externals at runtime, like webpack', () => {
     expect(webPart.version).toBe('core version');
     expect(webPart.render).toBe(render);
@@ -237,3 +255,19 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
     expect(page.logs.filter((line) => !line.startsWith('debug:'))).toEqual([]);
   });
 });
+
+async function servedStrings(url: string): Promise<{ status: number; exports?: unknown }> {
+  const response = await fetch(url);
+  if (response.status !== 200) return { status: response.status };
+  return { status: 200, exports: evaluateAmdModule(await response.text()) };
+}
+
+function evaluateAmdModule(source: string): unknown {
+  let exported: unknown;
+  vm.runInNewContext(source, {
+    define: (_dependencies: unknown[], factory: () => unknown) => {
+      exported = factory();
+    },
+  });
+  return exported;
+}

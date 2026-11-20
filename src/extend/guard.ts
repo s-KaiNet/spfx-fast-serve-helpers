@@ -15,6 +15,7 @@ export interface GuardedExtend {
 
 const USE_PORT_OPTION = `use --port or "port" in ${OPTIONS_FILE}`;
 const AMD_OUTPUT = 'SharePoint loads fast-serve\'s AMD bundles from https://localhost:<port>/dist/';
+const USE_TUNNEL_PLUGIN = 'to serve through a tunnel add new TunnelServePlugin({ host }) to "plugins"';
 
 const CONFIG_KEYS: Readonly<Record<string, string>> = {
   entry: 'fast-serve creates one entry per bundle from config/config.json',
@@ -26,7 +27,7 @@ const CONFIG_KEYS: Readonly<Record<string, string>> = {
 };
 
 const OUTPUT_KEYS: Readonly<Record<string, string>> = {
-  publicPath: `${AMD_OUTPUT}; ${USE_PORT_OPTION}`,
+  publicPath: `${AMD_OUTPUT}; ${USE_PORT_OPTION}; ${USE_TUNNEL_PLUGIN}`,
   library: AMD_OUTPUT,
   libraryTarget: AMD_OUTPUT,
   path: 'bundles are served from memory',
@@ -39,7 +40,7 @@ const DEV_SERVER_KEYS: Readonly<Record<string, string>> = {
   https: 'fast-serve uses the SPFx development certificate (HTTPS)',
   hot: 'HMR and React Fast Refresh are set up by fast-serve',
   liveReload: 'HMR and React Fast Refresh are set up by fast-serve',
-  client: `the overlay is fast-serve's: use --no-overlay or "overlay" in ${OPTIONS_FILE}`,
+  client: `the overlay is fast-serve's: use --no-overlay or "overlay" in ${OPTIONS_FILE}; the websocket URL follows the origin (${USE_TUNNEL_PLUGIN})`,
   webSocketServer: 'the pages connect to fast-serve\'s websocket',
   devMiddleware: 'bundles are served from memory under /dist/',
   allowedHosts: 'SharePoint pages must reach the server from the tenant origin',

@@ -93,6 +93,7 @@ export class FakeNode extends FakeEventTarget {
 export interface FakePageOptions {
   externals: Record<string, unknown>;
   fetch: (url: string, init?: RequestInit) => Promise<Response>;
+  webSocket?: typeof WebSocket;
 }
 
 export interface FakePage {
@@ -108,7 +109,7 @@ export interface FakePage {
   styles(): string[];
 }
 
-export function createFakePage({ externals, fetch }: FakePageOptions): FakePage {
+export function createFakePage({ externals, fetch, webSocket = WebSocket }: FakePageOptions): FakePage {
   const logs: string[] = [];
   let reloadCount = 0;
   const loadScript = (script: FakeNode): void => {
@@ -196,7 +197,7 @@ export function createFakePage({ externals, fetch }: FakePageOptions): FakePage 
     clearInterval,
     queueMicrotask,
     fetch,
-    WebSocket,
+    WebSocket: webSocket,
     URL,
   }) as unknown as Record<string, unknown> & FakeEventTarget;
   globals.self = globals;

@@ -2,13 +2,15 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, onTestFinished } from 'vitest';
-import { legacyOptionsFileHint, loadOptionsFile, parsePort, resolveOptions } from './options.js';
+import { legacyOptionsFileHint, loadOptionsFile, parsePort, resolveOptions, withTunnelHost } from './options.js';
 
 describe('resolveOptions', () => {
   it('uses built-in defaults with zero config', () => {
     expect(resolveOptions({}, {})).toEqual({
       port: 4321,
       origin: 'https://localhost:4321',
+      localOrigin: 'https://localhost:4321',
+      tunnelHost: undefined,
       locale: 'en-us',
       pageUrl: undefined,
       pageUrlTemplate: undefined,
@@ -29,6 +31,12 @@ describe('resolveOptions', () => {
       pageUrl: file.pageUrl,
       locale: 'fr-fr',
     });
+  });
+
+  it('serves under the tunnel origin while listening on the local origin', () => {
+    const tunnelled = withTunnelHost(resolveOptions({ cli: { port: 4430 } }, {}), 'dev.contoso.example');
+    expect(tunnelled).toMatchObject({ origin: 'https://dev.contoso.example', localOrigin: 'https://localhost:4430', tunnelHost: 'dev.contoso.example', port: 4430 });
+    expect(withTunnelHost(tunnelled, undefined)).toMatchObject({ origin: 'https://localhost:4430', tunnelHost: undefined });
   });
 
   it('turns the error overlay off from the CLI or the options file', () => {

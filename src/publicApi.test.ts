@@ -10,7 +10,7 @@ const tsc = path.join(repoRoot, 'node_modules/.bin/tsc');
 let projectRoot: string;
 
 const validConfig = `import path from 'node:path';
-import { defineConfig, rspack, type FastServeContext, type RspackPluginInstance } from 'spfx-fast-serve-helpers';
+import { defineConfig, rspack, TunnelServePlugin, type FastServeContext, type RspackPluginInstance, type TunnelServeOptions } from 'spfx-fast-serve-helpers';
 
 const headers: RspackPluginInstance = {
   apply(compiler) {
@@ -20,10 +20,12 @@ const headers: RspackPluginInstance = {
   },
 };
 
+const tunnel: TunnelServeOptions = { host: 'dev.contoso.example' };
+
 const describeContext = (context: FastServeContext): string => \`\${context.origin} \${context.publicPath} \${context.spfxVersion} \${context.rspackVersion}\`;
 
 export default defineConfig(async ({ root, port, serveConfiguration, pageUrl }, env) => ({
-  plugins: [new rspack.DefinePlugin({ CONTOSO_API: JSON.stringify([describeContext, port, serveConfiguration ?? '', pageUrl ?? '', env.command]) }), headers],
+  plugins: [new rspack.DefinePlugin({ CONTOSO_API: JSON.stringify([describeContext, port, serveConfiguration ?? '', pageUrl ?? '', env.command]) }), headers, new TunnelServePlugin(tunnel)],
   resolve: { alias: { '@src': path.join(root, 'src') } },
   module: { rules: [{ test: /\\.txt$/, type: 'asset/source' }] },
   devServer: { proxy: [{ context: ['/api'], target: 'https://api.contoso.com' }] },

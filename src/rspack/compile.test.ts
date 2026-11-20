@@ -75,6 +75,17 @@ describe('compileOnce on a fixture project', () => {
     expect(messages.filter((message) => !message.includes('@microsoft/sp-css-loader'))).toEqual([]);
   });
 
+  it('starts every bundle with the page runtime, before the component code, and without the tunnel cache script', () => {
+    for (const [bundle, entryModule] of [['single-web-part.js', './src/webparts/hello/HelloWebPart.ts'], ['shared-bundle.js', './temp/fast-serve/bundle-entries/shared-bundle.js']] as const) {
+      const source = read(bundle);
+      expect(source.split(`"reportUrl":"${ORIGIN}/fast-serve/browser-errors"`)).toHaveLength(2);
+      const pageRuntime = source.lastIndexOf('__webpack_require__("./temp/fast-serve/page-runtime/page-runtime.js")');
+      expect(pageRuntime).toBeGreaterThan(-1);
+      expect(pageRuntime).toBeLessThan(source.lastIndexOf(`__webpack_require__("${entryModule}")`));
+      expect(source).not.toContain('clearTunnelCaches');
+    }
+  });
+
   it('emits anonymous AMD modules that declare the SPFx libraries they use as dependencies', () => {
     const single = read('single-web-part.js');
     expect(single.trimStart()).toMatch(/^define\(\[/);

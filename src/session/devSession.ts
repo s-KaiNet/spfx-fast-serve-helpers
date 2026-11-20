@@ -1,8 +1,9 @@
-import type { FastServeOptions } from '../config/index.js';
+import { withTunnelHost, type FastServeOptions } from '../config/index.js';
 import { ExtendLoadError, fastServeContext, findExtendFiles, loadExtendFile, projectRelative, webpackCustomizationHint, type LoadedExtend } from '../extend/index.js';
 import type { Logger } from '../logger.js';
 import { assertPortFree, prepareDevServer, type HttpsCredentials, type PreparedDevServer, type RunningDevServer } from '../server/index.js';
 import { describeSetup, prepareServe, type ServeSetup } from '../setup/index.js';
+import { resolveTunnel } from '../tunnel/index.js';
 import { errorMessage } from '../utils/errors.js';
 import { watchFiles, type FileChange, type FileWatcher } from './fileWatcher.js';
 import { restartReason, restartTriggers, type RestartTriggers } from './restartTriggers.js';
@@ -20,6 +21,7 @@ export interface StartDevSessionOptions {
 
 export interface DevSession {
   readonly origin: string;
+  readonly localOrigin: string;
   readonly restarts: number;
   idle(): Promise<void>;
   close(): Promise<void>;
@@ -48,12 +50,12 @@ export async function startDevSession(options: StartDevSessionOptions): Promise<
   let closed = false;
 
   const prepareGeneration = async (initial: boolean): Promise<Generation> => {
-    const setup = prepareServe({ root, cli, logger, ...(env === undefined ? {} : { env }) });
+    const resolved = prepareServe({ root, cli, logger, ...(env === undefined ? {} : { env }) });
     if (initial) {
-      for (const line of describeSetup(setup)) logger.info(line);
-      await assertPortFree(setup.options.port);
+      for (const line of describeSetup(resolved)) logger.info(line);
+      await assertPortFree(resolved.options.port);
     }
-    const extend = await loadExtend(setup, initial);
+    const { setup, extend } = withTunnel(resolved, await loadExtend(resolved, initial));
     const prepared = await prepareDevServer({
       setup,
       logger,
@@ -76,6 +78,13 @@ export async function startDevSession(options: StartDevSessionOptions): Promise<
     const extend = await loadExtendFile(file, fastServeContext(setup.root, setup.options, setup.spfxVersion));
     logger.info(`Rspack config: ${relative}`);
     return extend;
+  };
+
+  const withTunnel = (setup: ServeSetup, extend: LoadedExtend | undefined): { setup: ServeSetup; extend: LoadedExtend | undefined } => {
+    if (extend === undefined) return { setup, extend };
+    const tunnel = resolveTunnel(extend.config);
+    for (const warning of tunnel.warnings) logger.warn(`${projectRelative(setup.root, extend.file)}: ${warning}`);
+    return { setup: { ...setup, options: withTunnelHost(setup.options, tunnel.host) }, extend: { ...extend, config: tunnel.config } };
   };
 
   const watch = (generation: Generation): FileWatcher => {
@@ -158,6 +167,9 @@ export async function startDevSession(options: StartDevSessionOptions): Promise<
   return {
     get origin() {
       return running?.server.origin ?? first.setup.options.origin;
+    },
+    get localOrigin() {
+      return first.setup.options.localOrigin;
     },
     get restarts() {
       return restarts;

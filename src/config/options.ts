@@ -27,6 +27,10 @@ export interface ResolvedOptions {
   port: number;
 
   origin: string;
+
+  localOrigin: string;
+
+  tunnelHost: string | undefined;
   locale: string;
 
   pageUrl: string | undefined;
@@ -71,7 +75,9 @@ export function resolveOptions(
   const pageUrlTemplate = pointsToRetiredWorkbench ? undefined : page?.url;
   return {
     port,
-    origin: `https://localhost:${port}`,
+    origin: localOrigin(port),
+    localOrigin: localOrigin(port),
+    tunnelHost: undefined,
     locale,
     pageUrl: pageUrlTemplate === undefined ? undefined : substituteTenantDomain(pageUrlTemplate, env[TENANT_DOMAIN_ENV]),
     pageUrlTemplate,
@@ -79,6 +85,15 @@ export function resolveOptions(
     overlay: cli.overlay ?? file.overlay ?? true,
     warnings,
   };
+}
+
+function localOrigin(port: number): string {
+  return `https://localhost:${port}`;
+}
+
+export function withTunnelHost(options: ResolvedOptions, tunnelHost: string | undefined): ResolvedOptions {
+  if (tunnelHost === undefined) return { ...options, origin: options.localOrigin, tunnelHost: undefined };
+  return { ...options, origin: `https://${tunnelHost}`, tunnelHost };
 }
 
 interface PageSetting {

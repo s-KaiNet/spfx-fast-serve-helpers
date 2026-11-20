@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js`, so it runs once per page before any bundle.
+Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js` and as the first module of every bundle; it guards itself per page, so it runs once, before any bundle code (from `manifests.js` in the debug-query flow, from the first bundle in [tunnel mode](tunnel-mode.md)).
 
 ## Behavior
 
@@ -41,7 +41,7 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 
 ### Forwarding rule
 
-- The page runtime sends only errors whose stack mentions a served bundle (`https://localhost:<port>/dist/…`), each error object once, and skips the dev tooling's own console lines (`[rspack-dev-server]`, `[HMR]`, `[fast-serve]`).
+- The page runtime sends only errors whose stack mentions a served bundle (`<origin>/dist/…`, the tunnel host in [tunnel mode](tunnel-mode.md)), each error object once, and skips the dev tooling's own console lines (`[rspack-dev-server]`, `[HMR]`, `[fast-serve]`).
 - The server maps every frame in a served file through that file's source map and prints the report only when at least one frame maps to an existing file of the project outside `node_modules`. React DOM's "The above error occurred…" message, `@pnp/telemetry-js` failures and SharePoint's errors therefore stay in the browser console.
 - Bundle load failures are always reported: SharePoint logs `Could not load <bundle> in require.` with the RequireJS error object; the runtime recognises the bundle names from the page's configuration.
 - Locations are `file:line` without a column: the development source maps are line-based (`cheap-module-source-map`), which keeps rebuilds fast.
@@ -71,7 +71,7 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 
 ## Implementation Notes
 
-- The page runtime is a plain script prepended to the rendered `manifests.js` (wrapped so that a failure to start can never break manifest loading). It wraps `console.error`, listens to `error`, `unhandledrejection` and the `webpackErrors` / `webpackInvalid` / `webpackOk` / `webpackStillOk` window messages that every dev-server client posts, and draws the overlay in a shadow root.
+- The page runtime is a plain script prepended to the rendered `manifests.js` (wrapped so that a failure to start can never break manifest loading) and compiled into every bundle as its first entry module; a page-wide symbol per origin lets only the first copy install. The `manifests.js` copy keeps load errors of bundles that never evaluate readable in the debug-query flow. It wraps `console.error`, listens to `error`, `unhandledrejection` and the `webpackErrors` / `webpackInvalid` / `webpackOk` / `webpackStillOk` window messages that every dev-server client posts, and draws the overlay in a shadow root.
 - Reports are POSTed as `text/plain` to `https://localhost:<port>/fast-serve/browser-errors` (CORS); the answer carries the overlay content or the page message, so formatting and hints live in one place on the server.
 - Source maps are read from the dev server's in-memory output (bundles and hot-update files) and parsed with Node's `SourceMap`; the cache is dropped on every compile.
 - The dev server's own overlay is turned off.

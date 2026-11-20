@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { IncomingMessage } from 'node:http';
-import type { Compiler, RspackPluginInstance } from '@rspack/core';
+import { rspack, type Compiler, type RspackPluginInstance } from '@rspack/core';
 import { BROWSER_ERRORS_PATH, publicPath, requestPath, sendJson, type ConfigContribution, type Feature, type FeatureContext, type ServerMiddleware } from '../featureApi/index.js';
 import type { BrowserErrorReport, PageRuntimeConfig } from './contracts.js';
 import { BrowserErrorReporter } from './reporter.js';
@@ -16,6 +16,7 @@ export { BundleSourceMaps, sourceFilePath } from './sourceMaps.js';
 export { parseStackFrames, servedFile } from './stackFrames.js';
 
 const MAX_REPORT_BYTES = 256 * 1024;
+const PAGE_RUNTIME_ENTRY = path.join('temp', 'fast-serve', 'page-runtime', 'page-runtime.js');
 const REPORT_KINDS = new Set(['error', 'unhandled-rejection', 'hot-update-error', 'console-error', 'load-error']);
 
 export class BrowserErrorsPlugin implements RspackPluginInstance {
@@ -74,7 +75,15 @@ function browserErrorsContribution({ root, project, options, logger, page }: Fea
     bundles: Object.fromEntries(project.bundles().map((bundle) => [bundle.name, bundle.components.map((component) => component.manifest.id)])),
   });
   page.addPageScript(() => renderPageScript(pageConfig()));
-  return { plugins: [plugin], middlewares: [reportsMiddleware(reporter)] };
+  const pageRuntimeEntry = path.join(root, PAGE_RUNTIME_ENTRY);
+  return {
+    plugins: [
+      plugin,
+      new rspack.experiments.VirtualModulesPlugin({ [pageRuntimeEntry]: renderPageScript(pageConfig()) }),
+      new rspack.EntryPlugin(root, pageRuntimeEntry, { name: undefined }),
+    ],
+    middlewares: [reportsMiddleware(reporter)],
+  };
 }
 
 function reportsMiddleware(reporter: BrowserErrorReporter): ServerMiddleware {

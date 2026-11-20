@@ -234,6 +234,7 @@ Key differences from the Vite version, decided up front:
 | # | Task | Size | Status |
 |---|---|---|---|
 | W1 | Microsoft retires the SharePoint Online workbench (`/_layouts/15/workbench.aspx`) on 2026-12-01: drop the site-URL line from the ACE banner and its docs, ACE banner with the page-based flow (plus the web-part query when the serve configuration loads extensions), page URLs pointing to it ignored with a warning; skill, README, KB updated | S | ✅ (`1.24.0-rspack.17`) |
+| T1 | `TunnelServePlugin({ host })` in the extend file: classic manual tunnel flow ([ngrok-tunnel.md](ngrok-tunnel.md)) with a deployed heft development package; public origin everywhere (public path, manifests, `wss://<host>:443`, error forwarding, local externals), heft strings files and hashed local externals answered, page runtime as the first module of every bundle (both modes), `no-store` bundles and mobile cache clearing in tunnel mode, banner; README, KB, skill | M | ✅ (`1.24.0-rspack.19`; local end to end through a Cloudflare quick tunnel, not deployed to a tenant) |
 
 ## Vite-version items that are not needed with Rspack
 
@@ -249,7 +250,7 @@ Key differences from the Vite version, decided up front:
 | library `.module.scss.css` via a separate compile path | the normal CSS rules apply (verify in R11) |
 | pre-bundling, optimizer hash, warmup decisions | no pre-bundling; one compile at start |
 | hidden HTTP/2 status-message warning | dev server uses HTTP/1.1 over TLS |
-| Vite overlay-text hint | own overlay (page runtime in `manifests.js`) with fast-serve's own hint text |
+| Vite overlay-text hint | own overlay (page runtime in `manifests.js` and every bundle) with fast-serve's own hint text |
 
 ## Open questions (for the user)
 

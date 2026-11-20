@@ -12,7 +12,7 @@ tags:
 
 ## Summary
 
-Every name in `config/config.json` `localizedResources` (project strings such as `HelloWorldWebPartStrings`, and library strings such as `ControlStrings` from `@pnp/spfx-controls-react`) is bundled from the loc file of the selected locale, with a per-resource fallback to `en-us`. AMD, TypeScript and ES/CommonJS loc files work; non-AMD files print heft's compatibility warning. String edits hot-update the components that use them, or reload when the web part class uses them.
+Every name in `config/config.json` `localizedResources` (project strings such as `HelloWorldWebPartStrings`, and library strings such as `ControlStrings` from `@pnp/spfx-controls-react`) is bundled from the loc file of the selected locale, with a per-resource fallback to `en-us`. AMD, TypeScript and ES/CommonJS loc files work; non-AMD files print heft's compatibility warning. String edits hot-update the components that use them, or reload when the web part class uses them. For a deployed heft development package ([tunnel mode](tunnel-mode.md)) the dev server also answers heft's separate strings scripts (`<Name>_<locale>.js`) with AMD modules of the same strings.
 
 ## Behavior
 
