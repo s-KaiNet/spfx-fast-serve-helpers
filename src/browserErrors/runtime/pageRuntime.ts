@@ -13,6 +13,12 @@ interface RequireJsError {
 
 type OverlaySource = 'compile' | 'runtime';
 
+type CreateScriptNode = (config: unknown, moduleName: unknown, url: unknown) => HTMLScriptElement;
+
+interface RequireJsLoader {
+  createNode?: CreateScriptNode;
+}
+
 interface FastServeOverlay {
   show(source: OverlaySource, content: OverlayContent): void;
   hide(source: OverlaySource): void;
@@ -64,6 +70,17 @@ function isDevServerMessage(data: unknown): data is DevServerMessage {
   if (typeof data !== 'object' || data === null) return false;
   const { type } = data as { type?: unknown };
   return DEV_SERVER_MESSAGES.some((known) => known === type);
+}
+
+function loadServedScriptsWithCors(distUrl: string): void {
+  const loader = (window as unknown as { requirejs?: RequireJsLoader }).requirejs;
+  const createNode = loader?.createNode;
+  if (loader === undefined || typeof createNode !== 'function') return;
+  loader.createNode = (config, moduleName, url) => {
+    const node = createNode.call(loader, config, moduleName, url);
+    if (typeof url === 'string' && url.startsWith(distUrl)) node.crossOrigin = 'anonymous';
+    return node;
+  };
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, style: string, text = ''): HTMLElementTagNameMap[K] {
@@ -129,6 +146,7 @@ export function installFastServePage(config: PageRuntimeConfig): void {
   const pageGlobals = window as unknown as Record<symbol, boolean>;
   if (pageGlobals[installedKey]) return;
   pageGlobals[installedKey] = true;
+  loadServedScriptsWithCors(config.distUrl);
 
   const MAX_MESSAGE_LENGTH = 4000;
   const UNREADABLE_ERROR = '[object Object]';

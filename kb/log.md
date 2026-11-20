@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 23:50 | update | render errors in JSX no longer silent (`1.24.0-beta.6`)
+
+- Changed: `kb/features/errors-and-diagnostics.md`
+- Outcome: two causes of silent render errors recorded and fixed: frames on unmapped JSX development lines (V8 reports a JSX child's `ReferenceError` at `__self: this`) now map to the next mapped line inside the same module; served bundles are loaded by RequireJS with `crossorigin="anonymous"` so errors from the initial bundle are no longer muted as `Script error.`; live results for class and function components and the heft comparison added
+
 ## 2026-11-20 23:30 | update | Rspack implementation is the main v1.24 line (`1.24.0-beta.5`)
 
 - Changed: `kb/AGENTS.md`, `kb/index.md`, `kb/decisions/rspack-with-own-config.md`, `kb/roadmap/overview.md`, `kb/operations/final-benchmark.md`, `kb/limitations/npm-css-loader-peer-conflict.md`

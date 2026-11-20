@@ -39,12 +39,14 @@ describe('stack frames', () => {
     expect(servedFile('https://res-1.cdn.office.net/files/sp-pages.js', DIST)).toBeUndefined();
   });
 
-  it('maps only lines that have a mapping of their own', async () => {
-    const map = JSON.stringify({ version: 3, sources: ['webpack:///.././src/a.ts'], names: [], mappings: 'AAAA;;AAEA' });
-    const sourceMaps = new BundleSourceMaps('/p', (file) => Promise.resolve(file === 'bundle.js.map' ? map : undefined), () => false);
-    expect(await sourceMaps.originOf('bundle.js', 1, 5)).toEqual({ file: '/p/src/a.ts', line: 1 });
-    expect(await sourceMaps.originOf('bundle.js', 2, 5)).toBeUndefined();
-    expect(await sourceMaps.originOf('bundle.js', 3, 1)).toEqual({ file: '/p/src/a.ts', line: 3 });
+  it('maps an unmapped line to the next mapping only inside one module', async () => {
+    const map = JSON.stringify({ version: 3, sources: ['webpack:///.././src/a.ts', 'webpack:///.././src/b.ts'], names: [], mappings: 'AAAA;;AAEA;;ACAA' });
+    const sourceMaps = new BundleSourceMaps('/p', (file) => Promise.resolve(file === 'bundle.js.map' ? map : undefined), () => true);
+    expect(await sourceMaps.originOf('bundle.js', 1, 5)).toEqual({ file: '/p/src/a.ts', line: 1, column: 1 });
+    expect(await sourceMaps.originOf('bundle.js', 2, 5)).toEqual({ file: '/p/src/a.ts', line: 3 });
+    expect(await sourceMaps.originOf('bundle.js', 3, 1)).toEqual({ file: '/p/src/a.ts', line: 3, column: 1 });
+    expect(await sourceMaps.originOf('bundle.js', 4, 1)).toBeUndefined();
+    expect(await sourceMaps.originOf('bundle.js', 6, 1)).toBeUndefined();
   });
 
   it('resolves webpack source names against the project root', () => {

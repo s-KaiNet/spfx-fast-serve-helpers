@@ -63,6 +63,26 @@ function throwFromBundle(page: FakePage, message: string): void {
 const RUNTIME_OVERLAY: Responder = (report) => ({ overlay: { title: 'Uncaught runtime error', text: `[Unhandled error] ${report.name}: ${report.message}` } });
 
 describe('fast-serve page runtime', () => {
+  it('makes RequireJS load served bundles with CORS so their errors are not muted as "Script error."', () => {
+    const page = createFakePage({ externals: {}, fetch: () => Promise.reject(new Error('no fetch')) });
+    const created: { crossOrigin: string | null; url: string }[] = [];
+    page.globals.requirejs = {
+      createNode(_config: unknown, _moduleName: string, url: string) {
+        const node = { crossOrigin: null, url };
+        created.push(node);
+        return node;
+      },
+    };
+    page.evaluate(renderPageScript(CONFIG));
+    const loader = page.globals.requirejs as { createNode(config: unknown, moduleName: string, url: string): unknown };
+    loader.createNode({}, 'hello', `${DIST}hello-web-part.js`);
+    loader.createNode({}, 'sp-pages', 'https://res-1.cdn.office.net/files/sp-pages.js');
+    expect(created).toEqual([
+      { crossOrigin: 'anonymous', url: `${DIST}hello-web-part.js` },
+      { crossOrigin: null, url: 'https://res-1.cdn.office.net/files/sp-pages.js' },
+    ]);
+  });
+
   it('forwards errors with a frame in a served bundle once per error object', async () => {
     const { page, sent } = startPage();
     const thrown = Object.assign(new Error('boom'), { stack: `Error: boom\n    at render (${DIST}hello-web-part.js:10:5)` });
