@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 12:40 | ingest | deep library import warning only for project code (R26)
+
+- Changed: `kb/features/libraries-and-externals.md`, `kb/index.md`, `kb/roadmap/overview.md`
+- Outcome: deep imports into SPFx libraries made by dependencies are bundled silently like heft; project-code deep imports warn with the project-relative importing file, one line per request with the first importer and a count of the others
+
 ## 2026-11-20 12:10 | ingest | overlay closes after the fix, npm css-loader peer conflict (R25)
 
 - Changed: `kb/features/errors-and-diagnostics.md`, `kb/limitations/npm-css-loader-peer-conflict.md` (new), `kb/features/cli-and-options.md`, `kb/roadmap/overview.md`, `kb/index.md`

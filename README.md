@@ -17,14 +17,14 @@ Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rs
 The Rspack line is not published; install a packed tarball:
 
 ```sh
-npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.12.tgz
+npm install --save-dev /path/to/spfx-fast-serve-helpers-1.24.0-rspack.13.tgz
 npx heft trust-dev-cert                     # once per machine
 ```
 
 **npm `ERESOLVE` with `css-loader`:** a project with `css-loader` 7.1.2 or 7.1.3 (a direct devDependency, or locked at that version) fails with `ERESOLVE ... peerOptional @rspack/core@"0.x || 1.x" from css-loader@7.1.2`, because those versions don't accept Rspack 2. `css-loader` 7.1.4 and newer accept it, and SPFx's `@microsoft/sp-css-loader` (`~7.1.2`) works with them, so update it in the same command:
 
 ```sh
-npm install --save-dev css-loader@^7.1.4 /path/to/spfx-fast-serve-helpers-1.24.0-rspack.12.tgz
+npm install --save-dev css-loader@^7.1.4 /path/to/spfx-fast-serve-helpers-1.24.0-rspack.13.tgz
 ```
 
 If you must keep the old `css-loader`, install with `--legacy-peer-deps` (or put `legacy-peer-deps=true` in the project's `.npmrc`, which also covers later `npm install` runs). The package can't avoid this itself: npm puts `@rspack/core` at the top of `node_modules`, where the project's `css-loader` checks its peer range, and `@rspack/dev-server` requires `@rspack/core` as a peer, so it can't be hidden under another name; `overrides` only work in the project's own `package.json`. pnpm and yarn only warn.
@@ -99,7 +99,7 @@ An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` wi
 ## What is served and how
 
 - **Bundles:** one AMD bundle per `config/config.json` bundle (several components in one bundle get heft's export names), served from memory under `https://localhost:<port>/dist/`, plus a debug `manifests.js` that lists, per bundle, the SPFx libraries and externals it really uses.
-- **SPFx libraries** (`@microsoft/sp-*`, `@microsoft/sp-adaptive-card-extension-base`, third-party library components, `@microsoft/microsoft-graph-client`) are AMD externals loaded by SharePoint, at the tenant's version. Deep imports (`@microsoft/sp-core-library/lib/Version`) are bundled from `node_modules`, like heft, with a warning.
+- **SPFx libraries** (`@microsoft/sp-*`, `@microsoft/sp-adaptive-card-extension-base`, third-party library components, `@microsoft/microsoft-graph-client`) are AMD externals loaded by SharePoint, at the tenant's version. Deep imports (`@microsoft/sp-core-library/lib/Version`) are bundled from `node_modules`, like heft; fast-serve warns when your own code makes one and names the file (deep imports inside dependencies are bundled silently).
 - **`config/config.json` externals** (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like with heft; local files are served next to the bundles. Imports follow webpack's semantics (named imports read from the loaded module, `import *` is the module, default import is `default` when `__esModule`, `export *` works).
 - **React** is the project's development build, bundled, with nested copies (for example PnP's) collapsed onto it.
 - **Localized strings** of the selected locale are bundled (AMD, TypeScript or ES loc files; non-AMD ones print heft's compatibility warning). Heft keeps them as separate per-locale scripts; with `fast-serve` the page language doesn't switch strings, `--locale` does.
@@ -204,7 +204,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | "Your web part will not appear in the toolbox" on the hosted workbench | the workbench probes `localhost:4321`; dismiss it |
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
 | stale or strange output after a dependency change outside the lock file (a linked package, a manual edit in `node_modules`) | delete `temp/fast-serve/cache` and start again |
-| a warning that a deep import is bundled `as a copy separate from the <library> SharePoint loads` | import from the library's root if it exports the name |
+| `<file> imports "<library>/lib/…", a deep import into the SPFx library <library>` | in that file, import from the library's root if it exports the name |
 
 ## Limitations
 

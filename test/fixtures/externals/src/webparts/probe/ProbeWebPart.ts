@@ -7,7 +7,7 @@ import * as apexNamespace from 'apexcharts';
 import * as strings from 'ProbeStrings';
 import * as tsStrings from 'TsStrings';
 import tsDefault from 'TsStrings';
-import { controlLabel } from '@contoso/controls';
+import { controlLabel, controlToggle } from '@contoso/controls';
 import * as reexports from './reexports';
 import { Label } from './components/Label';
 
@@ -26,6 +26,7 @@ export default class ProbeWebPart {
   public readonly tsGreeting: string = tsStrings.Greeting;
   public readonly tsDefaultGreeting: string = tsDefault.Greeting;
   public readonly controlLabel: string = controlLabel();
+  public readonly controlToggle: string = controlToggle();
   public readonly reexports: unknown = reexports;
   public readonly label: unknown = Label;
 

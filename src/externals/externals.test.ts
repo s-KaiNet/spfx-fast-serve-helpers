@@ -48,6 +48,7 @@ interface ProbeWebPart {
   tsGreeting: string;
   tsDefaultGreeting: string;
   controlLabel: string;
+  controlToggle: string;
   reexports: Record<string, unknown>;
   loadLazy(): Promise<string>;
 }
@@ -116,11 +117,11 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
     rmSync(root, { recursive: true, force: true });
   });
 
-  it('compiles without errors and warns about the ES module loc file and the deep library import', () => {
+  it('compiles without errors and warns about the ES module loc file and the project\'s deep library import, naming the importer', () => {
     expect(messages.filter((message) => message.startsWith('error:'))).toEqual([]);
     expect(messages.filter((message) => message.startsWith('warn:'))).toEqual([
       'warn: TsStrings: src/webparts/probe/tsLoc/en-us.ts is an ES/CommonJS module. fast-serve loads it, but heft copies the compiled lib/ file into dist/ as is and SharePoint loads it with RequireJS, which needs `define([], function () { return { ... }; });`',
-      'warn: "@microsoft/sp-property-pane/lib/fields/PropertyPaneTextField" is a deep import into the SPFx library @microsoft/sp-property-pane: it is bundled from node_modules like heft does, as a copy separate from the @microsoft/sp-property-pane SharePoint loads; import from "@microsoft/sp-property-pane" to use SharePoint\'s instance',
+      'warn: src/webparts/probe/ProbeWebPart.ts imports "@microsoft/sp-property-pane/lib/fields/PropertyPaneTextField", a deep import into the SPFx library @microsoft/sp-property-pane: it is bundled as a separate copy, not the instance SharePoint loads; import from "@microsoft/sp-property-pane" instead',
     ]);
     expect(messages).toContainEqual(expect.stringMatching(/^info: compiled in \d+ ms$/));
   });
@@ -140,6 +141,12 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
     expect(bundle).toContain('SP_PROPERTY_PANE_SOURCE');
     expect(webPart.textField).toBe(webPart.deepDefault);
     expect((webPart.textField as () => string)()).toBe('bundled copy core version');
+  });
+
+  it('bundles a dependency\'s deep import into a library silently, like heft', () => {
+    expect(bundle).toContain('SP_PROPERTY_PANE_TOGGLE_SOURCE');
+    expect(webPart.controlToggle).toBe('bundled toggle');
+    expect(messages.filter((message) => message.includes('PropertyPaneToggle'))).toEqual([]);
   });
 
   it('lists libraries and the used config.json externals with their global dependencies in the manifest, like heft', async () => {
