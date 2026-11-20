@@ -33,7 +33,6 @@ Short definitions of SPFx, SharePoint, Vite and project terms used across the KB
 | Full reload | reloading the SharePoint page when no module accepts an update | [HMR](hmr-and-vite-terms.md) |
 | Heft | the Rushstack build orchestrator used by SPFx 1.22+ (`heft build`, `heft start`, `heft package-solution`) | [dev loop](spfx-dev-loop.md) |
 | HMR boundary | a module that accepts its own hot updates; updates bubble up to the nearest one | [HMR](hmr-and-vite-terms.md) |
-| Hosted workbench | `/_layouts/15/workbench.aspx`, SharePoint Online's test canvas, retired on 2026-12-01 | [debug flow](sharepoint-debug-flow.md) |
 | Library component | an SPFx component of type `Library` shared by other components; not served by `fast-serve` yet | [component types](spfx-component-types.md) |
 | LNA | Local Network Access: Chrome/Edge permission for public pages to reach `localhost` | [debug flow](sharepoint-debug-flow.md) |
 | `loadComponentById` | `SPComponentLoader` API that loads an SPFx component by id and minimum version | [manifests and loader](component-manifests-and-loader.md) |

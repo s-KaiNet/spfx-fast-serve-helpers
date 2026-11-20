@@ -21,7 +21,7 @@ The package keeps the classic name `spfx-fast-serve-helpers`, and its version fo
 
 ## Decision
 
-- Package name `spfx-fast-serve-helpers`, version `1.<spfxMinor>.x` (currently `1.24.0-beta.2`); users install `spfx-fast-serve-helpers@~1.24.0`.
+- Package name `spfx-fast-serve-helpers`, version `1.<spfxMinor>.x` (currently `1.24.0-beta.4`); users install `spfx-fast-serve-helpers@~1.24.0`.
 - At start the installed SPFx version (from `@microsoft/sp-core-library`, then the SPFx Heft plugins) must have the package's `major.minor`; otherwise `Unsupported SPFx version` with a hint (classic spfx-fast-serve for ≤ 1.21, upgrade for 1.22/1.23, a newer release for newer SPFx).
 - Supported now: SPFx 1.24.x only. SPFx ≤ 1.21 stays on the classic spfx-fast-serve with `spfx-fast-serve-helpers@~1.21.0` or earlier.
 - A tenant serving a newer SPFx than the project is fine (production behaves the same); a project newer than the tenant gets a clear message instead of a cryptic load error.

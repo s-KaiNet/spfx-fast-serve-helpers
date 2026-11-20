@@ -85,7 +85,7 @@ describe('createProject', () => {
   it('reads package.json and serve.json', () => {
     const { project } = fixtureProject();
     expect(project.packageJson()).toMatchObject({ name: 'basic-fixture', version: '1.2.3' });
-    expect(project.serveConfig()).toEqual({ port: 4400, initialPage: 'https://{tenantDomain}/_layouts/workbench.aspx' });
+    expect(project.serveConfig()).toEqual({ port: 4400, initialPage: 'https://{tenantDomain}/sites/dev/SitePages/Test.aspx' });
   });
 
   it('finds SPFx libraries like SPFx does: transitively through packages that ship manifests', () => {

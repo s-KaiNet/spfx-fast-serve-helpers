@@ -91,6 +91,6 @@ Library components are not supported yet; research is done and the design waits 
 
 ## Evidence
 
-- Source: library components research (classic spfx-fast-serve code and guide, Microsoft Learn library tutorial, SPFx 1.24 heft manifest processing and sp-loader behavior, two generated 1.24 projects, a prototype checked live on the test tenant's hosted workbench)
+- Source: library components research (classic spfx-fast-serve code and guide, Microsoft Learn library tutorial, SPFx 1.24 heft manifest processing and sp-loader behavior, two generated 1.24 projects, a prototype checked live on the test tenant, nothing saved)
 - Confidence: high for live-verified items; classic live reload, B edge cases and app-catalog behavior inferred (medium); effort is an estimate
 - Last checked: 2026-11-18

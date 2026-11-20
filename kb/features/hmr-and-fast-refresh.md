@@ -29,7 +29,7 @@ HMR with React Fast Refresh is always on. Saving a file sends the changed module
 
 - Edits to the web part, extension or ACE class, and to anything only that class imports (services, helpers, `onRenderCell` changes). SharePoint created the instance, so it can't be swapped.
 - Edits to files that export components **and** other runtime values: Fast Refresh skips them and the update bubbles up to the class.
-- Every ACE edit: card views and quick views are classes registered in `onInit`, imported only by the ACE class, and there is no React tree. This includes quick view JSON templates, ACE loc strings and the lazily loaded property pane. On the hosted workbench the unsaved card survives the reload; an open quick view closes.
+- Every ACE edit: card views and quick views are classes registered in `onInit`, imported only by the ACE class, and there is no React tree. This includes quick view JSON templates, ACE loc strings and the lazily loaded property pane. An open quick view closes.
 - `config/config.json`, `config/serve.json`, `package.json`, component manifests, `tsconfig.json` (and files it extends inside the project), local `config.json` external files.
 - A new npm dependency used for the first time: Vite pre-bundles it and reloads once.
 - The first edit after a page load during which the error overlay opened (Vite's rule).

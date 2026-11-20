@@ -49,7 +49,7 @@ Two SPFx projects outside the repository are used for verification; both referen
 
 Both contain leftovers from the proof-of-concept era (an unused Vite config and plugin folder; in the benchmark project `npm run serve` still runs the old PoC setup). Use `npm run serve` in the small project and `npm run fast-serve` in the benchmark project.
 
-Tenant test pages are draft pages on a dev site of a dev tenant: one with both small-project web parts (the Application Customizer loads through `default`), one with both benchmark web parts, and a list used for the Command Set, Field and Form Customizer configurations. ACEs were tested in the hosted workbench (`/_layouts/15/workbench.aspx`, retired on 2026-12-01; after that, use a draft page).
+Tenant test pages are draft pages on a dev site of a dev tenant: one with both small-project web parts (the Application Customizer loads through `default`), one with both benchmark web parts, and a list used for the Command Set, Field and Form Customizer configurations. ACEs need a test page the user allows to edit and save (interaction works only in read mode on a saved page).
 
 ### Acceptance checklist (before a release)
 

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-20 19:45 | ingest | hosted workbench removed, beta.4
+
+- Changed: `kb/concepts/sharepoint-debug-flow.md`, `kb/concepts/spfx-component-types.md`, `kb/concepts/glossary.md`, `kb/features/serving-components.md`, `kb/features/cli-and-options.md`, `kb/features/hmr-and-fast-refresh.md`, `kb/limitations/unsupported-scope.md`, `kb/limitations/hmr-gotchas.md`, `kb/operations/live-verification.md`, `kb/operations/local-testing-and-consumer-setup.md`, `kb/references/dependencies-and-external-docs.md`, `kb/roadmap/library-components.md`, `kb/roadmap/spfx-1-23-support.md`, `kb/roadmap/overview.md`, `kb/decisions/version-policy.md`, `kb/index.md`
+- Outcome: the SharePoint Online workbench (retirement 2026-12-01) dropped as a host and from the glossary and live-verification setup; ACEs documented with Microsoft's page-based flow (toolbox in edit mode, interaction on a saved page in read mode); a page URL pointing to the workbench is ignored with a warning; Microsoft Learn page-testing guidance re-checked; version `1.24.0-beta.4`
+
 ## 2026-11-19 17:40 | ingest | webpack-like bare require(), AMD isolation, amdPackages, beta.2
 
 - Changed: `kb/features/require-and-amd.md` (new), `kb/decisions/amd-isolation-for-dependencies.md` (new), `kb/features/typescript-compatibility.md`, `kb/features/cli-and-options.md`, `kb/features/errors-and-diagnostics.md`, `kb/architecture/source-pipeline.md`, `kb/architecture/overview.md`, `kb/decisions/typescript-handling.md`, `kb/decisions/error-reporting.md`, `kb/decisions/version-policy.md`, `kb/limitations/typescript-limits.md`, `kb/limitations/dev-vs-production.md`, `kb/limitations/known-issues.md`, `kb/references/vite-oxc-rolldown.md`, `kb/operations/development-workflow.md`, `kb/operations/local-testing-and-consumer-setup.md`, `kb/roadmap/overview.md`, `kb/index.md`

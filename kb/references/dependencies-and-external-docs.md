@@ -56,8 +56,8 @@ Which external packages and versions `fast-serve` depends on or assumes, why eac
 
 ### External docs and platform facts
 
-- **Microsoft Learn, ACE tutorial** (<https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension>): serve locally and add the card to a test SharePoint page, not the workbench. The generator's `initialPage` still points at `/_layouts/15/workbench.aspx`.
-- **SharePoint Online hosted workbench**: deprecated since 2026-05-13 and **retired on 2026-12-01** (Microsoft's SPFx Debug Toolbar documentation). Until then it keeps an unsaved canvas across reloads; card interaction works only in Preview/read mode. See [Unsupported scope](../limitations/unsupported-scope.md).
+- **Microsoft Learn, ACE tutorial** (<https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension>): serve locally, open a test SharePoint page with local manifests through the SPFx developer toolbar, add the card in edit mode, save the page and use read mode for interaction. `initialPage` in `config/serve.json` should name that test page.
+- **SPFx Debug Toolbar and page-based testing** (<https://learn.microsoft.com/en-us/sharepoint/dev/spfx/debug-toolbar>, <https://learn.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-development-environment>): since SPFx 1.23 Microsoft points developers to ordinary SharePoint pages with the debug toolbar; the SharePoint Online workbench is deprecated (2026-05-13) with retirement on 2026-12-01, and a generated `initialPage` pointing to `/_layouts/workbench.aspx` should be replaced with a real page. See [Unsupported scope](../limitations/unsupported-scope.md).
 - **Microsoft Learn, library component tutorial** (<https://learn.microsoft.com/en-us/sharepoint/dev/spfx/library-component-tutorial>): requires `"main": "lib/index.js"` in the library, which the 1.24 generator omits ([Library components](../roadmap/library-components.md)).
 - **SharePoint CSP**: `localhost` script sources are allowed only with the debug query; no `connect-src`/`style-src`/`img-src` directives (details in [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)).
 - **Chrome/Edge Local Network Access** (Chrome 142+): a public page requesting `https://localhost` needs the user's permission; the dev server sends `Access-Control-Allow-Private-Network: true` ([Environment and browser gotchas](../limitations/environment-and-browser-gotchas.md)).
@@ -74,5 +74,5 @@ Which external packages and versions `fast-serve` depends on or assumes, why eac
 ## Evidence
 
 - Source: package manifest and installed packages, project handoff notes, SPFx 1.23 version comparison research, ACE and library components research (Microsoft Learn pages as cited there), benchmark and library CSS research
-- Confidence: high for versions and package shapes; medium for the Rolldown pin rationale; the workbench retirement date is stated by Microsoft docs as cited in research (not re-checked online)
+- Confidence: high for versions and package shapes; medium for the Rolldown pin rationale; the page-based testing guidance re-checked on Microsoft Learn on 2026-11-20
 - Last checked: 2026-11-19

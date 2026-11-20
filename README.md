@@ -55,7 +55,7 @@ The server is ready at once: dependencies are pre-bundled in the background, and
 
 ### Adaptive Card Extensions
 
-ACEs load with the same debug query as web parts, so nothing needs configuring: open a test page with the printed query, edit it and add the card from the toolbox (it's listed under its manifest title). Microsoft's [ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension) uses a SharePoint page now, because the SharePoint Online workbench (`/_layouts/15/workbench.aspx`, still the generator's `initialPage`) is retired on December 1, 2026. Until then the workbench works too, and it doesn't need saving: it keeps the unsaved canvas across reloads, which makes it convenient for trying a card without touching a real page. Card interaction (buttons, quick views) is disabled in edit mode: switch to **Preview** on the workbench, or save the page and leave edit mode.
+ACEs load with the same debug query as web parts, so nothing needs configuring. As in Microsoft's [ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension): open a test SharePoint page with the printed query, edit it and add the card from the toolbox (it's listed under its manifest title). Card interaction (buttons, quick views) is disabled in edit mode: save the page and use it in read mode.
 
 `@microsoft/sp-adaptive-card-extension-base` comes from the page like every SPFx library. Quick view templates (`import template from './template/QuickViewTemplate.json'`, or `require(...)`) and images (`import logo from '../assets/logo.png'`) are served by Vite. Card views and quick views are classes the ACE registers in `onInit`, so editing them, their JSON templates or the ACE class reloads the page ([details](research/hmr.md#adaptive-card-extensions)).
 
@@ -98,6 +98,8 @@ npm run serve -- --config rating
   4. `initialPage`.
 
   So `--config commands` opens the list page of `commands` even when `fast-serve/config.json` sets a `pageUrl`, and a configuration without a `pageUrl` (or `default`) uses the option. `{tenantDomain}` works as everywhere.
+
+  Use a SharePoint page: Microsoft retires the SharePoint Online workbench (`/_layouts/workbench.aspx`, the `initialPage` the generator may write) on December 1, 2026, so `fast-serve` warns about a page URL that points to it and ignores it.
 - As in heft, the debug parameters replace the page URL's own query (`?…`); a `#hash` is kept.
 - An unknown `--config` name prints a warning with the available names and falls back to `default`, like heft.
 - At start `fast-serve` warns about configurations that don't fit the project: an id that isn't one of your extensions, a field customizer used as a command set, the generator's placeholders (`InternalFieldName`, `/sites/mySite/Lists/MyList`).
@@ -245,6 +247,7 @@ The browser reports the position it has for a stack frame, which isn't always th
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` is running. Stop it, or use `--port` / `"port"` |
 | `Unsupported SPFx version` | install the `spfx-fast-serve-helpers` version matching your SPFx version (see Requirements) |
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served yet) |
+| `… is the deprecated SharePoint Online workbench (retirement: December 1, 2026)` | set `initialPage` in `config/serve.json` (or `pageUrl`) to a page of your site |
 | `serve configuration "x" not found … using "default"` | the `--config` name isn't in `config/serve.json` `serveConfigurations`; the warning lists the names |
 | web part shows `[fast-serve] Failed to load bundle …: <error> in src/…:line:col` | a syntax or transform error: details are in the `fast-serve` terminal. Fix the file and the page reloads |
 | `ReferenceError` for a constant from webpack's `DefinePlugin`, or `Failed to resolve import` for a webpack alias | mirror the webpack customization in `fast-serve/vite.extend.mts` (see [Customizing the Vite config](#customizing-the-vite-config)) |

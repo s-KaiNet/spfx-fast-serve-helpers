@@ -7,7 +7,7 @@
 ```
 
 - The debug parameters **replace** the page's own query; a `#hash` is kept. `scripts/debug-url.sh <page> [port]` builds it.
-- SharePoint fetches `manifests.js` (an AMD module with `getManifests()`), registers those manifests and loads the components that are on the page. A web part that isn't on the page doesn't appear: adding it means editing the page, which needs the user's permission (or use the workbench).
+- SharePoint fetches `manifests.js` (an AMD module with `getManifests()`), registers those manifests and loads the components that are on the page. A web part that isn't on the page doesn't appear: adding it means editing the page, which needs the user's permission.
 - fast-serve prints the same URL at start (`[fast-serve] open: …`) for its configured page; heft prints/opens it too. Prefer the printed URL when it exists.
 
 ## Extensions
@@ -22,10 +22,12 @@ All values URL-encoded. Easiest: start `fast-serve --config <name>` (or `heft st
 
 ## Adaptive Card Extensions
 
-- Same query as web parts. On a page the ACE must be added from the toolbox in edit mode (needs permission).
-- Hosted workbench (`SPFX_DEBUG_WORKBENCH_URL` + debug query): edit mode → **+** → toolbox section **Dashboard** / the ACE's manifest title. Nothing is saved unless you click Save; the workbench keeps the unsaved canvas in browser storage across reloads (and across sites of the same tenant).
-- Card actions and quick views are disabled in edit mode: switch the workbench to **Preview**.
-- Microsoft retires the SharePoint Online workbench on 2026-12-01; after that use a test page the user lets you edit.
+Microsoft's flow ([Build your first ACE](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension)): a test SharePoint page with the web-part debug query, edit mode → toolbox → the ACE's manifest title, then save the page and use read mode for card actions and quick views.
+
+- Same query as web parts (fast-serve prints it for ACEs when the selected serve configuration loads extensions).
+- Edit mode autosaves a draft and interaction needs a saved page: both need the user's explicit permission on a page they name. The card view, property pane and lazy chunks can be checked in edit mode; card actions and quick views only in read mode.
+- An ACE already on a saved page (or a Viva Connections dashboard) only needs the debug query: it renders from the dev server in read mode.
+- Without permission, check that the module loads by id (see checks) and report that rendering wasn't verified.
 
 ## The "Allow debug scripts?" dialog
 

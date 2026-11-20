@@ -66,6 +66,8 @@ The page follows heft's order with the `pageUrl` option in place of heft's fallb
 
 So `--config commands` opens that configuration's list page even when `fast-serve/config.json` sets a `pageUrl`. Serve configuration details are in [Serving web parts, extensions and ACEs](serving-components.md).
 
+If the chosen page points to the SharePoint Online workbench (`/_layouts/workbench.aspx` or `/_layouts/15/workbench.aspx`, still the generator's `initialPage` in many projects), it is ignored with a warning that names the setting and asks for a SharePoint page; the banner then shows the query to append. The order does not fall through to a later page.
+
 ### `{tenantDomain}`
 
 `{tenantDomain}` in the chosen page URL is replaced with the `SPFX_SERVE_TENANT_DOMAIN` environment variable (for example `contoso.sharepoint.com`; a leading `https://` and trailing slashes are stripped). If the variable is not set, no page URL is printed; the banner says to set it and shows the query to append instead.

@@ -45,9 +45,8 @@ SPFx components under development run inside a real SharePoint page that is open
 
 ### Hosts
 
-- Regular SharePoint pages (site pages, list views, list forms) are the main host.
-- The SharePoint Online hosted workbench (`/_layouts/15/workbench.aspx`) still accepts the debug query and keeps an unsaved canvas across reloads, but it is deprecated and retired on 2026-12-01; Microsoft's ACE tutorial now uses a test page.
-- Interaction with ACEs (buttons, quick views) is disabled in edit mode: use Preview on the workbench or a saved page in read mode.
+- Regular SharePoint pages (site pages, list views, list forms) are the only host. Microsoft's guidance since SPFx 1.23: test on ordinary pages with the SPFx debug toolbar; `initialPage` in `config/serve.json` should name a real page. `fast-serve` warns about and ignores a page URL that points to the deprecated SharePoint Online workbench (retirement December 1, 2026).
+- ACEs are added from the toolbox of a page in edit mode; interaction with them (buttons, quick views) is disabled in edit mode and works on a saved page in read mode.
 
 ## Links
 

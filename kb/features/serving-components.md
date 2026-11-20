@@ -60,8 +60,8 @@ Malformed entries (for example `serveConfigurations` not an object, or an empty 
 ### Adaptive Card Extensions
 
 - Nothing ACE-specific to configure: ACEs use the plain debug query. Open a test page with the printed URL, edit it and add the card from the toolbox (listed under its `preconfiguredEntries` title).
-- The SharePoint Online hosted workbench (`/_layouts/15/workbench.aspx`, still the generator's `initialPage`) works until its retirement on December 1, 2026; it keeps the unsaved canvas across reloads, which is convenient for trying a card. Microsoft's ACE tutorial now uses a SharePoint page.
-- Card interaction (buttons, quick views) is disabled in edit mode: use **Preview** on the workbench, or save the page and leave edit mode.
+- Testing flow (Microsoft's ACE tutorials): a test SharePoint page with the debug query, edit mode, card from the toolbox. An ACE already on a saved page or dashboard renders from the dev server with just the debug query.
+- Card interaction (buttons, quick views) is disabled in edit mode: save the page and use it in read mode.
 - `@microsoft/sp-adaptive-card-extension-base` comes from the page like every SPFx library; quick view JSON templates (`import` or `require()`) and images are served by Vite; the lazily loaded property pane loads on demand.
 - Every ACE edit reloads the page (see [HMR and Fast Refresh](hmr-and-fast-refresh.md)).
 
@@ -78,7 +78,6 @@ Malformed entries (for example `serveConfigurations` not an object, or an empty 
 - `"icons/x.png"` without `./` resolves against the dev server root, as heft passes it through.
 - Commands (`items`) and serve configuration `properties` are read when the page loads: edit, then reload (a manifest edit reloads by itself).
 - On the test tenant, a Field Customizer's module loads but SharePoint never instantiates it, with `heft start` too; it is treated as a tenant/list-experience issue, so Fast Refresh of cell components is unverified live.
-- The SharePoint Online workbench retires on 2026-12-01; after that, ACEs are tried on a SharePoint page (or a Viva Connections dashboard, not tried).
 
 ## Links
 
@@ -94,6 +93,6 @@ Malformed entries (for example `serveConfigurations` not an object, or an empty 
 
 ## Evidence
 
-- Source: user docs, extensions and ACE research (heft 1.24.1 debug URL logic compared byte for byte), implementation behavior (configuration, server, manifests components); verified live on a SharePoint Online tenant during acceptance (web parts, mixed bundle, Application Customizer, Command Set, Form Customizer, ACE in the hosted workbench)
+- Source: user docs, extensions and ACE research (heft 1.24.1 debug URL logic compared byte for byte), implementation behavior (configuration, server, manifests components); verified live on a SharePoint Online tenant during acceptance (web parts, mixed bundle, Application Customizer, Command Set, Form Customizer, ACE added to an unsaved canvas before page-based testing; the page-based flow needs a saved page and was not rechecked)
 - Confidence: high
 - Last checked: 2026-11-18

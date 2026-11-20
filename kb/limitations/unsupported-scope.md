@@ -45,7 +45,7 @@ tags:
 ### Hosts and environments
 
 - `localhost` only: no tunnels (ngrok), containers, Docker/WSL-specific setup, or Teams hosts. Remote development works only by forwarding the port so the browser still reaches `https://localhost:<port>` (see [Environment and browser gotchas](environment-and-browser-gotchas.md)).
-- The SharePoint Online hosted workbench, still the generator's `initialPage` and handy for ACEs, is retired on 2026-12-01; use a SharePoint page afterwards.
+- SharePoint pages are the only host. A page URL pointing to the SharePoint Online workbench (deprecated in SPFx 1.23, retirement on 2026-12-01; still the generator's `initialPage` in many projects) is ignored with a warning, see [CLI, options and startup](../features/cli-and-options.md). ACE interaction needs a saved page.
 - Not provided on purpose: production builds, type checking, linting, a CORS/allowed-origins option, logging levels, a `debug` flag (see [Dev server only](../decisions/dev-server-only.md) and [Zero-config CLI](../decisions/zero-config-cli.md)).
 
 ## Links

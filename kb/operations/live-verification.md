@@ -28,7 +28,6 @@ Everything that involves the SharePoint page (manifest loading, the bundle shim,
 |---|---|---|
 | `SPFX_DEBUG_BROWSER_PROFILE` | yes | Chrome user data folder already signed in to the tenant |
 | `SPFX_DEBUG_PAGE_URL` | for web parts | SharePoint page that holds the web parts |
-| `SPFX_DEBUG_WORKBENCH_URL` | no | hosted workbench, for ACEs (retired on 2026-12-01) |
 | `SPFX_DEBUG_LIST_URL` | no | list view for Command Sets and Field Customizers |
 | `SPFX_DEBUG_CHROME` | no | Chrome binary (default: the newest agent-browser-managed Chrome, then one on `PATH`) |
 | `SPFX_DEBUG_CDP_PORT` | no | remote debugging port, default `9333` |
@@ -65,7 +64,7 @@ $AB open 'https://<tenant>.sharepoint.com/sites/<site>/SitePages/<test page>.asp
 - Without `--ignore-certificate-errors` and `--disable-features=LocalNetworkAccessChecks` the page shows "Error loading debug manifests" (`ERR_CERT_AUTHORITY_INVALID` or an LNA block).
 - First visit: the "Allow debug scripts?" dialog appears; take an interactive snapshot (`$AB snapshot -i`) and click **Load debug scripts** (`$AB click @eN`).
 - Extensions: use the URL `fast-serve --config <name>` prints (`loadSPFX=true&customActions=…` or field/form customizer parameters, no `debug=true`).
-- ACEs: the hosted workbench (`/_layouts/15/workbench.aspx`) keeps an unsaved canvas across reloads until its retirement on 2026-12-01; afterwards use a draft page.
+- ACEs: a test page in edit mode, card from the toolbox; interaction needs the page saved and read mode, so only with the user's permission to edit and save that page. Without it, check the module load and report rendering as unverified.
 
 ### Useful checks
 
@@ -96,7 +95,7 @@ For timings, network and console capture without agent-browser, the benchmark ha
 ### Cleanup and safety
 
 - `$AB close`, then stop the Chrome you started (match it by its `--remote-debugging-port`) and your dev server. Never kill processes you didn't start.
-- **Never save or publish tenant pages.** Test pages stay drafts; edits on the workbench are not saved.
+- **Never save or publish tenant pages.** Test pages stay drafts.
 - HAR files contain auth cookies: keep them outside repositories.
 
 ### Pitfalls

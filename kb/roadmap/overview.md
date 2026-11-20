@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-`spfx-fast-serve-helpers` `1.24.0-beta.2` is feature-complete for its planned scope: web parts, extensions and ACEs of SPFx 1.24.x, with HMR and React Fast Refresh. What remains is one user verification (VS Code F5), the release decision, and a set of researched or deferred items. Nothing is pushed or published until the user decides; every next step starts only after the user agrees to it.
+`spfx-fast-serve-helpers` `1.24.0-beta.4` is feature-complete for its planned scope: web parts, extensions and ACEs of SPFx 1.24.x, with HMR and React Fast Refresh. What remains is one user verification (VS Code F5), the release decision, and a set of researched or deferred items. Nothing is pushed or published until the user decides; every next step starts only after the user agrees to it.
 
 ## Current Knowledge
 

@@ -78,6 +78,6 @@ Ongoing cost: each new SPFx minor needs about half a day to diff the webpack rul
 
 ## Evidence
 
-- Source: SPFx 1.23 support research (generated 1.23.2 and 1.24.1 projects compared side by side, heft rule probe, live check on the test tenant's hosted workbench with nothing saved)
+- Source: SPFx 1.23 support research (generated 1.23.2 and 1.24.1 projects compared side by side, heft rule probe, live check on the test tenant with nothing saved)
 - Confidence: high for verified items; extensions/ACEs on 1.23 inferred (medium); effort is an estimate
 - Last checked: 2026-11-18
