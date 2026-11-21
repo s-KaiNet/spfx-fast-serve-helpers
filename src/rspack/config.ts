@@ -77,6 +77,9 @@ function uniqueNameOf({ project }: BuildContext): string {
 }
 
 export function watchIgnored(root: string): RegExp {
-  const escapedRoot = root.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedRoot = root
+    .split(/[\\/]/)
+    .map((part) => part.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('[\\\\/]');
   return new RegExp(`^${escapedRoot}[\\\\/](?:${IGNORED_PROJECT_FOLDERS.join('|')})(?:[\\\\/]|$)|[\\\\/]node_modules[\\\\/]`);
 }

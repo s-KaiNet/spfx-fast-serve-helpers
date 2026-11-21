@@ -37,6 +37,8 @@ All Rspack 2 packages are pure ESM.
 - AMD externals need `externalsType: 'amd'`; otherwise externals are emitted as `module.exports = <name>` with an empty dependency list.
 - AMD parsing (`define`, `require([...])`, UMD AMD branches) is **off unless `amd` is set** in the config (webpack enables it by default); `amd: {}` restores webpack's behaviour.
 - CSS is not handled without explicit rules (`experiments.css` is deprecated), so JavaScript CSS loaders need no `type` workarounds beyond `javascript/auto`.
+- A hot update re-adds a module that left the chunk during a failed build (a module with a build error has no dependencies). For an AMD external that means a factory referring to the `define` parameter, which only exists in the original bundle's closure. The update manifest lists no removed modules in that case, so the original factory is still in `__webpack_require__.m` and can be put back in the hot-update handler (`globalObject[hotUpdateGlobal](chunkId, moreModules, runtime)`).
+- Watchpack (the default, non-native watcher) matches a `RegExp` in `watchOptions.ignored` against the path with backslashes replaced by `/`.
 - Externals used only inside `import()` chunks of an AMD library are hoisted onto the entry `define` dependency list.
 - Virtual modules: `rspack.experiments.VirtualModulesPlugin` (experimental) serves generated modules under real-looking paths without writing files.
 - `module.parser.javascript.exportsPresence` defaults to `error` (webpack 5 warns); heft only filters "export … was not found" warnings, so `auto` plus a warning filter matches heft.

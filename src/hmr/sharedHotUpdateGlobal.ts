@@ -1,9 +1,16 @@
 import type { Compiler, RspackPluginInstance } from '@rspack/core';
+import { keepAmdExternalFactoriesSource } from './amdExternalFactories.js';
 
 const PLUGIN_NAME = 'fast-serve:shared-hot-update-global';
 const HANDLERS_SUFFIX = '_fastServeHandlers';
 
 export class SharedHotUpdateGlobalPlugin implements RspackPluginInstance {
+  readonly #amdExternals: readonly string[];
+
+  constructor(amdExternals: readonly string[] = []) {
+    this.#amdExternals = amdExternals;
+  }
+
   apply(compiler: Compiler): void {
     compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation) => {
       const { hotUpdateGlobal } = compilation.outputOptions;
@@ -14,7 +21,8 @@ export class SharedHotUpdateGlobalPlugin implements RspackPluginInstance {
         const code = source.source.toString();
         const globalObject = assignedGlobalObject(code, hotUpdateGlobal);
         if (globalObject === undefined) return;
-        source.source = Buffer.from(`${code}\n${hotUpdateFanOutSource(globalObject, hotUpdateGlobal)}`);
+        const keepExternals = this.#amdExternals.length > 0 ? `\n${keepAmdExternalFactoriesSource(globalObject, hotUpdateGlobal, this.#amdExternals)}` : '';
+        source.source = Buffer.from(`${code}${keepExternals}\n${hotUpdateFanOutSource(globalObject, hotUpdateGlobal)}`);
       });
     });
   }

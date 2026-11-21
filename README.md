@@ -197,6 +197,7 @@ Risks and limits:
 | web part / extension / ACE class, what only it imports (services, ACE card and quick views, templates), loc files the class imports | page reload |
 | a module that exports components **and** other values (hooks, constants) | page reload |
 | a new import of an SPFx library or `config.json` external, or an edit of a local-file external | page reload (a bundle's AMD dependency list is fixed when it loads) |
+| a syntax error and its fix in a component that is the only user of a library (`escape` from `@microsoft/sp-lodash-subset`) | error overlay, then hot updates again with state kept (before `1.24.0-beta.8`: `escape is not a function` on the next edit) |
 | `package.json`, `config/*.json`, `fast-serve/config.json`, tsconfig, manifests, the extend file (also a linked library's) | `fast-serve` restarts (≈0.1–0.5 s) and open pages reload by themselves |
 | a linked library's component, styles, loc strings | same as your own files (see [Library components](#library-components)) |
 

@@ -15,7 +15,7 @@ function hmrContribution({ root, project }: FeatureContext): ConfigContribution 
     plugins: [
       new ReactRefreshRspackPlugin({ include: sourceFolders, injectEntry: false }),
       new rspack.EntryPlugin(root, refreshEntry, { name: undefined }),
-      new SharedHotUpdateGlobalPlugin(),
+      new SharedHotUpdateGlobalPlugin([...project.libraries().keys(), ...project.configExternals().keys()].toSorted()),
     ],
   };
 }

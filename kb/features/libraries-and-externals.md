@@ -41,10 +41,12 @@ SPFx libraries and `config/config.json` `externals` are AMD externals of the bun
 | a module starts or stops importing a library or external (the bundle's external list changes) | page reload: the AMD `define` list is fixed when the bundle loads, so a hot update cannot supply a new external (it would fail with "`__rspack_external_…` is not defined") |
 | a local-file external | page reload with the new file |
 | imports of libraries/externals the bundle already declares | normal hot update |
+| a syntax error, then its fix, in the only module that imports a library/external | error overlay, then normal hot updates (state kept); the external keeps its binding |
 
 ## Implementation Notes
 
 - After every successful compile the external modules of each entry's chunks (and their async chunks) are collected per bundle; manifests are rendered from that list. When a rebuild changes any bundle's list, the dev server tells the pages to reload before the update is announced, so the broken hot update is never applied (checked live: no console error).
+- A module with a build error has no dependencies, so an external used only by that module leaves the chunk during the failed build. The hot update of the fixed build then ships the external module again, with a factory that reads the `define` parameter (`__rspack_external_…`) from the hot-update file, where it doesn't exist: the update throws "is not defined", Fast Refresh keeps the old component, and the cached external module stays an empty object, so the next edit fails with "`escape` is not a function". The failed build doesn't count as an external-list change (no reload on errors), and the fixed build's list equals the last good one, so no reload happens either. Fix: each bundle's hot-update handler remembers the factories of its configured externals (libraries and `config.json` externals) as they were when the bundle loaded and puts those back in place of any external factory a hot update ships. The handler copies the update before replacing, because the same update object is handed to every bundle on the page. The list is fixed per session, so the runtime code doesn't change between builds (a runtime that changes is re-sent and re-run inside the next hot update). Bundled npm packages are not affected (their factories don't depend on the bundle's closure).
 - Local-file externals are emitted as compilation assets and added to the watched files; their change triggers the same page reload.
 
 ## Links

@@ -118,6 +118,13 @@ describe('watchIgnored', () => {
     expect(ignored.test(path.join(root, 'src', 'webparts', 'Hello.tsx'))).toBe(false);
     expect(ignored.test(path.join(path.sep, 'work', 'myXproject', 'lib', 'file.js'))).toBe(false);
   });
+
+  it('matches Windows paths with either separator, as the watcher tests them with forward slashes', () => {
+    const ignored = watchIgnored('C:\\Users\\anna\\my.project');
+    expect(ignored.test('C:/Users/anna/my.project/temp/fast-serve/page-runtime/page-runtime.js')).toBe(true);
+    expect(ignored.test('C:\\Users\\anna\\my.project\\lib\\index.js')).toBe(true);
+    expect(ignored.test('C:/Users/anna/my.project/src/webparts/Hello.tsx')).toBe(false);
+  });
 });
 
 describe('mergeContributions', () => {

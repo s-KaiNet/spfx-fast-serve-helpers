@@ -26,7 +26,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 - `amd: {}` is set on purpose: **Rspack 2 parses `define`/AMD only when `amd` is configured** (webpack enables it by default). Without it, AMD loc files evaluate to empty modules and UMD dependencies take their CommonJS/global branch.
 - `module.parser.javascript.exportsPresence: 'auto'`: missing exports warn instead of failing (type-only re-exports compiled per file). A heft-like warning filter is not there yet.
 - `resolve.extensions`: `.ts`, `.tsx`, `.css`, then heft's list (`.wasm`, `.mjs`, `.js`, `.json`, `.jsx`); `.js`/`.mjs` requests are not required to be fully specified.
-- Watching ignores the project's build output folders (`lib`, `lib-*`, `dist`, `temp`, `release`, `sharepoint`, `teams`, `jest-output`, `.heft`) anchored at the project root, plus `node_modules`; same-named folders inside `src` stay watched.
+- Watching ignores the project's build output folders (`lib`, `lib-*`, `dist`, `temp`, `release`, `sharepoint`, `teams`, `jest-output`, `.heft`) anchored at the project root, plus `node_modules`; same-named folders inside `src` stay watched. Watchpack tests a `RegExp` against paths with `\` turned into `/`, so the project root in the pattern accepts either separator; with a root written with backslashes, Windows projects watched their `temp` and `lib` folders (before `1.24.0-beta.8`: extra rebuilds such as one listing `temp/fast-serve/page-runtime/page-runtime.js`, a virtual module path next to the persistent cache).
 
 ### Entries
 

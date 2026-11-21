@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 00:30 | update | externals survive a syntax error and its fix; Windows watch ignore (`1.24.0-beta.8`)
+
+- Changed: `kb/features/libraries-and-externals.md`, `kb/features/rspack-compile.md`, `kb/references/rspack.md`
+- Outcome: cause of "`escape` is not a function" after a syntax error and its fix recorded (the failed build drops an external used only by the broken module; the fixed build's hot update re-ships it with a factory that can't see the `define` parameter); fix recorded (each bundle's hot-update handler puts its original external factories back); the watcher ignore pattern now matches Windows paths, which watchpack tests with forward slashes
+
 ## 2026-11-20 23:50 | update | render errors in JSX no longer silent (`1.24.0-beta.6`)
 
 - Changed: `kb/features/errors-and-diagnostics.md`
