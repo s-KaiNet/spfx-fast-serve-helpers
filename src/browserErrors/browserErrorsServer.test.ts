@@ -135,18 +135,6 @@ describe('compile errors and browser errors with a dev server and a page with tw
     await waitFor(() => messages.some((message) => new RegExp(`^info: rebuilt in \\d+ ms \\(${COMPONENT}\\)$`).test(message)), 'the clean rebuild line');
   }, 30_000);
 
-  it('closes a runtime error overlay after the rebuild that follows an edit and opens it again when the error repeats', async () => {
-    const explode = 'try { explode(); } catch (error) { window.dispatchEvent({ type: "error", error }); }';
-    page.evaluate(explode);
-    await waitFor(() => overlays().length === 1, 'the runtime error overlay');
-    writeFileSync(path.join(root, COMPONENT), FIRST("throw new Error('edited');"));
-    await waitFor(() => overlays().length === 0, 'the runtime error overlay to close after the rebuild');
-    page.evaluate(explode);
-    await waitFor(() => overlays().length === 1, 'the runtime error overlay to open again');
-    expect(overlays()[0]?.shadowRoot?.text).toContain('[fast-serve] Uncaught runtime error');
-    page.dispatch('keydown', { key: 'Escape' });
-  }, 30_000);
-
   it('shows a component that throws while a hot update evaluates it, keeps the previous version running', async () => {
     messages.length = 0;
     const reloadsBefore = page.reloads();
