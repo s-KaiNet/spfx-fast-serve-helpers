@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 12:00 | update | classic config format stops fast-serve
+
+- Changed: `kb/features/cli-and-options.md`
+- Outcome: a `fast-serve/config.json` with the classic nested `"serve"` object now stops fast-serve with an "outdated classic format" error naming the flat format, the `$schema` line and the supported options; nothing is converted (version 1.24.0-beta.16)
+
 ## 2026-11-22 19:30 | update | minimal startup output (1.24.0-beta.15)
 
 - Changed: `kb/features/dev-server.md`, `kb/features/cli-and-options.md`, `kb/features/extensions-and-aces.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/project-restarts.md`, `kb/features/tunnel-mode.md`, `kb/index.md`

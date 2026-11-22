@@ -203,14 +203,6 @@ export const OPTION_NAMES: readonly OptionName[] = Object.keys(OPTION_GUARDS).fi
 const DROPPED_OPTIONS = new Map([['amdPackages', 'not needed: AMD and UMD code in dependencies is bundled like in heft']]);
 
 const CLASSIC_SERVE_KEY = 'serve';
-const CLASSIC_OPTION_NAMES = new Map<string, OptionName>([
-  ['port', 'port'],
-  ['openUrl', 'pageUrl'],
-  ['locale', 'locale'],
-  ['config', 'serveConfiguration'],
-  ['fullScreenErrors', 'overlay'],
-  ['eslint', 'lint'],
-]);
 
 export function loadOptionsFile(root: string, warn: (message: string) => void = () => undefined): FastServeOptions {
   const file = path.join(root, OPTIONS_FILE);
@@ -220,10 +212,7 @@ export function loadOptionsFile(root: string, warn: (message: string) => void = 
   const options: FastServeOptions = {};
   for (const [key, value] of Object.entries(json)) {
     if (key === '$schema') continue;
-    if (key === CLASSIC_SERVE_KEY && isObject(value)) {
-      warn(classicFormatWarning(value));
-      continue;
-    }
+    if (key === CLASSIC_SERVE_KEY && isObject(value)) throw new Error(classicFormatError());
     const droppedReason = DROPPED_OPTIONS.get(key);
     if (droppedReason !== undefined) {
       warn(`${OPTIONS_FILE}: "${key}" is ignored (${droppedReason})`);
@@ -243,16 +232,10 @@ function readOption<Name extends OptionName>(options: Pick<FastServeOptions, Nam
   return true;
 }
 
-function classicFormatWarning(classic: Record<string, unknown>): string {
-  const converted: FastServeOptions = {};
-  for (const [classicName, value] of Object.entries(classic)) {
-    const name = CLASSIC_OPTION_NAMES.get(classicName);
-    if (name !== undefined) readOption(converted, name, value);
-  }
-  const flat = JSON.stringify({ $schema: OPTIONS_SCHEMA_PATH, ...converted });
+function classicFormatError(): string {
   return (
-    `${OPTIONS_FILE}: the nested "${CLASSIC_SERVE_KEY}" object of the classic spfx-fast-serve format is ignored. ` +
-    `Use the flat format with the schema shipped in the package: ${flat}`
+    `${OPTIONS_FILE} uses the outdated classic spfx-fast-serve format (options nested in "${CLASSIC_SERVE_KEY}"), which is no longer supported. ` +
+    `Replace it with the flat format: "$schema": "${OPTIONS_SCHEMA_PATH}" and the supported options (${OPTION_NAMES.join(', ')}).`
   );
 }
 

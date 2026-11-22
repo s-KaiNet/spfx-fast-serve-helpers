@@ -208,15 +208,14 @@ describe('loadOptionsFile', () => {
     expect(() => loadOptionsFile(projectWith('{ "overlay": "no" }'))).toThrow(/"overlay"/);
   });
 
-  it('ignores the nested serve object of the classic format and shows the flat equivalent with the schema', () => {
-    const warnings: string[] = [];
+  it('stops on the outdated classic format with its nested serve object', () => {
     const classic = '{ "$schema": "https://raw.githubusercontent.com/s-KaiNet/spfx-fast-serve/master/schema/config.v2.schema.json", ' +
-      '"serve": { "port": 4500, "openUrl": "https://contoso.sharepoint.com/sites/dev", "config": "banner", "fullScreenErrors": false, "eslint": "yes", "memory": 8192 } }';
-    expect(loadOptionsFile(projectWith(classic), (message) => warnings.push(message))).toEqual({});
-    expect(warnings).toEqual([
-      'fast-serve/config.json: the nested "serve" object of the classic spfx-fast-serve format is ignored. Use the flat format with the schema shipped in the package: ' +
-        '{"$schema":"../node_modules/spfx-fast-serve-helpers/schema/config.schema.json","port":4500,"pageUrl":"https://contoso.sharepoint.com/sites/dev","serveConfiguration":"banner","overlay":false}',
-    ]);
+      '"serve": { "port": 4500, "openUrl": "https://contoso.sharepoint.com/sites/dev", "memory": 8192 } }';
+    expect(() => loadOptionsFile(projectWith(classic))).toThrow(
+      'fast-serve/config.json uses the outdated classic spfx-fast-serve format (options nested in "serve"), which is no longer supported. ' +
+        'Replace it with the flat format: "$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json" and the supported options ' +
+        '(port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay, lint).',
+    );
   });
 
   it('names the schema when it rejects a key', () => {
