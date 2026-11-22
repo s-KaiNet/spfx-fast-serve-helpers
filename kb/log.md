@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 23:00 | update | source folders grouped into layers
+
+- Changed: `kb/architecture/overview.md`
+- Outcome: the code is described as layers (CLI shell, dev session, dev server, bundler with feature API/extend file/cache, build and developer-tool features, project model with readers and heft helpers, options, shared basics; test kits and scenarios outside the source tree); behaviour unchanged (version 1.24.0-beta.18)
+
 ## 2026-11-22 12:30 | update | provided page URL printed with the debug query
 
 - Changed: `kb/features/cli-and-options.md`

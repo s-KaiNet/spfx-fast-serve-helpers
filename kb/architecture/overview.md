@@ -37,7 +37,7 @@ tags:
 | Dev server | HTTPS, headers, debug URL and ready banner |
 | Dev session | watching project configuration and the extend file, [restarts](../features/project-restarts.md) that swap the server only after the new config is ready |
 | Extend file | loading `fast-serve/rspack.extend.*`, guard and merge into fast-serve's config, public `defineConfig` entry ([Rspack extend file](../features/rspack-extend-file.md)) |
-| Features | entries, local libraries, TypeScript, externals, React, localization, assets, styles, defines, manifests, browser errors, tunnel, HMR, type check, lint; each one folder with tests, exposed as a named feature |
+| Features | build features (entries, local libraries, TypeScript, externals, React, localization, assets, styles, defines, manifests) and developer-tool features (browser errors, tunnel, HMR, type check, lint); each a folder (one module for the smallest) with tests, exposed as a named feature |
 
 ### Features and the page channel
 
@@ -47,7 +47,8 @@ tags:
 
 ### Dependency rules
 
-- The folder graph has no cycles: the CLI shell and the dev session sit on top, then the dev server, then the Rspack composition root, then the features, then the feature API, the project model, the options and the utilities. The project model never imports Rspack.
+- The code is grouped in layers, one top-level folder each: the CLI shell (terminal and process only, imported by nothing else), the dev session (prepare, start, watch, restart, close), the dev server (HTTP and WebSocket only), the bundler (the Rspack composition root, with the feature API, the extend file and the cache fingerprint inside it), the features (split into build features, which make an SPFx bundle compile, and developer-tool features: HMR, browser errors, type check, lint, tunnel), the project model (its readers of single project inputs and its heft helpers inside it), the options, and shared basics (logger, package info and root, errors, paths). Test kits and scenario tests live outside the source tree and are never packaged.
+- The folder graph has no cycles: the CLI shell and the dev session sit on top, then the dev server, then the bundler, then the features, then the feature API, the project model, the options and the shared basics. The project model never imports Rspack.
 - Features depend on the feature API and the project model, not on each other's internals; across folders, code imports a folder through its public entry module only (the public package entry and the CLI's lazy imports of the extend-file helpers are the exceptions).
 - SPFx and heft packages the project already has are loaded from the project at runtime; Rspack and its plugins are package dependencies.
 - No heft webpack config or heft-plugin internals ([decision](../decisions/rspack-with-own-config.md)).
@@ -75,4 +76,4 @@ tags:
 
 - Source: implementation behavior; import-graph check (no folder cycles) and tests pinning the feature order after the architecture refactoring (`1.24.0-rspack.16`)
 - Confidence: high
-- Last checked: 2026-11-20
+- Last checked: 2026-11-22

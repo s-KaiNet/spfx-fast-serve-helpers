@@ -416,6 +416,8 @@ Name real-compile tests `*.integration.test.ts` and add vitest `projects` (`unit
 
 ### 14. Group feature folders under `src/features/` — M, **not now** (optional)
 
+**Done (2026-11-22, `1.24.0-beta.18`, task R1):** `src/` regrouped into `cli/`, `session/`, `server/`, `bundler/`, `features/build|devtools/`, `project/`, `config/`, `shared/`; test kit and scenarios under `test/`.
+
 It would make the layers visible in the tree (`src/` would list about 12 entries instead of 24). Most of the benefit comes from #1 and #4 without moving 13 folders, rewriting every import and diverging from the `v1.24` layout. Reconsider only if the matrix in #4 gets hard to read.
 
 ### Not worth doing
