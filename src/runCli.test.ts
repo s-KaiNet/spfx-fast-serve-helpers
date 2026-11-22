@@ -21,6 +21,7 @@ describe('runCli', () => {
     expect(result.out).toContain('Usage: fast-serve');
     expect(result.out).toContain('Rspack dev server');
     expect(result.out).toContain('--no-overlay');
+    expect(result.out).toContain('--type-check-overlay');
     expect(result.out).not.toMatch(/vite/i);
     expect(result.startServer).not.toHaveBeenCalled();
   });
@@ -55,6 +56,15 @@ describe('runCli', () => {
 
   it('turns the error overlay off with --no-overlay', async () => {
     expect((await run(['--no-overlay'])).startServer).toHaveBeenCalledWith({ overlay: false });
+  });
+
+  it('turns type checking and its overlay on or off with flags', async () => {
+    expect((await run(['--type-check'])).startServer).toHaveBeenCalledWith({ typeCheck: true });
+    expect((await run(['--no-type-check'])).startServer).toHaveBeenCalledWith({ typeCheck: false });
+    expect((await run(['--type-check', '--type-check-overlay'])).startServer).toHaveBeenCalledWith({ typeCheck: true, typeCheckOverlay: true });
+    const both = await run(['--type-check', '--no-type-check']);
+    expect(both.startServer).not.toHaveBeenCalled();
+    expect(both.err).toContain('either --type-check or --no-type-check');
   });
 
   it('reports start errors', async () => {

@@ -128,7 +128,7 @@ describe('describeSetup', () => {
     const setup = prepareServe({ root: fixture, cli: { overlay: false }, logger, env: {} });
     expect(describeSetup(setup)).toEqual([
       `spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
-      'port 4400 (https://localhost:4400), locale en-us, overlay off',
+      'port 4400 (https://localhost:4400), locale en-us, overlay off, type check off',
       'serve configuration: none',
       'page: https://{tenantDomain}/sites/dev/SitePages/Test.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
       'bundle hello-web-part: HelloWebPart (WebPart)',

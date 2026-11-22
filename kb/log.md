@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 14:30 | ingest | background type check with the project's TypeScript (`1.24.0-beta.10`)
+
+- Changed: `kb/features/type-checking.md` (new), `kb/features/cli-and-options.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/typescript-and-tsconfig.md`, `kb/features/styles-and-typings.md`, `kb/architecture/overview.md`, `kb/index.md`
+- Outcome: opt-in `typeCheck`/`typeCheckOverlay` (flags `--type-check`, `--no-type-check`, `--type-check-overlay`) documented: `ts-checker-rspack-plugin` `~1.8.0` with the project's TypeScript 5 on the unchanged tsconfig plus incremental info, first check held until the first compile, generated typings fed into the next check, terminal blocks only on changed issue sets, page panel over an event stream, extend-file checker wins, consumer project only; local numbers on both test projects and the live SharePoint result recorded
+
 ## 2026-11-22 12:00 | update | SCSS typings written only on change, quiet no-op rebuilds, typings updates channel (`1.24.0-beta.9`)
 
 - Changed: `kb/features/styles-and-typings.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/dev-server.md`, `kb/features/performance-and-cache.md`, `kb/architecture/overview.md`, `kb/references/rspack.md`

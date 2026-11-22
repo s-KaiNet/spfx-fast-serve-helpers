@@ -80,6 +80,7 @@ describe('feature order', () => {
       'browserErrors',
       'tunnel',
       'hmr',
+      'typeCheck',
     ]);
   });
 

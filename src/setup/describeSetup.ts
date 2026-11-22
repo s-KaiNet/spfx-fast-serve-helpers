@@ -8,13 +8,18 @@ import type { ServeSetup } from './prepareServe.js';
 export function describeSetup({ spfxVersion, project, options }: ServeSetup): string[] {
   return [
     `${packageName} ${packageVersion}, SPFx ${spfxVersion.version}`,
-    `port ${options.port} (${options.origin}), locale ${options.locale}, overlay ${options.overlay ? 'on' : 'off'}`,
+    `port ${options.port} (${options.origin}), locale ${options.locale}, overlay ${options.overlay ? 'on' : 'off'}, type check ${describeTypeCheck(options)}`,
     `serve configuration: ${options.serveConfiguration?.name ?? 'none'}`,
     `page: ${describePage(options.pageUrl, options.pageUrlTemplate)}`,
     ...project.bundles().map((bundle) => `bundle ${bundle.name}: ${bundle.components.map(describeComponent).join(', ')}`),
     ...localLibraryLines(project),
     `SPFx libraries: ${project.libraries().size}, config.json externals: ${project.configExternals().size}, localized resources: ${project.localizedResources(options.locale).size}`,
   ];
+}
+
+function describeTypeCheck({ typeCheck, typeCheckOverlay }: ServeSetup['options']): string {
+  if (!typeCheck) return 'off';
+  return typeCheckOverlay ? 'on (with overlay)' : 'on';
 }
 
 function describePage(pageUrl: string | undefined, template: string | undefined): string {

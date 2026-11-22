@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js` and as the first module of every bundle; it guards itself per page, so it runs once, before any bundle code (from `manifests.js` in the debug-query flow, from the first bundle in [tunnel mode](tunnel-mode.md)).
+Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. Type errors come only from the optional [background type check](type-checking.md), with their own terminal blocks and page panel. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js` and as the first module of every bundle; it guards itself per page, so it runs once, before any bundle code (from `manifests.js` in the debug-query flow, from the first bundle in [tunnel mode](tunnel-mode.md)).
 
 ## Behavior
 
@@ -82,13 +82,14 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 ## Edge Cases
 
 - A runtime error inside a dependency without any project frame on the stack is not forwarded, even when project code triggered it asynchronously.
-- A typo in a React hook name (`React.useState1`, `useState1` without an import, `import { useState1 } from 'react'`) is a runtime error, never a compile error: React comes in as an external, so Rspack can't check its exports, and the dev loop does not type-check.
+- A typo in a React hook name (`React.useState1`, `useState1` without an import, `import { useState1 } from 'react'`) is a runtime error, never a compile error: React comes in as an external, so Rspack can't check its exports; only the optional [background type check](type-checking.md) reports it before the code runs.
 - An overlay closes after any successful rebuild with new output, also when the edit didn't touch the failing code; the error comes back only when that code runs again.
 - An external whose script fails to load prevents the bundle from running at all; only the page runtime sees it, so the reason is reported but nothing reloads automatically (fixing `config/config.json` needs a restart).
 
 ## Links
 
 - [Dev server, debug manifests and debug URL](dev-server.md)
+- [Background type check](type-checking.md)
 - [HMR and React Fast Refresh](hmr.md)
 - [CLI, options and startup](cli-and-options.md)
 - [SPFx libraries and config.json externals](libraries-and-externals.md)

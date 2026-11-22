@@ -6,7 +6,7 @@ import type { PageChannel } from './pageChannel.js';
 export interface BuildContext {
   readonly root: string;
   readonly project: SpfxProject;
-  readonly options: Pick<ResolvedOptions, 'origin' | 'locale' | 'overlay'> & { readonly tunnelHost?: string | undefined };
+  readonly options: Pick<ResolvedOptions, 'origin' | 'locale' | 'overlay'> & Partial<Pick<ResolvedOptions, 'typeCheck' | 'typeCheckOverlay'>> & { readonly tunnelHost?: string | undefined };
   readonly logger: Logger;
 }
 

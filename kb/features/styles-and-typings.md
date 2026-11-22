@@ -72,6 +72,7 @@ Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules wh
 - [HMR and React Fast Refresh](hmr.md)
 - [Project model](../architecture/project-model.md)
 - [TypeScript and tsconfig](typescript-and-tsconfig.md)
+- [Background type check](type-checking.md)
 - [SPFx 1.24 Heft pipeline (reverse-engineered)](../references/spfx-heft-pipeline.md)
 
 ## Evidence

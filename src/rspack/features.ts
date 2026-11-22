@@ -11,6 +11,7 @@ import { manifestsFeature } from '../manifests/index.js';
 import { reactFeature } from '../react/index.js';
 import { stylesFeature } from '../styles/index.js';
 import { tunnelFeature } from '../tunnel/index.js';
+import { typeCheckFeature } from '../typeCheck/index.js';
 import { typescriptFeature } from '../typescript/index.js';
 
 export const FEATURES: readonly Feature[] = [
@@ -27,6 +28,7 @@ export const FEATURES: readonly Feature[] = [
   browserErrorsFeature,
   tunnelFeature,
   hmrFeature,
+  typeCheckFeature,
 ];
 
 export async function contributionsInFeatureOrder(features: readonly Feature[], context: FeatureContext): Promise<ConfigContribution[]> {

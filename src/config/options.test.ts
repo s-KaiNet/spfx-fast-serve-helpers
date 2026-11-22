@@ -16,6 +16,8 @@ describe('resolveOptions', () => {
       pageUrlTemplate: undefined,
       serveConfiguration: undefined,
       overlay: true,
+      typeCheck: false,
+      typeCheckOverlay: false,
       warnings: [],
     });
   });
@@ -42,6 +44,19 @@ describe('resolveOptions', () => {
   it('turns the error overlay off from the CLI or the options file', () => {
     expect(resolveOptions({ file: { overlay: false } }, {}).overlay).toBe(false);
     expect(resolveOptions({ file: { overlay: true }, cli: { overlay: false } }, {}).overlay).toBe(false);
+  });
+
+  it('turns type checking and its overlay on from the options file or the CLI, CLI first', () => {
+    expect(resolveOptions({ file: { typeCheck: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: false, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: true, typeCheckOverlay: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true });
+    expect(resolveOptions({ file: { typeCheck: true }, cli: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, typeCheckOverlay: false });
+    expect(resolveOptions({ file: { typeCheckOverlay: false }, cli: { typeCheck: true, typeCheckOverlay: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true });
+  });
+
+  it('keeps the type check overlay off without type checking and says why', () => {
+    const resolved = resolveOptions({ cli: { typeCheckOverlay: true } }, {});
+    expect(resolved).toMatchObject({ typeCheck: false, typeCheckOverlay: false });
+    expect(resolved.warnings).toEqual([expect.stringContaining('--type-check')]);
   });
 
   it('substitutes {tenantDomain} from SPFX_SERVE_TENANT_DOMAIN', () => {
@@ -161,6 +176,12 @@ describe('loadOptionsFile', () => {
   it('reads the libraries to load from SharePoint', () => {
     expect(loadOptionsFile(projectWith('{ "deployedLibraries": ["@contoso/corp-lib"] }'))).toEqual({ deployedLibraries: ['@contoso/corp-lib'] });
     expect(() => loadOptionsFile(projectWith('{ "deployedLibraries": "@contoso/corp-lib" }'))).toThrow(/"deployedLibraries"/);
+  });
+
+  it('reads the type check switches', () => {
+    expect(loadOptionsFile(projectWith('{ "typeCheck": true, "typeCheckOverlay": false }'))).toEqual({ typeCheck: true, typeCheckOverlay: false });
+    expect(() => loadOptionsFile(projectWith('{ "typeCheck": "yes" }'))).toThrow(/"typeCheck"/);
+    expect(() => loadOptionsFile(projectWith('{ "typeCheckOverlay": 1 }'))).toThrow(/"typeCheckOverlay"/);
   });
 
   it('rejects unknown options and wrong types', () => {

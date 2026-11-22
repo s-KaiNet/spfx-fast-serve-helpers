@@ -28,11 +28,17 @@ Options:
                          formCustomizer) (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
       --no-overlay       Don't show compile and runtime errors in an overlay over the page
                          (they still go to the terminal and the browser console)
+      --type-check       Type check the project in the background with its own TypeScript
+                         (results in the terminal; heft build still does the full build)
+      --no-type-check    Turn type checking off (wins over "typeCheck": true)
+      --type-check-overlay
+                         Also show type errors in a panel over the page (needs type checking)
   -h, --help             Show this help
   -v, --version          Show the version
 
 The same options can be set in ${OPTIONS_FILE}:
-{ "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true }.
+{ "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true,
+  "typeCheck": false, "typeCheckOverlay": false }.
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 
@@ -58,6 +64,9 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
         config: { type: 'string' },
         'serve-config': { type: 'string' },
         'no-overlay': { type: 'boolean' },
+        'type-check': { type: 'boolean' },
+        'no-type-check': { type: 'boolean' },
+        'type-check-overlay': { type: 'boolean' },
       },
       strict: true,
       allowPositionals: false,
@@ -84,6 +93,10 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
     const serveConfiguration = values.config ?? values['serve-config'];
     if (serveConfiguration !== undefined) options.serveConfiguration = serveConfiguration;
     if (values['no-overlay']) options.overlay = false;
+    if (values['type-check'] && values['no-type-check']) throw new Error('use either --type-check or --no-type-check');
+    if (values['type-check']) options.typeCheck = true;
+    if (values['no-type-check']) options.typeCheck = false;
+    if (values['type-check-overlay']) options.typeCheckOverlay = true;
     await io.startServer(options);
     return 0;
   } catch (error) {

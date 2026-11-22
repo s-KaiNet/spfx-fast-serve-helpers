@@ -17,6 +17,10 @@ export interface FastServeOptions {
   overlay?: boolean;
 
   deployedLibraries?: string[];
+
+  typeCheck?: boolean;
+
+  typeCheckOverlay?: boolean;
 }
 
 export interface SelectedServeConfiguration extends ServeConfiguration {
@@ -41,6 +45,10 @@ export interface ResolvedOptions {
 
   overlay: boolean;
 
+  typeCheck: boolean;
+
+  typeCheckOverlay: boolean;
+
   warnings: string[];
 }
 
@@ -57,6 +65,7 @@ export const DEFAULT_PORT = 4321;
 export const TENANT_DOMAIN_ENV = 'SPFX_SERVE_TENANT_DOMAIN';
 export const DEFAULT_SERVE_CONFIGURATION = 'default';
 const TENANT_DOMAIN_PLACEHOLDER = '{tenantDomain}';
+const TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK = 'the type check overlay is off because type checking is off (turn it on with --type-check or "typeCheck": true)';
 
 export function resolveOptions(
   sources: { cli?: FastServeOptions; file?: FastServeOptions; defaults?: OptionDefaults },
@@ -73,6 +82,9 @@ export function resolveOptions(
   const pointsToRetiredWorkbench = page !== undefined && isRetiredWorkbenchUrl(page.url);
   if (pointsToRetiredWorkbench) warnings.push(retiredWorkbenchWarning(page.source, page.url));
   const pageUrlTemplate = pointsToRetiredWorkbench ? undefined : page?.url;
+  const typeCheck = cli.typeCheck ?? file.typeCheck ?? false;
+  const typeCheckOverlayRequested = cli.typeCheckOverlay ?? file.typeCheckOverlay ?? false;
+  if (typeCheckOverlayRequested && !typeCheck) warnings.push(TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK);
   return {
     port,
     origin: localOrigin(port),
@@ -83,6 +95,8 @@ export function resolveOptions(
     pageUrlTemplate,
     serveConfiguration,
     overlay: cli.overlay ?? file.overlay ?? true,
+    typeCheck,
+    typeCheckOverlay: typeCheck && typeCheckOverlayRequested,
     warnings,
   };
 }
@@ -179,7 +193,9 @@ export function loadOptionsFile(root: string, warn: (message: string) => void = 
     else if (key === 'serveConfiguration' && typeof value === 'string') options.serveConfiguration = value;
     else if (key === 'overlay' && typeof value === 'boolean') options.overlay = value;
     else if (key === 'deployedLibraries' && isStringArray(value)) options.deployedLibraries = value;
-    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries)`);
+    else if (key === 'typeCheck' && typeof value === 'boolean') options.typeCheck = value;
+    else if (key === 'typeCheckOverlay' && typeof value === 'boolean') options.typeCheckOverlay = value;
+    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay)`);
   }
   return options;
 }

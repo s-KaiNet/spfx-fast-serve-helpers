@@ -64,7 +64,8 @@ export default defineConfig(({ root }) => ({
 | SVG as React component (`@svgr/webpack`) | see Pitfalls: fast-serve's asset rule already handles `.svg` |
 | `externals` added by the script | `config/config.json` → `externals` (fast-serve and heft both read it, and fast-serve lists it in the debug manifests) |
 | `devServer.proxy` / `devServer.headers` | `devServer.proxy` / `devServer.headers` |
-| `output.*`, `optimization`, `devtool`, `performance`, `stats`, `cache`, `mode`, Terser/Analyzer/ForkTsChecker/Copy plugins | **not needed in dev**: leave them out |
+| `ForkTsCheckerWebpackPlugin` (type errors while serving) | **no plugin**: `"typeCheck": true` in `fast-serve/config.json` or `--type-check` (fast-serve's own background check with the project's TypeScript; `"typeCheckOverlay": true` adds a panel on the page). A `TsCheckerRspackPlugin` in the extend file replaces fast-serve's check |
+| `output.*`, `optimization`, `devtool`, `performance`, `stats`, `cache`, `mode`, Terser/Analyzer/Copy plugins | **not needed in dev**: leave them out |
 
 ## Serving through a tunnel (TunnelServePlugin)
 
