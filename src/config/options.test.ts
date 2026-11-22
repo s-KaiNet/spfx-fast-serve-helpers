@@ -78,21 +78,6 @@ describe('resolveOptions', () => {
     expect(resolveOptions({ defaults }, {})).toMatchObject({ pageUrl: undefined, pageUrlTemplate: defaults.initialPage });
   });
 
-  it('ignores a page URL that points to the retired SharePoint Online workbench and warns', () => {
-    const generated = 'https://{tenantDomain}/_layouts/workbench.aspx';
-    expect(resolveOptions({ defaults: { initialPage: generated } }, { SPFX_SERVE_TENANT_DOMAIN: 'contoso.sharepoint.com' })).toMatchObject({
-      pageUrl: undefined,
-      pageUrlTemplate: undefined,
-      warnings: [
-        `config/serve.json "initialPage" "${generated}" is the deprecated SharePoint Online workbench (retirement: December 1, 2026): ` +
-          'fast-serve ignores it, set it to a SharePoint page of your site (for example https://{tenantDomain}/sites/dev/SitePages/Test.aspx)',
-      ],
-    });
-    const fromCli = resolveOptions({ cli: { pageUrl: 'https://contoso.sharepoint.com/sites/dev/_layouts/15/Workbench.aspx?x=1' } }, {});
-    expect(fromCli.pageUrl).toBeUndefined();
-    expect(fromCli.warnings).toEqual([expect.stringMatching(/^--page-url "https:\/\/contoso\.sharepoint\.com\/sites\/dev\/_layouts\/15\/Workbench\.aspx\?x=1" is the deprecated SharePoint Online workbench/)]);
-    expect(resolveOptions({ defaults: { initialPage: 'https://contoso.sharepoint.com/sites/dev/SitePages/workbench.aspx' } }, {}).warnings).toEqual([]);
-  });
 
   describe('serve configurations', () => {
     const serveConfigurations = {

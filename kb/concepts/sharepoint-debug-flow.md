@@ -45,7 +45,7 @@ SPFx components under development run inside a real SharePoint page that is open
 
 ### Hosts
 
-- Regular SharePoint pages (site pages, list views, list forms) are the only host. Microsoft's guidance since SPFx 1.23: test on ordinary pages with the SPFx debug toolbar; current projects have no local test surface, and `initialPage` in `config/serve.json` should name a real page. `fast-serve` warns about and ignores a page URL that points to the deprecated SharePoint Online workbench (retirement December 1, 2026).
+- Regular SharePoint pages (site pages, list views, list forms) are the only host. Microsoft's guidance since SPFx 1.23: test on ordinary pages with the SPFx debug toolbar; current projects have no local test surface, and `initialPage` in `config/serve.json` should name a real page.
 - ACEs are added from the toolbox of a page in edit mode; interaction with them (buttons, quick views) is disabled in edit mode and works on a saved page in read mode ([Extensions and ACEs](../features/extensions-and-aces.md)).
 
 ## Links

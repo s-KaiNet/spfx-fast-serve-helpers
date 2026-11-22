@@ -3,7 +3,6 @@ import path from 'node:path';
 import { DEFAULT_LOCALE, type ServeConfiguration } from '../project/index.js';
 import { isObject } from '../shared/guards.js';
 import { readOptionalJsoncFile } from '../shared/jsonc.js';
-import { isRetiredWorkbenchUrl, retiredWorkbenchWarning } from './retiredWorkbench.js';
 
 export interface FastServeOptions {
   port?: number;
@@ -87,9 +86,7 @@ export function resolveOptions(
   const warnings: string[] = [];
   const serveConfiguration = selectServeConfiguration(defaults.serveConfigurations, cli.serveConfiguration ?? file.serveConfiguration, warnings);
   const page = selectPage(cli, file, defaults, serveConfiguration);
-  const pointsToRetiredWorkbench = page !== undefined && isRetiredWorkbenchUrl(page.url);
-  if (pointsToRetiredWorkbench) warnings.push(retiredWorkbenchWarning(page.source, page.url));
-  const pageUrlTemplate = pointsToRetiredWorkbench ? undefined : page?.url;
+  const pageUrlTemplate = page?.url;
   const typeCheck = cli.typeCheck ?? file.typeCheck ?? true;
   const typeCheckOverlayChoice = cli.typeCheckOverlay ?? file.typeCheckOverlay;
   if (typeCheckOverlayChoice === true && !typeCheck) warnings.push(TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK);
@@ -101,7 +98,7 @@ export function resolveOptions(
     locale,
     pageUrl: pageUrlTemplate === undefined ? undefined : substituteTenantDomain(pageUrlTemplate, env[TENANT_DOMAIN_ENV]),
     pageUrlTemplate,
-    pageUrlProvided: page !== undefined && page.provided && !pointsToRetiredWorkbench,
+    pageUrlProvided: page?.provided ?? false,
     serveConfiguration,
     overlay: cli.overlay ?? file.overlay ?? true,
     typeCheck,
@@ -121,7 +118,6 @@ export function withTunnelHost(options: ResolvedOptions, tunnelHost: string | un
 }
 
 interface PageSetting {
-  source: string;
   url: string;
   provided: boolean;
 }
@@ -133,16 +129,12 @@ function selectPage(
   serveConfiguration: SelectedServeConfiguration | undefined,
 ): PageSetting | undefined {
   const namedConfigurationPage = serveConfiguration?.name === DEFAULT_SERVE_CONFIGURATION ? undefined : serveConfiguration?.pageUrl;
-  const candidates: { source: string; url: string | undefined; provided: boolean }[] = [
-    { source: `config/serve.json serveConfigurations.${serveConfiguration?.name ?? ''}.pageUrl`, url: namedConfigurationPage, provided: false },
-    { source: '--page-url', url: cli.pageUrl, provided: true },
-    { source: `${OPTIONS_FILE} "pageUrl"`, url: file.pageUrl, provided: true },
-    {
-      source: `config/serve.json serveConfigurations.${DEFAULT_SERVE_CONFIGURATION}.pageUrl`,
-      url: defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl,
-      provided: false,
-    },
-    { source: 'config/serve.json "initialPage"', url: defaults.initialPage, provided: false },
+  const candidates: { url: string | undefined; provided: boolean }[] = [
+    { url: namedConfigurationPage, provided: false },
+    { url: cli.pageUrl, provided: true },
+    { url: file.pageUrl, provided: true },
+    { url: defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl, provided: false },
+    { url: defaults.initialPage, provided: false },
   ];
   return candidates.find((candidate): candidate is PageSetting => candidate.url !== undefined);
 }

@@ -55,7 +55,7 @@ The classic spfx-fast-serve format (options nested in a `"serve"` object, same f
 3. `config/serve.json` (`port`, serve configuration pages, `initialPage`);
 4. built-in defaults: port `4321`, locale `en-us`, overlay on, type check and its overlay on, lint on (type-aware rules off).
 
-The page follows heft's order with the `pageUrl` option in place of heft's fallbacks: the selected serve configuration's `pageUrl` unless it is `default` → the `pageUrl` option (flag, then file) → `serveConfigurations.default.pageUrl` → `initialPage`. An unknown serve configuration name warns (listing the available names) and falls back to `default` like heft; without `serveConfigurations` no configuration is selected unless one is asked for. If the chosen page points to the SharePoint Online workbench (`/_layouts/workbench.aspx` or `/_layouts/15/workbench.aspx`, still the generator's `initialPage` in many projects), it is ignored with a warning that names the setting and asks for a SharePoint page. The resolved page is not printed; it reaches the extend file as `context.pageUrl`. The order does not fall through to a later page.
+The page follows heft's order with the `pageUrl` option in place of heft's fallbacks: the selected serve configuration's `pageUrl` unless it is `default` → the `pageUrl` option (flag, then file) → `serveConfigurations.default.pageUrl` → `initialPage`. An unknown serve configuration name warns (listing the available names) and falls back to `default` like heft; without `serveConfigurations` no configuration is selected unless one is asked for. The resolved page is not printed; it reaches the extend file as `context.pageUrl`. The order does not fall through to a later page.
 
 ### `{tenantDomain}`
 

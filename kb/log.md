@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 23:00 | update | Workbench page check removed
+
+- Changed: `kb/features/cli-and-options.md`, `kb/concepts/sharepoint-debug-flow.md`
+- Outcome: a page URL pointing to the SharePoint Online workbench is no longer detected, warned about or ignored; it is used like any other page (`1.24.0-beta.19`).
+
 ## 2026-11-22 23:00 | update | source folders grouped into layers
 
 - Changed: `kb/architecture/overview.md`
