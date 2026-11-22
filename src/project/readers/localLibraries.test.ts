@@ -2,8 +2,8 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, wri
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { COMPILE_FIXTURE, LIBRARY_FIXTURE, LIBRARY_PACKAGE, linkLocalPackage } from '../testing/compileKit.js';
-import { createProject } from './project.js';
+import { COMPILE_FIXTURE, LIBRARY_FIXTURE, LIBRARY_PACKAGE, linkLocalPackage } from '../../testing/compileKit.js';
+import { createProject } from '../project.js';
 import { isOutsideNodeModules, readLibraryComponent } from './localLibraries.js';
 
 const LIBRARY_ID = '5c1d6a0e-1f7b-4a8e-9d43-2b7f0c9e1a11';

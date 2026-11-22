@@ -1,6 +1,6 @@
-import { isObject, type JsonObject } from '../shared/guards.js';
+import { isObject, type JsonObject } from '../../shared/guards.js';
 import { findSourceFile, LOC_EXTENSIONS } from './sourcePaths.js';
-import type { LocalizedResource, ProjectLogger } from './types.js';
+import type { LocalizedResource, ProjectLogger } from '../types.js';
 
 export const DEFAULT_LOCALE = 'en-us';
 

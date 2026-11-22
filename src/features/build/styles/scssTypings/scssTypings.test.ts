@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { TypingsUpdate } from '../../../../bundler/featureApi/index.js';
 import type { Logger } from '../../../../shared/logger.js';
-import { loadSassConfiguration } from '../../../../project/sassConfiguration.js';
+import { loadSassConfiguration } from '../../../../project/readers/sassConfiguration.js';
 import { createScssTypings as createTypings } from './scssTypings.js';
 
 const fixture = fileURLToPath(new URL('../../../../../test/fixtures/scss-typings/', import.meta.url));

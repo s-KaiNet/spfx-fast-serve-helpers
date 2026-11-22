@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { resolveFromProject } from '../../../project/heft/heftProject.js';
+import { resolveFromProject } from '../../../project/index.js';
 
 export const TSCONFIG_FILE = 'tsconfig.json';
 const FIRST_UNSUPPORTED_MAJOR = 7;

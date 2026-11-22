@@ -3,7 +3,7 @@ import path from 'node:path';
 import { glob } from 'tinyglobby';
 import type { TypingsListener, TypingsUpdate } from '../../../bundler/featureApi/index.js';
 import type { Logger } from '../../../shared/logger.js';
-import { createHeftTerminal, createProjectLoader, heftErrorMessage, loadHeftConfiguration } from '../../../project/heft/heftProject.js';
+import { createHeftTerminal, createProjectLoader, heftErrorMessage, loadHeftConfiguration } from '../../../project/index.js';
 import { removeFileIfExists, writeFileIfChanged } from '../../../shared/generatedFiles.js';
 import { isInside } from '../../../shared/paths.js';
 

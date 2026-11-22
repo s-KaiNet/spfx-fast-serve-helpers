@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { toPosix } from '../shared/paths.js';
+import { toPosix } from '../../shared/paths.js';
 
 export const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'] as const;
 export const LOC_EXTENSIONS = ['.js', '.ts'] as const;

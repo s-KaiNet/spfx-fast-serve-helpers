@@ -1,9 +1,8 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import type { RuleSetRule, RuleSetUseItem } from '@rspack/core';
-import type { SassConfiguration } from '../../../project/index.js';
 import type { ConfigContribution, Feature, FeatureContext } from '../../../bundler/featureApi/index.js';
-import { resolveFromProject } from '../../../project/heft/heftProject.js';
+import { resolveFromProject, type SassConfiguration } from '../../../project/index.js';
 import { packageFile } from '../../../shared/packageFile.js';
 import { createCssClassNameGenerator, heftCssFileMapper } from './cssClassName.js';
 import { createSassPackageFolderImporter } from './sassPackageImporter.js';

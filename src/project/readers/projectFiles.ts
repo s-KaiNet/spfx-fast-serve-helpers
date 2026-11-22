@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { isObject, type JsonObject } from '../shared/guards.js';
-import { readJsoncFile, readOptionalJsoncFile } from '../shared/jsonc.js';
+import { isObject, type JsonObject } from '../../shared/guards.js';
+import { readJsoncFile, readOptionalJsoncFile } from '../../shared/jsonc.js';
 import { SASS_CONFIG_FILE } from './sassConfiguration.js';
 import { readServeConfigurations } from './serveConfigurations.js';
-import type { PackageJson, ServeConfig } from './types.js';
+import type { PackageJson, ServeConfig } from '../types.js';
 
 export interface ProjectFiles {
   readonly packageJson: string;

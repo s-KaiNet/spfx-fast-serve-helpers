@@ -1,5 +1,5 @@
-import { createHeftTerminal, createProjectLoader, loadHeftConfiguration } from './heft/heftProject.js';
-import type { ProjectLogger } from './types.js';
+import { createHeftTerminal, createProjectLoader, loadHeftConfiguration } from '../heft/heftProject.js';
+import type { ProjectLogger } from '../types.js';
 
 const SASS_PLUGIN_PACKAGE = '@rushstack/heft-sass-plugin';
 export const SASS_CONFIG_FILE = 'config/sass.json';

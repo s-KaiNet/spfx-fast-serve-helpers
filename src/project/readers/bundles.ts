@@ -1,11 +1,11 @@
 import path from 'node:path';
-import { isObject, type JsonObject } from '../shared/guards.js';
-import { readJsoncFile } from '../shared/jsonc.js';
-import { toPosix } from '../shared/paths.js';
-import { bundleExportNames } from './exportNames.js';
+import { isObject, type JsonObject } from '../../shared/guards.js';
+import { readJsoncFile } from '../../shared/jsonc.js';
+import { toPosix } from '../../shared/paths.js';
+import { bundleExportNames } from '../exportNames.js';
 import { LIBRARY_COMPONENT_TYPE } from './localLibraries.js';
 import { findSourceFile, SOURCE_EXTENSIONS } from './sourcePaths.js';
-import type { ComponentManifest, ProjectLogger, SpfxBundle, SpfxComponent } from './types.js';
+import type { ComponentManifest, ProjectLogger, SpfxBundle, SpfxComponent } from '../types.js';
 
 const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension']);
 

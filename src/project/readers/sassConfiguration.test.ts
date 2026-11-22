@@ -2,10 +2,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { createProject } from './project.js';
+import { createProject } from '../project.js';
 import type { SassConfiguration } from './sassConfiguration.js';
 
-const workspace = fileURLToPath(new URL('../../node_modules/.cache/fast-serve-tests/', import.meta.url));
+const workspace = fileURLToPath(new URL('../../../node_modules/.cache/fast-serve-tests/', import.meta.url));
 const RIG_DEPRECATIONS = ['mixed-decls', 'import', 'global-builtin', 'color-functions'];
 const RIG_SASS_JSON = 'node_modules/test-rig/profiles/default/config/sass.json';
 

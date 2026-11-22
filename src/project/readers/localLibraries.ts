@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { isObject } from '../shared/guards.js';
-import { readJsoncFile } from '../shared/jsonc.js';
+import { isObject } from '../../shared/guards.js';
+import { readJsoncFile } from '../../shared/jsonc.js';
 
 export const LIBRARY_COMPONENT_TYPE = 'Library';
 

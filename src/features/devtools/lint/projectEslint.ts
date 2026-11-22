@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { resolveFromProject } from '../../../project/heft/heftProject.js';
+import { resolveFromProject } from '../../../project/index.js';
 
 export const ESLINT_CONFIG_FILES = ['eslint.config.js', 'eslint.config.mjs', 'eslint.config.cjs'];
 const FIRST_SUPPORTED_MAJOR = 9;

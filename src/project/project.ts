@@ -1,15 +1,15 @@
 import type { JsonObject } from '../shared/guards.js';
-import { readBundles } from './bundles.js';
-import { readConfigExternals } from './configExternals.js';
-import { scanLibraries } from './libraries.js';
-import { readLibraryComponent, type LibraryComponentSource } from './localLibraries.js';
-import { findLocalizedResourceFile, readLocalizedResources } from './localizedResources.js';
+import { readBundles } from './readers/bundles.js';
+import { readConfigExternals } from './readers/configExternals.js';
+import { scanLibraries } from './readers/libraries.js';
+import { readLibraryComponent, type LibraryComponentSource } from './readers/localLibraries.js';
+import { findLocalizedResourceFile, readLocalizedResources } from './readers/localizedResources.js';
 import { once, oncePerKey } from './memo.js';
-import { projectFiles, readBuildConfig, readPackageJson, readServeConfig, type ProjectFiles } from './projectFiles.js';
-import { loadSassConfiguration, type SassConfiguration } from './sassConfiguration.js';
-import { findSourceFile, SOURCE_EXTENSIONS } from './sourcePaths.js';
-import { projectTsconfig } from './projectTsconfig.js';
-import type { TsconfigPaths } from './tsconfigPaths.js';
+import { projectFiles, readBuildConfig, readPackageJson, readServeConfig, type ProjectFiles } from './readers/projectFiles.js';
+import { loadSassConfiguration, type SassConfiguration } from './readers/sassConfiguration.js';
+import { findSourceFile, SOURCE_EXTENSIONS } from './readers/sourcePaths.js';
+import { projectTsconfig } from './readers/projectTsconfig.js';
+import type { TsconfigPaths } from './readers/tsconfigPaths.js';
 import type {
   ConfigExternal,
   LocalizedResource,
