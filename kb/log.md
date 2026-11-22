@@ -10,6 +10,11 @@ Entry format:
 - Changed: `kb/path.md`, `kb/other-path.md`
 - Outcome: concise result
 ```
+## 2026-11-22 19:30 | update | JSON schema for `fast-serve/config.json` shipped in the package (`1.24.0-beta.14`)
+
+- Changed: `kb/features/cli-and-options.md`, `kb/index.md`
+- Outcome: draft-07 schema in the package, referenced with the relative `../node_modules/spfx-fast-serve-helpers/schema/config.schema.json` (no URL/SchemaStore variant); every option with type, allowed values, default and flags, `additionalProperties: false` with `$schema` allowed; schema properties kept equal to the reader's option list by a test; the classic nested `"serve"` object is ignored with a warning that prints the flat equivalent; unknown-key errors and the help text show the `$schema` line
+
 ## 2026-11-22 19:00 | update | port in use at start: ask to stop the process holding it (`1.24.0-beta.13`)
 
 - Changed: `kb/features/dev-server.md`, `kb/features/cli-and-options.md`

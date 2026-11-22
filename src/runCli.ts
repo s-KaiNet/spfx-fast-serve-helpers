@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions, type LintSetting } from './config/index.js';
+import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, OPTIONS_SCHEMA_PATH, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions, type LintSetting } from './config/index.js';
 import { DEFAULT_LOCALE } from './project/index.js';
 import { packageName, packageVersion } from './packageInfo.js';
 import { errorMessage } from './utils/errors.js';
@@ -45,6 +45,7 @@ Options:
 The same options can be set in ${OPTIONS_FILE}:
 { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true,
   "typeCheck": true, "typeCheckOverlay": true, "lint": true }.
+Completion and validation in editors: "$schema": "${OPTIONS_SCHEMA_PATH}".
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 

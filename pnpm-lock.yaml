@@ -220,6 +220,9 @@ importers:
       '@types/picomatch':
         specifier: ^4.0.3
         version: 4.0.3
+      ajv:
+        specifier: ^8.20.0
+        version: 8.20.0
       eslint:
         specifier: 9.37.0
         version: 9.37.0(supports-color@8.1.1)

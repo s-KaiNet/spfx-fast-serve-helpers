@@ -5,6 +5,7 @@ export {
   legacyOptionsFileHint,
   loadOptionsFile,
   OPTIONS_FILE,
+  OPTIONS_SCHEMA_PATH,
   parsePort,
   resolveOptions,
   TENANT_DOMAIN_ENV,

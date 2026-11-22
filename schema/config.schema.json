@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "fast-serve options (fast-serve/config.json)",
+  "description": "Optional options of the fast-serve dev server for SharePoint Framework 1.24.x projects. Every option is optional. Precedence: command-line flags, then this file, then config/serve.json, then the defaults. An unknown key or a wrong type stops fast-serve.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to this schema, relative to fast-serve/config.json: ../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "HTTPS port of the dev server on localhost. Default: config/serve.json \"port\", else 4321. Flag: -p, --port.",
+      "examples": [4321]
+    },
+    "pageUrl": {
+      "type": "string",
+      "pattern": "^https?://",
+      "description": "SharePoint page printed with the debug query. {tenantDomain} is replaced with the SPFX_SERVE_TENANT_DOMAIN environment variable. Default: the selected serve configuration's pageUrl, then serveConfigurations.default.pageUrl, then \"initialPage\" from config/serve.json (a named serve configuration's pageUrl wins over this option). Flag: --page-url.",
+      "examples": ["https://{tenantDomain}/sites/dev/SitePages/Test.aspx"]
+    },
+    "locale": {
+      "type": "string",
+      "pattern": "^\\s*[A-Za-z]{2,3}(-[A-Za-z0-9]+)*\\s*$",
+      "default": "en-us",
+      "description": "Locale of the localizedResources strings, with a per-resource fallback to en-us. Default: \"en-us\". Flag: --locale.",
+      "examples": ["en-us", "de-de"]
+    },
+    "serveConfiguration": {
+      "type": "string",
+      "default": "default",
+      "description": "Entry of \"serveConfigurations\" in config/serve.json: its page and the extension query parameters (customActions, fieldCustomizers, formCustomizer). Default: \"default\". Flags: --config, --serve-config.",
+      "examples": ["default"]
+    },
+    "overlay": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show compile and runtime errors in an overlay over the page; false keeps them in the terminal and the browser console. Default: true. Flag: --no-overlay."
+    },
+    "deployedLibraries": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Package names of linked SPFx library projects to load from SharePoint (the deployed copy) instead of compiling their src. Default: []. No flag.",
+      "examples": [["@contoso/corp-lib"]]
+    },
+    "typeCheck": {
+      "type": "boolean",
+      "default": true,
+      "description": "Type check the project in the background with its own TypeScript and tsconfig (about 1 GB of memory on large projects); results in the terminal. Default: true. Flags: --no-type-check, --type-check."
+    },
+    "typeCheckOverlay": {
+      "type": "boolean",
+      "default": true,
+      "description": "Also show type errors in a panel at the bottom of the page; needs typeCheck. Default: true. Flags: --no-type-check-overlay, --type-check-overlay."
+    },
+    "lint": {
+      "enum": [true, false, "full"],
+      "default": true,
+      "description": "Lint the files you save with the project's ESLint: true without type-aware rules, \"full\" with them, false off. Results in the terminal. Default: true. Flags: --lint, --lint full, --no-lint."
+    }
+  },
+  "additionalProperties": false
+}

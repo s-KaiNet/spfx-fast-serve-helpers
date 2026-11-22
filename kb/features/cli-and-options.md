@@ -32,11 +32,15 @@ tags:
 | `--lint`, `--lint full`, `--no-lint` | `lint: true \| "full" \| false` | lint saved files with the project's ESLint, without (`true`) or with (`"full"`) type-aware rules ([Linting saved files](linting.md)); `--lint` with `--no-lint` or another value is an error |
 | `-h, --help` / `-v, --version` | | print help / the package version, exit 0 |
 
-Flags are parsed strictly: an unknown flag or a positional argument prints the error plus the help text and exits with 1. The help text describes the options, `fast-serve/config.json`, the page order, the optional `fast-serve/rspack.extend.mjs` with its docs link, and which files restart the server.
+Flags are parsed strictly: an unknown flag or a positional argument prints the error plus the help text and exits with 1. The help text describes the options, `fast-serve/config.json` with its `$schema` line, the page order, the optional `fast-serve/rspack.extend.mjs` with its docs link, and which files restart the server.
 
 ### `fast-serve/config.json`
 
-Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": true, "typeCheckOverlay": true, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored; an unknown key or a wrong value type is fatal and names the key and the supported keys.
+Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": true, "typeCheckOverlay": true, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored by fast-serve; an unknown key or a wrong value type is fatal and names the key, the supported keys and the `$schema` line.
+
+The package ships a JSON Schema (draft-07) for the file at `schema/config.schema.json`; projects reference it with a path relative to the file, `"$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"`, which resolves wherever the package is a direct devDependency (npm, pnpm and yarn all create `node_modules/spfx-fast-serve-helpers` in the project; hoisting monorepos need more `../`). There is deliberately no URL or SchemaStore variant: the schema always matches the installed version. It lists every option with its type, allowed values, default and overriding flags, allows `$schema` and forbids other keys, so editors flag the same typos and wrong types that stop fast-serve. A test keeps the schema's properties equal to the option names the file reader accepts (one list shared by reader and test) and checks sample configs against both.
+
+The classic spfx-fast-serve format (options nested in a `"serve"` object, same file path) is ignored with a warning that prints the flat equivalent with the `$schema` line, converting `port`, `openUrl` → `pageUrl`, `locale`, `config` → `serveConfiguration`, `fullScreenErrors` → `overlay` and boolean `eslint` → `lint`; the other classic keys have no counterpart and are dropped. A `"serve"` value that is not an object is an unknown option like any other.
 
 `deployedLibraries` (array of package names, file only) keeps linked SPFx library projects external, loaded from SharePoint, instead of compiling their `src` ([local library projects](local-library-projects.md)); a listed name that is no SPFx library dependency prints a warning.
 
@@ -98,4 +102,4 @@ SIGINT and SIGTERM wait for a running restart, close the current dev server and 
 
 - Source: implementation behavior, ported from the Vite implementation's CLI and options; checked from the packed tarball in copies of two SPFx 1.24.1 test projects (help, version, summary, unknown serve configuration warning, bad port; port in use and SIGINT/SIGTERM shutdown on spfx-rea)
 - Confidence: high
-- Last checked: 2026-11-19
+- Last checked: 2026-11-22

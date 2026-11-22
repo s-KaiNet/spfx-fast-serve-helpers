@@ -207,6 +207,24 @@ describe('loadOptionsFile', () => {
     expect(() => loadOptionsFile(projectWith('{ "overlay": "no" }'))).toThrow(/"overlay"/);
   });
 
+  it('ignores the nested serve object of the classic format and shows the flat equivalent with the schema', () => {
+    const warnings: string[] = [];
+    const classic = '{ "$schema": "https://raw.githubusercontent.com/s-KaiNet/spfx-fast-serve/master/schema/config.v2.schema.json", ' +
+      '"serve": { "port": 4500, "openUrl": "https://contoso.sharepoint.com/sites/dev", "config": "banner", "fullScreenErrors": false, "eslint": "yes", "memory": 8192 } }';
+    expect(loadOptionsFile(projectWith(classic), (message) => warnings.push(message))).toEqual({});
+    expect(warnings).toEqual([
+      'fast-serve/config.json: the nested "serve" object of the classic spfx-fast-serve format is ignored. Use the flat format with the schema shipped in the package: ' +
+        '{"$schema":"../node_modules/spfx-fast-serve-helpers/schema/config.schema.json","port":4500,"pageUrl":"https://contoso.sharepoint.com/sites/dev","serveConfiguration":"banner","overlay":false}',
+    ]);
+  });
+
+  it('names the schema when it rejects a key', () => {
+    expect(() => loadOptionsFile(projectWith('{ "serve": true }'))).toThrow(
+      'fast-serve/config.json: unknown option or wrong type "serve" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay, lint; ' +
+        'schema: "$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json")',
+    );
+  });
+
   it('ignores options of the Vite version that are not needed, with a warning', () => {
     const warnings: string[] = [];
     expect(loadOptionsFile(projectWith('{ "port": 4500, "amdPackages": ["lodash"] }'), (message) => warnings.push(message))).toEqual({ port: 4500 });

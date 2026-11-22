@@ -24,6 +24,7 @@ describe('runCli', () => {
     expect(result.out).toContain('--type-check-overlay');
     expect(result.out).toContain('--lint [full]');
     expect(result.out).toContain('--no-lint');
+    expect(result.out).toContain('"$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"');
     expect(result.out).not.toMatch(/vite/i);
     expect(result.startServer).not.toHaveBeenCalled();
   });

@@ -87,7 +87,7 @@ export default defineConfig(() => ({ plugins: [new TunnelServePlugin({ host: 'my
 
 fast-serve ignores these keys and prints a warning naming the alternative: `entry`, `mode`, `context`, `target`, `amd`, `externalsType`, every `output.*` key (SharePoint loads fast-serve's AMD bundles from `https://localhost:<port>/dist/`, or from the tunnel host with `TunnelServePlugin`), `devServer: false`, `devServer.port`/`host`/`server`/`https`/`hot`/`liveReload`/`client`/`webSocketServer`/`devMiddleware`/`allowedHosts`.
 
-Port, page URL, locale, serve configuration and overlay are fast-serve options: `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`) or CLI flags (`--port`, `--page-url`, `--locale`, `--config`, `--no-overlay`).
+Port, page URL, locale, serve configuration and overlay are fast-serve options: `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`) or CLI flags (`--port`, `--page-url`, `--locale`, `--config`, `--no-overlay`). The options file is flat (no nested `"serve"` object as in classic spfx-fast-serve); start it with `"$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"` for editor validation of every option.
 
 Don't add React Refresh, HMR or SWC/TypeScript rules: fast-serve already runs them. Don't redefine `DEBUG` or `process.env.NODE_ENV` (fast-serve defines them). Don't depend on fast-serve's internal plugin or rule order.
 

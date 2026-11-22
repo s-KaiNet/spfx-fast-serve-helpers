@@ -93,8 +93,21 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
 
 ```jsonc
 // fast-serve/config.json (optional, JSON with comments)
-{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "deployedLibraries": [], "typeCheck": true, "typeCheckOverlay": true, "lint": true }
+{
+  "$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json",
+  "port": 4321,
+  "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx",
+  "locale": "en-us",
+  "serveConfiguration": "default",
+  "overlay": true,
+  "deployedLibraries": [],
+  "typeCheck": true,
+  "typeCheckOverlay": true,
+  "lint": true
+}
 ```
+
+The `$schema` line gives completion, descriptions and validation in VS Code and other editors. The schema ships in the package (`schema/config.schema.json`, JSON Schema draft-07); the path is relative to `fast-serve/config.json` and works with npm, pnpm and yarn when the package is a devDependency of the project (in a monorepo whose packages are hoisted to the root, adjust the number of `../`). `fast-serve` itself ignores `$schema`. VS Code treats `.json` as strict JSON: if you use comments, set `"files.associations": { "**/fast-serve/config.json": "jsonc" }`.
 
 | Option | Flag | Meaning |
 |---|---|---|
@@ -108,7 +121,7 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
 | `lint` | `--lint`, `--lint full`, `--no-lint` | `true` (default) lints the files you save with the project's ESLint, without type-aware rules; `"full"` with them; `false` off, see [Linting](#linting) |
 | `deployedLibraries` | (file only) | package names of [linked SPFx library projects](#library-components) to load from SharePoint (the deployed copy) instead of compiling their `src` |
 
-An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` with the list of supported keys. `amdPackages` (an option of the Vite-based betas) is ignored with a warning. `config/fast-serve.json` from early betas is not read (a warning asks to move it). HTTPS is always on, with the SPFx development certificate.
+An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` with the list of supported keys and the `$schema` line. The nested `"serve": { … }` object of [classic spfx-fast-serve](#migrating) is ignored with a warning that prints the flat equivalent. `amdPackages` (an option of the Vite-based betas) is ignored with a warning. `config/fast-serve.json` from early betas is not read (a warning asks to move it). HTTPS is always on, with the SPFx development certificate.
 
 ## What is served and how
 
@@ -300,6 +313,8 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 - React and react-dom are bundled from the project in their development build (heft declares them as externals that the page provides); Fast Refresh needs that.
 - The Field Customizer on our test tenant is never instantiated by SharePoint, with `heft start` too.
 
+**From classic spfx-fast-serve (SPFx ≤ 1.21):** its `fast-serve/config.json` nests the options in a `"serve"` object with a `$schema` URL; `fast-serve` ignores that object with a warning that prints the flat equivalent. Replace the file with flat options and the shipped schema: `"$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"`, `port` → `port`, `openUrl` → `pageUrl`, `locale` → `locale`, `config` → `serveConfiguration`, `fullScreenErrors` → `overlay`, `eslint` → `lint`; `memory`, `isLibraryComponent`, `loggingLevel`, `hotRefresh`, `reactProfiling`, `containers` and `debug` have no counterpart (HMR, Fast Refresh and library projects work without options). The classic `fast-serve/webpack.extend.js` becomes `fast-serve/rspack.extend.mjs` ([Customizing the Rspack config](#customizing-the-rspack-config)).
+
 **From the Vite-based betas (up to `1.24.0-beta.3`):** same CLI, options and `fast-serve/config.json`. Replace `fast-serve/vite.extend.mts` with `fast-serve/rspack.extend.mjs` (Rspack/webpack config instead of Vite config; `define` → `rspack.DefinePlugin`, `resolve.alias` stays). `amdPackages` is ignored: Rspack bundles AMD/UMD dependencies itself. Differences you will notice: the server compiles everything before "ready" (Vite compiles on request), a page loads a few bundles instead of one request per module, `require()` and `const enum` across files follow webpack, and errors use `fast-serve`'s own overlay.
 
 ## Troubleshooting
@@ -313,6 +328,8 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: run `fast-serve` in a terminal and press Enter to stop it, stop it yourself, or use `--port` |
 | `Could not stop … (pid …)` or `The process holding the port could not be identified` | the process belongs to another user or can't be seen without admin rights: stop it yourself (`kill <pid>`, Task Manager) or use `--port` |
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
+| `the nested "serve" object of the classic spfx-fast-serve format is ignored` | replace `fast-serve/config.json` with the flat options the warning prints (see [Migrating](#migrating)) |
+| `fast-serve/config.json: unknown option or wrong type "<key>"` | fix the key; add the printed `$schema` line so the editor flags such keys while you type |
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served by themselves) |
 | `<name> is an SPFx library project: run fast-serve in a consumer project` | link the library into a web part project and run `fast-serve` there (see [Library components](#library-components)) |
 | a linked library still loads its deployed version | the link is a copy (pnpm/yarn `file:`), the package is listed in `deployedLibraries`, or its entry has no source under `src/` (warning at start) |

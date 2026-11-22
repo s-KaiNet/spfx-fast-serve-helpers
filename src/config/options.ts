@@ -179,7 +179,37 @@ export function legacyOptionsFileHint(root: string): string | undefined {
   return `${LEGACY_OPTIONS_FILE} is not read anymore: move it to ${OPTIONS_FILE} (same options)`;
 }
 
+export const OPTIONS_SCHEMA_PATH = '../node_modules/spfx-fast-serve-helpers/schema/config.schema.json';
+
+type OptionName = keyof FastServeOptions;
+type OptionValues = Required<FastServeOptions>;
+type OptionGuards = { [Name in OptionName]: (value: unknown) => value is OptionValues[Name] };
+
+const OPTION_GUARDS: OptionGuards = {
+  port: isNumber,
+  pageUrl: isString,
+  locale: isString,
+  serveConfiguration: isString,
+  overlay: isBoolean,
+  deployedLibraries: isStringArray,
+  typeCheck: isBoolean,
+  typeCheckOverlay: isBoolean,
+  lint: isLintSetting,
+};
+
+export const OPTION_NAMES: readonly OptionName[] = Object.keys(OPTION_GUARDS).filter(isOptionName);
+
 const DROPPED_OPTIONS = new Map([['amdPackages', 'not needed: AMD and UMD code in dependencies is bundled like in heft']]);
+
+const CLASSIC_SERVE_KEY = 'serve';
+const CLASSIC_OPTION_NAMES = new Map<string, OptionName>([
+  ['port', 'port'],
+  ['openUrl', 'pageUrl'],
+  ['locale', 'locale'],
+  ['config', 'serveConfiguration'],
+  ['fullScreenErrors', 'overlay'],
+  ['eslint', 'lint'],
+]);
 
 export function loadOptionsFile(root: string, warn: (message: string) => void = () => undefined): FastServeOptions {
   const file = path.join(root, OPTIONS_FILE);
@@ -189,23 +219,56 @@ export function loadOptionsFile(root: string, warn: (message: string) => void = 
   const options: FastServeOptions = {};
   for (const [key, value] of Object.entries(json)) {
     if (key === '$schema') continue;
+    if (key === CLASSIC_SERVE_KEY && isObject(value)) {
+      warn(classicFormatWarning(value));
+      continue;
+    }
     const droppedReason = DROPPED_OPTIONS.get(key);
     if (droppedReason !== undefined) {
       warn(`${OPTIONS_FILE}: "${key}" is ignored (${droppedReason})`);
       continue;
     }
-    if (key === 'port' && typeof value === 'number') options.port = value;
-    else if (key === 'pageUrl' && typeof value === 'string') options.pageUrl = value;
-    else if (key === 'locale' && typeof value === 'string') options.locale = value;
-    else if (key === 'serveConfiguration' && typeof value === 'string') options.serveConfiguration = value;
-    else if (key === 'overlay' && typeof value === 'boolean') options.overlay = value;
-    else if (key === 'deployedLibraries' && isStringArray(value)) options.deployedLibraries = value;
-    else if (key === 'typeCheck' && typeof value === 'boolean') options.typeCheck = value;
-    else if (key === 'typeCheckOverlay' && typeof value === 'boolean') options.typeCheckOverlay = value;
-    else if (key === 'lint' && isLintSetting(value)) options.lint = value;
-    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay, lint)`);
+    if (!isOptionName(key) || !readOption(options, key, value)) {
+      throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: ${OPTION_NAMES.join(', ')}; schema: "$schema": "${OPTIONS_SCHEMA_PATH}")`);
+    }
   }
   return options;
+}
+
+function readOption<Name extends OptionName>(options: Pick<FastServeOptions, Name>, name: Name, value: unknown): boolean {
+  const guard: (value: unknown) => value is OptionValues[Name] = OPTION_GUARDS[name];
+  if (!guard(value)) return false;
+  options[name] = value;
+  return true;
+}
+
+function classicFormatWarning(classic: Record<string, unknown>): string {
+  const converted: FastServeOptions = {};
+  for (const [classicName, value] of Object.entries(classic)) {
+    const name = CLASSIC_OPTION_NAMES.get(classicName);
+    if (name !== undefined) readOption(converted, name, value);
+  }
+  const flat = JSON.stringify({ $schema: OPTIONS_SCHEMA_PATH, ...converted });
+  return (
+    `${OPTIONS_FILE}: the nested "${CLASSIC_SERVE_KEY}" object of the classic spfx-fast-serve format is ignored. ` +
+    `Use the flat format with the schema shipped in the package: ${flat}`
+  );
+}
+
+function isOptionName(key: string): key is OptionName {
+  return Object.hasOwn(OPTION_GUARDS, key);
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number';
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function isBoolean(value: unknown): value is boolean {
+  return typeof value === 'boolean';
 }
 
 function isStringArray(value: unknown): value is string[] {
