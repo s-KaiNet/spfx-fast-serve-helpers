@@ -102,7 +102,7 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
     };
     const project = createProject(root, logger);
     const port = await freePort();
-    const options = resolveOptions({ cli: { port }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root, project, options }, logger, https: certificate, outputPath: path.join(root, 'out') });
     origin = server.origin;
     bundle = await (await fetch(`${origin}/dist/probe-web-part.js`)).text();

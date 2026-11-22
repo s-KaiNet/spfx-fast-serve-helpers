@@ -128,7 +128,7 @@ describe('describeSetup', () => {
     const setup = prepareServe({ root: fixture, cli: { overlay: false }, logger, env: {} });
     expect(describeSetup(setup)).toEqual([
       `spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
-      'port 4400 (https://localhost:4400), locale en-us, overlay off, type check off, lint on',
+      'port 4400 (https://localhost:4400), locale en-us, overlay off, type check on (with overlay), lint on',
       'serve configuration: none',
       'page: https://{tenantDomain}/sites/dev/SitePages/Test.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
       'bundle hello-web-part: HelloWebPart (WebPart)',
@@ -136,6 +136,13 @@ describe('describeSetup', () => {
       'bundle banner-application-customizer: BannerApplicationCustomizer (ApplicationCustomizer)',
       'SPFx libraries: 3, config.json externals: 2, localized resources: 2',
     ]);
+  });
+
+  it('says how the type check runs', () => {
+    const { logger } = recordingLogger();
+    const optionsLine = (cli: { typeCheck?: boolean; typeCheckOverlay?: boolean }) => describeSetup(prepareServe({ root: fixture, cli, logger, env: {} }))[1];
+    expect(optionsLine({ typeCheckOverlay: false })).toMatch(/, type check on, lint on$/);
+    expect(optionsLine({ typeCheck: false })).toMatch(/, type check off, lint on$/);
   });
 
   it('says how lint runs', () => {

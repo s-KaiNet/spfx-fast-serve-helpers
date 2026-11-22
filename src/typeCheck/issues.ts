@@ -86,6 +86,10 @@ function plural(count: number, noun: string): string | undefined {
   return `${count} ${noun}${count === 1 ? '' : 's'}`;
 }
 
+export function issuesOutside(issues: readonly TypeIssue[], files: ReadonlySet<string>): TypeIssue[] {
+  return issues.filter((issue) => issue.file === undefined || !files.has(path.normalize(issue.file)));
+}
+
 export type IssuesChangeDetector = (issues: readonly TypeIssue[]) => boolean;
 
 export function createIssuesChangeDetector(): IssuesChangeDetector {

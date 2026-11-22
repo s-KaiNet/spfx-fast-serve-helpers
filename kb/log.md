@@ -10,6 +10,11 @@ Entry format:
 - Changed: `kb/path.md`, `kb/other-path.md`
 - Outcome: concise result
 ```
+## 2026-11-22 18:45 | update | type check on by default, one overlay at a time, no duplicate syntax errors (`1.24.0-beta.12`)
+
+- Changed: `kb/features/type-checking.md`, `kb/features/cli-and-options.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/typescript-and-tsconfig.md`, `kb/index.md`
+- Outcome: `typeCheck` and `typeCheckOverlay` default to `true` (new `--no-type-check-overlay`; no tsconfig/TypeScript is one info line); type issues in files the compiler can't build are left to the compile error (syntactic diagnostics kept, because type-only files have no other syntax check); the type panel collapses to a one-line bar while the compile or runtime overlay is open (window event plus the overlay's fixed element id; click expands until the overlay changes; Esc in the capture phase); live SharePoint result recorded
+
 ## 2026-11-22 15:00 | ingest | linting saved files (`1.24.0-beta.11`)
 
 - Changed: `kb/features/linting.md` (new), `kb/features/cli-and-options.md`, `kb/features/type-checking.md`, `kb/features/errors-and-diagnostics.md`, `kb/architecture/overview.md`, `kb/index.md`

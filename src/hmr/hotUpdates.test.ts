@@ -98,7 +98,7 @@ describe('hot updates inside the AMD bundles of a page with two bundles', () => 
     };
     const project = createProject(root, logger);
     const port = await freePort();
-    const options = resolveOptions({ cli: { port }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root, project, options }, logger, https: certificate, outputPath: path.join(root, 'out') });
     page = createFakePage({ externals, fetch: recordingFetch });
     const bundles = await Promise.all(['single-web-part', 'shared-bundle'].map(async (bundle) => (await fetch(`${server.origin}/dist/${bundle}.js`)).text()));

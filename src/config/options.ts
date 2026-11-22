@@ -71,7 +71,7 @@ export const DEFAULT_PORT = 4321;
 export const TENANT_DOMAIN_ENV = 'SPFX_SERVE_TENANT_DOMAIN';
 export const DEFAULT_SERVE_CONFIGURATION = 'default';
 const TENANT_DOMAIN_PLACEHOLDER = '{tenantDomain}';
-const TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK = 'the type check overlay is off because type checking is off (turn it on with --type-check or "typeCheck": true)';
+const TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK = 'the type check overlay is off because type checking is off (remove --no-type-check or "typeCheck": false)';
 
 export function resolveOptions(
   sources: { cli?: FastServeOptions; file?: FastServeOptions; defaults?: OptionDefaults },
@@ -88,9 +88,9 @@ export function resolveOptions(
   const pointsToRetiredWorkbench = page !== undefined && isRetiredWorkbenchUrl(page.url);
   if (pointsToRetiredWorkbench) warnings.push(retiredWorkbenchWarning(page.source, page.url));
   const pageUrlTemplate = pointsToRetiredWorkbench ? undefined : page?.url;
-  const typeCheck = cli.typeCheck ?? file.typeCheck ?? false;
-  const typeCheckOverlayRequested = cli.typeCheckOverlay ?? file.typeCheckOverlay ?? false;
-  if (typeCheckOverlayRequested && !typeCheck) warnings.push(TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK);
+  const typeCheck = cli.typeCheck ?? file.typeCheck ?? true;
+  const typeCheckOverlayChoice = cli.typeCheckOverlay ?? file.typeCheckOverlay;
+  if (typeCheckOverlayChoice === true && !typeCheck) warnings.push(TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK);
   return {
     port,
     origin: localOrigin(port),
@@ -102,7 +102,7 @@ export function resolveOptions(
     serveConfiguration,
     overlay: cli.overlay ?? file.overlay ?? true,
     typeCheck,
-    typeCheckOverlay: typeCheck && typeCheckOverlayRequested,
+    typeCheckOverlay: typeCheck && (typeCheckOverlayChoice ?? true),
     lint: cli.lint ?? file.lint ?? true,
     warnings,
   };

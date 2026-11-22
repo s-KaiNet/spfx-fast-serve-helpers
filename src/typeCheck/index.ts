@@ -15,7 +15,7 @@ function typeCheckContribution({ root, options, logger, page }: FeatureContext):
   if (options.typeCheck !== true) return {};
   const typescript = findProjectTypeScript(root);
   if (!typescript.found) {
-    logger.warn(`type check is off: ${typescript.reason}`);
+    logger[typescript.level](`type check is off: ${typescript.reason}`);
     return {};
   }
   const overlay = options.typeCheckOverlay === true ? createTypeCheckOverlay(options.origin, page) : undefined;

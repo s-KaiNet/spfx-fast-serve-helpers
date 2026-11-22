@@ -28,11 +28,14 @@ Options:
                          formCustomizer) (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
       --no-overlay       Don't show compile and runtime errors in an overlay over the page
                          (they still go to the terminal and the browser console)
-      --type-check       Type check the project in the background with its own TypeScript
-                         (results in the terminal; heft build still does the full build)
-      --no-type-check    Turn type checking off (wins over "typeCheck": true)
-      --type-check-overlay
-                         Also show type errors in a panel over the page (needs type checking)
+      --no-type-check    Don't type check the project in the background (on by default, with
+                         the project's own TypeScript; results in the terminal; about 1 GB of
+                         memory on large projects; heft build still does the full build)
+      --no-type-check-overlay
+                         Don't show type errors in a panel at the bottom of the page (on by
+                         default; it collapses to one line while an error overlay is open)
+      --type-check, --type-check-overlay
+                         Turn them on when the options file turns them off
       --lint [full]      Lint the files you save with the project's ESLint (on by default;
                          without type-aware rules unless "full"; results in the terminal)
       --no-lint          Turn linting off
@@ -41,7 +44,7 @@ Options:
 
 The same options can be set in ${OPTIONS_FILE}:
 { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true,
-  "typeCheck": false, "typeCheckOverlay": false, "lint": true }.
+  "typeCheck": true, "typeCheckOverlay": true, "lint": true }.
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 
@@ -97,6 +100,7 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
         'type-check': { type: 'boolean' },
         'no-type-check': { type: 'boolean' },
         'type-check-overlay': { type: 'boolean' },
+        'no-type-check-overlay': { type: 'boolean' },
         lint: { type: 'string' },
         'no-lint': { type: 'boolean' },
       },
@@ -128,7 +132,9 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
     if (values['type-check'] && values['no-type-check']) throw new Error('use either --type-check or --no-type-check');
     if (values['type-check']) options.typeCheck = true;
     if (values['no-type-check']) options.typeCheck = false;
+    if (values['type-check-overlay'] && values['no-type-check-overlay']) throw new Error('use either --type-check-overlay or --no-type-check-overlay');
     if (values['type-check-overlay']) options.typeCheckOverlay = true;
+    if (values['no-type-check-overlay']) options.typeCheckOverlay = false;
     if (values.lint !== undefined && values['no-lint']) throw new Error('use either --lint or --no-lint');
     if (values.lint !== undefined) options.lint = lintFlag(values.lint);
     if (values['no-lint']) options.lint = false;

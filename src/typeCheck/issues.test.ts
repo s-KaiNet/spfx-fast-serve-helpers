@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createIssuesChangeDetector, formatIssue, issuesKey, MAX_LISTED_ISSUES, typeCheckResult, typeCheckSummary, type TypeIssue } from './issues.js';
+import { createIssuesChangeDetector, formatIssue, issuesKey, issuesOutside, MAX_LISTED_ISSUES, typeCheckResult, typeCheckSummary, type TypeIssue } from './issues.js';
+import { filesTheCompilerCannotBuild } from './plugin.js';
 
 const ROOT = path.resolve('/projects/contoso');
 const SECOND = path.join(ROOT, 'src/webparts/second/components/Second.tsx');
@@ -71,4 +72,24 @@ describe('type check issues', () => {
     expect(changed([{ ...escapeError }])).toBe(false);
     expect(changed([])).toBe(true);
   });
+
+  it('leaves out the issues of files the compiler cannot build, whose syntax errors it already reports', () => {
+    const props = path.join(ROOT, 'src/webparts/second/components/ISecondProps.ts');
+    const syntax: TypeIssue = { severity: 'error', code: 'TS1005', message: "'}' expected.", file: SECOND, location: { start: { line: 4, column: 40 } } };
+    const typeOnlySyntax: TypeIssue = { ...syntax, file: props };
+    const global: TypeIssue = { severity: 'error', code: 'TS2688', message: "Cannot find type definition file for 'node'." };
+    const stats = {
+      compilation: {
+        errors: [
+          { name: 'ModuleBuildError', module: { resource: `${SECOND}?raw` } },
+          { name: 'Error', module: { resource: props } },
+          { name: 'ModuleBuildError', module: undefined },
+        ],
+      },
+    } as unknown as Parameters<typeof filesTheCompilerCannotBuild>[0];
+    const unbuildable = filesTheCompilerCannotBuild(stats);
+    expect([...unbuildable]).toEqual([SECOND]);
+    expect(issuesOutside([escapeError, syntax, typeOnlySyntax, global], unbuildable)).toEqual([typeOnlySyntax, global]);
+  });
 });
+

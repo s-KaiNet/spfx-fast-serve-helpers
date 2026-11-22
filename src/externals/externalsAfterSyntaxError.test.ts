@@ -50,7 +50,7 @@ describe('AMD externals used only by a component that had a syntax error', () =>
     };
     const project = createProject(fixture.root, logger);
     const port = await freePort();
-    const options = resolveOptions({ cli: { port }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root: fixture.root, project, options }, logger, https: certificate, outputPath: path.join(fixture.root, 'out'), persistentCache: false });
     page = createFakePage({ externals: { ...fakeExternals, 'corp-legacy': { chart: 'legacy-chart' } }, fetch });
     page.loadAmdBundle(await (await fetch(`${server.origin}/dist/single-web-part.js`)).text());

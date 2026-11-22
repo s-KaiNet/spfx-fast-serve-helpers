@@ -53,7 +53,7 @@ describe('rebuilds that change no module', () => {
       error: (message) => messages.push(`error: ${message}`),
     };
     const project = createProject(root, logger);
-    const options = resolveOptions({ cli: { port: await freePort() }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port: await freePort() }, defaults: project.serveConfig() }, {});
     watcher = new TypeOnlyFilesWatcher([path.join(root, TYPE_ONLY_FILE)]);
     server = await startDevServer({
       setup: { root, project, options },

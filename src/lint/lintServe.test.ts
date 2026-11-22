@@ -108,7 +108,7 @@ describe('linting saved files while serving', { timeout: 90_000 }, () => {
     fixture = lintFixture();
     session = await startDevSession({
       root: fixture.root,
-      cli: { port: await freePort() },
+      cli: { typeCheck: false, port: await freePort() },
       logger: recordingLogger(messages),
       onRestartFailed: (error) => {
         messages.push(`restart failed: ${String(error)}`);
@@ -234,7 +234,7 @@ describe('a linter from the extend file', () => {
     const messages: string[] = [];
     const logger = recordingLogger(messages);
     const project = createProject(fixture.root, logger);
-    const options = resolveOptions({ cli: { port: await freePort() }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port: await freePort() }, defaults: project.serveConfig() }, {});
     class ESLintRspackPlugin {
       apply(): void {
         messages.push('theirs applied');

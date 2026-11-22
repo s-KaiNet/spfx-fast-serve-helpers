@@ -24,6 +24,9 @@ interface FastServeOverlay {
   hide(source: OverlaySource): void;
 }
 
+const ERROR_OVERLAY_ID = 'fast-serve-error-overlay';
+const ERROR_OVERLAY_CHANGED_EVENT = 'fast-serve:error-overlay-changed';
+
 const HOT_UPDATE_APPLYING_BUNDLES = Symbol.for('fast-serve.hot-update.applying-bundles');
 
 const DEV_TOOLING_PREFIXES = ['[rspack-dev-server]', '[HMR]', '[fast-serve]'];
@@ -90,15 +93,24 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, style: string, t
   return created;
 }
 
+function announceOverlayChange(): void {
+  window.dispatchEvent(new Event(ERROR_OVERLAY_CHANGED_EVENT));
+}
+
 function createOverlay(): FastServeOverlay {
   let host: HTMLElement | undefined;
   let shownSource: OverlaySource | undefined;
   let shownText = '';
-  const hide = (): void => {
+  const remove = (): boolean => {
+    const removed = host !== undefined;
     host?.remove();
     host = undefined;
     shownSource = undefined;
     shownText = '';
+    return removed;
+  };
+  const hide = (): void => {
+    if (remove()) announceOverlayChange();
   };
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') hide();
@@ -107,9 +119,9 @@ function createOverlay(): FastServeOverlay {
     show(source, { title, text }) {
       if (source === 'runtime' && shownSource === 'compile') return;
       if (source === shownSource && `${title}\n${text}` === shownText) return;
-      hide();
+      remove();
       host = element('div', 'position:fixed;top:0;left:0;width:100vw;height:100vh;margin:0;padding:0;z-index:2147483647;');
-      host.id = 'fast-serve-error-overlay';
+      host.id = ERROR_OVERLAY_ID;
       const root = host.attachShadow({ mode: 'open' });
       const backdrop = element('div', 'position:absolute;top:0;left:0;right:0;bottom:0;overflow:auto;background:rgba(0,0,0,0.85);font:14px/1.5 Menlo,Consolas,monospace;color:#e8e8e8;');
       const panel = element('div', 'position:relative;max-width:1100px;margin:48px auto;padding:24px 28px;background:#181818;border-top:6px solid #e83b46;box-shadow:0 8px 32px rgba(0,0,0,0.5);');
@@ -134,6 +146,7 @@ function createOverlay(): FastServeOverlay {
       document.body.append(host);
       shownSource = source;
       shownText = `${title}\n${text}`;
+      announceOverlayChange();
     },
     hide(source) {
       if (shownSource === source) hide();

@@ -70,7 +70,7 @@ describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 
     };
     session = await startDevSession({
       root,
-      cli: { port: await freePort() },
+      cli: { typeCheck: false, port: await freePort() },
       logger,
       env: {},
       https: certificate,

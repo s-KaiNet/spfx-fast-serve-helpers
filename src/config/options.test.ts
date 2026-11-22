@@ -16,8 +16,8 @@ describe('resolveOptions', () => {
       pageUrlTemplate: undefined,
       serveConfiguration: undefined,
       overlay: true,
-      typeCheck: false,
-      typeCheckOverlay: false,
+      typeCheck: true,
+      typeCheckOverlay: true,
       lint: true,
       warnings: [],
     });
@@ -54,17 +54,19 @@ describe('resolveOptions', () => {
     expect(resolveOptions({ file: { overlay: true }, cli: { overlay: false } }, {}).overlay).toBe(false);
   });
 
-  it('turns type checking and its overlay on from the options file or the CLI, CLI first', () => {
-    expect(resolveOptions({ file: { typeCheck: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: false, warnings: [] });
-    expect(resolveOptions({ file: { typeCheck: true, typeCheckOverlay: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true });
-    expect(resolveOptions({ file: { typeCheck: true }, cli: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, typeCheckOverlay: false });
-    expect(resolveOptions({ file: { typeCheckOverlay: false }, cli: { typeCheck: true, typeCheckOverlay: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true });
+  it('type checks with the overlay by default; the options file or the CLI turn them off, CLI first', () => {
+    expect(resolveOptions({}, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true, warnings: [] });
+    expect(resolveOptions({ file: { typeCheckOverlay: false } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: false, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, typeCheckOverlay: false, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: true }, cli: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, typeCheckOverlay: false, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: false, typeCheckOverlay: false }, cli: { typeCheck: true, typeCheckOverlay: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true });
+    expect(resolveOptions({ file: { typeCheckOverlay: true }, cli: { typeCheckOverlay: false } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: false });
   });
 
-  it('keeps the type check overlay off without type checking and says why', () => {
-    const resolved = resolveOptions({ cli: { typeCheckOverlay: true } }, {});
+  it('keeps the type check overlay off without type checking and says why when it was asked for', () => {
+    const resolved = resolveOptions({ cli: { typeCheck: false, typeCheckOverlay: true } }, {});
     expect(resolved).toMatchObject({ typeCheck: false, typeCheckOverlay: false });
-    expect(resolved.warnings).toEqual([expect.stringContaining('--type-check')]);
+    expect(resolved.warnings).toEqual([expect.stringContaining('--no-type-check')]);
   });
 
   it('substitutes {tenantDomain} from SPFX_SERVE_TENANT_DOMAIN', () => {

@@ -88,7 +88,7 @@ describe('compile errors and browser errors with a dev server and a page with tw
       error: (message) => messages.push(`error: ${stripVTControlCharacters(message)}`),
     };
     const project = createProject(root, logger);
-    const options = resolveOptions({ cli: { port: await freePort() }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port: await freePort() }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root, project, options }, logger, https: certificate, outputPath: path.join(root, 'out') });
     page = await openPage(['single-web-part', 'shared-bundle']);
     await delay(1000);

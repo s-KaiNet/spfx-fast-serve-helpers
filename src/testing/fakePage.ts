@@ -9,21 +9,29 @@ interface FakeEvent {
   [key: string]: unknown;
 }
 
+type ListenerOptions = boolean | { capture?: boolean } | undefined;
+
+function isCapture(options: ListenerOptions): boolean {
+  return typeof options === 'boolean' ? options : options?.capture === true;
+}
+
 class FakeEventTarget {
   private readonly listeners = new Map<string, Set<Listener>>();
+  private readonly captureListeners = new Map<string, Set<Listener>>();
 
-  addEventListener(type: string, listener: Listener): void {
-    const set = this.listeners.get(type) ?? new Set<Listener>();
+  addEventListener(type: string, listener: Listener, options?: ListenerOptions): void {
+    const registry = isCapture(options) ? this.captureListeners : this.listeners;
+    const set = registry.get(type) ?? new Set<Listener>();
     set.add(listener);
-    this.listeners.set(type, set);
+    registry.set(type, set);
   }
 
-  removeEventListener(type: string, listener: Listener): void {
-    this.listeners.get(type)?.delete(listener);
+  removeEventListener(type: string, listener: Listener, options?: ListenerOptions): void {
+    (isCapture(options) ? this.captureListeners : this.listeners).get(type)?.delete(listener);
   }
 
   dispatchEvent(event: FakeEvent): boolean {
-    for (const listener of this.listeners.get(event.type) ?? []) listener(event);
+    for (const listener of [...(this.captureListeners.get(event.type) ?? []), ...(this.listeners.get(event.type) ?? [])]) listener(event);
     return true;
   }
 }
@@ -88,6 +96,15 @@ export class FakeNode extends FakeEventTarget {
     this.shadowRoot = new FakeNode('#shadow-root');
     return this.shadowRoot;
   }
+}
+
+function findById(node: FakeNode, id: string): FakeNode | null {
+  for (const child of node.childNodes) {
+    if (child.id === id) return child;
+    const nested = findById(child, id);
+    if (nested !== null) return nested;
+  }
+  return null;
 }
 
 export interface FakePageOptions {
@@ -157,6 +174,7 @@ export function createFakePage({ externals, fetch, webSocket = WebSocket }: Fake
       },
     }),
     getElementsByTagName: (tagName: string) => (tagName === 'head' ? [head] : tagName === 'body' ? [body] : []),
+    getElementById: (id: string) => findById(body, id),
     querySelector: () => null,
     querySelectorAll: () => [],
   });
@@ -191,6 +209,9 @@ export function createFakePage({ externals, fetch, webSocket = WebSocket }: Fake
       }
     },
     NodeFilter: { SHOW_TEXT: 4 },
+    Event: class {
+      constructor(readonly type: string) {}
+    },
     setTimeout,
     clearTimeout,
     setInterval,

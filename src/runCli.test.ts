@@ -64,6 +64,10 @@ describe('runCli', () => {
     expect((await run(['--type-check'])).startServer).toHaveBeenCalledWith({ typeCheck: true });
     expect((await run(['--no-type-check'])).startServer).toHaveBeenCalledWith({ typeCheck: false });
     expect((await run(['--type-check', '--type-check-overlay'])).startServer).toHaveBeenCalledWith({ typeCheck: true, typeCheckOverlay: true });
+    expect((await run(['--no-type-check-overlay'])).startServer).toHaveBeenCalledWith({ typeCheckOverlay: false });
+    const bothOverlay = await run(['--type-check-overlay', '--no-type-check-overlay']);
+    expect(bothOverlay.startServer).not.toHaveBeenCalled();
+    expect(bothOverlay.err).toContain('either --type-check-overlay or --no-type-check-overlay');
     const both = await run(['--type-check', '--no-type-check']);
     expect(both.startServer).not.toHaveBeenCalled();
     expect(both.err).toContain('either --type-check or --no-type-check');

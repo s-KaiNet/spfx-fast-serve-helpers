@@ -85,7 +85,7 @@ describe('hot updates across the project and a linked library project', () => {
     const root = consumer.root;
     const project = createProject(root, logger);
     const port = await freePort();
-    const options = resolveOptions({ cli: { port }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root, project, options }, logger, https: certificate, outputPath: path.join(root, 'out'), persistentCache: false });
     page = createFakePage({ externals, fetch });
     page.loadAmdBundle(await (await fetch(`${server.origin}/dist/single-web-part.js`)).text());

@@ -98,7 +98,7 @@ describe('extensions and an Adaptive Card Extension served with a serve configur
     };
     const port = await freePort();
     origin = `https://localhost:${port}`;
-    const setup = prepareServe({ root, cli: { port, serveConfiguration: 'commands' }, logger, env: { SPFX_SERVE_TENANT_DOMAIN: 'contoso.sharepoint.com' } });
+    const setup = prepareServe({ root, cli: { typeCheck: false, port, serveConfiguration: 'commands' }, logger, env: { SPFX_SERVE_TENANT_DOMAIN: 'contoso.sharepoint.com' } });
     server = await startDevServer({ setup, logger, https: certificate, outputPath: path.join(root, 'out') });
     manifests = evaluateManifests(await (await fetch(`${origin}/temp/build/manifests.js`)).text());
     page = createFakePage({ externals, fetch: recordingFetch });

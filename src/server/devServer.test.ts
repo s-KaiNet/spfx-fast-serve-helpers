@@ -69,7 +69,7 @@ describe('startDevServer on a fixture project', () => {
     };
     const project = createProject(root, logger);
     port = await freePort();
-    const options = resolveOptions({ cli: { port }, defaults: project.serveConfig() }, {});
+    const options = resolveOptions({ cli: { typeCheck: false, port }, defaults: project.serveConfig() }, {});
     server = await startDevServer({ setup: { root, project, options }, logger, https: selfSignedCertificate(root), outputPath: path.join(root, 'out') });
   }, 60_000);
 

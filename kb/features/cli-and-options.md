@@ -27,8 +27,8 @@ tags:
 | `--locale <locale>` | `locale` | locale of the `localizedResources` strings; lowercased, must look like `en-us` |
 | `--config <name>`, `--serve-config <name>` | `serveConfiguration` | `config/serve.json` `serveConfigurations` entry (default `default`); `--config` wins if both are given |
 | `--no-overlay` | `overlay: false` | no error overlay over the page (compile and runtime errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |
-| `--type-check`, `--no-type-check` | `typeCheck` | background type check with the project's TypeScript ([Background type check](type-checking.md)); both flags together are an error |
-| `--type-check-overlay` | `typeCheckOverlay: true` | also show type issues in a panel on the page; ignored with a warning without `typeCheck` |
+| `--no-type-check`, `--type-check` | `typeCheck` | background type check with the project's TypeScript, on by default ([Background type check](type-checking.md)); both flags together are an error |
+| `--no-type-check-overlay`, `--type-check-overlay` | `typeCheckOverlay` | type issues also in a panel on the page, on by default; an explicit `true` without `typeCheck` is ignored with a warning; both flags together are an error |
 | `--lint`, `--lint full`, `--no-lint` | `lint: true \| "full" \| false` | lint saved files with the project's ESLint, without (`true`) or with (`"full"`) type-aware rules ([Linting saved files](linting.md)); `--lint` with `--no-lint` or another value is an error |
 | `-h, --help` / `-v, --version` | | print help / the package version, exit 0 |
 
@@ -36,7 +36,7 @@ Flags are parsed strictly: an unknown flag or a positional argument prints the e
 
 ### `fast-serve/config.json`
 
-Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": false, "typeCheckOverlay": false, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored; an unknown key or a wrong value type is fatal and names the key and the supported keys.
+Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": true, "typeCheckOverlay": true, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored; an unknown key or a wrong value type is fatal and names the key and the supported keys.
 
 `deployedLibraries` (array of package names, file only) keeps linked SPFx library projects external, loaded from SharePoint, instead of compiling their `src` ([local library projects](local-library-projects.md)); a listed name that is no SPFx library dependency prints a warning.
 
@@ -49,7 +49,7 @@ Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "
 1. command-line flags;
 2. `fast-serve/config.json`;
 3. `config/serve.json` (`port`, serve configuration pages, `initialPage`);
-4. built-in defaults: port `4321`, locale `en-us`, overlay on, type check and its overlay off, lint on (type-aware rules off).
+4. built-in defaults: port `4321`, locale `en-us`, overlay on, type check and its overlay on, lint on (type-aware rules off).
 
 The page follows heft's order with the `pageUrl` option in place of heft's fallbacks: the selected serve configuration's `pageUrl` unless it is `default` → the `pageUrl` option (flag, then file) → `serveConfigurations.default.pageUrl` → `initialPage`. An unknown serve configuration name warns (listing the available names) and falls back to `default` like heft; without `serveConfigurations` no configuration is selected unless one is asked for. If the chosen page points to the SharePoint Online workbench (`/_layouts/workbench.aspx` or `/_layouts/15/workbench.aspx`, still the generator's `initialPage` in many projects), it is ignored with a warning that names the setting and asks for a SharePoint page; the banner then prints the query to append instead of an `open:` URL. The order does not fall through to a later page.
 

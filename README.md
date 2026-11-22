@@ -2,7 +2,7 @@
 
 > **Beta.** `fast-serve` for SharePoint Framework **1.24.x** (Heft) projects, versions `1.24.0-beta.<n>`, published under the npm `beta` tag. From `1.24.0-beta.5` it is built on Rspack; the earlier 1.24 betas (up to `1.24.0-beta.3`) were built on Vite and are no longer developed (see [Migrating](#migrating)).
 
-A dev-server-only replacement for `heft start`: it compiles your web parts, extensions and Adaptive Card Extensions with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds, type checks and packaging stay on Heft (`heft build`, `heft package-solution`).
+A dev-server-only replacement for `heft start`: it compiles your web parts, extensions and Adaptive Card Extensions with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds and packaging stay on Heft (`heft build`, `heft package-solution`).
 
 Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rspack/PLAN.md](research/rspack/PLAN.md), knowledge base [kb/index.md](kb/index.md).
 
@@ -80,11 +80,11 @@ Quick-view templates (JSON imports), images and the lazily loaded property pane 
 
 ## Options
 
-Zero config works. Precedence: command-line flags → `fast-serve/config.json` → `config/serve.json` (port, pages) → defaults (port `4321`, locale `en-us`, overlay on, type check off, lint on).
+Zero config works. Precedence: command-line flags → `fast-serve/config.json` → `config/serve.json` (port, pages) → defaults (port `4321`, locale `en-us`, overlay on, type check on with its page panel, lint on).
 
 ```jsonc
 // fast-serve/config.json (optional, JSON with comments)
-{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "deployedLibraries": [], "typeCheck": false, "typeCheckOverlay": false, "lint": true }
+{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "deployedLibraries": [], "typeCheck": true, "typeCheckOverlay": true, "lint": true }
 ```
 
 | Option | Flag | Meaning |
@@ -94,8 +94,8 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
 | `locale` | `--locale` | locale of the `localizedResources` strings, with a per-resource fallback to `en-us` |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` serve configuration (default `default`) |
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page; errors still go to the terminal and the browser console |
-| `typeCheck` | `--type-check`, `--no-type-check` | `true` type checks the project in the background with its own TypeScript, see [Type checking](#type-checking) |
-| `typeCheckOverlay` | `--type-check-overlay` | `true` also shows type errors in a panel at the bottom of the page (needs `typeCheck`) |
+| `typeCheck` | `--no-type-check`, `--type-check` | on by default: type checks the project in the background with its own TypeScript (≈1 GB of memory on large projects); `false` turns it off, see [Type checking](#type-checking) |
+| `typeCheckOverlay` | `--no-type-check-overlay`, `--type-check-overlay` | on by default: also shows type errors in a panel at the bottom of the page (needs `typeCheck`); `false` keeps them in the terminal only |
 | `lint` | `--lint`, `--lint full`, `--no-lint` | `true` (default) lints the files you save with the project's ESLint, without type-aware rules; `"full"` with them; `false` off, see [Linting](#linting) |
 | `deployedLibraries` | (file only) | package names of [linked SPFx library projects](#library-components) to load from SharePoint (the deployed copy) instead of compiling their `src` |
 
@@ -217,21 +217,21 @@ Several bundles on one page all hot-update. Keep setup (icons, PnPjs, listeners)
 
 ## Type checking
 
-`fast-serve` compiles TypeScript with SWC, file by file, without type information. Turn on the background type check to see type errors while you work:
+`fast-serve` compiles TypeScript with SWC, file by file, without type information. A background type check shows type errors while you work; it's on by default, with a panel on the page. Turn it off when you don't need it or memory is short (≈1 GB on large projects):
 
 ```sh
-npx fast-serve --type-check                        # terminal only
-npx fast-serve --type-check --type-check-overlay   # also a panel over the page
+npx fast-serve --no-type-check-overlay   # type errors in the terminal only
+npx fast-serve --no-type-check           # no type check
 ```
 
-or `"typeCheck": true` (and `"typeCheckOverlay": true`) in `fast-serve/config.json`; `--no-type-check` turns it off for one run.
+or `"typeCheckOverlay": false` / `"typeCheck": false` in `fast-serve/config.json` (`--type-check` and `--type-check-overlay` turn them on again for one run). A project without `tsconfig.json` or TypeScript starts as usual with one `type check is off: …` line.
 
 - **Same TypeScript as `heft build`:** the check runs the project's own TypeScript (5.8 in SPFx 1.24, found in the project or the SPFx build rig) on the project's unchanged `tsconfig.json`, so it reports what heft's TypeScript step reports for the project's files. It runs in two worker processes ([ts-checker-rspack-plugin](https://github.com/rstackjs/ts-checker-rspack-plugin)) and never blocks a rebuild or a hot update: the page updates as usual while the check runs.
-- **Terminal:** the first result after the start, then a block only when the set of errors changes (`type error in src/…/Second.tsx:11:30`, `TS2552: Cannot find name 'escape1'…`, a code frame, then `type check: 1 error`), and `type check: no errors` once when it's clean again. At most 20 errors are listed. Type errors never show up as compile errors, in `rebuilt in …` lines or in the compile error overlay.
-- **Overlay** (`typeCheckOverlay`): a panel at the bottom of the page, separate from the compile and runtime error overlay; it closes when the check is clean; Esc or × hides it until the errors change. It comes with the debug `manifests.js`, so there is no panel in [tunnel mode](#serving-through-a-tunnel).
+- **Terminal:** the first result after the start, then a block only when the set of errors changes (`type error in src/…/Second.tsx:11:30`, `TS2552: Cannot find name 'escape1'…`, a code frame, then `type check: 1 error`), and `type check: no errors` once when it's clean again. At most 20 errors are listed. Type errors never show up as compile errors, in `rebuilt in …` lines or in the compile error overlay. A file with a syntax error is the compiler's: its compile error is shown and the check leaves that file out until it builds again (no `TS1005: '}' expected` next to SWC's `Expected '}'`). Syntax errors in type-only files (interfaces, which the compiler never sees) still come from the check.
+- **Overlay** (`typeCheckOverlay`): a panel at the bottom of the page, separate from the compile and runtime error overlay; it closes when the check is clean; Esc or × hides it until the errors change. While the compile or runtime error overlay is open, the panel shrinks to one line (`[fast-serve] Type check: 1 error (also shown in the terminal)`); click it to see the errors; when that overlay closes, the panel comes back. It comes with the debug `manifests.js`, so there is no panel in [tunnel mode](#serving-through-a-tunnel).
 - **Type-only files** (interfaces, `import type`): saving one re-checks without a `rebuilt` line. SCSS and asset typings written by `fast-serve` are passed to the next check, so a new stylesheet class or image doesn't leave a stale `Cannot find module` error.
 - **Timing** (2-core laptop): the first result arrives ≈4 s after the start on a small project and ≈5.5 s on a 1000-module project (≈10 s the first time, before `temp/fast-serve/typecheck.tsbuildinfo` exists); after a restart ≈3.3 s / ≈4.5 s; an error in a component ≈0.3–0.5 s after the save; a change to a type used everywhere ≈6 s on the big project. Rebuilds get ≈70 ms slower on the big project while the check runs (shared CPU); the first start of the process ≈0.2 s slower (TypeScript is loaded once to check its version).
-- **Memory:** the two workers need ≈0.7–0.8 GB after the first check, up to ≈1.2 GB after edits to widely used types.
+- **Memory:** the two workers need ≈0.7–0.8 GB after the first check, up to ≈1.2 GB after edits to widely used types on large projects. If that's too much, use `--no-type-check` (or `"typeCheck": false`) and rely on `heft build`.
 - **Scope:** only the project you run `fast-serve` in. [Linked library projects](#library-components) are compiled from source but checked against their built declarations, like the project's own tsconfig sees them; run their own `heft build` for their errors. A `TsCheckerRspackPlugin` (or `ForkTsCheckerWebpackPlugin`) in `fast-serve/rspack.extend.mjs` replaces `fast-serve`'s check (its output and options apply).
 - **Not a build:** it doesn't lint (see [Linting](#linting)), doesn't emit files (only its own incremental info) and doesn't replace `heft build` before packaging.
 
@@ -286,7 +286,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 
 - Strings: one locale is bundled (`--locale`); heft serves per-locale loc scripts.
 - Styles: same loader, same class names; heft keeps the first hash of a file for the process lifetime, `fast-serve` changes it on edits (styles hot-update).
-- Type checking while serving is optional ([`--type-check`](#type-checking)); [linting](#linting) covers the files you save, without type-aware rules unless `"lint": "full"`.
+- Type checking while serving is on by default ([`--no-type-check`](#type-checking) turns it off); [linting](#linting) covers the files you save, without type-aware rules unless `"lint": "full"`.
 - A heft webpack customization needs its development counterpart in `fast-serve/rspack.extend.mjs`.
 - React and react-dom are bundled from the project in their development build (heft declares them as externals that the page provides); Fast Refresh needs that.
 - The Field Customizer on our test tenant is never instantiated by SharePoint, with `heft start` too.
@@ -311,21 +311,22 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
 | stale or strange output after a dependency change outside the lock file (a linked package, a manual edit in `node_modules`) | delete `temp/fast-serve/cache` and start again |
 | a SCSS typing in `temp/sass-ts` looks out of date | save the stylesheet, or delete `temp/fast-serve/sass-typings` and start again (every stylesheet is then compiled once more) |
-| `type check is off: …` at start | the project has no `tsconfig.json`, its TypeScript isn't installed (`npm install`), or it is TypeScript 7 (the check needs the compiler API of TypeScript 5) |
-| `type check stopped: …` | a type check worker failed (often out of memory on very big projects): restart `fast-serve`, or run without `--type-check` and use `heft build` |
+| `type check is off: …` at start | the project has no `tsconfig.json` or TypeScript (fine for a JavaScript project), its TypeScript isn't installed (`npm install`), or it is TypeScript 7 (the check needs the compiler API of TypeScript 5) |
+| `type check stopped: …` | a type check worker failed (often out of memory on very big projects): restart `fast-serve`, or run with `--no-type-check` and use `heft build` |
 | type errors in the terminal but the page works | expected: type errors don't stop rebuilds or hot updates; fix them before `heft build` |
 | a type error stays although the file is fixed | save the file once more; if a generated typing (`temp/sass-ts`, `temp/static-asset-ts`) is involved, save the stylesheet or image, or restart `fast-serve` |
 | `lint is off: …` at start | the project has no `eslint.config.js` (`.mjs`, `.cjs`), its ESLint isn't installed (`npm install`), or it is older than ESLint 9 |
 | `lint: ESLint could not load eslint.config.js …` | fix the config (run `npx eslint <file>` for details); linting starts again when the file changes |
 | `lint stopped: the ESLint process exited …` | restart `fast-serve`; if it happens again run `npx eslint <file>` to see why, or use `--no-lint` |
 | `heft build` fails with `no-floating-promises` or `no-for-in-array` but `fast-serve` showed no lint error | expected with the default: type-aware rules are off while serving; use `"lint": "full"` |
-| no type check panel on the page | set `typeCheckOverlay` together with `typeCheck`; the panel appears only while there are type errors |
+| no type check panel on the page | the panel appears only while there are type errors; check that neither `typeCheck` nor `typeCheckOverlay` is `false` (or `--no-type-check…`) |
+| a one-line `Type check: …` bar at the bottom of the error overlay | expected: the type panel collapses while a compile or runtime error overlay is open; click it to expand |
 | `<file> imports "<library>/lib/…", a deep import into the SPFx library <library>` | in that file, import from the library's root if it exports the name |
 
 ## Limitations
 
 - Web parts, extensions and Adaptive Card Extensions are served; [library components](#library-components) only as linked source inside a consumer project.
-- Dev server only: no production build. The optional [type check](#type-checking) covers the project you serve, not linked library projects; [linting](#linting) covers only the files you save.
+- Dev server only: no production build. The [type check](#type-checking) covers the project you serve, not linked library projects; [linting](#linting) covers only the files you save.
 - The debug query works on `localhost` only; Teams and mobile hosts need [tunnel mode](#serving-through-a-tunnel) with a deployed development package.
 - A webpack customization that replaces a heft built-in rule (for example SVGR for `.svg`) can't be mirrored one to one: the extend file adds rules, it doesn't edit `fast-serve`'s.
 - A `const enum` from a dependency's declarations (Fluent `IconNames`) has no runtime value: use string values.

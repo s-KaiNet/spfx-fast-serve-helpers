@@ -221,6 +221,37 @@ describe('background type check with the project TypeScript', { timeout: 60_000 
     );
   });
 
+  it('leaves syntax errors in compiled files to the compiler and still reports semantic errors', async () => {
+    const hello = fixture.read(HELLO);
+    const first = fixture.read(FIRST);
+    const from = messages.length;
+    fixture.write(HELLO, hello.replace('{nestedReactVersion()}', '{nestedReactVersion()'));
+    fixture.write(FIRST, `${first}\nexport const contosoTypo: string = escape1;\n`);
+    await waitForSummary(/type check: 1 error$/, from);
+    await delay(500);
+    const reported = messages.slice(from);
+    expect(reported.some((message) => message.startsWith('error: ') && message.includes(HELLO) && !message.startsWith('error: type '))).toBe(true);
+    expect(reported.some((message) => message.startsWith('error: type error in ') && message.includes(FIRST) && message.includes("Cannot find name 'escape1'"))).toBe(true);
+    expect(reported.filter((message) => message.startsWith('error: type error in ') && message.includes(HELLO))).toEqual([]);
+    expect(summaries(from).filter((summary) => summary !== 'error: type check: 1 error')).toEqual([]);
+    const fixed = messages.length;
+    fixture.write(HELLO, hello);
+    fixture.write(FIRST, first);
+    await waitForSummary(/type check: no errors$/, fixed);
+    expect(summaries(fixed)).toEqual(['info: type check: no errors']);
+  });
+
+  it('reports a syntax error in a type-only file, which the compiler never sees', async () => {
+    const source = fixture.read(HELLO_PROPS);
+    const from = messages.length;
+    fixture.write(HELLO_PROPS, source.replace('title: string;', 'title: string;;\n  = 3'));
+    await waitForSummary(/type check: \d+ errors?$/, from);
+    expect(messages.slice(from).some((message) => message.startsWith('error: type error in ') && message.includes(HELLO_PROPS) && /TS1\d{3}:/.test(message))).toBe(true);
+    const fixed = messages.length;
+    fixture.write(HELLO_PROPS, source);
+    await waitForSummary(/type check: no errors$/, fixed);
+  });
+
   it('re-checks a type-only file save without a "rebuilt" line', async () => {
     const source = fixture.read(HELLO_PROPS);
     const from = messages.length;
