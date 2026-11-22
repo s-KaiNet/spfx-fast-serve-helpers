@@ -17,6 +17,7 @@ export interface StartDevSessionOptions {
   https?: HttpsCredentials;
   outputPath?: string;
   settleMs?: number;
+  portCheck?: (port: number) => Promise<void>;
 }
 
 export interface DevSession {
@@ -42,7 +43,7 @@ interface Running {
 const KEEPS_RUNNING = 'The server keeps running with the previous configuration; fast-serve restarts when the file is fixed.';
 
 export async function startDevSession(options: StartDevSessionOptions): Promise<DevSession> {
-  const { root, cli = {}, logger, onRestartFailed, env, https, outputPath, settleMs } = options;
+  const { root, cli = {}, logger, onRestartFailed, env, https, outputPath, settleMs, portCheck = assertPortFree } = options;
   let running: Running | undefined;
   let queue = Promise.resolve();
   let restartQueued = false;
@@ -53,7 +54,7 @@ export async function startDevSession(options: StartDevSessionOptions): Promise<
     const resolved = prepareServe({ root, cli, logger, ...(env === undefined ? {} : { env }) });
     if (initial) {
       for (const line of describeSetup(resolved)) logger.info(line);
-      await assertPortFree(resolved.options.port);
+      await portCheck(resolved.options.port);
     }
     const { setup, extend } = withTunnel(resolved, await loadExtend(resolved, initial));
     const prepared = await prepareDevServer({

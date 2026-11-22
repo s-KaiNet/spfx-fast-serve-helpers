@@ -1,5 +1,6 @@
 import { createServer } from 'node:net';
 import { OPTIONS_FILE } from '../config/index.js';
+import { describePortOwner, type PortOwner } from './portOwner.js';
 
 const LOOPBACK_ADDRESSES = ['127.0.0.1', '::1'];
 const UNAVAILABLE_ADDRESS_CODES = new Set(['EADDRNOTAVAIL', 'EAFNOSUPPORT']);
@@ -12,11 +13,31 @@ export async function assertPortFree(port: number): Promise<void> {
   });
 }
 
-export function portInUseError(port: number): Error {
-  return new Error(
-    `Port ${port} is already in use (another fast-serve or "heft start" may be running). ` +
-      `Stop it, or choose another port: fast-serve --port ${port + 1}, or "port" in ${OPTIONS_FILE}.`,
-  );
+export class PortInUseError extends Error {
+  constructor(
+    readonly port: number,
+    owner?: PortOwner,
+    reason?: string,
+  ) {
+    super(
+      `${reason === undefined ? '' : `${reason}. `}Port ${port} is already in use${owner === undefined ? '' : ` by ${describePortOwner(owner)}`} ` +
+        `(another fast-serve or "heft start" may be running). Stop it, or choose another port: fast-serve --port ${port + 1}, or "port" in ${OPTIONS_FILE}.`,
+    );
+    this.name = 'PortInUseError';
+  }
+}
+
+export function portInUseError(port: number, owner?: PortOwner, reason?: string): PortInUseError {
+  return new PortInUseError(port, owner, reason);
+}
+
+export async function isPortFree(port: number): Promise<boolean> {
+  try {
+    await assertPortFree(port);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function tryListen(port: number, host: string): Promise<string | undefined> {

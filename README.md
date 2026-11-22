@@ -54,6 +54,15 @@ npm run serve
 
 Open the printed URL and click **Load debug scripts**. Without a configured page, append the printed query to any SharePoint page URL (replacing its own query). A web part must already be on the page: add it from the toolbox while `fast-serve` runs and save the page. Stop the server with Ctrl+C.
 
+If the port is already taken (often a forgotten `fast-serve` or `heft start`), `fast-serve` names the process holding it and asks before doing anything:
+
+```
+[fast-serve] Port 4321 is in use by node (pid 12345): node node_modules/.bin/heft start
+[fast-serve] Press Enter to stop it and continue, or Ctrl+C to cancel.
+```
+
+Enter stops that process (forcefully if it hasn't let go of the port after about 3 seconds) and starts normally; Ctrl+C exits without stopping anything. Without an interactive terminal (CI, scripts, piped output, coding agents) it never asks and never stops anything: it exits with the "port in use" error. It doesn't ask either when it can't identify the process (another user's process, no `lsof`/`ss` on Linux) or for its own parent process. Restarts while serving never ask.
+
 All bundles are compiled before the server reports ready; later starts reuse a cache in `temp/fast-serve/cache` (see [Performance](#performance)). SCSS and static-asset typings (`temp/sass-ts`, `temp/static-asset-ts`) are checked right after the first compile and kept current while serving; a typing file is written only when its content changes (replaced in one step, so editors and type checkers never read half a file), and later starts skip unchanged stylesheets with a cache in `temp/fast-serve/sass-typings`.
 
 ### Extensions and serve configurations
@@ -301,7 +310,8 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | "Error loading debug manifests" | `fast-serve` isn't running, or the browser doesn't trust the certificate (trust it and restart the browser); allow access to local network devices if Chrome/Edge asks |
 | "Error loading debug manifests" after stopping `fast-serve` | the debug query sticks to the tab (`sessionStorage`): open the page in a new tab without the query |
 | `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
-| `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: stop it or use `--port` |
+| `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: run `fast-serve` in a terminal and press Enter to stop it, stop it yourself, or use `--port` |
+| `Could not stop … (pid …)` or `The process holding the port could not be identified` | the process belongs to another user or can't be seen without admin rights: stop it yourself (`kill <pid>`, Task Manager) or use `--port` |
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
 | `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served by themselves) |
 | `<name> is an SPFx library project: run fast-serve in a consumer project` | link the library into a web part project and run `fast-serve` there (see [Library components](#library-components)) |

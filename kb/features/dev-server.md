@@ -24,7 +24,7 @@ tags:
 |---|---|
 | Address | `https://localhost:<port>` (Node binds `localhost` to the loopback address it resolves first); the port comes from the [options](cli-and-options.md) |
 | Certificate | the SPFx dev certificate through `@rushstack/debug-certificate-manager`, like heft (`ensureCertificateAsync` without creating one); missing or incomplete → `Run "npx heft trust-dev-cert"` |
-| Port taken | checked on `127.0.0.1` and `::1` before anything starts → `Port <n> is already in use (another fast-serve or "heft start" may be running). Stop it, or choose another port: fast-serve --port <n+1>, or "port" in fast-serve/config.json.`, exit 1 |
+| Port taken | checked on `127.0.0.1` and `::1` before anything starts; see [Port in use at start](#port-in-use-at-start) |
 | Bundles | Rspack output kept in memory, served under `/dist/` (`publicPath` is the absolute `https://localhost:<port>/dist/`); nothing is written to disk |
 | `manifests.js` | `GET`/`HEAD /temp/build/manifests.js`, rendered on each request, `Cache-Control: no-store`; waits for the first compile |
 | Icons | relative manifest icons (`./…`, `../…`) are served from their source files at their project-relative path, only image types; everything else in the project returns 404 |
@@ -60,6 +60,17 @@ SIGINT and SIGTERM stop the dev server (websocket clients, sockets, middleware a
 
 Start to ready: about 1.2 s uncached and 0.6 s with the persistent cache (process start → ready line, [details](performance-and-cache.md)). A page load requests `manifests.js`, the one bundle on the page (1.3 MB, development React included) and one image: three requests. A text edit in a component rebuilds in about 40 ms and reaches the DOM in about 120–160 ms without a reload ([HMR](hmr.md)).
 
+### Port in use at start
+
+- **Interactive terminal** (stdin and stdout are TTYs): fast-serve finds the listening process and prints `Port <n> is in use by <name> (pid <pid>): <command line, shortened to 120 characters, executable as its base name>`, then `Press Enter to stop it and continue, or Ctrl+C to cancel.` The key is read in raw mode (Enter = CR or LF; Ctrl+C, Ctrl+D or end of input = cancel); raw mode, listeners and the paused state of stdin are restored afterwards, so Ctrl+C stops the server normally later.
+- **Enter:** SIGTERM (Windows: `taskkill /PID`), then waits up to 3 s for the port; still busy, or the gentle stop failed → SIGKILL (`taskkill /F /PID`) and up to 5 s more. Freed → `stopped <name> (pid <pid>), port <n> is free` and a normal start. Stop refused (EPERM: another user) or port still busy → the in-use error with the reason and the owner, exit 1.
+- **Cancel:** `Cancelled: port <n> is still in use by <name> (pid <pid>), nothing was stopped.`, exit 1.
+- **Not offered:** owner not identified → `The process holding the port could not be identified. Port <n> is already in use …`; owner is fast-serve's own process or its parent → the in-use error with the owner. Exit 1 in both cases.
+- **No interactive terminal** (CI, agents, piped output): no lookup, no prompt, nothing stopped: `Port <n> is already in use (another fast-serve or "heft start" may be running). Stop it, or choose another port: fast-serve --port <n+1>, or "port" in fast-serve/config.json.`, exit 1.
+- **Restarts** inside a session never ask; a busy port there is a failed restart as before.
+- **Finding the owner** (no dependency, child processes without a shell, 3 s timeout each): Windows `netstat -ano` (TCP rows for the port that are `LISTENING` or have a wildcard foreign port `:0`, which also covers localized state names) and `tasklist /FI "PID eq <pid>" /FO CSV /NH` for the image name (no command line: PowerShell/CIM is too slow); macOS/Linux `lsof -nP -iTCP:<port> -sTCP:LISTEN -Fpcn`, on Linux falling back to `ss -ltnpH` when lsof is missing or sees nothing, then `ps -o args= -p <pid>` for the command line (the name is the executable's base name, because Node 24 reports its main thread as `MainThread` to lsof and ss). Neither lsof nor ss shows other users' processes without root.
+- No option or flag controls this.
+
 ## Links
 
 - [Startup performance and the persistent cache](performance-and-cache.md)
@@ -77,3 +88,4 @@ Start to ready: about 1.2 s uncached and 0.6 s with the persistent cache (proces
 - Source: implementation behaviour; integration test with a real dev server on a fixture project (manifest module evaluated in a fake `define`, bundle, preflight, icon, 404s, port taken and released); live check on a copy of spfx-rea from the packed tarball on a SharePoint Online page (HelloWorld and Second web parts and the Banner customizer rendered, theme primary colour applied to the web part's links, no console errors from fast-serve's bundles, three dev-server requests per load, edit → rebuild → reload, clean SIGINT/SIGTERM exit); heft's dev-server settings read from `@microsoft/spfx-heft-plugins` (CORS headers, `allowedHosts: 'all'`); `@rspack/dev-server` 2.2.2 sources for the host checks and listen behaviour
 - Confidence: high
 - Last checked: 2026-11-19
+- Port in use at start (`1.24.0-beta.13`): user decision to ask instead of stopping silently (classic spfx-fast-serve freed the port unconditionally with the `kill-port` package), with no option and no dependency; parsers tested on recorded `netstat` (English and German), `tasklist`, `lsof` and `ss` output; integration test on Linux with a listener child process (Enter → SIGTERM and the port can be bound, Ctrl+C → child alive, no TTY → no prompt, ss fallback); real CLI in a pseudo-terminal on a copy of spfx-rea: Enter stopped a dummy listener and the server was ready in about 0.9 s after the prompt, Ctrl+C and Ctrl+D exited 1 with the listener alive, Ctrl+C after the prompt still stopped the running server, piped stdin gave the unchanged error, no `lsof`/`ss`/`ps` on PATH gave the "could not be identified" error

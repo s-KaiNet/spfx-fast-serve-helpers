@@ -10,6 +10,11 @@ Entry format:
 - Changed: `kb/path.md`, `kb/other-path.md`
 - Outcome: concise result
 ```
+## 2026-11-22 19:00 | update | port in use at start: ask to stop the process holding it (`1.24.0-beta.13`)
+
+- Changed: `kb/features/dev-server.md`, `kb/features/cli-and-options.md`
+- Outcome: in an interactive terminal a busy port at start names its owner (pid, name, shortened command line) and Enter stops it (SIGTERM / `taskkill`, forced after 3 s, port awaited up to 5 s more) while Ctrl+C, Ctrl+D or end of input exit 1 without stopping anything; no prompt without a TTY, for an unidentified owner, for fast-serve's own process or parent, or on restarts; owner lookup with `netstat`/`tasklist` on Windows and `lsof` (Linux fallback `ss`) plus `ps` elsewhere, no new dependency, no option
+
 ## 2026-11-22 18:45 | update | type check on by default, one overlay at a time, no duplicate syntax errors (`1.24.0-beta.12`)
 
 - Changed: `kb/features/type-checking.md`, `kb/features/cli-and-options.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/typescript-and-tsconfig.md`, `kb/index.md`

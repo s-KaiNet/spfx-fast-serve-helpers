@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { createConsoleLogger } from './logger.js';
+import { terminalPortCheck } from './server/index.js';
 import { runCli } from './runCli.js';
 import { startDevSession } from './session/index.js';
 import { closeOnShutdownSignal } from './shutdown.js';
@@ -14,6 +15,7 @@ const exitCode = await runCli(process.argv.slice(2), {
       root: process.cwd(),
       cli,
       logger,
+      portCheck: terminalPortCheck({ logger }),
       onRestartFailed(error) {
         logger.error(`restart failed: ${errorMessage(error)}`);
         process.exit(1);

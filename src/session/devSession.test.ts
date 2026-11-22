@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../logger.js';
+import { assertPortFree } from '../server/index.js';
 import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
 import { startDevSession, type DevSession } from './devSession.js';
 
@@ -44,6 +45,8 @@ describe('dev session restarts', { timeout: 30_000 }, () => {
   let session: DevSession;
   const messages: string[] = [];
   const restartFailures: unknown[] = [];
+  const portChecks: number[] = [];
+  let port: number;
 
   const write = (file: string, content: string) => {
     mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
@@ -79,9 +82,14 @@ describe('dev session restarts', { timeout: 30_000 }, () => {
       warn: (message) => messages.push(`warn: ${message}`),
       error: (message) => messages.push(`error: ${message}`),
     };
+    port = await freePort();
     session = await startDevSession({
       root,
-      cli: { typeCheck: false, port: await freePort() },
+      cli: { typeCheck: false, port },
+      portCheck: (checked) => {
+        portChecks.push(checked);
+        return assertPortFree(checked);
+      },
       logger,
       env: {},
       https: selfSignedCertificate(root),
@@ -156,5 +164,9 @@ describe('dev session restarts', { timeout: 30_000 }, () => {
     expect(messages.slice(from)).toContain('info: fast-serve/rspack.extend.mjs was removed, restarting fast-serve');
     expect((await get(session.origin, '/dist/shared-bundle.js')).headers['x-contoso']).toBeUndefined();
     expect(restartFailures).toEqual([]);
+  });
+
+  it('runs the start-up port check once, never on restarts', () => {
+    expect(portChecks).toEqual([port]);
   });
 });

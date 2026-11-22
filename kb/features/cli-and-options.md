@@ -71,7 +71,7 @@ SPFx version check → warning for the old options file → project model → op
 | no `config/config.json` | `config/config.json not found …` |
 | no web part, extension or ACE | `No web parts, extensions or Adaptive Card Extensions found …` |
 | bad port, locale or options file | `Invalid port "<value>" (expected 1-65535)`, `Invalid locale …`, `fast-serve/config.json: unknown option or wrong type …` |
-| port in use | `Port <n> is already in use … fast-serve --port <n+1> …` |
+| port in use | `Port <n> is already in use … fast-serve --port <n+1> …` (in an interactive terminal fast-serve first offers to stop the process holding it, see [Port in use at start](dev-server.md#port-in-use-at-start)) |
 | no SPFx dev certificate | `No valid SPFx development certificate found. Run "npx heft trust-dev-cert" …` |
 | broken extend file | `fast-serve/rspack.extend.mjs could not be loaded:` + error + `Fix or remove the file and run fast-serve again.` |
 
