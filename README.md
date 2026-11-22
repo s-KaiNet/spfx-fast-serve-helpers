@@ -54,7 +54,7 @@ npm run serve
 
 Open the printed URL and click **Load debug scripts**. Without a configured page, append the printed query to any SharePoint page URL (replacing its own query). A web part must already be on the page: add it from the toolbox while `fast-serve` runs and save the page. Stop the server with Ctrl+C.
 
-All bundles are compiled before the server reports ready; later starts reuse a cache in `temp/fast-serve/cache` (see [Performance](#performance)). SCSS and static-asset typings (`temp/sass-ts`, `temp/static-asset-ts`) are written right after the first compile and kept current while serving.
+All bundles are compiled before the server reports ready; later starts reuse a cache in `temp/fast-serve/cache` (see [Performance](#performance)). SCSS and static-asset typings (`temp/sass-ts`, `temp/static-asset-ts`) are checked right after the first compile and kept current while serving; a typing file is written only when its content changes (replaced in one step, so editors and type checkers never read half a file), and later starts skip unchanged stylesheets with a cache in `temp/fast-serve/sass-typings`.
 
 ### Extensions and serve configurations
 
@@ -205,7 +205,7 @@ Several bundles on one page all hot-update. Keep setup (icons, PnPjs, listeners)
 
 ## Errors
 
-- **Compile errors and warnings** go to the terminal with project-relative paths and a code frame (`error in src/…` and `rebuilt in 46 ms (src/…): 1 error`) and to one overlay over the page; the next successful rebuild closes it.
+- **Compile errors and warnings** go to the terminal with project-relative paths and a code frame (`error in src/…` and `rebuilt in 46 ms (src/…): 1 error`) and to one overlay over the page; the next successful rebuild closes it. A rebuild that changes no module output (a file saved without changes) prints nothing unless the errors or warnings changed.
 - **Runtime errors from your code** (uncaught errors, unhandled rejections, `console.error` with a frame in your code) are forwarded to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, `console.error` calls don't (your code may log errors it handles). The next successful rebuild with new output (also one with only warnings) closes it; if the updated code throws again, it opens again. Esc, × or a click outside closes it too. SharePoint's own errors stay in the browser console.
 - **Code that throws while a module runs** (for example a stray `asdf` after an import line, which compiles but fails with `ReferenceError`) opens the overlay too. During a hot update the page keeps showing the previous version of the component until the error is fixed, and the terminal says so. At page load the bundle can't load: the web part's error box shows the reason and the page reloads after the fix.
 - **Render errors** (for example a misspelled function in JSX, `{escape1(…)}`, in a class or function component) open the overlay and the terminal names the line, both after a hot update and after F5. The dev loop doesn't type-check, so such typos show up only when the code runs; React unmounts the failing web part's content until the fix, which renders it again without a reload.
@@ -266,6 +266,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `… is the deprecated SharePoint Online workbench (retirement: December 1, 2026)` | set `initialPage` in `config/serve.json` (or `pageUrl`) to a page of your site |
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
 | stale or strange output after a dependency change outside the lock file (a linked package, a manual edit in `node_modules`) | delete `temp/fast-serve/cache` and start again |
+| a SCSS typing in `temp/sass-ts` looks out of date | save the stylesheet, or delete `temp/fast-serve/sass-typings` and start again (every stylesheet is then compiled once more) |
 | `<file> imports "<library>/lib/…", a deep import into the SPFx library <library>` | in that file, import from the library's root if it exports the name |
 
 ## Limitations

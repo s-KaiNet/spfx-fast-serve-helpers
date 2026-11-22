@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { problemLocation } from '../rspack/index.js';
-import { changedProjectFiles, compileSummary, formatCompileProblems } from './compileReport.js';
+import { changedProjectFiles, compileSummary, createCompileReportGate, formatCompileProblems } from './compileReport.js';
 
 const ROOT = '/work/project';
 
@@ -57,5 +57,23 @@ describe('compileSummary', () => {
     const codeRoots = [ROOT, '/work/corp-lib'];
     expect(changedProjectFiles(ROOT, ['/work/corp-lib/src/Counter.tsx', '/elsewhere/x.ts', '/work/corp-lib', `${ROOT}/src/a.ts`], codeRoots)).toEqual(['../corp-lib/src/Counter.tsx', 'src/a.ts']);
     expect(problemLocation({ message: '', moduleIdentifier: 'builtin:swc-loader!/work/corp-lib/src/Counter.tsx', loc: '3:1' }, ROOT, codeRoots)).toBe('../corp-lib/src/Counter.tsx:3:1');
+  });
+});
+
+describe('createCompileReportGate', () => {
+  it('reports the first compile and every rebuild that changed modules', () => {
+    const shouldReport = createCompileReportGate();
+    expect(shouldReport({ changedModules: 0, errors: [], warnings: [] })).toBe(true);
+    expect(shouldReport({ changedModules: 2, errors: [], warnings: [] })).toBe(true);
+  });
+
+  it('stays quiet for rebuilds without changed modules until the errors or warnings change', () => {
+    const shouldReport = createCompileReportGate();
+    shouldReport({ changedModules: 3, errors: [], warnings: [] });
+    expect(shouldReport({ changedModules: 0, errors: [], warnings: [] })).toBe(false);
+    expect(shouldReport({ changedModules: 0, errors: ['error in a.ts'], warnings: [] })).toBe(true);
+    expect(shouldReport({ changedModules: 0, errors: ['error in a.ts'], warnings: [] })).toBe(false);
+    expect(shouldReport({ changedModules: 0, errors: [], warnings: ['error in a.ts'] })).toBe(true);
+    expect(shouldReport({ changedModules: 0, errors: [], warnings: [] })).toBe(true);
   });
 });

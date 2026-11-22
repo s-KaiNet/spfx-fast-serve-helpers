@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 12:00 | update | SCSS typings written only on change, quiet no-op rebuilds, typings updates channel (`1.24.0-beta.9`)
+
+- Changed: `kb/features/styles-and-typings.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/dev-server.md`, `kb/features/performance-and-cache.md`, `kb/architecture/overview.md`, `kb/references/rspack.md`
+- Outcome: heft's Sass processor now writes into a staging folder with its incremental cache, and typings (SCSS and static assets) are published atomically only when their content differs, so starts and edits keep unchanged typings' timestamps; rebuilds that change no module output (file saved without changes, type-only watched file, invalidation) print nothing unless problems change, with module output compared by source hash because module hashes include the per-start salt and failed modules rebuild every time; the page channel announces written and removed typing files for a later type check
+
 ## 2026-11-22 00:30 | update | externals survive a syntax error and its fix; Windows watch ignore (`1.24.0-beta.8`)
 
 - Changed: `kb/features/libraries-and-externals.md`, `kb/features/rspack-compile.md`, `kb/references/rspack.md`

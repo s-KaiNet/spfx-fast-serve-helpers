@@ -12,18 +12,25 @@ export interface HeftSassProcessor {
   readonly inputFileGlob: string;
   readonly sourceFolderPath: string;
   compileFilesAsync(files: Set<string>): Promise<void>;
+  loadCacheAsync?(cacheFolder: string): Promise<void>;
 }
 
 export interface HeftSassTypings {
   processor: HeftSassProcessor;
   typingsFolders: string[];
+  stagingFolder: string;
+}
+
+export interface HeftSassFolders {
+  stagingFolder: string;
+  cacheFolder?: string;
 }
 
 interface SassProcessorModule {
   SassProcessor: new (options: Record<string, unknown>) => HeftSassProcessor;
 }
 
-export function createHeftSassTypings(root: string, logger: Logger, configuration: SassConfiguration): HeftSassTypings {
+export async function createHeftSassTypings(root: string, logger: Logger, configuration: SassConfiguration, { stagingFolder, cacheFolder }: HeftSassFolders): Promise<HeftSassTypings> {
   const load = createProjectLoader(root);
   const { SassProcessor } = load(`${SASS_PLUGIN_PACKAGE}/lib/SassProcessor`) as SassProcessorModule;
   const resolveFolder = (folder: string) => path.resolve(root, folder);
@@ -42,7 +49,7 @@ export function createHeftSassTypings(root: string, logger: Logger, configuratio
       },
     },
     srcFolder: resolveFolder(configuration.srcFolder ?? 'src'),
-    dtsOutputFolders: typingsFolders,
+    dtsOutputFolders: [stagingFolder],
     exportAsDefault: configuration.exportAsDefault ?? true,
     fileExtensions: configuration.fileExtensions,
     nonModuleFileExtensions: configuration.nonModuleFileExtensions,
@@ -51,5 +58,6 @@ export function createHeftSassTypings(root: string, logger: Logger, configuratio
     resolveBareSpecifiersAsPackages: configuration.resolveBareSpecifiersAsPackages,
     silenceDeprecations: configuration.silenceDeprecations,
   });
-  return { processor, typingsFolders };
+  if (cacheFolder !== undefined) await processor.loadCacheAsync?.(cacheFolder);
+  return { processor, typingsFolders, stagingFolder };
 }

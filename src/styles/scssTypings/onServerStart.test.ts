@@ -45,11 +45,15 @@ function startedServer(): PageServer {
 describe('typings while serving', () => {
   it('generates SCSS typings at start and updates them when stylesheets are added, edited and deleted', async () => {
     const root = copyFixture();
-    const context = { root, logger: silentLogger, project: createProject(root, silentLogger), options: { origin: 'https://localhost:4433', locale: 'en-us', overlay: true } };
+    const page = createPageChannel();
+    const written: string[] = [];
+    page.onTypingsUpdated((update) => written.push(...update.written));
+    const context = { root, logger: silentLogger, project: createProject(root, silentLogger), options: { origin: 'https://localhost:4433', locale: 'en-us', overlay: true }, page };
     const typingsOf = (file: string) => path.join(root, 'temp/sass-ts', `${file}.d.ts`);
 
     scssTypingsOnServerStart(context, path.join(root, 'src'))(startedServer());
     await expect.poll(() => existsSync(typingsOf('components/Card.module.scss')), POLL).toBe(true);
+    await expect.poll(() => written.includes(typingsOf('components/Card.module.scss')), POLL).toBe(true);
 
     const added = path.join(root, 'src/components/Added.module.scss');
     writeFileSync(added, '.fresh {\n  color: red;\n}\n');
@@ -69,8 +73,11 @@ describe('typings while serving', () => {
     const page = createPageChannel();
     await assetsFeature.contribute({ root, logger: silentLogger, project: createProject(root, silentLogger), options: { origin: 'https://localhost:4433', locale: 'en-us', overlay: true }, page });
 
+    const written: string[] = [];
+    page.onTypingsUpdated((update) => written.push(...update.written));
     page.serverStarted(startedServer());
     await expect.poll(() => existsSync(typingsOf('logo.png')), POLL).toBe(true);
+    await expect.poll(() => written.includes(typingsOf('logo.png')), POLL).toBe(true);
 
     writeFileSync(path.join(root, 'src/components/added.png'), 'png');
     await expect.poll(() => existsSync(typingsOf('components/added.png')), POLL).toBe(true);

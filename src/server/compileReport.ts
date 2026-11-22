@@ -12,6 +12,24 @@ export interface CompileOutcome {
 
 const MAX_LISTED_CHANGES = 2;
 
+export interface CompileChange {
+  changedModules: number;
+  errors: readonly string[];
+  warnings: readonly string[];
+}
+
+export type CompileReportGate = (change: CompileChange) => boolean;
+
+export function createCompileReportGate(): CompileReportGate {
+  let reported: string | undefined;
+  return ({ changedModules, errors, warnings }) => {
+    const problemsKey = JSON.stringify([errors, warnings]);
+    const report = reported === undefined || changedModules > 0 || problemsKey !== reported;
+    reported = problemsKey;
+    return report;
+  };
+}
+
 export function formatCompileProblems(level: 'error' | 'warning', problems: readonly CompileProblem[], root: string, codeRoots: readonly string[] = [root]): string[] {
   const formatted = problems.map((problem) => {
     const location = problemLocation(problem, root, codeRoots);

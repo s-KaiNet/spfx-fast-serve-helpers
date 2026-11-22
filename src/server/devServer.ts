@@ -10,7 +10,8 @@ import type { ServeSetup } from '../setup/index.js';
 import { loadDevCertificate, type HttpsCredentials } from './certificate.js';
 import { preflightMiddleware, responseHeaders } from './headers.js';
 import { assertPortFree } from './port.js';
-import { changedProjectFiles, compileSummary, formatCompileProblems } from './compileReport.js';
+import { changedProjectFiles, compileSummary, createCompileReportGate, formatCompileProblems } from './compileReport.js';
+import { trackModuleChanges } from './moduleChanges.js';
 import { readyBanner } from './readyBanner.js';
 
 export interface StartDevServerOptions {
@@ -150,9 +151,14 @@ export function webSocketUrl({ tunnelHost, port }: Pick<ResolvedOptions, 'tunnel
 function reportCompiles(compiler: Compiler, root: string, codeRoots: readonly string[], logger: Logger): Promise<void> {
   return new Promise((resolve, reject) => {
     let first = true;
+    const shouldReport = createCompileReportGate();
+    const moduleChanges = trackModuleChanges(compiler);
     compiler.hooks.done.tap('fast-serve:report', (stats) => {
+      const { compilation } = stats;
       const changedFiles = first ? [] : changedProjectFiles(root, [...(compiler.modifiedFiles ?? []), ...(compiler.removedFiles ?? [])], codeRoots);
-      logCompile(stats, { verb: first ? 'compiled' : 'rebuilt', root, codeRoots, changedFiles }, logger);
+      const changed = moduleChanges.changedModules(compilation);
+      const problems = compileProblems(stats, root, codeRoots);
+      if (shouldReport({ changedModules: changed, ...problems })) logCompile(problems, { verb: first ? 'compiled' : 'rebuilt', changedFiles }, logger);
       first = false;
       resolve();
     });
@@ -163,20 +169,21 @@ function reportCompiles(compiler: Compiler, root: string, codeRoots: readonly st
   });
 }
 
-interface CompileReportContext {
-  verb: 'compiled' | 'rebuilt';
-  root: string;
-  codeRoots: readonly string[];
-  changedFiles: readonly string[];
+interface CompileProblems {
+  errors: string[];
+  warnings: string[];
+  durationMs: number;
 }
 
-function logCompile(stats: Stats, { verb, root, codeRoots, changedFiles }: CompileReportContext, logger: Logger): void {
+function compileProblems(stats: Stats, root: string, codeRoots: readonly string[]): CompileProblems {
   const { errors = [], warnings = [], time = 0 } = stats.toJson({ all: false, errors: true, warnings: true, timings: true, moduleTrace: false, errorDetails: false });
-  const errorLines = formatCompileProblems('error', errors, root, codeRoots);
-  const warningLines = formatCompileProblems('warning', warnings, root, codeRoots);
-  for (const error of errorLines) logger.error(error);
-  for (const warning of warningLines) logger.warn(warning);
-  logger.info(compileSummary({ verb, durationMs: time, changedFiles, errors: errorLines.length, warnings: warningLines.length }));
+  return { errors: formatCompileProblems('error', errors, root, codeRoots), warnings: formatCompileProblems('warning', warnings, root, codeRoots), durationMs: time };
+}
+
+function logCompile({ errors, warnings, durationMs }: CompileProblems, { verb, changedFiles }: { verb: 'compiled' | 'rebuilt'; changedFiles: readonly string[] }, logger: Logger): void {
+  for (const error of errors) logger.error(error);
+  for (const warning of warnings) logger.warn(warning);
+  logger.info(compileSummary({ verb, durationMs, changedFiles, errors: errors.length, warnings: warnings.length }));
 }
 
 function reloadPages(server: RspackDevServer): void {

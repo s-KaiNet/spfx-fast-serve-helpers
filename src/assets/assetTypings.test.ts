@@ -1,7 +1,8 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import type { TypingsUpdate } from '../featureApi/index.js';
 import type { Logger } from '../logger.js';
 import { createAssetTypings } from './assetTypings.js';
 
@@ -99,5 +100,28 @@ describe('static asset typings', () => {
     expect(logger.messages).toHaveLength(1);
     expect(logger.messages[0]).toMatch(/^Static asset typings are not generated: .*static-asset-typings\.json/s);
     expect(existsSync(path.join(root, 'temp'))).toBe(false);
+  });
+
+  it('keeps unchanged typings untouched across restarts and reports only the typings it writes or removes', async () => {
+    const root = project({ ...spfxRigConfig, 'src/logo.png': 'png', 'src/icon.svg': '<svg/>' });
+    const firstUpdates: TypingsUpdate[] = [];
+    await createAssetTypings({ root, logger: recordingLogger(), onTypingsUpdated: (update) => firstUpdates.push(update) }).generateAll();
+    expect(firstUpdates.flatMap(({ written }) => written).toSorted()).toEqual([typingsOf(root, 'icon.svg'), typingsOf(root, 'logo.png')]);
+
+    const past = new Date('2020-01-01T00:00:00Z');
+    utimesSync(typingsOf(root, 'logo.png'), past, past);
+    rmSync(typingsOf(root, 'icon.svg'));
+    const updates: TypingsUpdate[] = [];
+    const typings = createAssetTypings({ root, logger: recordingLogger(), onTypingsUpdated: (update) => updates.push(update) });
+    await typings.generateAll();
+    await typings.fileAdded(path.join(root, 'src/logo.png'));
+    rmSync(path.join(root, 'src/icon.svg'));
+    await typings.fileRemoved(path.join(root, 'src/icon.svg'));
+
+    expect(statSync(typingsOf(root, 'logo.png')).mtimeMs).toBe(past.getTime());
+    expect(updates).toEqual([
+      { written: [typingsOf(root, 'icon.svg')], removed: [] },
+      { written: [], removed: [typingsOf(root, 'icon.svg')] },
+    ]);
   });
 });

@@ -38,4 +38,18 @@ describe('createPageChannel', () => {
     version = 2;
     expect(page.pageScripts()).toBe('a2;b;');
   });
+
+  it('forwards typings updates to the listeners registered so far', () => {
+    const page = createPageChannel();
+    const received: unknown[] = [];
+    page.typingsUpdated({ written: ['/p/temp/sass-ts/early.d.ts'], removed: [] });
+    page.onTypingsUpdated((update) => received.push(['first', update]));
+    page.onTypingsUpdated((update) => received.push(['second', update]));
+    page.typingsUpdated({ written: ['/p/temp/sass-ts/a.d.ts'], removed: ['/p/temp/sass-ts/b.d.ts'] });
+    const update = { written: ['/p/temp/sass-ts/a.d.ts'], removed: ['/p/temp/sass-ts/b.d.ts'] };
+    expect(received).toEqual([
+      ['first', update],
+      ['second', update],
+    ]);
+  });
 });

@@ -1,7 +1,8 @@
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import type { TypingsUpdate } from '../../featureApi/index.js';
 import type { Logger } from '../../logger.js';
 import { loadSassConfiguration } from '../../project/sassConfiguration.js';
 import { createScssTypings as createTypings } from './scssTypings.js';
@@ -42,9 +43,24 @@ function recordingLogger(): Logger & { messages: string[] } {
   return { messages, info: record, warn: record, error: record };
 }
 
-function createScssTypings({ root, logger }: { root: string; logger: Logger }) {
-  return createTypings({ root, logger, sassConfiguration: () => loadSassConfiguration(root, logger) });
+function createScssTypings({ root, logger, updates }: { root: string; logger: Logger; updates?: TypingsUpdate[] }) {
+  return createTypings({
+    root,
+    logger,
+    sassConfiguration: () => loadSassConfiguration(root, logger),
+    onTypingsUpdated: (update) => updates?.push(update),
+  });
 }
+
+const PAST = new Date('2020-01-01T00:00:00Z');
+
+function ageTypings(root: string, sourcePaths: readonly string[]): void {
+  for (const sourcePath of sourcePaths) utimesSync(typingsOf(root, sourcePath), PAST, PAST);
+}
+
+const typingsAged = (root: string, sourcePath: string) => statSync(typingsOf(root, sourcePath)).mtimeMs === PAST.getTime();
+
+const PUBLISHED = ['components/Card.module.scss', 'components/Plain.scss', 'app.global.scss'];
 
 const typingsOf = (root: string, sourcePath: string) => path.join(root, 'temp/sass-ts', `${sourcePath}.d.ts`);
 const readTypings = (root: string, sourcePath: string) => readFileSync(typingsOf(root, sourcePath), 'utf8');
@@ -162,5 +178,115 @@ describe('scss typings', () => {
     expect(logger.messages).toHaveLength(1);
     expect(logger.messages[0]).toMatch(/^SCSS typings are not generated: .*sass\.json/s);
     expect(existsSync(path.join(root, 'temp'))).toBe(false);
+  });
+
+  it('reports the typings written at the first start and keeps unchanged typings untouched across restarts', async () => {
+    const root = copyFixture();
+    const firstUpdates: TypingsUpdate[] = [];
+    await createScssTypings({ root, logger: recordingLogger(), updates: firstUpdates }).generateAll();
+    expect(firstUpdates.flatMap(({ written }) => written).toSorted()).toEqual(PUBLISHED.map((sourcePath) => typingsOf(root, sourcePath)).toSorted());
+    ageTypings(root, PUBLISHED);
+    const stagedCard = path.join(root, 'temp/fast-serve/sass-typings/dts/components/Card.module.scss.d.ts');
+    utimesSync(stagedCard, PAST, PAST);
+
+    const restart = async (remaining: number): Promise<void> => {
+      if (remaining === 0) return;
+      const updates: TypingsUpdate[] = [];
+      const logger = recordingLogger();
+      await createScssTypings({ root, logger, updates }).generateAll();
+      expect(updates).toEqual([]);
+      expect(logger.messages).toEqual([]);
+      await restart(remaining - 1);
+    };
+    await restart(3);
+    expect(PUBLISHED.filter((sourcePath) => !typingsAged(root, sourcePath))).toEqual([]);
+    expect(statSync(stagedCard).mtimeMs).toBe(PAST.getTime());
+  });
+
+  it('updates only the typing of a module changed while fast-serve was not running', async () => {
+    const root = copyFixture();
+    await createScssTypings({ root, logger: recordingLogger() }).generateAll();
+    ageTypings(root, PUBLISHED);
+    const card = path.join(root, 'src/components/Card.module.scss');
+    writeFileSync(card, `${readFileSync(card, 'utf8')}\n.offline {\n  color: red;\n}\n`);
+
+    const updates: TypingsUpdate[] = [];
+    await createScssTypings({ root, logger: recordingLogger(), updates }).generateAll();
+
+    expect(updates).toEqual([{ written: [typingsOf(root, 'components/Card.module.scss')], removed: [] }]);
+    expect(readTypings(root, 'components/Card.module.scss')).toContain('  offline: string;');
+    expect(PUBLISHED.filter((sourcePath) => !typingsAged(root, sourcePath))).toEqual(['components/Card.module.scss']);
+  });
+
+  it('restores deleted typings at start, also when the typings cache lost them', async () => {
+    const root = copyFixture();
+    await createScssTypings({ root, logger: recordingLogger() }).generateAll();
+    rmSync(typingsOf(root, 'components/Plain.scss'));
+    rmSync(path.join(root, 'temp/fast-serve/sass-typings/dts/components/Card.module.scss.d.ts'));
+    rmSync(typingsOf(root, 'components/Card.module.scss'));
+    ageTypings(root, ['app.global.scss']);
+
+    const updates: TypingsUpdate[] = [];
+    await createScssTypings({ root, logger: recordingLogger(), updates }).generateAll();
+
+    expect(updates.flatMap(({ written }) => written).toSorted()).toEqual([typingsOf(root, 'components/Card.module.scss'), typingsOf(root, 'components/Plain.scss')].toSorted());
+    expect(readTypings(root, 'components/Card.module.scss')).toBe(cardTypings);
+    expect(readTypings(root, 'components/Plain.scss')).toBe('export {};');
+    expect(typingsAged(root, 'app.global.scss')).toBe(true);
+  });
+
+  it('writes and reports a typing on edits only when its content changes', async () => {
+    const root = copyFixture();
+    const updates: TypingsUpdate[] = [];
+    const typings = createScssTypings({ root, logger: recordingLogger(), updates });
+    await typings.generateAll();
+    ageTypings(root, PUBLISHED);
+    updates.length = 0;
+
+    const card = path.join(root, 'src/components/Card.module.scss');
+    writeFileSync(card, readFileSync(card, 'utf8').replace(/color: [^;]+;/, 'color: rebeccapurple;'));
+    await typings.fileChanged(card);
+    expect(updates).toEqual([]);
+    expect(typingsAged(root, 'components/Card.module.scss')).toBe(true);
+
+    writeFileSync(card, `${readFileSync(card, 'utf8')}\n.added {\n  color: red;\n}\n`);
+    await typings.fileChanged(card);
+    expect(updates).toEqual([{ written: [typingsOf(root, 'components/Card.module.scss')], removed: [] }]);
+    expect(PUBLISHED.filter((sourcePath) => !typingsAged(root, sourcePath))).toEqual(['components/Card.module.scss']);
+  });
+
+  it('reports added and removed modules and restores a module added back with the same content', async () => {
+    const root = copyFixture();
+    const updates: TypingsUpdate[] = [];
+    const typings = createScssTypings({ root, logger: recordingLogger(), updates });
+    await typings.generateAll();
+    updates.length = 0;
+
+    const added = path.join(root, 'src/components/Added.module.scss');
+    writeFileSync(added, '.fresh {\n  color: red;\n}\n');
+    await typings.fileChanged(added);
+    rmSync(added);
+    await typings.fileRemoved(added);
+    writeFileSync(added, '.fresh {\n  color: red;\n}\n');
+    await typings.fileChanged(added);
+
+    const typing = typingsOf(root, 'components/Added.module.scss');
+    expect(updates).toEqual([
+      { written: [typing], removed: [] },
+      { written: [], removed: [typing] },
+      { written: [typing], removed: [] },
+    ]);
+    expect(readFileSync(typing, 'utf8')).toContain('  fresh: string;');
+  });
+
+  it('reports a Sass error again at a cached start', async () => {
+    const root = copyFixture();
+    const card = path.join(root, 'src/components/Card.module.scss');
+    writeFileSync(card, '.broken {\n  color: $missing;\n}\n');
+    await createScssTypings({ root, logger: recordingLogger() }).generateAll();
+
+    const logger = recordingLogger();
+    await createScssTypings({ root, logger }).generateAll();
+    expect(logger.messages.join('\n')).toMatch(/Card\.module\.scss.*Undefined variable/s);
   });
 });

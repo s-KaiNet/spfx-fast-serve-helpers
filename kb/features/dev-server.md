@@ -35,7 +35,7 @@ tags:
 | Browser errors | `POST /fast-serve/browser-errors` receives error reports from the page runtime and answers with overlay content or a readable load-error message |
 | heft package files | `GET /dist/<Name>_<locale>.js` answers a strings script of a heft development package as an AMD module, `GET /dist/<name>_<md5>.<ext>` a content-hashed local-file external (used by [tunnel mode](tunnel-mode.md)) |
 | HMR | `hot` and `liveReload` on: edits hot-update inside the bundles with React Fast Refresh, an update that nobody accepts falls back to a page reload; details in [HMR and React Fast Refresh](hmr.md) |
-| Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms (<changed files>)`, error and warning counts only when non-zero), errors and warnings with project-relative paths; the dev server's own banners and stats are silenced ([details](errors-and-diagnostics.md#terminal)) |
+| Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms (<changed files>)`, error and warning counts only when non-zero; nothing for rebuilds that change no module output and no problem), errors and warnings with project-relative paths; the dev server's own banners and stats are silenced ([details](errors-and-diagnostics.md#terminal)) |
 
 ### Debug `manifests.js`
 

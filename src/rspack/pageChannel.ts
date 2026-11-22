@@ -1,4 +1,4 @@
-import type { PageChannel, PageScript, ServerStartedHook, StartedServer } from '../featureApi/index.js';
+import type { PageChannel, PageScript, ServerStartedHook, StartedServer, TypingsListener } from '../featureApi/index.js';
 
 export interface PageServer extends StartedServer {
   reloadPages(): void;
@@ -11,6 +11,7 @@ export interface ServedPageChannel extends PageChannel {
 export function createPageChannel(): ServedPageChannel {
   const scripts: PageScript[] = [];
   const startedHooks: ServerStartedHook[] = [];
+  const typingsListeners: TypingsListener[] = [];
   let server: PageServer | undefined;
   return {
     reloadPages: () => {
@@ -26,6 +27,12 @@ export function createPageChannel(): ServedPageChannel {
     serverStarted: (started) => {
       server = started;
       for (const hook of startedHooks) hook(started);
+    },
+    typingsUpdated: (update) => {
+      for (const listener of typingsListeners) listener(update);
+    },
+    onTypingsUpdated: (listener) => {
+      typingsListeners.push(listener);
     },
   };
 }

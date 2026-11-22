@@ -1,10 +1,10 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { EOL } from 'node:os';
 import path from 'node:path';
 import { glob } from 'tinyglobby';
+import type { TypingsListener, TypingsUpdate } from '../featureApi/index.js';
 import type { Logger } from '../logger.js';
 import { createHeftTerminal, createProjectLoader, heftErrorMessage, loadHeftConfiguration } from '../utils/heftProject.js';
+import { removeFileIfExists, writeFileIfChanged } from '../utils/generatedFiles.js';
 import { isInside } from '../utils/paths.js';
 
 const TYPINGS_LABEL = 'Static asset typings';
@@ -43,9 +43,10 @@ export interface AssetTypings {
 export interface AssetTypingsOptions {
   root: string;
   logger: Logger;
+  onTypingsUpdated?: TypingsListener;
 }
 
-export function createAssetTypings({ root, logger }: AssetTypingsOptions): AssetTypings {
+export function createAssetTypings({ root, logger, onTypingsUpdated }: AssetTypingsOptions): AssetTypings {
   let configuration: Promise<ResolvedConfiguration | undefined> | undefined;
 
   const ready = () =>
@@ -60,14 +61,20 @@ export function createAssetTypings({ root, logger }: AssetTypingsOptions): Asset
   const isAsset = ({ sourceFolder, fileExtensions }: ResolvedConfiguration, file: string) =>
     isInside(sourceFolder, file) && fileExtensions.some((extension) => file.endsWith(extension));
 
-  async function writeTypings(resolved: ResolvedConfiguration, asset: string): Promise<void> {
-    const outdated = typingsFiles(resolved, asset).filter((typingsFile) => !existsSync(typingsFile) || readFileSync(typingsFile, 'utf8') !== ASSET_TYPINGS);
-    await Promise.all(
-      outdated.map(async (typingsFile) => {
-        await mkdir(path.dirname(typingsFile), { recursive: true });
-        await writeFile(typingsFile, ASSET_TYPINGS);
-      }),
-    );
+  const report = (update: TypingsUpdate) => {
+    if (update.written.length > 0 || update.removed.length > 0) onTypingsUpdated?.(update);
+  };
+
+  async function writeTypings(resolved: ResolvedConfiguration, assets: readonly string[]): Promise<void> {
+    const files = assets.flatMap((asset) => typingsFiles(resolved, asset));
+    const written = await Promise.all(files.map((file) => writeFileIfChanged(file, ASSET_TYPINGS)));
+    report({ written: files.filter((_, index) => written[index]), removed: [] });
+  }
+
+  async function removeTypings(resolved: ResolvedConfiguration, asset: string): Promise<void> {
+    const files = typingsFiles(resolved, asset);
+    const removed = await Promise.all(files.map((file) => removeFileIfExists(file)));
+    report({ written: [], removed: files.filter((_, index) => removed[index]) });
   }
 
   async function guarded(task: (resolved: ResolvedConfiguration) => Promise<void>): Promise<void> {
@@ -87,18 +94,17 @@ export function createAssetTypings({ root, logger }: AssetTypingsOptions): Asset
           resolved.fileExtensions.map((extension) => `**/*${extension}`),
           { cwd: resolved.sourceFolder, absolute: true, expandDirectories: false },
         );
-        await Promise.all(assets.map((asset) => writeTypings(resolved, path.resolve(asset))));
+        await writeTypings(resolved, assets.map((asset) => path.resolve(asset)));
       }),
     fileAdded: (file) =>
       guarded(async (resolved) => {
         const asset = path.resolve(file);
-        if (isAsset(resolved, asset)) await writeTypings(resolved, asset);
+        if (isAsset(resolved, asset)) await writeTypings(resolved, [asset]);
       }),
     fileRemoved: (file) =>
       guarded(async (resolved) => {
         const asset = path.resolve(file);
-        if (!isAsset(resolved, asset)) return;
-        await Promise.all(typingsFiles(resolved, asset).map((typingsFile) => rm(typingsFile, { force: true })));
+        if (isAsset(resolved, asset)) await removeTypings(resolved, asset);
       }),
   };
 }

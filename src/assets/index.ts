@@ -10,7 +10,13 @@ export const assetsFeature: Feature = { name: 'assets', contribute: assetsContri
 
 function assetsContribution({ root, logger, page }: Pick<FeatureContext, 'root' | 'logger' | 'page'>): ConfigContribution {
   page.onServerStarted((server) => {
-    const typings = createAssetTypings({ root, logger });
+    const typings = createAssetTypings({
+      root,
+      logger,
+      onTypingsUpdated: (update) => {
+        page.typingsUpdated(update);
+      },
+    });
     void server.firstCompile.then(() => typings.generateAll());
     const watcher = watchSourceFolder(
       path.join(root, 'src'),

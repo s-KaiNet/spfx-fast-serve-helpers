@@ -27,7 +27,7 @@ The dev server keeps Rspack's compile results on disk in `temp/fast-serve/cache`
 
 ### Startup order
 
-- The typings generators (SCSS through heft's Sass processor, static assets) start after the first compile. Running them during the compile competed for the main thread (heft's Sass processor loads Sass and PostCSS and compiles every stylesheet): on spfx-bench the cached compile took 0.9 s with them and 0.4 s without.
+- The typings generators (SCSS through heft's Sass processor, static assets) start after the first compile. Running them during the compile competed for the main thread (heft's Sass processor loads Sass and PostCSS and compiles every stylesheet): on spfx-bench the cached compile took 0.9 s with them and 0.4 s without. Since `1.24.0-beta.9` heft's processor cache (in `temp/fast-serve/sass-typings`) lets a cached start skip compiling unchanged stylesheets, and unchanged typings are not rewritten ([details](styles-and-typings.md#typings)).
 - The Sass implementation is loaded on the first Sass compile, not when the config is built. With the cache nothing is compiled at start, so the first SCSS edit after a cached start pays for loading Sass and starting its compiler (about 0.5 s instead of 0.1 s); typings generation loads Sass in the background anyway.
 
 ### Measured (single runs, Linux, Node 24, Rspack 2.3.3; process start → ready line)
