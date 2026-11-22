@@ -11,13 +11,13 @@ const bundle: SpfxBundle = {
       bundleName: 'hello-web-part',
       manifestFile: '/p/src/Hello.manifest.json',
       entryFile: '/p/src/Hello.ts',
-      manifest: { id: 'abc', alias: 'HelloWebPart', componentType: 'WebPart', version: '1.0.0', manifestVersion: 2 },
+      manifest: { $schema: 'https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json', id: 'abc', alias: 'HelloWebPart', componentType: 'WebPart', version: '1.0.0', manifestVersion: 2 },
     },
   ],
 };
 
 describe('buildDebugManifests', () => {
-  it('points the loader at the dev server', () => {
+  it('points the loader at the dev server and drops $schema, like heft', () => {
     const manifests = buildDebugManifests({
       root: '/p',
       bundles: [bundle],

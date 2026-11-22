@@ -2,7 +2,7 @@
 
 > **Beta.** `fast-serve` for SharePoint Framework **1.24.x** (Heft) projects, versions `1.24.0-beta.<n>`, published under the npm `beta` tag. From `1.24.0-beta.5` it is built on Rspack; the earlier 1.24 betas (up to `1.24.0-beta.3`) were built on Vite and are no longer developed (see [Migrating](#migrating)).
 
-A dev-server-only replacement for `heft start`: it compiles your web parts, extensions and Adaptive Card Extensions with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds and packaging stay on Heft (`heft build`, `heft package-solution`).
+A dev-server-only replacement for `heft start`: it compiles your web parts, extensions, Adaptive Card Extensions, Copilot components and library components with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds and packaging stay on Heft (`heft build`, `heft package-solution`).
 
 Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rspack/PLAN.md](research/rspack/PLAN.md), knowledge base [kb/index.md](kb/index.md).
 
@@ -146,9 +146,25 @@ An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` wi
 - **`require()` and AMD in dependencies** behave as in heft's webpack: `require('<literal>')` is resolved at build time, UMD dependencies use webpack's own `define` (full `lodash` works), SharePoint's RequireJS never sees them.
 - **Static assets** (images, fonts, …) get absolute dev-server URLs; `.sprite.svg` is inlined as source.
 
+### Copilot components
+
+Copilot components (`componentType: "CopilotComponent"`, SPFx 1.24) are built and listed in the debug manifests like heft does. Test them in the Copilot Workbench of your tenant, as in [Microsoft's tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/copilot/get-started/build-your-first-copilot-app), with the debug query `fast-serve` prints:
+
+```text
+https://<tenant>.sharepoint.com/_layouts/15/copilotworkbench.aspx?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true
+```
+
+Choose **Load debug scripts**, pick the component, fill in its properties and select **Fire turn**. The query points the workbench at `fast-serve`'s port; keep it when you use `--port`.
+
+- **Tool properties:** a `propertiesSchema` written as heft's reference (`{ "id": "$../../../lib/…/<X>Properties.js:default;" }`) is evaluated like heft does, but from the module's source under `src/` (no `lib/` build needed); the debug manifest has the resulting JSON schema, so the workbench form matches the schema. Edits to that module (or modules it imports) apply when the workbench reloads; no restart. If the module fails, `fast-serve` warns and the manifest keeps the reference.
+- **Edits:** the React views hot-update with Fast Refresh (state kept) inside the turn's iframe; an edit of the component class reloads that iframe, which renders the turn again.
+- Localized strings (`localizedResources`) work like for web parts. The Teams/Copilot app package that `heft start` writes to `teams/` is not produced (it is only needed for deployment).
+
 ## Library components
 
-A library component project (`componentType: "Library"`) that the project depends on **through a link** is compiled from its `src` into your bundles, with hot updates. One command, in the consumer project; nothing to build or start in the library.
+**Serving a library project.** `fast-serve` in a project whose `config/config.json` has a Library component builds the library bundle and lists it in the debug manifests, like `heft start`, also when the library is the only component or shares a bundle with web parts. Open any page with the printed debug query: components deployed from the app catalog that use the library (by its id) load your local copy, at the version of the library's `package.json`. Library edits follow the [HMR](#hmr) rules; when an edit is hot-applied, new calls into the library use the updated code, while objects a deployed component already created keep the old code.
+
+**Linked libraries in a consumer project.** A library component project (`componentType: "Library"`) that the project depends on **through a link** is compiled from its `src` into your bundles, with hot updates. One command, in the consumer project; nothing to build or start in the library.
 
 ```sh
 cd corp-lib && npm install          # the library's own dependencies
@@ -161,7 +177,7 @@ npm run serve                       # SPFx libraries from source: corp-lib (../c
 - **What is compiled:** `import 'corp-lib'` resolves to the source of the library entry (`./lib/index.js` → `src/index.ts`), `corp-lib/lib/x` to `src/x`. The library's `localizedResources`, tsconfig `paths`/`baseUrl` and `config.json` externals (listed in the debug manifest for the bundles that use them) apply; SCSS, theme tokens and React components work like your own. The library's React imports use your project's React.
 - **Edits:** follow the [HMR](#hmr) rules as if the files were yours: a library component → Fast Refresh with state kept; library styles → swapped; library loc strings → hot update when only components use them, page reload when they reach a web part or extension class; the library's `package.json`, `config/config.json`, manifest or tsconfig → `fast-serve` restarts.
 - **Opt-out:** `"deployedLibraries": ["corp-lib"]` in `fast-serve/config.json` loads that library from SharePoint: the version deployed to the tenant, by the id of its manifest (no debug manifest for it is served).
-- `fast-serve` in the library project itself stops with a message asking to run it in a consumer project.
+- Serving the library project itself is separate (see above): a consumer only lists its own components, so the two never compete for the library's id on one page.
 
 Limitations, because the library becomes part of your bundles:
 
@@ -342,8 +358,10 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
 | `uses the outdated classic spfx-fast-serve format` | replace `fast-serve/config.json` with the flat options and the shipped schema (see [Migrating](#migrating)) |
 | `fast-serve/config.json: unknown option or wrong type "<key>"` | fix the key; add the printed `$schema` line so the editor flags such keys while you type |
-| `No web parts, extensions or Adaptive Card Extensions found` | check `config/config.json` bundles (library components aren't served by themselves) |
-| `<name> is an SPFx library project: run fast-serve in a consumer project` | link the library into a web part project and run `fast-serve` there (see [Library components](#library-components)) |
+| `No web parts, extensions, Adaptive Card Extensions, Copilot components or library components found` | check `config/config.json` bundles |
+| `<alias>: componentType "<type>" is not supported by fast-serve, skipped` | `Application` and `Prefab` components aren't built; use `heft start` for them |
+| `<alias>: tool "<name>" propertiesSchema "…" is not resolved` | the referenced module has no source under `src/`, throws when evaluated in Node, or lacks the export; the message says which. Fix it and reload the workbench |
+| the Copilot Workbench doesn't list your component | open it with the debug query `fast-serve` prints (it carries the port) and choose **Load debug scripts** |
 | a linked library still loads its deployed version | the link is a copy (pnpm/yarn `file:`), the package is listed in `deployedLibraries`, or its entry has no source under `src/` (warning at start) |
 | `ReferenceError` for a webpack `DefinePlugin` constant, `Module not found` for a webpack alias | mirror the customization in `fast-serve/rspack.extend.mjs` |
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
@@ -363,7 +381,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 
 ## Limitations
 
-- Web parts, extensions and Adaptive Card Extensions are served; [library components](#library-components) only as linked source inside a consumer project.
+- Web parts, extensions, Adaptive Card Extensions, Copilot components and [library components](#library-components) are served; `Application` and `Prefab` components are skipped with a warning.
 - Dev server only: no production build. The [type check](#type-checking) covers the project you serve, not linked library projects; [linting](#linting) covers only the files you save.
 - The debug query works on `localhost` only; Teams and mobile hosts need [tunnel mode](#serving-through-a-tunnel) with a deployed development package.
 - A webpack customization that replaces a heft built-in rule (for example SVGR for `.svg`) can't be mirrored one to one: the extend file adds rules, it doesn't edit `fast-serve`'s.

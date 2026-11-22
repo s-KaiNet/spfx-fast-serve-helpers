@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-A library component project (`componentType: "Library"`) linked into a consumer project is compiled from its `src` into the consumer's bundles. One `fast-serve` in the consumer, zero config, no library build; library files follow the same HMR rules as project files (components Fast Refresh with state kept, styles hot-swap, loc edits hot-update or reload depending on who imports them), library configuration edits restart `fast-serve`. A library installed from a registry stays an SPFx library external loaded from SharePoint. `deployedLibraries` in `fast-serve/config.json` opts a linked library out.
+A library component project (`componentType: "Library"`) linked into a consumer project is compiled from its `src` into the consumer's bundles. One `fast-serve` in the consumer, zero config, no library build; library files follow the same HMR rules as project files (components Fast Refresh with state kept, styles hot-swap, loc edits hot-update or reload depending on who imports them), library configuration edits restart `fast-serve`. A library installed from a registry stays an SPFx library external loaded from SharePoint. `deployedLibraries` in `fast-serve/config.json` opts a linked library out. Separately, `fast-serve` run in the library project itself serves the library bundle with a debug manifest entry, like `heft start` (see [Serving the library project](#serving-the-library-project)).
 
 ## Behavior
 
@@ -24,7 +24,7 @@ A library component project (`componentType: "Library"`) linked into a consumer 
 - `"deployedLibraries": ["<package>"]` (strings only, in `fast-serve/config.json`) keeps that package an external; when it has no built `dist` manifest, its id and version come from the library's source manifest (`version: "*"` → `package.json` version). A listed name that is no SPFx library dependency prints a warning.
 - Each local library gets a small model of its own (the project model run on the library root, in the library role): loc resources, tsconfig chain with `paths`/`baseUrl` and class options, `config.json` externals. Its warnings are prefixed with the package name. When the library entry (`./lib/index.js` of the Library component) has no source under `src/`, a warning says so and the package is bundled from its `main` like any dependency.
 - The startup summary lists `SPFx libraries from source: <package> (<path relative to the project>)`.
-- `fast-serve` in a library project stops with "<name> is an SPFx library project: run fast-serve in a consumer project that depends on it …". A project with web parts **and** a Library component serves the web parts and warns that its library component is not served.
+- The consumer serves only its own components: a linked library never appears in the consumer's debug manifests, so serving the library project and a consumer that links it can't list the same id on one page (a page loads one `debugManifestsFile`).
 
 ### Compilation
 
@@ -44,7 +44,15 @@ A library component project (`componentType: "Library"`) linked into a consumer 
 - Other library dependencies resolve from the library's `node_modules`, so a package used by both can be bundled twice (as in production, where the library bundles its own).
 - With the opt-out and no deployed library on the tenant, the bundle declares the library as a `component` resource that the tenant cannot resolve; SharePoint shows "Something went wrong" for the web parts of that bundle.
 
+### Serving the library project
+
+- A project whose own `config/config.json` lists a `Library` component (alone in its bundle, or mixed with web parts, then with an `exportName` like any component) gets that bundle built and listed in `manifests.js` exactly like heft: id, alias, `componentType: "Library"`, the `package.json` version for `"version": "*"`, `entryModuleId` = bundle name, the bundle path plus the libraries it imports.
+- Typical use: a page with the debug query, where components deployed from the app catalog request the library by id and get the local build (the PnP Modern Search extensibility library scenario). The served version must be the one they request; SharePoint matches the debug manifest by id and version.
+- Edits follow the normal HMR rules; when a module is hot-applied, later calls through the library's exports see the new code, objects already created keep the old code; an edit that reaches the entry reloads the page.
+
 ## Decisions
+
+- Serving the library project was added after the first version, which refused library-only projects: heft lists the library in its debug manifests, and checking a library against deployed consumers needs it.
 
 - One command with library source in the consumer was chosen over a split setup (library-mode fast-serve plus consumer fast-serve, manifest chaining): this line bundles a development React per bundle for Fast Refresh, so a split would need a shared React and a shared refresh runtime across two processes. A workspace mode serving several solutions builds on this later.
 - `deployedLibraries` lives only in `fast-serve/config.json` (no CLI flag); it is the per-package escape hatch for false positives.
@@ -62,8 +70,9 @@ A library component project (`componentType: "Library"`) linked into a consumer 
 
 ## Evidence
 
-- Source: implementation behavior. Unit tests with a symlinked library fixture: detection, built library kept local, nested library through a library's own `node_modules`, registry library stays external, opt-out with the source manifest id, missing entry source, model files and invalidation, merged externals, library-only message, startup line, `deployedLibraries` parsing and warning, deep-import paths and browser-error frames for library roots, rebuild/problem paths. Integration compile: library class with loc strings and tsconfig `paths`, React component with CSS module class names, `config.json` external declared on the bundle, no library AMD dependency, refresh registration in library modules, const enum message with project-relative library paths, class-option warning, type-only re-export warning hidden (shown when the filter is limited to the project root), opt-out bundle declaring the library. Dev-server integration with a fake page: library component hot update, library style swap, project component update, reload on a library loc edit that reaches the web part class, library external in the debug manifest, quiet console.
+- Source: implementation behavior. Unit tests with a symlinked library fixture: detection, built library kept local, nested library through a library's own `node_modules`, registry library stays external, opt-out with the source manifest id, missing entry source, model files and invalidation, merged externals, library-only project served, startup line, `deployedLibraries` parsing and warning, deep-import paths and browser-error frames for library roots, rebuild/problem paths. Integration compile: library class with loc strings and tsconfig `paths`, React component with CSS module class names, `config.json` external declared on the bundle, no library AMD dependency, refresh registration in library modules, const enum message with project-relative library paths, class-option warning, type-only re-export warning hidden (shown when the filter is limited to the project root), opt-out bundle declaring the library. Dev-server integration with a fake page: library component hot update, library style swap, project component update, reload on a library loc edit that reaches the web part class, library external in the debug manifest, quiet console.
 - Live (2026-11-20, `1.24.0-rspack.15`, SharePoint Online, consumer = spfx-rea copy, library generated by `@microsoft/generator-sharepoint` 1.24.1 with a class, a hooks component, SCSS and loc strings, linked with npm `file:`): see the table in the [acceptance page](../operations/acceptance-run.md).
+- Served library project (2026-11-23, `1.24.0-beta.20`, generator 1.24.2 library-only project): `heft start` and `fast-serve` list the same manifest entry (id, alias, version, entry module, bundle path); integration test with a library-only bundle next to a web part and a Copilot component; live on SharePoint Online with the debug query, `SPComponentLoader.loadComponentById(<library id>)` returned the dev-server build and a library edit was hot-applied without a reload.
 - Not verified live: pnpm `link:`/`workspace:` (same symlink shape as npm `file:`), a library imported by two bundles on one page, a library depending on another local library.
 - Confidence: high
-- Last checked: 2026-11-20
+- Last checked: 2026-11-23

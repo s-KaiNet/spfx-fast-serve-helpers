@@ -73,11 +73,7 @@ export function createProject(root: string, logger: ProjectLogger, { deployedLib
   const packageJson = once(() => readPackageJson(files.packageJson));
   const buildConfig = once(() => readBuildConfig(files.config));
   const libraryComponent = once(() => readLibraryComponent(root, packageJson().version));
-  const bundles = once(() => {
-    const result = readBundles({ root, config: buildConfig(), packageVersion: () => packageJson().version, logger });
-    if (result.length > 0 && role === 'consumer') warnThatLibraryComponentIsNotServed(libraryComponent(), logger);
-    return result;
-  });
+  const bundles = once(() => readBundles({ root, config: buildConfig(), packageVersion: () => packageJson().version, logger }));
   const components = (): SpfxComponent[] => bundles().flatMap((bundle) => bundle.components);
   const libraryScan = once(() => scanLibraries(root, { deployedLibraries }));
   const libraries = (): Map<string, SpfxLibrary> => libraryScan().deployed;
@@ -105,11 +101,6 @@ export function createProject(root: string, logger: ProjectLogger, { deployedLib
     modelFiles: () => modelFilesOf(project, files, tsconfig.files),
   };
   return project;
-}
-
-function warnThatLibraryComponentIsNotServed(component: LibraryComponentSource | undefined, logger: ProjectLogger): void {
-  if (component === undefined) return;
-  logger.warn(`${component.alias}: library components are not served (SharePoint loads the deployed copy); projects that link this one as a dependency compile its src`);
 }
 
 function loadLocalLibrary({ packageName, root }: LocalLibraryPackage, logger: ProjectLogger): LocalLibrary[] {

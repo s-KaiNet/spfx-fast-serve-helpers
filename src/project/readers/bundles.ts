@@ -7,7 +7,9 @@ import { LIBRARY_COMPONENT_TYPE } from './localLibraries.js';
 import { findSourceFile, SOURCE_EXTENSIONS } from './sourcePaths.js';
 import type { ComponentManifest, ProjectLogger, SpfxBundle, SpfxComponent } from '../types.js';
 
-const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension']);
+export const COPILOT_COMPONENT_TYPE = 'CopilotComponent';
+
+const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension', COPILOT_COMPONENT_TYPE, LIBRARY_COMPONENT_TYPE]);
 
 interface ComponentEntry {
   manifest: ComponentManifest;
@@ -47,8 +49,7 @@ function readComponentEntry({ root, packageVersion, logger }: BundleSource, bund
 
 function isSupported({ manifest }: ComponentEntry, logger: ProjectLogger): boolean {
   if (SUPPORTED_COMPONENT_TYPES.has(manifest.componentType)) return true;
-  if (manifest.componentType === LIBRARY_COMPONENT_TYPE) return false;
-  logger.warn(`${manifest.alias}: componentType "${manifest.componentType}" is not supported yet, skipped`);
+  logger.warn(`${manifest.alias}: componentType "${manifest.componentType}" is not supported by fast-serve, skipped (its bundle is not built or listed in the debug manifests)`);
   return false;
 }
 

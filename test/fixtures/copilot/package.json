@@ -1,0 +1,12 @@
+{
+  "name": "copilot-fixture",
+  "version": "1.3.0",
+  "private": true,
+  "dependencies": {
+    "@microsoft/sp-copilot-component": "1.24.1",
+    "@microsoft/sp-core-library": "1.24.1",
+    "@microsoft/sp-loader": "1.24.1",
+    "@microsoft/sp-webpart-base": "1.24.1",
+    "schema-kit": "1.0.0"
+  }
+}

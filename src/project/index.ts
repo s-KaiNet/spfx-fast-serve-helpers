@@ -1,5 +1,7 @@
 export { createProject, type CodeRoot, type LocalLibrary, type ProjectOptions, type SpfxProject } from './project.js';
 export { DEFAULT_LOCALE } from './readers/localizedResources.js';
+export { COPILOT_COMPONENT_TYPE } from './readers/bundles.js';
+export { findSourceFile, SOURCE_EXTENSIONS } from './readers/sourcePaths.js';
 export { readLibraryComponent, type LibraryComponentSource } from './readers/localLibraries.js';
 export type { PathMapping, TsconfigPaths } from './readers/tsconfigPaths.js';
 export type * from './types.js';

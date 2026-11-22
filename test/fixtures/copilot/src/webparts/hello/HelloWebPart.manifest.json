@@ -1,0 +1,10 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "40000000-0000-0000-0000-000000000001",
+  "alias": "HelloWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "supportedHosts": ["SharePointWebPart"],
+  "preconfiguredEntries": [{ "groupId": "5c03119e-3074-46fd-976b-c60198311f70", "title": { "default": "Hello" }, "officeFabricIconFontName": "Page" }]
+}

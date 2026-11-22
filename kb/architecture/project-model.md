@@ -22,7 +22,7 @@ The project model is the plain-Node layer that reads every SPFx fact fast-serve 
 | Fact | Source and rules |
 |---|---|
 | package | `package.json` `name`, `version` (required), dependencies |
-| bundles and components | `config/config.json` `bundles`; each component needs `manifest` and `entrypoint`, else it is skipped with a warning. The entry `./lib/**.js` maps to `src/**` with `.ts`, `.tsx`, `.js`, `.jsx` tried in order; a missing source is fatal. Web parts, extensions and ACEs are supported; a `Library` component of the project is skipped (with one warning when the project also has served components; a project with only a library component gets the "run it in a consumer project" error); other component types are skipped with a warning |
+| bundles and components | `config/config.json` `bundles`; each component needs `manifest` and `entrypoint`, else it is skipped with a warning. The entry `./lib/**.js` maps to `src/**` with `.ts`, `.tsx`, `.js`, `.jsx` tried in order; a missing source is fatal. Web parts, extensions, ACEs, Copilot components and the project's own `Library` component are supported, all through the same bundle path (a library-only project is served like any other); `Application`, `Prefab` and unknown types are skipped with a warning that their bundle is not built or listed. A project without any supported component stops with "No web parts, extensions, Adaptive Card Extensions, Copilot components or library components found" |
 | manifests | source `*.manifest.json` read as JSON with comments; `id` and `componentType` required, an `Extension` needs `extensionType`; `alias` defaults to the id; version `*` or none becomes the `package.json` version |
 | export names | in a bundle with several components (deduplicated by id), each gets `a`, `b`, `c`… in order, skipping JavaScript reserved words, counting skipped unsupported components like SPFx does; single-component bundles have none |
 | serve configuration | `config/serve.json` `port`, `initialPage`, `serveConfigurations` (`pageUrl`, `customActions` with `location`, `fieldCustomizers` with `id`, `formCustomizer` object, optional `properties`); a malformed entry is fatal and names its path |
@@ -41,7 +41,7 @@ heft treats `react`, `react-dom` and `react-dom/client` as SPFx libraries with f
 
 ### Roles
 
-A model has one of two roles. The **consumer** role (the project fast-serve runs in) serves its components, warns when it also has a library component, and counts `config/serve.json` and `config/sass.json` among its model files. The **library** role (a linked library project read by the consumer) skips that warning and counts the Library manifest instead of the serve and Sass files.
+A model has one of two roles. The **consumer** role (the project fast-serve runs in) serves its components, its own library component included, and counts `config/serve.json` and `config/sass.json` among its model files. The **library** role (a linked library project read by the consumer) only provides the library entry, loc, tsconfig and externals; its bundles are never served by the consumer, and it counts the Library manifest instead of the serve and Sass files.
 
 ### Caching
 

@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-An SPFx project can contain web parts, extensions (four kinds that matter here), Adaptive Card Extensions (ACEs) and library components. All share the same bundle and manifest machinery, but they differ in how SharePoint hosts them and how they are put on a page during development. The Rspack `fast-serve` targets web parts, extensions and ACEs (phases 1 and 2 of the roadmap); library components are out of scope for now, as in the Vite implementation.
+An SPFx project can contain web parts, extensions (four kinds that matter here), Adaptive Card Extensions (ACEs), Copilot components (SPFx 1.24) and library components. All share the same bundle and manifest machinery (heft's manifest step builds and lists every component the same way and only post-processes some fields per type), but they differ in how SharePoint hosts them and how they are put on a page during development. The Rspack `fast-serve` serves all of them; `Application` (old) and `Prefab` (internal) components are skipped with a warning.
 
 ## Current Knowledge
 
@@ -27,9 +27,10 @@ An SPFx project can contain web parts, extensions (four kinds that matter here),
 | Field Customizer | `extensionType: "FieldCustomizer"` | `fieldCustomizers` keyed by field internal name on a list view; `onRenderCell` renders each cell | yes |
 | Form Customizer | `extensionType: "FormCustomizer"` | `formCustomizer` parameters on `_layouts/15/SPListForm.aspx` (`PageType` new/edit/view) | yes |
 | Adaptive Card Extension | `componentType: "AdaptiveCardExtension"`, `supportedHosts: ["Dashboard"]`, `cardSize` | added from the toolbox of a test page like a web part; interaction only in read mode on a saved page | yes |
-| Library component | `componentType: "Library"` | consumed by other SPFx components as a `component` script resource; deployed tenant-wide | as linked source compiled into a consumer ([local library projects](../features/local-library-projects.md)) |
+| Copilot component | `componentType: "CopilotComponent"`, `copilotType: "Ux"`, `capabilities.availableDisplayModes`, `tools[]` with `propertiesSchema` | rendered by the Copilot host in an iframe per turn; in dev by the Copilot Workbench (`/_layouts/15/copilotworkbench.aspx` with the debug query) | yes ([Copilot components](../features/copilot-components.md)) |
+| Library component | `componentType: "Library"` | consumed by other SPFx components as a `component` script resource; deployed tenant-wide | yes, served from its own project; and as linked source compiled into a consumer ([local library projects](../features/local-library-projects.md)) |
 
-Other extension types (`SearchQueryModifier`, `Unknown`) and other component types are skipped with a warning.
+Every extension type (also `SearchQueryModifier`) is built as an `Extension` bundle; `Application` and `Prefab` components are skipped with a warning. The 1.24 generator creates web parts, extensions, ACEs, Copilot components and libraries (`--component-type webpart|extension|adaptiveCardExtension|copilotComponent|library`), not `Application` or `Prefab`.
 
 ### Serve configurations
 
@@ -50,9 +51,10 @@ Other extension types (`SearchQueryModifier`, `Unknown`) and other component typ
 - [SharePoint debug flow](sharepoint-debug-flow.md)
 - [Roadmap overview](../roadmap/overview.md)
 - [Extensions and Adaptive Card Extensions](../features/extensions-and-aces.md)
+- [Copilot components](../features/copilot-components.md)
 
 ## Evidence
 
 - Source: research (SPFx generator 1.24 output, `@microsoft/spfx-heft-plugins` 1.24.1 manifest and serve code, live checks), project docs
 - Confidence: high
-- Last checked: 2026-11-19 (carried over from the Vite implementation's KB)
+- Last checked: 2026-11-23 (Copilot components, library projects and the generator's component types checked against `@microsoft/generator-sharepoint` and `@microsoft/spfx-heft-plugins` 1.24.2)

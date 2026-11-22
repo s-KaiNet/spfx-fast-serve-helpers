@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-23 00:30 | update | Copilot components and served library projects
+
+- Changed: `kb/features/copilot-components.md` (new), `kb/features/local-library-projects.md`, `kb/concepts/spfx-component-types.md`, `kb/architecture/project-model.md`, `kb/features/dev-server.md`, `kb/index.md`
+- Outcome: `CopilotComponent` and the project's own `Library` components are built and listed in the debug manifests like heft (library-only projects no longer stop); tool `propertiesSchema` references are evaluated from `src`; `$schema` is dropped from manifest entries; `Application`/`Prefab` are skipped with a clearer warning (version 1.24.0-beta.20)
+
 ## 2026-11-22 23:00 | update | Workbench page check removed
 
 - Changed: `kb/features/cli-and-options.md`, `kb/concepts/sharepoint-debug-flow.md`

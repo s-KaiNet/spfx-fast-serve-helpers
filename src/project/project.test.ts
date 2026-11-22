@@ -14,11 +14,11 @@ function fixtureProject() {
 }
 
 describe('createProject', () => {
-  it('reads web part, Adaptive Card Extension and extension bundles and skips unsupported component types', () => {
+  it('reads web part, Adaptive Card Extension, library and extension bundles', () => {
     const { project, warnings } = fixtureProject();
     const bundles = project.bundles();
-    expect(bundles.map(({ name }) => name)).toEqual(['hello-web-part', 'card-adaptive-card-extension', 'banner-application-customizer']);
-    const [bundle, aceBundle, extensionBundle] = bundles;
+    expect(bundles.map(({ name }) => name)).toEqual(['hello-web-part', 'card-adaptive-card-extension', 'tools-library', 'banner-application-customizer']);
+    const [bundle, aceBundle, libraryBundle, extensionBundle] = bundles;
     expect(bundle?.name).toBe('hello-web-part');
     expect(bundle?.components).toHaveLength(1);
     const component = bundle?.components[0];
@@ -46,7 +46,42 @@ describe('createProject', () => {
       version: '1.2.3',
     });
     expect(aceBundle?.components[0]?.entryFile).toBe(path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.ts'));
-    expect(warnings).toEqual(['ToolsLibrary: library components are not served (SharePoint loads the deployed copy); projects that link this one as a dependency compile its src']);
+    expect(libraryBundle?.components).toHaveLength(1);
+    expect(libraryBundle?.components[0]?.entryFile).toBe(path.join(root, 'src/libraries/tools/index.ts'));
+    expect(libraryBundle?.components[0]?.manifest).toMatchObject({ alias: 'ToolsLibrary', componentType: 'Library', version: '1.2.3' });
+    expect(warnings).toEqual([]);
+  });
+
+  it('reads Copilot components and warns about component types fast-serve does not build', () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), 'fast-serve-project-'));
+    try {
+      mkdirSync(path.join(projectRoot, 'config'));
+      mkdirSync(path.join(projectRoot, 'src/copilotComponents/links'), { recursive: true });
+      writeFileSync(path.join(projectRoot, 'package.json'), '{ "version": "1.0.0" }');
+      writeFileSync(path.join(projectRoot, 'src/copilotComponents/links/LinksCopilotComponent.ts'), 'export default class LinksCopilotComponent {}\n');
+      writeFileSync(
+        path.join(projectRoot, 'src/copilotComponents/links/LinksCopilotComponent.manifest.json'),
+        JSON.stringify({ id: 'c1', alias: 'LinksCopilotComponent', componentType: 'CopilotComponent', copilotType: 'Ux', version: '*', tools: [] }),
+      );
+      writeFileSync(path.join(projectRoot, 'src/App.manifest.json'), JSON.stringify({ id: 'a1', alias: 'OldApplication', componentType: 'Application' }));
+      writeFileSync(
+        path.join(projectRoot, 'config/config.json'),
+        JSON.stringify({
+          bundles: {
+            links: { components: [{ entrypoint: './lib/copilotComponents/links/LinksCopilotComponent.js', manifest: './src/copilotComponents/links/LinksCopilotComponent.manifest.json' }] },
+            app: { components: [{ entrypoint: './lib/App.js', manifest: './src/App.manifest.json' }] },
+          },
+        }),
+      );
+      const warnings: string[] = [];
+      const bundles = createProject(projectRoot, { warn: (message) => warnings.push(message) }).bundles();
+      expect(bundles.map(({ name, components }) => ({ name, types: components.map(({ manifest }) => `${manifest.alias}:${manifest.componentType}:${manifest.version}`) }))).toEqual([
+        { name: 'links', types: ['LinksCopilotComponent:CopilotComponent:1.0.0'] },
+      ]);
+      expect(warnings).toEqual(['OldApplication: componentType "Application" is not supported by fast-serve, skipped (its bundle is not built or listed in the debug manifests)']);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   it('rejects an extension manifest without extensionType', () => {
@@ -213,6 +248,7 @@ describe('createProject', () => {
       path.join(root, 'config/sass.json'),
       path.join(root, 'src/webparts/hello/HelloWebPart.manifest.json'),
       path.join(root, 'src/adaptiveCardExtensions/card/CardAdaptiveCardExtension.manifest.json'),
+      path.join(root, 'src/libraries/tools/ToolsLibrary.manifest.json'),
       path.join(root, 'src/extensions/banner/BannerApplicationCustomizer.manifest.json'),
       path.join(root, 'tsconfig.json'),
       path.join(root, 'tsconfig.base.json'),

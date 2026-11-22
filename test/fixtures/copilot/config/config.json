@@ -1,0 +1,34 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "saved-links-copilot-component": {
+      "components": [
+        {
+          "entrypoint": "./lib/copilotComponents/savedLinks/SavedLinksCopilotComponent.js",
+          "manifest": "./src/copilotComponents/savedLinks/SavedLinksCopilotComponent.manifest.json"
+        }
+      ]
+    },
+    "hello-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/hello/HelloWebPart.js",
+          "manifest": "./src/webparts/hello/HelloWebPart.manifest.json"
+        }
+      ]
+    },
+    "tools-library": {
+      "components": [
+        {
+          "entrypoint": "./lib/libraries/tools/index.js",
+          "manifest": "./src/libraries/tools/ToolsLibrary.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SavedLinksCopilotComponentStrings": "lib/copilotComponents/savedLinks/loc/{locale}.js"
+  }
+}

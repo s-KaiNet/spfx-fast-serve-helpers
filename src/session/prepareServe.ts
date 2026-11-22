@@ -28,7 +28,7 @@ export function prepareServe({ root, cli = {}, logger, env = process.env }: Prep
   const file = loadOptionsFile(projectRoot, logger.warn);
   const project = createProject(projectRoot, logger, { deployedLibraries: file.deployedLibraries ?? [] });
   const options = resolveOptions({ cli, file, defaults: project.serveConfig() }, env);
-  if (project.components().length === 0) throw new Error(noComponentsMessage(project));
+  if (project.components().length === 0) throw new Error(NO_COMPONENTS_MESSAGE);
   for (const name of file.deployedLibraries ?? []) {
     if (!project.libraries().has(name)) logger.warn(`${OPTIONS_FILE}: "deployedLibraries" lists "${name}", which is not an SPFx library dependency of this project`);
   }
@@ -40,11 +40,4 @@ export function prepareServe({ root, cli = {}, logger, env = process.env }: Prep
   return { root: projectRoot, spfxVersion, project, options };
 }
 
-function noComponentsMessage(project: SpfxProject): string {
-  const library = project.libraryComponent();
-  if (library === undefined) return 'No web parts, extensions or Adaptive Card Extensions found in config/config.json bundles.';
-  return (
-    `${project.packageJson().name ?? library.alias} is an SPFx library project: run fast-serve in a consumer project that depends on it ` +
-    '(npm link, npm "file:", pnpm "link:"/"workspace:" or a workspace). fast-serve there compiles the library\'s src into the consumer\'s bundles, with hot updates.'
-  );
-}
+const NO_COMPONENTS_MESSAGE = 'No web parts, extensions, Adaptive Card Extensions, Copilot components or library components found in config/config.json bundles.';

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-component-manifest.schema.json",
+  "id": "40000000-0000-0000-0000-000000000002",
+  "alias": "SavedLinksCopilotComponent",
+  "componentType": "CopilotComponent",
+  "copilotType": "Ux",
+  "version": "*",
+  "manifestVersion": 2,
+
+  "capabilities": {
+    "availableDisplayModes": ["inline", "fullscreen"]
+  },
+
+  "tools": [
+    {
+      "name": "SavedLinksTool",
+      "description": {
+        "default": "Saved links"
+      },
+      "propertiesSchema": {
+        "id": "$../../../lib/copilotComponents/savedLinks/SavedLinksCopilotComponentProperties.js:default;"
+      }
+    }
+  ]
+}

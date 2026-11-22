@@ -233,8 +233,8 @@ export function createFakePage({ externals, fetch, webSocket = WebSocket }: Fake
     reloads: () => reloadCount,
     loadAmdBundle(source, filename) {
       let factoryResult: unknown;
-      const define = (dependencies: string[], factory: (...args: unknown[]) => unknown): void => {
-        factoryResult = factory(...dependencies.map((name) => externals[name]));
+      const define = (dependenciesOrFactory: string[] | (() => unknown), factory?: (...args: unknown[]) => unknown): void => {
+        factoryResult = typeof dependenciesOrFactory === 'function' ? dependenciesOrFactory() : factory?.(...dependenciesOrFactory.map((name) => externals[name]));
       };
       globals.define = define;
       vm.runInContext(source, context, filename === undefined ? {} : { filename });

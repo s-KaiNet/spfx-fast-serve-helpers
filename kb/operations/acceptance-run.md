@@ -59,7 +59,7 @@ Consumer: a copy of spfx-rea whose Second web part imports a class and a hooks c
 | library syntax error | terminal `error in ../corp-lib/src/…` with code frame, `rebuilt … (../corp-lib/src/…): 1 error`, overlay; fix closes it |
 | error thrown in a library click handler | terminal and overlay `[Unhandled error]` mapped to `../corp-lib/src/…:10` with code frame |
 | library edit while stopped, then a cached start | compile 95 ms, served the edited source |
-| `fast-serve` in the library project | exits 1 with the "run fast-serve in a consumer project" message |
+| `fast-serve` in the library project | exited 1 with a "run fast-serve in a consumer project" message at the time; since `1.24.0-beta.20` it serves the library bundle (see [local library projects](../features/local-library-projects.md#serving-the-library-project)) |
 | `"deployedLibraries": ["corp-lib"]` | restart; the bundle declares `corp-lib`, the manifest lists it as a `component` resource; the library is not deployed on the test tenant, so SharePoint shows "Something went wrong" (expected) |
 
 Observations: timings taken while two tabs restored from the browser profile were open were 0.6–2 s (hidden-tab timer throttling), so close restored tabs first. A theme token inside a `border` shorthand next to `border-color` was merged and lower-cased by the CSS minifier of `sp-css-loader` (`themeprimary`), so it fell back to the default colour; standalone properties resolve.

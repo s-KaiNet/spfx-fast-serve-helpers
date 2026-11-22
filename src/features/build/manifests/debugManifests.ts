@@ -30,7 +30,7 @@ export function buildDebugManifests(input: DebugManifestsInput): DebugManifest[]
       ...input.scriptResources(bundle.name),
     };
     return bundle.components.map(({ manifest, manifestFile, exportName }) => ({
-      ...withDevIconUrls(manifest, { root: input.root, origin: input.origin, manifestFile }),
+      ...withoutSchema(withDevIconUrls(manifest, { root: input.root, origin: input.origin, manifestFile })),
       loaderConfig: {
         internalModuleBaseUrls: [input.bundleBaseUrl],
         entryModuleId: bundle.name,
@@ -39,6 +39,10 @@ export function buildDebugManifests(input: DebugManifestsInput): DebugManifest[]
       },
     }));
   });
+}
+
+function withoutSchema({ $schema: _schema, ...manifest }: ComponentManifest): ComponentManifest {
+  return manifest;
 }
 
 export function renderManifestsModule(manifests: readonly DebugManifest[]): string {
