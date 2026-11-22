@@ -19,8 +19,6 @@ export interface FastServeOptions {
 
   typeCheck?: boolean;
 
-  typeCheckOverlay?: boolean;
-
   lint?: LintSetting;
 }
 
@@ -52,8 +50,6 @@ export interface ResolvedOptions {
 
   typeCheck: boolean;
 
-  typeCheckOverlay: boolean;
-
   lint: LintSetting;
 
   warnings: string[];
@@ -72,7 +68,6 @@ export const DEFAULT_PORT = 4321;
 export const TENANT_DOMAIN_ENV = 'SPFX_SERVE_TENANT_DOMAIN';
 export const DEFAULT_SERVE_CONFIGURATION = 'default';
 const TENANT_DOMAIN_PLACEHOLDER = '{tenantDomain}';
-const TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK = 'the type check overlay is off because type checking is off (remove --no-type-check or "typeCheck": false)';
 
 export function resolveOptions(
   sources: { cli?: FastServeOptions; file?: FastServeOptions; defaults?: OptionDefaults },
@@ -88,8 +83,6 @@ export function resolveOptions(
   const page = selectPage(cli, file, defaults, serveConfiguration);
   const pageUrlTemplate = page?.url;
   const typeCheck = cli.typeCheck ?? file.typeCheck ?? true;
-  const typeCheckOverlayChoice = cli.typeCheckOverlay ?? file.typeCheckOverlay;
-  if (typeCheckOverlayChoice === true && !typeCheck) warnings.push(TYPE_CHECK_OVERLAY_WITHOUT_TYPE_CHECK);
   return {
     port,
     origin: localOrigin(port),
@@ -102,7 +95,6 @@ export function resolveOptions(
     serveConfiguration,
     overlay: cli.overlay ?? file.overlay ?? true,
     typeCheck,
-    typeCheckOverlay: typeCheck && (typeCheckOverlayChoice ?? true),
     lint: cli.lint ?? file.lint ?? true,
     warnings,
   };
@@ -193,7 +185,6 @@ const OPTION_GUARDS: OptionGuards = {
   overlay: isBoolean,
   deployedLibraries: isStringArray,
   typeCheck: isBoolean,
-  typeCheckOverlay: isBoolean,
   lint: isLintSetting,
 };
 

@@ -46,7 +46,6 @@ const validConfig = {
   overlay: true,
   deployedLibraries: ['@contoso/corp-lib'],
   typeCheck: true,
-  typeCheckOverlay: false,
   lint: true,
 };
 
@@ -88,7 +87,7 @@ describe('schema/config.schema.json', () => {
   });
 
   it('rejects wrong types, like fast-serve', () => {
-    for (const config of [{ port: '4321' }, { overlay: 'no' }, { deployedLibraries: '@contoso/corp-lib' }, { typeCheckOverlay: 1 }]) {
+    for (const config of [{ port: '4321' }, { overlay: 'no' }, { deployedLibraries: '@contoso/corp-lib' }, { typeCheck: 1 }]) {
       expect(validate(config)).toBe(false);
       expect(() => loadConfig(config)).toThrow(/wrong type/);
     }

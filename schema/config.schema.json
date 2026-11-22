@@ -37,7 +37,7 @@
     "overlay": {
       "type": "boolean",
       "default": true,
-      "description": "Show compile and runtime errors in an overlay over the page; false keeps them in the terminal and the browser console. Default: true. Flag: --no-overlay."
+      "description": "Show compile, runtime and type errors in an overlay over the page; false keeps them in the terminal and the browser console. Default: true. Flag: --no-overlay."
     },
     "deployedLibraries": {
       "type": "array",
@@ -49,12 +49,7 @@
     "typeCheck": {
       "type": "boolean",
       "default": true,
-      "description": "Type check the project in the background with its own TypeScript and tsconfig (about 1 GB of memory on large projects); results in the terminal. Default: true. Flags: --no-type-check, --type-check."
-    },
-    "typeCheckOverlay": {
-      "type": "boolean",
-      "default": true,
-      "description": "Also show type errors in a panel at the bottom of the page; needs typeCheck. Default: true. Flags: --no-type-check-overlay, --type-check-overlay."
+      "description": "Type check the project in the background with its own TypeScript and tsconfig (about 1 GB of memory on large projects); results in the terminal and, unless overlay is false, in the error overlay. Default: true. Flags: --no-type-check, --type-check."
     },
     "lint": {
       "enum": [true, false, "full"],

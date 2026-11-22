@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { codeFrame } from '../browserErrors/index.js';
+import { codeFrame } from '../../../shared/codeFrame.js';
 import { toPosix } from '../../../shared/paths.js';
 
 export interface TypeIssue {

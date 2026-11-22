@@ -20,9 +20,8 @@ export function setupDetails({ project, options }: ServeSetup): string[] {
   ];
 }
 
-function describeTypeCheck({ typeCheck, typeCheckOverlay }: ServeSetup['options']): string {
-  if (!typeCheck) return 'off';
-  return typeCheckOverlay ? 'on (with overlay)' : 'on';
+function describeTypeCheck({ typeCheck }: ServeSetup['options']): string {
+  return typeCheck ? 'on' : 'off';
 }
 
 function describeLint(lint: ServeSetup['options']['lint']): string {

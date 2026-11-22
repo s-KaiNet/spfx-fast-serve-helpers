@@ -1,5 +1,4 @@
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import tls from 'node:tls';
@@ -9,14 +8,18 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../../../shared/logger.js';
 import type { DebugManifest } from '../../build/manifests/index.js';
 import { startDevSession, type DevSession } from '../../../session/index.js';
-import { COMPILE_FIXTURE, fakeExternals } from '../../../../test/kit/compileKit.js';
+import { fakeExternals, type FixtureCopy } from '../../../../test/kit/compileKit.js';
 import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
-import { createFakePage, type FakePage } from '../../../../test/kit/fakePage.js';
+import { createFakePage, type FakeNode, type FakePage } from '../../../../test/kit/fakePage.js';
+import { pageEventSources, typeCheckFixture, type PageEventSources } from '../../../../test/kit/typeCheckKit.js';
 
 const TUNNEL_HOST = 'dev.contoso.example';
 const TUNNEL_ORIGIN = `https://${TUNNEL_HOST}`;
 const BUNDLES = ['single-web-part', 'shared-bundle'];
 const FIRST_COMPONENT = 'src/webparts/first/components/First.tsx';
+const HELLO_PROPS = 'src/webparts/hello/components/IHelloProps.ts';
+const OVERLAY_ID = 'fast-serve-error-overlay';
+const EVENTS_URL_KEY = '"typeCheckEventsUrl":';
 const FIRST = (version: string): string =>
   "import * as React from 'react';\n" +
   `(globalThis as unknown as Record<string, string>).firstVersion = '${version}';\n` +
@@ -40,22 +43,26 @@ function occurrences(text: string, part: string): number {
 }
 
 describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 }, () => {
+  let fixture: FixtureCopy;
   let root: string;
   let session: DevSession;
   let page: FakePage;
+  let eventSources: PageEventSources;
   const messages: string[] = [];
   const requested: string[] = [];
   const bundles = new Map<string, string>();
 
   const throughTunnel = (url: string): string => url.replace(new RegExp(`^(https|wss)://${TUNNEL_HOST.replaceAll('.', '\\.')}(?::443)?`), (_match, scheme: string) => session.localOrigin.replace('https', scheme));
 
+  const typeOverlays = () => page.body.childNodes.filter((node: FakeNode) => node.id === OVERLAY_ID && node.getAttribute('data-source') === 'type');
+  const bundleSource = async () => (await fetch(`${session.localOrigin}/dist/single-web-part.js`)).text();
+
   beforeAll(async () => {
-    root = mkdtempSync(path.join(tmpdir(), 'fast-serve-tunnel-'));
-    cpSync(COMPILE_FIXTURE, root, { recursive: true });
-    mkdirSync(path.join(root, 'fast-serve'), { recursive: true });
-    writeFileSync(path.join(root, 'fast-serve/rspack.extend.mjs'), EXTEND_FILE);
-    mkdirSync(path.join(root, 'src/webparts/first/components'), { recursive: true });
-    writeFileSync(path.join(root, FIRST_COMPONENT), FIRST('v1'));
+    fixture = typeCheckFixture();
+    root = fixture.root;
+    fixture.write('fast-serve/rspack.extend.mjs', EXTEND_FILE);
+    fixture.write('fast-serve/config.json', { typeCheck: true });
+    fixture.write(FIRST_COMPONENT, FIRST('v1'));
     const firstWebPart = path.join(root, 'src/webparts/first/FirstWebPart.ts');
     writeFileSync(
       firstWebPart,
@@ -70,7 +77,7 @@ describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 
     };
     session = await startDevSession({
       root,
-      cli: { typeCheck: false, port: await freePort() },
+      cli: { port: await freePort() },
       logger,
       env: {},
       https: certificate,
@@ -86,6 +93,7 @@ describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 
         super(throughTunnel(String(url)), protocols);
       }
     }
+    eventSources = pageEventSources(throughTunnel);
     page = createFakePage({
       externals: fakeExternals,
       fetch: (url, init) => {
@@ -94,13 +102,15 @@ describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 
       },
       webSocket: TunnelWebSocket,
     });
+    page.globals.EventSource = eventSources.EventSource;
     for (const bundle of BUNDLES) page.loadAmdBundle(bundles.get(bundle) ?? '', `${TUNNEL_ORIGIN}/dist/${bundle}.js`);
     await delay(1000);
   }, 60_000);
 
   afterAll(async () => {
+    eventSources.closeAll();
     await session.close();
-    rmSync(root, { recursive: true, force: true });
+    fixture.remove();
   });
 
   it('serves under the tunnel origin and says so in the banner', () => {
@@ -130,6 +140,7 @@ describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 
       expect(bundle).not.toContain('hostname=localhost');
       expect(occurrences(bundle, `"reportUrl":"${TUNNEL_ORIGIN}/fast-serve/browser-errors"`)).toBe(1);
       expect(occurrences(bundle, `clearTunnelCaches)("${TUNNEL_HOST}")`)).toBe(1);
+      expect(occurrences(bundle, `${EVENTS_URL_KEY}"${TUNNEL_ORIGIN}/fast-serve/type-check"`)).toBe(1);
     }
   });
 
@@ -162,5 +173,47 @@ describe('tunnel mode: TunnelServePlugin in the extend file', { timeout: 30_000 
     await waitFor(() => page.globals.firstVersion === 'v2', 'the hot update');
     expect(page.reloads()).toBe(0);
     expect(requested.some((url) => url.startsWith(`${TUNNEL_ORIGIN}/dist/`) && url.includes('.hot-update.'))).toBe(true);
+  });
+
+  it('shows type errors in the error overlay from the bundles through the tunnel origin and closes it on the fix', async () => {
+    await waitFor(() => messages.includes('info: type check: no errors'), 'the first type check', Date.now() + 30_000);
+    expect(eventSources.urls).toEqual([`${TUNNEL_ORIGIN}/fast-serve/type-check`]);
+    expect(typeOverlays()).toEqual([]);
+    const source = readFileSync(path.join(root, HELLO_PROPS), 'utf8');
+    writeFileSync(path.join(root, HELLO_PROPS), `${source}\nexport const contosoTypo: string = 1;\n`);
+    await waitFor(() => typeOverlays().length === 1, 'the type errors in the overlay', Date.now() + 30_000);
+    expect(typeOverlays()[0]?.shadowRoot?.text).toContain('[fast-serve] Type check: 1 error');
+    expect(typeOverlays()[0]?.shadowRoot?.text).toContain('TS2322');
+    writeFileSync(path.join(root, HELLO_PROPS), source);
+    await waitFor(() => typeOverlays().length === 0, 'the overlay to close on the fix', Date.now() + 30_000);
+    expect(eventSources.urls).toHaveLength(1);
+  });
+
+  it('sends the type check events uncached and unbuffered for proxies', async () => {
+    const controller = new AbortController();
+    const response = await fetch(`${session.localOrigin}/fast-serve/type-check`, { signal: controller.signal });
+    try {
+      expect(response.headers.get('content-type')).toBe('text/event-stream; charset=utf-8');
+      expect(response.headers.get('cache-control')).toBe('no-cache, no-store, no-transform');
+      expect(response.headers.get('x-accel-buffering')).toBe('no');
+      expect(response.headers.get('access-control-allow-origin')).toBe('*');
+    } finally {
+      controller.abort();
+    }
+  });
+
+  it('leaves type errors out of the bundles when the overlay or the type check is off', async () => {
+    const checked = messages.filter((message) => message === 'info: type check: no errors').length;
+    fixture.write('fast-serve/config.json', { typeCheck: true, overlay: false });
+    await waitFor(() => session.restarts === 1, 'the restart without the overlay', Date.now() + 30_000);
+    await waitFor(() => messages.filter((message) => message === 'info: type check: no errors').length > checked, 'the type check after the restart', Date.now() + 30_000);
+    const withoutOverlay = await bundleSource();
+    expect(occurrences(withoutOverlay, `"reportUrl":"${TUNNEL_ORIGIN}/fast-serve/browser-errors"`)).toBe(1);
+    expect(occurrences(withoutOverlay, EVENTS_URL_KEY)).toBe(0);
+    fixture.write('fast-serve/config.json', { typeCheck: false });
+    await waitFor(() => session.restarts === 2, 'the restart without the type check', Date.now() + 30_000);
+    const withoutTypeCheck = await bundleSource();
+    expect(occurrences(withoutTypeCheck, `"reportUrl":"${TUNNEL_ORIGIN}/fast-serve/browser-errors"`)).toBe(1);
+    expect(occurrences(withoutTypeCheck, EVENTS_URL_KEY)).toBe(0);
   });
 });

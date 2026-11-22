@@ -39,8 +39,6 @@ const CLI_OPTIONS = {
   'no-overlay': { type: 'boolean' },
   'type-check': { type: 'boolean' },
   'no-type-check': { type: 'boolean' },
-  'type-check-overlay': { type: 'boolean' },
-  'no-type-check-overlay': { type: 'boolean' },
   lint: { type: 'string' },
   'no-lint': { type: 'boolean' },
 } as const;
@@ -62,9 +60,6 @@ export function cliOptions(values: CliValues): FastServeOptions {
   if (values['type-check'] && values['no-type-check']) throw new Error('use either --type-check or --no-type-check');
   if (values['type-check']) options.typeCheck = true;
   if (values['no-type-check']) options.typeCheck = false;
-  if (values['type-check-overlay'] && values['no-type-check-overlay']) throw new Error('use either --type-check-overlay or --no-type-check-overlay');
-  if (values['type-check-overlay']) options.typeCheckOverlay = true;
-  if (values['no-type-check-overlay']) options.typeCheckOverlay = false;
   if (values.lint !== undefined && values['no-lint']) throw new Error('use either --lint or --no-lint');
   if (values.lint !== undefined) options.lint = lintFlag(values.lint);
   if (values['no-lint']) options.lint = false;

@@ -100,7 +100,7 @@ Quick-view templates (JSON imports), images and the lazily loaded property pane 
 
 ## Options
 
-Zero config works. Precedence: command-line flags → `fast-serve/config.json` → `config/serve.json` (port, pages) → defaults (port `4321`, locale `en-us`, overlay on, type check on with its page panel, lint on).
+Zero config works. Precedence: command-line flags → `fast-serve/config.json` → `config/serve.json` (port, pages) → defaults (port `4321`, locale `en-us`, overlay on (with type errors), type check on, lint on).
 
 ```jsonc
 // fast-serve/config.json (optional, JSON with comments)
@@ -113,7 +113,6 @@ Zero config works. Precedence: command-line flags → `fast-serve/config.json` �
   "overlay": true,
   "deployedLibraries": [],
   "typeCheck": true,
-  "typeCheckOverlay": true,
   "lint": true
 }
 ```
@@ -126,9 +125,8 @@ The `$schema` line gives completion, descriptions and validation in VS Code and 
 | `pageUrl` | `--page-url` | your SharePoint test page; when set, the start-up box also prints the page with the debug query appended (`Or open: …`); passed to the extend file as `context.pageUrl` |
 | `locale` | `--locale` | locale of the `localizedResources` strings, with a per-resource fallback to `en-us` |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` serve configuration (default `default`) |
-| `overlay` | `--no-overlay` | `false` turns off the error overlay over the page; errors still go to the terminal and the browser console |
-| `typeCheck` | `--no-type-check`, `--type-check` | on by default: type checks the project in the background with its own TypeScript (≈1 GB of memory on large projects); `false` turns it off, see [Type checking](#type-checking) |
-| `typeCheckOverlay` | `--no-type-check-overlay`, `--type-check-overlay` | on by default: also shows type errors in a panel at the bottom of the page (needs `typeCheck`); `false` keeps them in the terminal only |
+| `overlay` | `--no-overlay` | `false` turns off the error overlay over the page (compile, runtime and type errors); errors still go to the terminal and the browser console |
+| `typeCheck` | `--no-type-check`, `--type-check` | on by default: type checks the project in the background with its own TypeScript (≈1 GB of memory on large projects); type errors go to the terminal and, unless `overlay` is `false`, to the error overlay; `false` turns it off, see [Type checking](#type-checking) |
 | `lint` | `--lint`, `--lint full`, `--no-lint` | `true` (default) lints the files you save with the project's ESLint, without type-aware rules; `"full"` with them; `false` off, see [Linting](#linting) |
 | `deployedLibraries` | (file only) | package names of [linked SPFx library projects](#library-components) to load from SharePoint (the deployed copy) instead of compiling their `src` |
 
@@ -230,10 +228,10 @@ For places where the debug query can't be used (Viva Connections and Teams on mo
    `host` is the host name only (no `https://`, port or path); anything else is ignored with a warning.
 5. **Run `fast-serve`** (same port as the tunnel target) and open the page **without** the debug query, in a tab that never used it (the debug query sticks to the tab). Instead of the debug-query box, `fast-serve` prints `ready in … at https://<host> (tunnel mode; your tunnel forwards to https://localhost:<port>)` and one line reminding you to open the page without the query.
 
-In tunnel mode `fast-serve` still listens on `https://localhost:<port>`, but everything the page sees uses `https://<host>`: chunk and asset URLs, `manifests.js` base URLs, the HMR websocket (`wss://<host>:443`), browser-error forwarding and local-file externals. It also answers the file names heft's development package uses (strings scripts such as `dist/HelloWorldWebPartStrings_en-us.js`, content-hashed local externals); string edits still hot-update through the bundled copy. Bundles are sent with `Cache-Control: no-store`, and each bundle clears the tunnel's responses from SharePoint's `Site-*` caches (the mobile apps cache scripts). The overlay and terminal error forwarding run inside the bundles, so they work without `manifests.js`. The ready line shows the tunnel origin and there is no debug query; the localhost debug-query flow doesn't work in tunnel mode (its scripts would come from the tunnel host). Remove the plugin to go back. The extend-file context (`origin`, `publicPath`) still describes `localhost`, because the plugin is read from that file.
+In tunnel mode `fast-serve` still listens on `https://localhost:<port>`, but everything the page sees uses `https://<host>`: chunk and asset URLs, `manifests.js` base URLs, the HMR websocket (`wss://<host>:443`), browser-error forwarding and local-file externals. It also answers the file names heft's development package uses (strings scripts such as `dist/HelloWorldWebPartStrings_en-us.js`, content-hashed local externals); string edits still hot-update through the bundled copy. Bundles are sent with `Cache-Control: no-store`, and each bundle clears the tunnel's responses from SharePoint's `Site-*` caches (the mobile apps cache scripts). The overlay (compile, runtime and type errors) and terminal error forwarding run inside the bundles, so they work without `manifests.js`. Type errors reach the page over an event stream at `https://<host>/fast-serve/type-check`, sent with `Cache-Control: no-cache, no-store, no-transform` and `X-Accel-Buffering: no` so proxies don't buffer it. The ready line shows the tunnel origin and there is no debug query; the localhost debug-query flow doesn't work in tunnel mode (its scripts would come from the tunnel host). Remove the plugin to go back. The extend-file context (`origin`, `publicPath`) still describes `localhost`, because the plugin is read from that file.
 
 Risks and limits:
-- **Free ngrok doesn't work:** its warning page answers script requests with HTML. Use a paid ngrok plan, Dev Tunnels or a named Cloudflare tunnel.
+- **Free ngrok doesn't work:** its warning page answers script requests with HTML. Use a paid ngrok plan, Dev Tunnels or a named Cloudflare tunnel. The same warning page could also answer the type errors' event stream (`EventSource` can't send ngrok's bypass header), so type errors might stay in the terminal only.
 - **Your dev server is public** while the tunnel runs: anyone with the URL can read the bundles and source maps. Stop the tunnel when you're done and never deploy the development package to a production app catalog.
 - You need **app catalog rights**, and the development package replaces the deployed app with the same id. If SharePoint blocks the scripts, add the tunnel origin to the tenant's trusted script sources (exact host).
 - **Rebuild and redeploy** the package when the tunnel host changes (quick tunnels: every start) or when manifests change (new components, new SPFx library or `config.json` external, changed `config/config.json`); code edits don't need it.
@@ -262,22 +260,24 @@ Several bundles on one page all hot-update. Keep setup (icons, PnPjs, listeners)
 - **Code that throws while a module runs** (for example a stray `asdf` after an import line, which compiles but fails with `ReferenceError`) opens the overlay too. During a hot update the page keeps showing the previous version of the component until the error is fixed, and the terminal says so. At page load the bundle can't load: the web part's error box shows the reason and the page reloads after the fix.
 - **Render errors** (for example a misspelled function in JSX, `{escape1(…)}`, in a class or function component) open the overlay and the terminal names the line, both after a hot update and after F5. Without [type checking](#type-checking) such typos show up only when the code runs; React unmounts the failing web part's content until the fix, which renders it again without a reload.
 - **A bundle that fails to load** shows a readable reason in the web part's error box instead of `[object Object]` (compile error, code that threw while loading, missing `config.json` external or SPFx library), and the page reloads after the fix.
-- `--no-overlay` / `"overlay": false` turns the overlay off; terminal and console still get everything.
+- **Type errors** from the [background type check](#type-checking) open the same overlay (amber instead of red) while the check has errors; it closes when the check is clean.
+- **One overlay, one error source at a time:** compile errors first (the code didn't build), then runtime errors, then type errors. The others are listed under it as `Also: Type check: 2 errors` and take its place when it closes (a fixed compile error shows the remaining type errors). Esc, × or a click outside closes the overlay with everything listed in it; type errors come back only when they change.
+- `--no-overlay` / `"overlay": false` turns the overlay off for all three; terminal and console still get everything.
 
 ## Type checking
 
-`fast-serve` compiles TypeScript with SWC, file by file, without type information. A background type check shows type errors while you work; it's on by default, with a panel on the page. Turn it off when you don't need it or memory is short (≈1 GB on large projects):
+`fast-serve` compiles TypeScript with SWC, file by file, without type information. A background type check shows type errors while you work, in the terminal and in the [error overlay](#errors); it's on by default. Turn it off when you don't need it or memory is short (≈1 GB on large projects):
 
 ```sh
-npx fast-serve --no-type-check-overlay   # type errors in the terminal only
-npx fast-serve --no-type-check           # no type check
+npx fast-serve --no-type-check   # no type check
+npx fast-serve --no-overlay      # type errors (and all other errors) in the terminal only
 ```
 
-or `"typeCheckOverlay": false` / `"typeCheck": false` in `fast-serve/config.json` (`--type-check` and `--type-check-overlay` turn them on again for one run). A project without `tsconfig.json` or TypeScript starts as usual with one `type check is off: …` line.
+or `"typeCheck": false` / `"overlay": false` in `fast-serve/config.json` (`--type-check` turns the check on again for one run). A project without `tsconfig.json` or TypeScript starts as usual with one `type check is off: …` line.
 
 - **Same TypeScript as `heft build`:** the check runs the project's own TypeScript (5.8 in SPFx 1.24, found in the project or the SPFx build rig) on the project's unchanged `tsconfig.json`, so it reports what heft's TypeScript step reports for the project's files. It runs in two worker processes ([ts-checker-rspack-plugin](https://github.com/rstackjs/ts-checker-rspack-plugin)) and never blocks a rebuild or a hot update: the page updates as usual while the check runs.
 - **Terminal:** the first result after the start, then a block only when the set of errors changes (`type error in src/…/Second.tsx:11:30`, `TS2552: Cannot find name 'escape1'…`, a code frame, then `type check: 1 error`), and `type check: no errors` once when it's clean again. At most 20 errors are listed. Type errors never show up as compile errors, in `rebuilt in …` lines or in the compile error overlay. A file with a syntax error is the compiler's: its compile error is shown and the check leaves that file out until it builds again (no `TS1005: '}' expected` next to SWC's `Expected '}'`). Syntax errors in type-only files (interfaces, which the compiler never sees) still come from the check.
-- **Overlay** (`typeCheckOverlay`): a panel at the bottom of the page, separate from the compile and runtime error overlay; it closes when the check is clean; Esc or × hides it until the errors change. While the compile or runtime error overlay is open, the panel shrinks to one line (`[fast-serve] Type check: 1 error (also shown in the terminal)`); click it to see the errors; when that overlay closes, the panel comes back. It comes with the debug `manifests.js`, so there is no panel in [tunnel mode](#serving-through-a-tunnel).
+- **Overlay:** type errors open the page's error overlay (also in [tunnel mode](#serving-through-a-tunnel)); it closes when the check is clean; Esc or × hides it until the errors change. Compile and runtime errors win: while one is shown, the type errors are a line `Also: Type check: 1 error` in it, and they take over when it closes. Files with a syntax error are left out of the type check, so the overlay never shows the same error twice.
 - **Type-only files** (interfaces, `import type`): saving one re-checks without a `rebuilt` line. SCSS and asset typings written by `fast-serve` are passed to the next check, so a new stylesheet class or image doesn't leave a stale `Cannot find module` error.
 - **Timing** (2-core laptop): the first result arrives ≈4 s after the start on a small project and ≈5.5 s on a 1000-module project (≈10 s the first time, before `temp/fast-serve/typecheck.tsbuildinfo` exists); after a restart ≈3.3 s / ≈4.5 s; an error in a component ≈0.3–0.5 s after the save; a change to a type used everywhere ≈6 s on the big project. Rebuilds get ≈70 ms slower on the big project while the check runs (shared CPU); the first start of the process ≈0.2 s slower (TypeScript is loaded once to check its version).
 - **Memory:** the two workers need ≈0.7–0.8 GB after the first check, up to ≈1.2 GB after edits to widely used types on large projects. If that's too much, use `--no-type-check` (or `"typeCheck": false`) and rely on `heft build`.
@@ -375,8 +375,9 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `lint: ESLint could not load eslint.config.js …` | fix the config (run `npx eslint <file>` for details); linting starts again when the file changes |
 | `lint stopped: the ESLint process exited …` | restart `fast-serve`; if it happens again run `npx eslint <file>` to see why, or use `--no-lint` |
 | `heft build` fails with `no-floating-promises` or `no-for-in-array` but `fast-serve` showed no lint error | expected with the default: type-aware rules are off while serving; use `"lint": "full"` |
-| no type check panel on the page | the panel appears only while there are type errors; check that neither `typeCheck` nor `typeCheckOverlay` is `false` (or `--no-type-check…`) |
-| a one-line `Type check: …` bar at the bottom of the error overlay | expected: the type panel collapses while a compile or runtime error overlay is open; click it to expand |
+| type errors in the terminal but not on the page | the overlay shows them only while there are type errors and nothing hid them (Esc hides them until they change); check that `overlay` isn't `false` (`--no-overlay`) |
+| `Also: Type check: …` under a compile or runtime error | expected: the higher-priority error is shown first; fix it (or close the overlay) to see the type errors |
+| tunnel mode: type errors in the terminal but never on the page | open `https://<host>/fast-serve/type-check` in the browser: it should stay open with `data: …` lines. An HTML page instead (for example ngrok's free-plan warning) means the tunnel blocks the event stream |
 | `<file> imports "<library>/lib/…", a deep import into the SPFx library <library>` | in that file, import from the library's root if it exports the name |
 
 ## Limitations

@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-23 01:30 | update | Type errors merged into the error overlay
+
+- Changed: `kb/features/type-checking.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/tunnel-mode.md`, `kb/features/cli-and-options.md`, `kb/index.md`
+- Outcome: the separate type-check panel and the `typeCheckOverlay` option are gone; type errors are the third, lowest-priority source of the page runtime's error overlay (compile > runtime > type, others listed as `Also:`), fed by the existing event stream, so they also work in tunnel mode; `overlay` is the one switch for on-page errors; event-stream headers for proxies documented (version 1.24.0-beta.21)
+
 ## 2026-11-23 00:30 | update | Copilot components and served library projects
 
 - Changed: `kb/features/copilot-components.md` (new), `kb/features/local-library-projects.md`, `kb/concepts/spfx-component-types.md`, `kb/architecture/project-model.md`, `kb/features/dev-server.md`, `kb/index.md`

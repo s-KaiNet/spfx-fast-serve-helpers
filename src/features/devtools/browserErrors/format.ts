@@ -1,4 +1,5 @@
 import { styleText } from 'node:util';
+import { codeFrame } from '../../../shared/codeFrame.js';
 import type { BrowserErrorReport } from './contracts.js';
 
 export interface DisplayFrame {
@@ -26,8 +27,6 @@ const OVERLAY_TITLES: Record<BrowserErrorReport['kind'], string> = {
   'console-error': 'console.error',
   'load-error': 'Bundle load error',
 };
-
-const CODE_FRAME_CONTEXT_LINES = 2;
 
 export function errorTitle(report: BrowserErrorReport): string {
   return report.kind === 'console-error' ? report.message : `${report.name}: ${report.message}`;
@@ -57,18 +56,4 @@ export function formatReport(headline: string, frames: readonly DisplayFrame[], 
 
 export function frameLocation(frame: DisplayFrame): string {
   return frame.column === undefined ? `${frame.location}:${frame.line}` : `${frame.location}:${frame.line}:${frame.column}`;
-}
-
-export function codeFrame(source: string, line: number, column?: number): string[] {
-  const sourceLines = source.split(/\r?\n/);
-  const first = Math.max(1, line - CODE_FRAME_CONTEXT_LINES);
-  const last = Math.min(sourceLines.length, line + CODE_FRAME_CONTEXT_LINES);
-  const width = String(last).length;
-  const output: string[] = [];
-  for (let current = first; current <= last; current++) {
-    const marker = current === line ? '>' : ' ';
-    output.push(`${marker} ${String(current).padStart(width)} | ${sourceLines[current - 1] ?? ''}`.trimEnd());
-    if (current === line && column !== undefined) output.push(`  ${' '.repeat(width)} | ${' '.repeat(Math.max(0, column - 1))}^`);
-  }
-  return output;
 }

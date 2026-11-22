@@ -11,7 +11,7 @@ interface RequireJsError {
   requireModules?: unknown;
 }
 
-type OverlaySource = 'compile' | 'runtime';
+type OverlaySource = 'compile' | 'runtime' | 'type';
 
 type CreateScriptNode = (config: unknown, moduleName: unknown, url: unknown) => HTMLScriptElement;
 
@@ -25,7 +25,19 @@ interface FastServeOverlay {
 }
 
 const ERROR_OVERLAY_ID = 'fast-serve-error-overlay';
-const ERROR_OVERLAY_CHANGED_EVENT = 'fast-serve:error-overlay-changed';
+const OVERLAY_SOURCES: readonly OverlaySource[] = ['compile', 'runtime', 'type'];
+const OVERLAY_ERROR_ACCENT = { border: '#e83b46', heading: '#ff6b6b' };
+const OVERLAY_ACCENTS: Record<OverlaySource, { border: string; heading: string }> = {
+  compile: OVERLAY_ERROR_ACCENT,
+  runtime: OVERLAY_ERROR_ACCENT,
+  type: { border: '#e8a33b', heading: '#f0b45a' },
+};
+const OVERLAY_FOOTERS: Record<OverlaySource, string> = {
+  compile: 'Fix the error and save: the overlay closes after the rebuild. Esc or × closes it.',
+  runtime: 'The error is also printed in the fast-serve terminal. The overlay closes after the next successful update and opens again if the error repeats. Esc or × closes it.',
+  type: "Type errors don't stop rebuilds or hot updates and are also printed in the fast-serve terminal. The overlay closes when the type check is clean; Esc or × hides it until the type errors change.",
+};
+const OVERLAY_TURN_OFF = 'Turn it off with --no-overlay or "overlay": false in fast-serve/config.json.';
 
 const HOT_UPDATE_APPLYING_BUNDLES = Symbol.for('fast-serve.hot-update.applying-bundles');
 
@@ -93,63 +105,92 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, style: string, t
   return created;
 }
 
-function announceOverlayChange(): void {
-  window.dispatchEvent(new Event(ERROR_OVERLAY_CHANGED_EVENT));
+function contentKey({ title, text }: OverlayContent): string {
+  return `${title}\n${text}`;
+}
+
+function parseOverlayContent(data: unknown): OverlayContent | undefined {
+  if (typeof data !== 'string') return undefined;
+  try {
+    const parsed: unknown = JSON.parse(data);
+    if (typeof parsed !== 'object' || parsed === null) return undefined;
+    const { title, text } = parsed as { title?: unknown; text?: unknown };
+    return typeof title === 'string' && typeof text === 'string' ? { title, text } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function overlayHost(source: OverlaySource, { title, text }: OverlayContent, also: readonly string[], close: () => void): HTMLElement {
+  const { border, heading: headingColor } = OVERLAY_ACCENTS[source];
+  const host = element('div', 'position:fixed;top:0;left:0;width:100vw;height:100vh;margin:0;padding:0;z-index:2147483647;');
+  host.id = ERROR_OVERLAY_ID;
+  host.setAttribute('data-source', source);
+  const root = host.attachShadow({ mode: 'open' });
+  const backdrop = element('div', 'position:absolute;top:0;left:0;right:0;bottom:0;overflow:auto;background:rgba(0,0,0,0.85);font:14px/1.5 Menlo,Consolas,monospace;color:#e8e8e8;');
+  const panel = element('div', `position:relative;max-width:1100px;margin:48px auto;padding:24px 28px;background:#181818;border-top:6px solid ${border};box-shadow:0 8px 32px rgba(0,0,0,0.5);`);
+  const closeButton = element('button', 'position:absolute;top:8px;right:12px;background:none;border:none;color:#e8e8e8;font-size:24px;cursor:pointer;', '×');
+  closeButton.setAttribute('aria-label', 'Close');
+  closeButton.addEventListener('click', close);
+  const heading = element('div', `color:${headingColor};font:600 18px/1.4 Segoe UI,sans-serif;margin-bottom:16px;`, `[fast-serve] ${title}`);
+  const body = element('pre', 'margin:0;white-space:pre-wrap;word-break:break-word;', text);
+  panel.append(closeButton, heading, body);
+  if (also.length > 0) panel.append(element('div', 'margin-top:20px;color:#f0b45a;font:600 14px/1.4 Segoe UI,sans-serif;white-space:pre-line;', also.map((line) => `Also: ${line}`).join('\n')));
+  panel.append(element('div', 'margin-top:20px;color:#9a9a9a;font:13px/1.4 Segoe UI,sans-serif;', `${OVERLAY_FOOTERS[source]} ${OVERLAY_TURN_OFF}`));
+  backdrop.append(panel);
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) close();
+  });
+  root.append(backdrop);
+  return host;
 }
 
 function createOverlay(): FastServeOverlay {
+  const contents = new Map<OverlaySource, OverlayContent>();
+  let dismissedTypeKey = '';
   let host: HTMLElement | undefined;
-  let shownSource: OverlaySource | undefined;
-  let shownText = '';
-  const remove = (): boolean => {
-    const removed = host !== undefined;
+  let shownKey = '';
+  const isVisible = (source: OverlaySource): boolean => {
+    const content = contents.get(source);
+    return content !== undefined && !(source === 'type' && contentKey(content) === dismissedTypeKey);
+  };
+  const render = (): void => {
+    const [primary = 'compile', ...others] = OVERLAY_SOURCES.filter(isVisible);
+    const content = isVisible(primary) ? contents.get(primary) : undefined;
+    if (content === undefined) {
+      host?.remove();
+      host = undefined;
+      shownKey = '';
+      return;
+    }
+    const also = others.map((source) => contents.get(source)?.title ?? '');
+    const key = [primary, contentKey(content), ...also].join('\n');
+    if (key === shownKey) return;
     host?.remove();
-    host = undefined;
-    shownSource = undefined;
-    shownText = '';
-    return removed;
+    host = overlayHost(primary, content, also, dismiss);
+    document.body.append(host);
+    shownKey = key;
   };
-  const hide = (): void => {
-    if (remove()) announceOverlayChange();
-  };
+  function dismiss(): void {
+    contents.delete('compile');
+    contents.delete('runtime');
+    const typeContent = contents.get('type');
+    if (typeContent !== undefined) dismissedTypeKey = contentKey(typeContent);
+    render();
+  }
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') hide();
+    if (event.key === 'Escape' && host !== undefined) dismiss();
   });
   return {
-    show(source, { title, text }) {
-      if (source === 'runtime' && shownSource === 'compile') return;
-      if (source === shownSource && `${title}\n${text}` === shownText) return;
-      remove();
-      host = element('div', 'position:fixed;top:0;left:0;width:100vw;height:100vh;margin:0;padding:0;z-index:2147483647;');
-      host.id = ERROR_OVERLAY_ID;
-      const root = host.attachShadow({ mode: 'open' });
-      const backdrop = element('div', 'position:absolute;top:0;left:0;right:0;bottom:0;overflow:auto;background:rgba(0,0,0,0.85);font:14px/1.5 Menlo,Consolas,monospace;color:#e8e8e8;');
-      const panel = element('div', 'position:relative;max-width:1100px;margin:48px auto;padding:24px 28px;background:#181818;border-top:6px solid #e83b46;box-shadow:0 8px 32px rgba(0,0,0,0.5);');
-      const close = element('button', 'position:absolute;top:8px;right:12px;background:none;border:none;color:#e8e8e8;font-size:24px;cursor:pointer;', '×');
-      close.setAttribute('aria-label', 'Close');
-      close.addEventListener('click', hide);
-      const heading = element('div', 'color:#ff6b6b;font:600 18px/1.4 Segoe UI,sans-serif;margin-bottom:16px;', `[fast-serve] ${title}`);
-      const body = element('pre', 'margin:0;white-space:pre-wrap;word-break:break-word;', text);
-      const footer = element(
-        'div',
-        'margin-top:20px;color:#9a9a9a;font:13px/1.4 Segoe UI,sans-serif;',
-        source === 'compile'
-          ? 'Fix the error and save: the overlay closes after the rebuild. Esc or × closes it. Turn it off with --no-overlay or "overlay": false in fast-serve/config.json.'
-          : 'The error is also printed in the fast-serve terminal. The overlay closes after the next successful update and opens again if the error repeats. Esc or × closes it. Turn it off with --no-overlay or "overlay": false in fast-serve/config.json.',
-      );
-      panel.append(close, heading, body, footer);
-      backdrop.append(panel);
-      backdrop.addEventListener('click', (event) => {
-        if (event.target === backdrop) hide();
-      });
-      root.append(backdrop);
-      document.body.append(host);
-      shownSource = source;
-      shownText = `${title}\n${text}`;
-      announceOverlayChange();
+    show(source, content) {
+      if (source === 'type' && contentKey(content) !== dismissedTypeKey) dismissedTypeKey = '';
+      contents.set(source, content);
+      render();
     },
     hide(source) {
-      if (shownSource === source) hide();
+      contents.delete(source);
+      if (source === 'type') dismissedTypeKey = '';
+      render();
     },
   };
 }
@@ -281,6 +322,18 @@ export function installFastServePage(config: PageRuntimeConfig): void {
     finishUpdate();
     reloadAfterFailureFix();
   }
+
+  function watchTypeCheck(eventsUrl: string): void {
+    if (typeof EventSource !== 'function') return;
+    const events = new EventSource(eventsUrl);
+    events.addEventListener('message', (event: MessageEvent<unknown>) => {
+      const content = parseOverlayContent(event.data);
+      if (content === undefined) overlay.hide('type');
+      else overlay.show('type', content);
+    });
+  }
+
+  if (config.overlay && config.typeCheckEventsUrl !== undefined) watchTypeCheck(config.typeCheckEventsUrl);
 
   window.addEventListener('message', (event) => {
     if (event.source === window && isDevServerMessage(event.data)) onDevServerMessage(event.data);

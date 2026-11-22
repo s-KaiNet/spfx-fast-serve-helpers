@@ -18,16 +18,12 @@ Options:
       --config <name>    config/serve.json "serveConfigurations" entry: prints its extension
                          query (customActions, fieldCustomizers, formCustomizer) next to the
                          web-part query (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
-      --no-overlay       Don't show compile and runtime errors in an overlay over the page
-                         (they still go to the terminal and the browser console)
+      --no-overlay       Don't show compile, runtime and type errors in an overlay over the
+                         page (they still go to the terminal and the browser console)
       --no-type-check    Don't type check the project in the background (on by default, with
-                         the project's own TypeScript; results in the terminal; about 1 GB of
-                         memory on large projects; heft build still does the full build)
-      --no-type-check-overlay
-                         Don't show type errors in a panel at the bottom of the page (on by
-                         default; it collapses to one line while an error overlay is open)
-      --type-check, --type-check-overlay
-                         Turn them on when the options file turns them off
+                         the project's own TypeScript; results in the terminal and the overlay;
+                         about 1 GB of memory on large projects; heft build still does the full build)
+      --type-check       Turn it on when the options file turns it off
       --lint [full]      Lint the files you save with the project's ESLint (on by default;
                          without type-aware rules unless "full"; results in the terminal)
       --no-lint          Turn linting off
@@ -36,7 +32,7 @@ Options:
 
 The same options can be set in ${OPTIONS_FILE}:
 { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true,
-  "typeCheck": true, "typeCheckOverlay": true, "lint": true }.
+  "typeCheck": true, "lint": true }.
 Completion and validation in editors: "$schema": "${OPTIONS_SCHEMA_PATH}".
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".

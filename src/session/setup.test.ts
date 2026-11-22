@@ -137,7 +137,7 @@ describe('setupDetails', () => {
     const { logger } = recordingLogger();
     const setup = prepareServe({ root: fixture, cli: { overlay: false }, logger, env: {} });
     expect(setupDetails(setup)).toEqual([
-      'port 4400 (https://localhost:4400), locale en-us, overlay off, type check on (with overlay), lint on',
+      'port 4400 (https://localhost:4400), locale en-us, overlay off, type check on, lint on',
       'serve configuration: none',
       'page: https://{tenantDomain}/sites/dev/SitePages/Test.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
       'bundle hello-web-part: HelloWebPart (WebPart)',
@@ -150,8 +150,8 @@ describe('setupDetails', () => {
 
   it('says how the type check runs', () => {
     const { logger } = recordingLogger();
-    const optionsLine = (cli: { typeCheck?: boolean; typeCheckOverlay?: boolean }) => setupDetails(prepareServe({ root: fixture, cli, logger, env: {} }))[0];
-    expect(optionsLine({ typeCheckOverlay: false })).toMatch(/, type check on, lint on$/);
+    const optionsLine = (cli: { typeCheck?: boolean }) => setupDetails(prepareServe({ root: fixture, cli, logger, env: {} }))[0];
+    expect(optionsLine({})).toMatch(/, type check on, lint on$/);
     expect(optionsLine({ typeCheck: false })).toMatch(/, type check off, lint on$/);
   });
 

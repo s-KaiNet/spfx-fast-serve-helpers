@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has eight options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`, `typeCheck`, `typeCheckOverlay`, `lint`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints the package and SPFx versions, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready line and the debug query. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has seven options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`, `typeCheck`, `lint`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints the package and SPFx versions, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready line and the debug query. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
 
 ## Behavior
 
@@ -26,9 +26,8 @@ tags:
 | `--page-url <url>` | `pageUrl` | SharePoint test page; when given (flag or file), the start-up box adds the page with the debug query appended; `{tenantDomain}` allowed |
 | `--locale <locale>` | `locale` | locale of the `localizedResources` strings; lowercased, must look like `en-us` |
 | `--config <name>`, `--serve-config <name>` | `serveConfiguration` | `config/serve.json` `serveConfigurations` entry (default `default`); `--config` wins if both are given |
-| `--no-overlay` | `overlay: false` | no error overlay over the page (compile and runtime errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |
-| `--no-type-check`, `--type-check` | `typeCheck` | background type check with the project's TypeScript, on by default ([Background type check](type-checking.md)); both flags together are an error |
-| `--no-type-check-overlay`, `--type-check-overlay` | `typeCheckOverlay` | type issues also in a panel on the page, on by default; an explicit `true` without `typeCheck` is ignored with a warning; both flags together are an error |
+| `--no-overlay` | `overlay: false` | no error overlay over the page (compile, runtime and type errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |
+| `--no-type-check`, `--type-check` | `typeCheck` | background type check with the project's TypeScript, on by default ([Background type check](type-checking.md)); results in the terminal and, unless `overlay` is off, in the error overlay; both flags together are an error |
 | `--lint`, `--lint full`, `--no-lint` | `lint: true \| "full" \| false` | lint saved files with the project's ESLint, without (`true`) or with (`"full"`) type-aware rules ([Linting saved files](linting.md)); `--lint` with `--no-lint` or another value is an error |
 | `-h, --help` / `-v, --version` | | print help / the package version, exit 0 |
 
@@ -36,7 +35,7 @@ Flags are parsed strictly: an unknown flag or a positional argument prints the e
 
 ### `fast-serve/config.json`
 
-Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": true, "typeCheckOverlay": true, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored by fast-serve; an unknown key or a wrong value type is fatal and names the key, the supported keys and the `$schema` line.
+Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": true, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored by fast-serve; an unknown key or a wrong value type is fatal and names the key, the supported keys and the `$schema` line.
 
 The package ships a JSON Schema (draft-07) for the file at `schema/config.schema.json`; projects reference it with a path relative to the file, `"$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"`, which resolves wherever the package is a direct devDependency (npm, pnpm and yarn all create `node_modules/spfx-fast-serve-helpers` in the project; hoisting monorepos need more `../`). There is deliberately no URL or SchemaStore variant: the schema always matches the installed version. It lists every option with its type, allowed values, default and overriding flags, allows `$schema` and forbids other keys, so editors flag the same typos and wrong types that stop fast-serve. A test keeps the schema's properties equal to the option names the file reader accepts (one list shared by reader and test) and checks sample configs against both.
 

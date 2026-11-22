@@ -9,52 +9,20 @@ import type { Logger } from '../../../shared/logger.js';
 import { createProject } from '../../../project/index.js';
 import { startDevServer } from '../../../server/index.js';
 import { startDevSession, type DevSession } from '../../../session/index.js';
-import { copyCompileFixture, packageDirectory, type FixtureCopy } from '../../../../test/kit/compileKit.js';
+import { fakeExternals, type FixtureCopy } from '../../../../test/kit/compileKit.js';
 import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
+import { createFakePage } from '../../../../test/kit/fakePage.js';
+import { openEventStream, pageEventSources, typeCheckFixture, type EventStream } from '../../../../test/kit/typeCheckKit.js';
 import { TS_BUILD_INFO_FILE } from './checkerOptions.js';
 
 const HELLO = 'src/webparts/hello/components/Hello.tsx';
 const HELLO_PROPS = 'src/webparts/hello/components/IHelloProps.ts';
 const FIRST = 'src/webparts/first/FirstWebPart.ts';
-const HEFT_PACKAGES = ['@rushstack/heft-config-file', '@rushstack/rig-package', '@rushstack/heft-static-asset-typings-plugin'];
+const BUNDLES = ['single-web-part', 'shared-bundle'];
+const EVENTS_URL_KEY = '"typeCheckEventsUrl":';
 
-const TSCONFIG = {
-  compilerOptions: {
-    target: 'es2017',
-    module: 'esnext',
-    moduleResolution: 'node',
-    jsx: 'react',
-    strict: true,
-    skipLibCheck: true,
-    resolveJsonModule: true,
-    esModuleInterop: true,
-    types: [],
-    lib: ['dom', 'es2017'],
-    rootDirs: ['src', 'temp/static-asset-ts'],
-    outDir: 'lib',
-  },
-  include: ['src/**/*.ts', 'src/**/*.tsx'],
-};
-
-const DECLARATIONS = `declare module '@microsoft/sp-core-library' { export class Version { static parse(value: string): Version; } }
-declare module '@microsoft/sp-webpart-base' { export class BaseClientSideWebPart { readonly context: unknown; } }
-declare module '@microsoft/microsoft-graph-client' { export class GraphClient {} }
-declare module 'HelloWebPartStrings' { export const Title: string; }
-declare module 'nested-react-user' { export function nestedReactVersion(): string; }
-declare module 'react';
-declare namespace JSX { interface IntrinsicElements { [name: string]: unknown } }
-declare const process: { env: Record<string, string | undefined> };
-`;
-
-function typeCheckFixture(): FixtureCopy {
-  const fixture = copyCompileFixture({
-    'tsconfig.json': TSCONFIG,
-    'src/declarations.d.ts': DECLARATIONS,
-    'config/static-asset-typings.json': { fileExtensions: ['.png'], generatedTsFolders: ['temp/static-asset-ts'] },
-  });
-  for (const name of HEFT_PACKAGES) fixture.linkPackage(name);
-  fixture.linkLocalPackage('typescript', packageDirectory('typescript-5'));
-  return fixture;
+function occurrences(text: string, part: string): number {
+  return text.split(part).length - 1;
 }
 
 function recordingLogger(messages: string[]): Logger {
@@ -82,36 +50,29 @@ function poll(condition: () => boolean, describeFailure: () => string, timeoutMs
   });
 }
 
-interface EventStream {
-  events: unknown[];
-  close(): void;
+class InertWebSocket {
+  onopen: unknown = null;
+  onclose: unknown = null;
+  onmessage: unknown = null;
+  onerror: unknown = null;
+  readyState = 0;
+
+  close(): void {
+    this.readyState = 3;
+  }
+
+  send(): void {
+    this.readyState = 0;
+  }
 }
 
-function openEventStream(url: string): Promise<EventStream> {
+function statusOf(url: string): Promise<number | undefined> {
   return new Promise((resolve, reject) => {
-    const events: unknown[] = [];
-    let buffered = '';
-    const req = request(url, { rejectUnauthorized: false }, (res) => {
-      res.setEncoding('utf8');
-      res.on('data', (chunk: string) => {
-        buffered += chunk;
-        const messages = buffered.split('\n\n');
-        buffered = messages.pop() ?? '';
-        for (const message of messages) {
-          const data = message.split('\n').find((line) => line.startsWith('data: '));
-          if (data !== undefined) events.push(JSON.parse(data.slice('data: '.length)));
-        }
-      });
-      resolve({
-        events,
-        close: () => {
-          req.destroy();
-        },
-      });
+    const req = request(url, { method: 'HEAD', rejectUnauthorized: false }, (res) => {
+      res.resume();
+      resolve(res.statusCode);
     });
-    req.on('error', (error: NodeJS.ErrnoException) => {
-      if (error.code !== 'ECONNRESET') reject(error);
-    });
+    req.on('error', reject);
     req.end();
   });
 }
@@ -147,7 +108,7 @@ describe('background type check with the project TypeScript', { timeout: 60_000 
 
   beforeAll(async () => {
     fixture = typeCheckFixture();
-    fixture.write('fast-serve/config.json', { typeCheck: true, typeCheckOverlay: true });
+    fixture.write('fast-serve/config.json', { typeCheck: true });
     session = await startDevSession({
       root: fixture.root,
       cli: { port: await freePort() },
@@ -184,7 +145,24 @@ describe('background type check with the project TypeScript', { timeout: 60_000 
       () => 'no initial overlay event',
     );
     expect(stream.events).toEqual([null]);
-    expect(await getText(`${session.origin}/temp/build/manifests.js`)).toContain('installTypeCheckOverlay');
+  });
+
+  it('lets the page runtime open one type check event stream per page from manifests.js and every bundle', async () => {
+    const manifests = await getText(`${session.origin}/temp/build/manifests.js`);
+    const bundles = await Promise.all(BUNDLES.map((bundle) => getText(`${session.origin}/dist/${bundle}.js`)));
+    const eventsUrl = `${EVENTS_URL_KEY}"${session.origin}/fast-serve/type-check"`;
+    expect(occurrences(manifests, eventsUrl)).toBe(1);
+    for (const bundle of bundles) expect(occurrences(bundle, eventsUrl)).toBe(1);
+    const sources = pageEventSources();
+    try {
+      const page = createFakePage({ externals: fakeExternals, fetch: () => Promise.resolve(new Response('{}')), webSocket: InertWebSocket as unknown as typeof WebSocket });
+      page.globals.EventSource = sources.EventSource;
+      page.loadAmdBundle(manifests, `${session.origin}/temp/build/manifests.js`);
+      for (const [index, bundle] of bundles.entries()) page.loadAmdBundle(bundle, `${session.origin}/dist/${BUNDLES[index] ?? ''}.js`);
+      expect(sources.urls).toEqual([`${session.origin}/fast-serve/type-check`]);
+    } finally {
+      sources.closeAll();
+    }
   });
 
   it('reports a planted error once, never as a compile error, and the fix as "no errors"', async () => {
@@ -279,7 +257,7 @@ describe('background type check with the project TypeScript', { timeout: 60_000 
   it('checks again after a restart, warm from the build info file, with the same number of workers', async () => {
     expect(existsSync(path.join(fixture.root, TS_BUILD_INFO_FILE))).toBe(true);
     const from = messages.length;
-    fixture.write('fast-serve/config.json', { typeCheck: true, typeCheckOverlay: true, locale: 'en-us' });
+    fixture.write('fast-serve/config.json', { typeCheck: true, overlay: false, locale: 'en-us' });
     await poll(
       () => messages.slice(from).some((message) => message.includes('restarted in')),
       () => `no restart\n${messages.slice(from).join('\n')}`,
@@ -291,6 +269,12 @@ describe('background type check with the project TypeScript', { timeout: 60_000 
       () => `expected 2 checker workers:\n${checkerWorkers().join('\n')}`,
       5000,
     );
+  });
+
+  it('keeps type errors in the terminal only when the overlay is off', async () => {
+    expect(await getText(`${session.origin}/temp/build/manifests.js`)).not.toContain(EVENTS_URL_KEY);
+    expect(await getText(`${session.origin}/dist/single-web-part.js`)).not.toContain(EVENTS_URL_KEY);
+    expect(await statusOf(`${session.origin}/fast-serve/type-check`)).toBe(404);
   });
 });
 

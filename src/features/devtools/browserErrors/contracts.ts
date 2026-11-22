@@ -27,4 +27,5 @@ export interface PageRuntimeConfig {
   reportUrl: string;
   overlay: boolean;
   bundles: Record<string, string[]>;
+  typeCheckEventsUrl?: string;
 }

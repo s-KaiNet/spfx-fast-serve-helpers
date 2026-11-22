@@ -2,13 +2,14 @@ import path from 'node:path';
 import type { IncomingMessage } from 'node:http';
 import { rspack, type Compiler, type RspackPluginInstance } from '@rspack/core';
 import { BROWSER_ERRORS_PATH, publicPath, requestPath, sendJson, type ConfigContribution, type Feature, type FeatureContext, type ServerMiddleware } from '../../../bundler/featureApi/index.js';
+import { typeCheckEventsUrl } from '../typeCheck/index.js';
 import type { BrowserErrorReport, PageRuntimeConfig } from './contracts.js';
 import { BrowserErrorReporter } from './reporter.js';
 import { renderPageScript } from './pageScript.js';
 import { BundleSourceMaps } from './sourceMaps.js';
 
 export type { BrowserErrorKind, BrowserErrorReport, BrowserErrorResponse, OverlayContent, PageRuntimeConfig } from './contracts.js';
-export { codeFrame, formatBrowserError, type DisplayFrame } from './format.js';
+export { formatBrowserError, type DisplayFrame } from './format.js';
 export { describeLoadError, type LoadErrorFacts } from './loadErrors.js';
 export { renderPageScript } from './pageScript.js';
 export { BrowserErrorReporter, errorSignature } from './reporter.js';
@@ -56,6 +57,7 @@ export class BrowserErrorsPlugin implements RspackPluginInstance {
 export const browserErrorsFeature: Feature = { name: 'browserErrors', contribute: browserErrorsContribution };
 
 function browserErrorsContribution({ root, project, options, logger, page }: FeatureContext): ConfigContribution {
+  const typeCheckEvents = typeCheckEventsUrl({ root, options });
   const distUrl = publicPath(options.origin);
   const plugin = new BrowserErrorsPlugin(root);
   const reporter = new BrowserErrorReporter({
@@ -73,6 +75,7 @@ function browserErrorsContribution({ root, project, options, logger, page }: Fea
     reportUrl: `${options.origin}${BROWSER_ERRORS_PATH}`,
     overlay: options.overlay,
     bundles: Object.fromEntries(project.bundles().map((bundle) => [bundle.name, bundle.components.map((component) => component.manifest.id)])),
+    ...(typeCheckEvents === undefined ? {} : { typeCheckEventsUrl: typeCheckEvents }),
   });
   page.addPageScript(() => renderPageScript(pageConfig()));
   const pageRuntimeEntry = path.join(root, PAGE_RUNTIME_ENTRY);

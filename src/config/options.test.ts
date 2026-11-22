@@ -18,7 +18,6 @@ describe('resolveOptions', () => {
       serveConfiguration: undefined,
       overlay: true,
       typeCheck: true,
-      typeCheckOverlay: true,
       lint: true,
       warnings: [],
     });
@@ -55,19 +54,12 @@ describe('resolveOptions', () => {
     expect(resolveOptions({ file: { overlay: true }, cli: { overlay: false } }, {}).overlay).toBe(false);
   });
 
-  it('type checks with the overlay by default; the options file or the CLI turn them off, CLI first', () => {
-    expect(resolveOptions({}, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true, warnings: [] });
-    expect(resolveOptions({ file: { typeCheckOverlay: false } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: false, warnings: [] });
-    expect(resolveOptions({ file: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, typeCheckOverlay: false, warnings: [] });
-    expect(resolveOptions({ file: { typeCheck: true }, cli: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, typeCheckOverlay: false, warnings: [] });
-    expect(resolveOptions({ file: { typeCheck: false, typeCheckOverlay: false }, cli: { typeCheck: true, typeCheckOverlay: true } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: true });
-    expect(resolveOptions({ file: { typeCheckOverlay: true }, cli: { typeCheckOverlay: false } }, {})).toMatchObject({ typeCheck: true, typeCheckOverlay: false });
-  });
-
-  it('keeps the type check overlay off without type checking and says why when it was asked for', () => {
-    const resolved = resolveOptions({ cli: { typeCheck: false, typeCheckOverlay: true } }, {});
-    expect(resolved).toMatchObject({ typeCheck: false, typeCheckOverlay: false });
-    expect(resolved.warnings).toEqual([expect.stringContaining('--no-type-check')]);
+  it('type checks by default; the options file or the CLI turn it off, CLI first, independent of the overlay', () => {
+    expect(resolveOptions({}, {})).toMatchObject({ typeCheck: true, overlay: true, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, overlay: true, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: true }, cli: { typeCheck: false } }, {})).toMatchObject({ typeCheck: false, warnings: [] });
+    expect(resolveOptions({ file: { typeCheck: false }, cli: { typeCheck: true } }, {})).toMatchObject({ typeCheck: true });
+    expect(resolveOptions({ cli: { overlay: false } }, {})).toMatchObject({ typeCheck: true, overlay: false, warnings: [] });
   });
 
   it('substitutes {tenantDomain} from SPFX_SERVE_TENANT_DOMAIN', () => {
@@ -176,9 +168,9 @@ describe('loadOptionsFile', () => {
   });
 
   it('reads the type check switches', () => {
-    expect(loadOptionsFile(projectWith('{ "typeCheck": true, "typeCheckOverlay": false }'))).toEqual({ typeCheck: true, typeCheckOverlay: false });
+    expect(loadOptionsFile(projectWith('{ "typeCheck": false }'))).toEqual({ typeCheck: false });
     expect(() => loadOptionsFile(projectWith('{ "typeCheck": "yes" }'))).toThrow(/"typeCheck"/);
-    expect(() => loadOptionsFile(projectWith('{ "typeCheckOverlay": 1 }'))).toThrow(/"typeCheckOverlay"/);
+    expect(() => loadOptionsFile(projectWith('{ "typeCheckOverlay": false }'))).toThrow(/unknown option.*"typeCheckOverlay"/);
   });
 
   it('reads the lint setting', () => {
@@ -200,13 +192,13 @@ describe('loadOptionsFile', () => {
     expect(() => loadOptionsFile(projectWith(classic))).toThrow(
       'fast-serve/config.json uses the outdated classic spfx-fast-serve format (options nested in "serve"), which is no longer supported. ' +
         'Replace it with the flat format: "$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json" and the supported options ' +
-        '(port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay, lint).',
+        '(port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, lint).',
     );
   });
 
   it('names the schema when it rejects a key', () => {
     expect(() => loadOptionsFile(projectWith('{ "serve": true }'))).toThrow(
-      'fast-serve/config.json: unknown option or wrong type "serve" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay, lint; ' +
+      'fast-serve/config.json: unknown option or wrong type "serve" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, lint; ' +
         'schema: "$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json")',
     );
   });

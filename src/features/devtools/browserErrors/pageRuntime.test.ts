@@ -23,7 +23,7 @@ interface RuntimePage {
 
 type Responder = (report: BrowserErrorReport) => BrowserErrorResponse | Promise<BrowserErrorResponse>;
 
-function startPage(config: PageRuntimeConfig = CONFIG, respond: Responder = () => ({})): RuntimePage {
+function startPage(config: PageRuntimeConfig = CONFIG, respond: Responder = () => ({}), globals: Record<string, unknown> = {}): RuntimePage {
   const sent: BrowserErrorReport[] = [];
   const page = createFakePage({
     externals: {},
@@ -34,6 +34,7 @@ function startPage(config: PageRuntimeConfig = CONFIG, respond: Responder = () =
       return Promise.resolve(respond(report)).then((answer) => new Response(JSON.stringify(answer)));
     },
   });
+  Object.assign(page.globals, globals);
   page.evaluate(renderPageScript(config));
   return {
     page,
@@ -58,6 +59,41 @@ function rebuild(page: FakePage, result: 'webpackOk' | 'webpackWarnings' | 'webp
 
 function throwFromBundle(page: FakePage, message: string): void {
   page.dispatch('error', { error: Object.assign(new Error(message), { stack: `Error: ${message}\n    at Second (${DIST}hello-web-part.js:9:5)` }) });
+}
+
+const TYPE_EVENTS_URL = `${ORIGIN}/fast-serve/type-check`;
+const TYPE_CONFIG: PageRuntimeConfig = { ...CONFIG, typeCheckEventsUrl: TYPE_EVENTS_URL };
+const ONE_TYPE_ERROR = { title: 'Type check: 1 error', text: "type error in src/a.ts:1:1\nTS2304: Cannot find name 'x'." };
+const TWO_TYPE_ERRORS = { title: 'Type check: 2 errors', text: `${ONE_TYPE_ERROR.text}\n\ntype error in src/b.ts:1:1\nTS2322: Type 'string' is not assignable to type 'number'.` };
+
+class FakeEventSource {
+  static readonly opened: FakeEventSource[] = [];
+  private readonly listeners: ((event: { data: unknown }) => void)[] = [];
+
+  constructor(readonly url: string) {
+    FakeEventSource.opened.push(this);
+  }
+
+  addEventListener(type: string, listener: (event: { data: unknown }) => void): void {
+    if (type === 'message') this.listeners.push(listener);
+  }
+
+  send(data: unknown): void {
+    for (const listener of this.listeners) listener({ data: JSON.stringify(data) });
+  }
+}
+
+interface TypePage extends RuntimePage {
+  types: FakeEventSource;
+  source: () => string | null | undefined;
+}
+
+function startTypePage(config: PageRuntimeConfig = TYPE_CONFIG, respond: Responder = () => ({})): TypePage {
+  FakeEventSource.opened.length = 0;
+  const started = startPage(config, respond, { EventSource: FakeEventSource });
+  const [types] = FakeEventSource.opened;
+  if (types === undefined) throw new Error('the page runtime opened no type check event stream');
+  return { ...started, types, source: () => started.overlays()[0]?.getAttribute('data-source') };
 }
 
 const RUNTIME_OVERLAY: Responder = (report) => ({ overlay: { title: 'Uncaught runtime error', text: `[Unhandled error] ${report.name}: ${report.message}` } });
@@ -301,5 +337,101 @@ describe('fast-serve page runtime', () => {
     rebuild(page, 'webpackWarnings');
     await delay(150);
     expect(page.reloads()).toBe(1);
+  });
+
+  describe('type errors', () => {
+    it('show in the error overlay while the type check has issues and close when it is clean', () => {
+      const { types, overlays, source } = startTypePage();
+      expect(types.url).toBe(TYPE_EVENTS_URL);
+      types.send(null);
+      expect(overlays()).toEqual([]);
+      types.send(ONE_TYPE_ERROR);
+      expect(overlays()).toHaveLength(1);
+      expect(source()).toBe('type');
+      expect(overlayText(overlays()[0])).toContain('[fast-serve] Type check: 1 error');
+      expect(overlayText(overlays()[0])).toContain("TS2304: Cannot find name 'x'.");
+      const shown = overlays()[0];
+      types.send(ONE_TYPE_ERROR);
+      expect(overlays()[0]).toBe(shown);
+      types.send(null);
+      expect(overlays()).toEqual([]);
+    });
+
+    it('open one event stream per page however many copies of the runtime run', () => {
+      const { page } = startTypePage();
+      page.evaluate(renderPageScript(TYPE_CONFIG));
+      expect(FakeEventSource.opened.map((opened) => opened.url)).toEqual([TYPE_EVENTS_URL]);
+    });
+
+    it('stay hidden after Esc or × until they change', () => {
+      const { page, types, overlays } = startTypePage();
+      types.send(ONE_TYPE_ERROR);
+      page.dispatch('keydown', { key: 'Escape' });
+      expect(overlays()).toEqual([]);
+      types.send(ONE_TYPE_ERROR);
+      expect(overlays()).toEqual([]);
+      types.send(TWO_TYPE_ERRORS);
+      expect(overlayText(overlays()[0])).toContain('Type check: 2 errors');
+      overlays()[0]?.shadowRoot?.childNodes[0]?.childNodes[0]?.childNodes[0]?.dispatchEvent({ type: 'click' });
+      expect(overlays()).toEqual([]);
+      types.send(null);
+      types.send(TWO_TYPE_ERRORS);
+      expect(overlays()).toHaveLength(1);
+    });
+
+    it('give way to compile errors, listed as "Also", and come back after the fix', () => {
+      const { page, types, overlays, source } = startTypePage();
+      types.send(ONE_TYPE_ERROR);
+      devServerMessage(page, { type: 'webpackErrors', data: ["src/c.tsx\n× Expected '}', got '<eof>'"] });
+      expect(overlays()).toHaveLength(1);
+      expect(source()).toBe('compile');
+      expect(overlayText(overlays()[0])).toContain("× Expected '}'");
+      expect(overlayText(overlays()[0])).toContain('Also: Type check: 1 error');
+      expect(overlayText(overlays()[0])).not.toContain('TS2304');
+      rebuild(page, 'webpackOk');
+      expect(source()).toBe('type');
+      expect(overlayText(overlays()[0])).toContain('TS2304');
+    });
+
+    it('give way to runtime errors and come back when the next update closes them', async () => {
+      const { page, types, overlays, source } = startTypePage(TYPE_CONFIG, RUNTIME_OVERLAY);
+      types.send(ONE_TYPE_ERROR);
+      throwFromBundle(page, 'escape1 is not defined');
+      await delay(10);
+      expect(source()).toBe('runtime');
+      expect(overlayText(overlays()[0])).toContain('Also: Type check: 1 error');
+      rebuild(page, 'webpackOk');
+      expect(source()).toBe('type');
+    });
+
+    it('rank compile errors over runtime errors over type errors', async () => {
+      const { page, types, overlays, source } = startTypePage(TYPE_CONFIG, RUNTIME_OVERLAY);
+      types.send(ONE_TYPE_ERROR);
+      throwFromBundle(page, 'escape1 is not defined');
+      await delay(10);
+      devServerMessage(page, { type: 'webpackErrors', data: ['syntax error'] });
+      expect(overlays()).toHaveLength(1);
+      expect(source()).toBe('compile');
+      expect(overlayText(overlays()[0])).toContain('Also: Uncaught runtime error\nAlso: Type check: 1 error');
+    });
+
+    it('close with everything else on Esc and return only when they change', async () => {
+      const { page, types, overlays, source } = startTypePage(TYPE_CONFIG, RUNTIME_OVERLAY);
+      types.send(ONE_TYPE_ERROR);
+      throwFromBundle(page, 'escape1 is not defined');
+      await delay(10);
+      expect(source()).toBe('runtime');
+      page.dispatch('keydown', { key: 'Escape' });
+      expect(overlays()).toEqual([]);
+      types.send(TWO_TYPE_ERRORS);
+      expect(source()).toBe('type');
+    });
+
+    it('stay out of the page when the overlay is off or the type check has no event stream', () => {
+      FakeEventSource.opened.length = 0;
+      startPage({ ...TYPE_CONFIG, overlay: false }, () => ({}), { EventSource: FakeEventSource });
+      startPage(CONFIG, () => ({}), { EventSource: FakeEventSource });
+      expect(FakeEventSource.opened).toEqual([]);
+    });
   });
 });
