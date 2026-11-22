@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CORS_HEADERS } from '../featureApi/index.js';
+import { CORS_HEADERS } from '../bundler/featureApi/index.js';
 import { responseHeaders } from './headers.js';
 
 describe('responseHeaders', () => {

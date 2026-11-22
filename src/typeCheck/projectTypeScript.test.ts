@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { packageDirectory } from '../testing/compileKit.js';
-import type { FeatureContext } from '../featureApi/index.js';
+import type { FeatureContext } from '../bundler/featureApi/index.js';
 import { typeCheckFeature } from './index.js';
 import { findProjectTypeScript, type ProjectTypeScript } from './projectTypeScript.js';
 

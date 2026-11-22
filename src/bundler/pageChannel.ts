@@ -1,4 +1,4 @@
-import type { PageChannel, PageScript, ServerStartedHook, StartedServer, TypingsListener } from '../featureApi/index.js';
+import type { PageChannel, PageScript, ServerStartedHook, StartedServer, TypingsListener } from './featureApi/index.js';
 
 export interface PageServer extends StartedServer {
   reloadPages(): void;

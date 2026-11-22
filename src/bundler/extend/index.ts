@@ -1,8 +1,8 @@
 import { rspackVersion } from '@rspack/core';
-import type { ResolvedOptions } from '../config/index.js';
+import type { ResolvedOptions } from '../../config/index.js';
 import { publicPath } from '../featureApi/index.js';
-import { packageVersion } from '../shared/packageInfo.js';
-import type { SpfxVersionSource } from '../project/index.js';
+import { packageVersion } from '../../shared/packageInfo.js';
+import type { SpfxVersionSource } from '../../project/index.js';
 import type { FastServeContext } from './context.js';
 
 export { FAST_SERVE_ENV, type FastServeConfig, type FastServeConfigFunction, type FastServeContext, type FastServeEnv } from './context.js';

@@ -3,7 +3,7 @@ import { browserErrorsFeature } from '../browserErrors/index.js';
 import { definesFeature } from '../defines/index.js';
 import { entriesFeature } from '../entries/index.js';
 import { externalsFeature } from '../externals/index.js';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from './featureApi/index.js';
 import { hmrFeature } from '../hmr/index.js';
 import { localLibrariesFeature } from '../libraries/index.js';
 import { lintFeature } from '../lint/index.js';

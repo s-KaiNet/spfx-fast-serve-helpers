@@ -1,4 +1,4 @@
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { DeepLibraryImportsPlugin } from './deepLibraryImports.js';
 import { heftLocalExternalsMiddleware, localExternalFiles, LocalExternalFilesPlugin } from './localExternalFiles.js';
 

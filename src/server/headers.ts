@@ -1,4 +1,4 @@
-import { CORS_HEADERS, DIST_PATH, type ServerMiddleware } from '../featureApi/index.js';
+import { CORS_HEADERS, DIST_PATH, type ServerMiddleware } from '../bundler/featureApi/index.js';
 
 const HOT_UPDATE_FILE = /\.hot-update\.(?:js|json)(?:[?#]|$)/;
 

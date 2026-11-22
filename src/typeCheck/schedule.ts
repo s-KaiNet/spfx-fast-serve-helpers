@@ -1,7 +1,7 @@
 import type { Compiler } from '@rspack/core';
 import type { FilesChange } from 'ts-checker-rspack-plugin/lib/files-change.js';
 import type { TsCheckerRspackPluginHooks } from 'ts-checker-rspack-plugin/lib/plugin-hooks.js';
-import type { PageChannel } from '../featureApi/index.js';
+import type { PageChannel } from '../bundler/featureApi/index.js';
 
 const PLUGIN_NAME = 'fast-serve:type-check-schedule';
 export const INVALIDATE_DELAY_MS = 100;

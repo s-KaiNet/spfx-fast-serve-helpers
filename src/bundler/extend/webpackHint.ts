@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT, packageName } from '../shared/packageInfo.js';
-import { findWebpackCustomizations } from '../project/index.js';
-import { toPosix } from '../shared/paths.js';
+import { PACKAGE_ROOT, packageName } from '../../shared/packageInfo.js';
+import { findWebpackCustomizations } from '../../project/index.js';
+import { toPosix } from '../../shared/paths.js';
 import { EXTEND_FILE } from './files.js';
 
 export const SKILL_PATH = 'skills/fast-serve-rspack-config/SKILL.md';

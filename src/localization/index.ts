@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { rspack } from '@rspack/core';
 import type { LocalizedResource } from '../project/index.js';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { toPosix } from '../shared/paths.js';
 import { heftStringsMiddleware } from './heftStrings.js';
 import { moduleLocWrapperSource, readLocFileFormat } from './locFormat.js';

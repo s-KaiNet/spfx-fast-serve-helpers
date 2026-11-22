@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isCodeFile, problemLocation, tidyMessage, type CompileProblem } from '../rspack/index.js';
+import { isCodeFile, problemLocation, tidyMessage, type CompileProblem } from '../bundler/index.js';
 import { toPosix } from '../shared/paths.js';
 
 export interface CompileOutcome {

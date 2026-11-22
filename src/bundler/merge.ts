@@ -1,5 +1,5 @@
 import type { EntryObject, ExternalItem, Plugin, RuleSetRule } from '@rspack/core';
-import type { ConfigContribution, ServerMiddleware } from '../featureApi/index.js';
+import type { ConfigContribution, ServerMiddleware } from './featureApi/index.js';
 
 export interface MergedContribution {
   entry: EntryObject;

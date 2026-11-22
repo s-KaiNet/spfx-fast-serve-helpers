@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { rspackVersion, type Configuration } from '@rspack/core';
-import { packageVersion } from '../shared/packageInfo.js';
+import { packageVersion } from '../../shared/packageInfo.js';
 import { configText, filesText, fingerprint } from './fingerprint.js';
 
 export { configText, filesText, fingerprint } from './fingerprint.js';

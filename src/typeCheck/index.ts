@@ -1,4 +1,4 @@
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { createTypeCheckOverlay } from './overlay.js';
 import { TypeCheckPlugin } from './plugin.js';
 import { findProjectTypeScript } from './projectTypeScript.js';

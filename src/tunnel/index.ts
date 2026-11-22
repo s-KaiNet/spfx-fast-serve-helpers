@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { rspack } from '@rspack/core';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { packageFile } from '../shared/packageFile.js';
 import { toPosix } from '../shared/paths.js';
 

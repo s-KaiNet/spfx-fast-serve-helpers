@@ -1,5 +1,5 @@
 import { rspack } from '@rspack/core';
-import type { ConfigContribution, Feature } from '../featureApi/index.js';
+import type { ConfigContribution, Feature } from '../bundler/featureApi/index.js';
 
 export const DEFINES: Record<string, string> = {
   DEBUG: 'true',

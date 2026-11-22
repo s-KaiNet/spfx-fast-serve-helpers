@@ -1,9 +1,9 @@
 import type { Configuration } from '@rspack/core';
-import type { FastServeConfigFunction } from './extend/context.js';
+import type { FastServeConfigFunction } from './bundler/extend/context.js';
 
 export { rspack } from '@rspack/core';
 export type { Compiler, Configuration, DevServer, ExternalItem, Plugin, ResolveAlias, RspackPluginInstance, RuleSetRule } from '@rspack/core';
-export type { FastServeConfig, FastServeConfigFunction, FastServeContext, FastServeEnv } from './extend/context.js';
+export type { FastServeConfig, FastServeConfigFunction, FastServeContext, FastServeEnv } from './bundler/extend/context.js';
 export { TunnelServePlugin, type TunnelServeOptions } from './tunnel/plugin.js';
 
 export function defineConfig(config: Configuration): Configuration;

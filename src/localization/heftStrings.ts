@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
 import { rspack } from '@rspack/core';
-import { decodedRequestPath, DIST_PATH, isReadRequest, send, type FeatureContext, type ServerMiddleware } from '../featureApi/index.js';
+import { decodedRequestPath, DIST_PATH, isReadRequest, send, type FeatureContext, type ServerMiddleware } from '../bundler/featureApi/index.js';
 import { errorMessage } from '../shared/errors.js';
 import { toPosix } from '../shared/paths.js';
 

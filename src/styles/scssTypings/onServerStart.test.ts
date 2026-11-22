@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { assetsFeature } from '../../assets/index.js';
 import type { Logger } from '../../shared/logger.js';
 import { createProject } from '../../project/index.js';
-import { createPageChannel, type PageServer } from '../../rspack/index.js';
+import { createPageChannel, type PageServer } from '../../bundler/index.js';
 import { scssTypingsOnServerStart } from './index.js';
 
 const fixture = fileURLToPath(new URL('../../../test/fixtures/scss-typings/', import.meta.url));

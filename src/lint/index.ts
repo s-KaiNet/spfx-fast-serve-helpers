@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { errorMessage } from '../shared/errors.js';
 import { toPosix } from '../shared/paths.js';
 import { watchSourceFolder, type SourceWatcher } from '../shared/sourceWatcher.js';

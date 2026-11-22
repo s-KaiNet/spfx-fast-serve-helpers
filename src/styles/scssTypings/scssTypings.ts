@@ -3,7 +3,7 @@ import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
-import type { TypingsListener, TypingsUpdate } from '../../featureApi/index.js';
+import type { TypingsListener, TypingsUpdate } from '../../bundler/featureApi/index.js';
 import type { Logger } from '../../shared/logger.js';
 import type { SassConfiguration } from '../../project/index.js';
 import { errorMessage } from '../../shared/errors.js';

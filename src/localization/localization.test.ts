@@ -6,7 +6,7 @@ import vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
-import { compileOnce } from '../rspack/index.js';
+import { compileOnce } from '../bundler/index.js';
 import { locFileFormat, moduleLocWrapperSource } from './index.js';
 
 const fixture = fileURLToPath(new URL('../../test/fixtures/externals', import.meta.url));

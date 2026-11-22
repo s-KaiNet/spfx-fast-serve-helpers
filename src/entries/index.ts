@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { rspack } from '@rspack/core';
 import type { SpfxBundle } from '../project/index.js';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { toPosix } from '../shared/paths.js';
 
 const VIRTUAL_ENTRY_FOLDER = path.join('temp', 'fast-serve', 'bundle-entries');

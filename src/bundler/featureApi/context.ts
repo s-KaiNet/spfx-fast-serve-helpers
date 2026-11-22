@@ -1,6 +1,6 @@
-import type { ResolvedOptions } from '../config/index.js';
-import type { Logger } from '../shared/logger.js';
-import type { SpfxProject } from '../project/index.js';
+import type { ResolvedOptions } from '../../config/index.js';
+import type { Logger } from '../../shared/logger.js';
+import type { SpfxProject } from '../../project/index.js';
 import type { PageChannel } from './pageChannel.js';
 
 export interface BuildContext {

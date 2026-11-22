@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { IncomingMessage } from 'node:http';
 import { rspack, type Compiler, type RspackPluginInstance } from '@rspack/core';
-import { BROWSER_ERRORS_PATH, publicPath, requestPath, sendJson, type ConfigContribution, type Feature, type FeatureContext, type ServerMiddleware } from '../featureApi/index.js';
+import { BROWSER_ERRORS_PATH, publicPath, requestPath, sendJson, type ConfigContribution, type Feature, type FeatureContext, type ServerMiddleware } from '../bundler/featureApi/index.js';
 import type { BrowserErrorReport, PageRuntimeConfig } from './contracts.js';
 import { BrowserErrorReporter } from './reporter.js';
 import { renderPageScript } from './pageScript.js';

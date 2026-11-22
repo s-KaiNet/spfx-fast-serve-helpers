@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 
 export const REACT_REQUESTS = ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime'];
 

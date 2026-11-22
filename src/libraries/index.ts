@@ -1,5 +1,5 @@
 import type { LocalLibrary } from '../project/index.js';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 
 export function localLibraryAliases(libraries: readonly LocalLibrary[]): Record<string, string> {
   const alias: Record<string, string> = {};

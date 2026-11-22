@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { multiComponentEntrySource } from '../entries/index.js';
 import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
-import type { BuildContext } from '../featureApi/index.js';
+import type { BuildContext } from './featureApi/index.js';
 import { createRspackConfig, FEATURES, mergeContributions } from './index.js';
 import { watchIgnored } from './config.js';
 

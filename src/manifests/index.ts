@@ -13,7 +13,7 @@ import {
   type Feature,
   type FeatureContext,
   type ServerMiddleware,
-} from '../featureApi/index.js';
+} from '../bundler/featureApi/index.js';
 import { BundleExternals } from './bundleExternals.js';
 import { buildDebugManifests, renderManifestsModule } from './debugManifests.js';
 import { devIconFiles } from './iconUrls.js';

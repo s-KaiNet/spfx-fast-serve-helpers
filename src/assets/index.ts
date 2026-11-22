@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
+import type { ConfigContribution, Feature, FeatureContext } from '../bundler/featureApi/index.js';
 import { errorMessage } from '../shared/errors.js';
 import { watchSourceFolder } from '../shared/sourceWatcher.js';
 import { createAssetTypings } from './assetTypings.js';

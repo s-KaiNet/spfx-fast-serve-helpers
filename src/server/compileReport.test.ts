@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { problemLocation } from '../rspack/index.js';
+import { problemLocation } from '../bundler/index.js';
 import { changedProjectFiles, compileSummary, createCompileReportGate, formatCompileProblems } from './compileReport.js';
 
 const ROOT = '/work/project';

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type { Configuration } from '@rspack/core';
-import { publicPath, type BuildContext, type ServerMiddleware } from '../featureApi/index.js';
+import { publicPath, type BuildContext, type ServerMiddleware } from './featureApi/index.js';
 import { contributionsInFeatureOrder, FEATURES } from './features.js';
 import { mergeContributions } from './merge.js';
 import { createPageChannel, type ServedPageChannel } from './pageChannel.js';

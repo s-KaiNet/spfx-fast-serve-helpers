@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import type { Compiler, RspackPluginInstance, Stats } from '@rspack/core';
 import type { TsCheckerRspackPlugin } from 'ts-checker-rspack-plugin';
-import type { PageChannel } from '../featureApi/index.js';
+import type { PageChannel } from '../bundler/featureApi/index.js';
 import type { Logger } from '../shared/logger.js';
 import { errorMessage } from '../shared/errors.js';
 import { checkerOptions } from './checkerOptions.js';

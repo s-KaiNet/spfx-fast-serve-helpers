@@ -1,4 +1,4 @@
-import type { FeatureContext, ServerStartedHook } from '../../featureApi/index.js';
+import type { FeatureContext, ServerStartedHook } from '../../bundler/featureApi/index.js';
 import { errorMessage } from '../../shared/errors.js';
 import { watchSourceFolder } from '../../shared/sourceWatcher.js';
 import { createScssTypings } from './scssTypings.js';

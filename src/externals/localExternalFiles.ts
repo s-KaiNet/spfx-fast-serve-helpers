@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Compiler, RspackPluginInstance } from '@rspack/core';
-import { decodedRequestPath, DIST_PATH, isReadRequest, send, type ServerMiddleware } from '../featureApi/index.js';
+import { decodedRequestPath, DIST_PATH, isReadRequest, send, type ServerMiddleware } from '../bundler/featureApi/index.js';
 import type { ConfigExternal } from '../project/index.js';
 import { errorMessage } from '../shared/errors.js';
 

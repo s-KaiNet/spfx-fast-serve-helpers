@@ -1,5 +1,5 @@
 import { withTunnelHost, type FastServeOptions } from '../config/index.js';
-import { ExtendLoadError, fastServeContext, findExtendFiles, loadExtendFile, projectRelative, webpackCustomizationHint, type LoadedExtend } from '../extend/index.js';
+import { ExtendLoadError, fastServeContext, findExtendFiles, loadExtendFile, projectRelative, webpackCustomizationHint, type LoadedExtend } from '../bundler/extend/index.js';
 import type { Logger } from '../shared/logger.js';
 import { assertPortFree, prepareDevServer, type HttpsCredentials, type PreparedDevServer, type RunningDevServer } from '../server/index.js';
 import { versionLine } from './describeSetup.js';
