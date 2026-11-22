@@ -23,7 +23,7 @@ tags:
 | Flag | Option | Meaning |
 |---|---|---|
 | `-p, --port <port>` | `port` | HTTPS port on `localhost`, an integer 1–65535 |
-| `--page-url <url>` | `pageUrl` | SharePoint page to open with the debug query; `{tenantDomain}` allowed |
+| `--page-url <url>` | `pageUrl` | SharePoint test page; when given (flag or file), the start-up box adds the page with the debug query appended; `{tenantDomain}` allowed |
 | `--locale <locale>` | `locale` | locale of the `localizedResources` strings; lowercased, must look like `en-us` |
 | `--config <name>`, `--serve-config <name>` | `serveConfiguration` | `config/serve.json` `serveConfigurations` entry (default `default`); `--config` wins if both are given |
 | `--no-overlay` | `overlay: false` | no error overlay over the page (compile and runtime errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |

@@ -19,7 +19,7 @@ Usage: fast-serve [options]
 
 Options:
   -p, --port <port>      HTTPS port (default: config/serve.json "port", else ${DEFAULT_PORT})
-      --page-url <url>   Your SharePoint test page, passed to fast-serve/rspack.extend.mjs
+      --page-url <url>   Your SharePoint test page, printed at start with the debug query
                          (default: config/serve.json serve configuration page, then "initialPage";
                          {tenantDomain} = $${TENANT_DOMAIN_ENV})
       --locale <locale>  Locale of localized strings (default: ${DEFAULT_LOCALE})

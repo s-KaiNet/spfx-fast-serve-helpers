@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-22 12:30 | update | provided page URL printed with the debug query
+
+- Changed: `kb/features/cli-and-options.md`
+- Outcome: when `--page-url` or `"pageUrl"` is given, the start-up box adds `Or open:` with that page and the debug query appended (the extension query for an explicitly selected configuration with extensions); pages from `config/serve.json` aren't printed; `{tenantDomain}` without the environment variable prints a hint (version 1.24.0-beta.17)
+
 ## 2026-11-22 12:00 | update | classic config format stops fast-serve
 
 - Changed: `kb/features/cli-and-options.md`

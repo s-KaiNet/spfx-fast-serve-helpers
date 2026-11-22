@@ -18,7 +18,7 @@
     "pageUrl": {
       "type": "string",
       "pattern": "^https?://",
-      "description": "Your SharePoint test page, passed to fast-serve/rspack.extend.mjs as context.pageUrl (not printed at start). {tenantDomain} is replaced with the SPFX_SERVE_TENANT_DOMAIN environment variable. Default: the selected serve configuration's pageUrl, then serveConfigurations.default.pageUrl, then \"initialPage\" from config/serve.json (a named serve configuration's pageUrl wins over this option). Flag: --page-url.",
+      "description": "Your SharePoint test page: when set, the start-up box also prints this page with the debug query appended. Also passed to fast-serve/rspack.extend.mjs as context.pageUrl. {tenantDomain} is replaced with the SPFX_SERVE_TENANT_DOMAIN environment variable. Default: the selected serve configuration's pageUrl, then serveConfigurations.default.pageUrl, then \"initialPage\" from config/serve.json (a named serve configuration's pageUrl wins over this option). Flag: --page-url.",
       "examples": ["https://{tenantDomain}/sites/dev/SitePages/Test.aspx"]
     },
     "locale": {

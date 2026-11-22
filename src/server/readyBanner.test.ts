@@ -8,7 +8,7 @@ const defaults = { serveConfigurations: { default: { customActions }, banner: { 
 
 describe('readyBanner', () => {
   it('prints the ready line and the unencoded web-part debug query in a box', () => {
-    const options = resolveOptions({ cli: { port: 4433, pageUrl: 'https://contoso.sharepoint.com/SitePages/Home.aspx?a=1' } }, {});
+    const options = resolveOptions({ cli: { port: 4433 }, defaults: { initialPage: 'https://contoso.sharepoint.com/SitePages/Home.aspx' } }, {});
     expect(readyBanner(options, 812)).toEqual([
       'ready in 812 ms at https://localhost:4433',
       RULE,
@@ -16,6 +16,31 @@ describe('readyBanner', () => {
       '  ?debugManifestsFile=https://localhost:4433/temp/build/manifests.js&debug=true&noredir=true',
       RULE,
     ]);
+  });
+
+  it('adds the page with the debug query when the page URL is provided with --page-url or "pageUrl"', () => {
+    const page = 'https://contoso.sharepoint.com/SitePages/Home.aspx?a=1#top';
+    const expected = [
+      'ready in 812 ms at https://localhost:4433',
+      RULE,
+      '  To load your scripts, append this to your SharePoint page URL:',
+      '  ?debugManifestsFile=https://localhost:4433/temp/build/manifests.js&debug=true&noredir=true',
+      '  Or open:',
+      '  https://contoso.sharepoint.com/SitePages/Home.aspx?debugManifestsFile=https://localhost:4433/temp/build/manifests.js&debug=true&noredir=true#top',
+      RULE,
+    ];
+    expect(readyBanner(resolveOptions({ cli: { port: 4433, pageUrl: page } }, {}), 812)).toEqual(expected);
+    expect(readyBanner(resolveOptions({ cli: { port: 4433 }, file: { pageUrl: page } }, {}), 812)).toEqual(expected);
+  });
+
+  it('opens the provided page with the extension query of an explicitly selected configuration', () => {
+    const lines = readyBanner(resolveOptions({ cli: { serveConfiguration: 'banner', pageUrl: 'https://contoso.sharepoint.com/SitePages/Home.aspx' }, defaults }, {}), 5);
+    expect(lines.at(-2)).toMatch(/^ {2}https:\/\/contoso\.sharepoint\.com\/SitePages\/Home\.aspx\?debugManifestsFile=.*&loadSPFX=true&customActions=\{/);
+  });
+
+  it('asks for the tenant domain when the provided page URL uses {tenantDomain}', () => {
+    const lines = readyBanner(resolveOptions({ cli: { pageUrl: 'https://{tenantDomain}/SitePages/Home.aspx' } }, {}), 5);
+    expect(lines.at(-2)).toBe('  Set SPFX_SERVE_TENANT_DOMAIN to fill in the page URL "https://{tenantDomain}/SitePages/Home.aspx".');
   });
 
   it('keeps the short query for the implicit "default" configuration and for one without extensions', () => {

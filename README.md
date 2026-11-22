@@ -123,7 +123,7 @@ The `$schema` line gives completion, descriptions and validation in VS Code and 
 | Option | Flag | Meaning |
 |---|---|---|
 | `port` | `-p, --port` | HTTPS port on `localhost` |
-| `pageUrl` | `--page-url` | your SharePoint test page (see the page order above); not printed at start, passed to the extend file as `context.pageUrl` |
+| `pageUrl` | `--page-url` | your SharePoint test page; when set, the start-up box also prints the page with the debug query appended (`Or open: …`); passed to the extend file as `context.pageUrl` |
 | `locale` | `--locale` | locale of the `localizedResources` strings, with a per-resource fallback to `en-us` |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` serve configuration (default `default`) |
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page; errors still go to the terminal and the browser console |

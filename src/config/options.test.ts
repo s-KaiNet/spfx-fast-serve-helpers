@@ -14,6 +14,7 @@ describe('resolveOptions', () => {
       locale: 'en-us',
       pageUrl: undefined,
       pageUrlTemplate: undefined,
+      pageUrlProvided: false,
       serveConfiguration: undefined,
       overlay: true,
       typeCheck: true,

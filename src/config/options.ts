@@ -45,6 +45,7 @@ export interface ResolvedOptions {
   pageUrl: string | undefined;
 
   pageUrlTemplate: string | undefined;
+  pageUrlProvided: boolean;
 
   serveConfiguration: SelectedServeConfiguration | undefined;
 
@@ -100,6 +101,7 @@ export function resolveOptions(
     locale,
     pageUrl: pageUrlTemplate === undefined ? undefined : substituteTenantDomain(pageUrlTemplate, env[TENANT_DOMAIN_ENV]),
     pageUrlTemplate,
+    pageUrlProvided: page !== undefined && page.provided && !pointsToRetiredWorkbench,
     serveConfiguration,
     overlay: cli.overlay ?? file.overlay ?? true,
     typeCheck,
@@ -121,6 +123,7 @@ export function withTunnelHost(options: ResolvedOptions, tunnelHost: string | un
 interface PageSetting {
   source: string;
   url: string;
+  provided: boolean;
 }
 
 function selectPage(
@@ -130,12 +133,16 @@ function selectPage(
   serveConfiguration: SelectedServeConfiguration | undefined,
 ): PageSetting | undefined {
   const namedConfigurationPage = serveConfiguration?.name === DEFAULT_SERVE_CONFIGURATION ? undefined : serveConfiguration?.pageUrl;
-  const candidates: { source: string; url: string | undefined }[] = [
-    { source: `config/serve.json serveConfigurations.${serveConfiguration?.name ?? ''}.pageUrl`, url: namedConfigurationPage },
-    { source: '--page-url', url: cli.pageUrl },
-    { source: `${OPTIONS_FILE} "pageUrl"`, url: file.pageUrl },
-    { source: `config/serve.json serveConfigurations.${DEFAULT_SERVE_CONFIGURATION}.pageUrl`, url: defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl },
-    { source: 'config/serve.json "initialPage"', url: defaults.initialPage },
+  const candidates: { source: string; url: string | undefined; provided: boolean }[] = [
+    { source: `config/serve.json serveConfigurations.${serveConfiguration?.name ?? ''}.pageUrl`, url: namedConfigurationPage, provided: false },
+    { source: '--page-url', url: cli.pageUrl, provided: true },
+    { source: `${OPTIONS_FILE} "pageUrl"`, url: file.pageUrl, provided: true },
+    {
+      source: `config/serve.json serveConfigurations.${DEFAULT_SERVE_CONFIGURATION}.pageUrl`,
+      url: defaults.serveConfigurations?.[DEFAULT_SERVE_CONFIGURATION]?.pageUrl,
+      provided: false,
+    },
+    { source: 'config/serve.json "initialPage"', url: defaults.initialPage, provided: false },
   ];
   return candidates.find((candidate): candidate is PageSetting => candidate.url !== undefined);
 }
