@@ -6,7 +6,7 @@ import { describe, expect, it, onTestFinished } from 'vitest';
 import type { Logger } from '../logger.js';
 import { packageVersion } from '../packageInfo.js';
 import { copyLibraryFixture, LIBRARY_PACKAGE, linkLocalPackage } from '../testing/compileKit.js';
-import { describeSetup, prepareServe } from './index.js';
+import { prepareServe, setupDetails, versionLine } from './index.js';
 
 const fixture = fileURLToPath(new URL('../../test/fixtures/basic', import.meta.url));
 
@@ -111,7 +111,7 @@ describe('prepareServe', () => {
     const root = fixtureCopy();
     linkLocalPackage(root, LIBRARY_PACKAGE, library.root);
     const { logger, messages } = recordingLogger();
-    const lines = describeSetup(prepareServe({ root, logger, env: {} }));
+    const lines = setupDetails(prepareServe({ root, logger, env: {} }));
     expect(lines).toContain(`SPFx libraries from source: ${LIBRARY_PACKAGE} (${path.relative(root, library.root).split(path.sep).join('/')})`);
     mkdirSync(path.join(root, 'fast-serve'));
     writeFileSync(path.join(root, 'fast-serve', 'config.json'), JSON.stringify({ deployedLibraries: [LIBRARY_PACKAGE, 'missing-lib'] }));
@@ -122,12 +122,18 @@ describe('prepareServe', () => {
   });
 });
 
-describe('describeSetup', () => {
+describe('versionLine', () => {
+  it('names the package and SPFx versions', () => {
+    const setup = prepareServe({ root: fixture, logger: recordingLogger().logger, env: {} });
+    expect(versionLine(setup)).toBe(`spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`);
+  });
+});
+
+describe('setupDetails', () => {
   it('summarizes the resolved options and the project model', () => {
     const { logger } = recordingLogger();
     const setup = prepareServe({ root: fixture, cli: { overlay: false }, logger, env: {} });
-    expect(describeSetup(setup)).toEqual([
-      `spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
+    expect(setupDetails(setup)).toEqual([
       'port 4400 (https://localhost:4400), locale en-us, overlay off, type check on (with overlay), lint on',
       'serve configuration: none',
       'page: https://{tenantDomain}/sites/dev/SitePages/Test.aspx (set SPFX_SERVE_TENANT_DOMAIN to fill in {tenantDomain})',
@@ -140,14 +146,14 @@ describe('describeSetup', () => {
 
   it('says how the type check runs', () => {
     const { logger } = recordingLogger();
-    const optionsLine = (cli: { typeCheck?: boolean; typeCheckOverlay?: boolean }) => describeSetup(prepareServe({ root: fixture, cli, logger, env: {} }))[1];
+    const optionsLine = (cli: { typeCheck?: boolean; typeCheckOverlay?: boolean }) => setupDetails(prepareServe({ root: fixture, cli, logger, env: {} }))[0];
     expect(optionsLine({ typeCheckOverlay: false })).toMatch(/, type check on, lint on$/);
     expect(optionsLine({ typeCheck: false })).toMatch(/, type check off, lint on$/);
   });
 
   it('says how lint runs', () => {
     const { logger } = recordingLogger();
-    const optionsLine = (lint: boolean | 'full') => describeSetup(prepareServe({ root: fixture, cli: { lint }, logger, env: {} }))[1];
+    const optionsLine = (lint: boolean | 'full') => setupDetails(prepareServe({ root: fixture, cli: { lint }, logger, env: {} }))[0];
     expect(optionsLine('full')).toMatch(/, lint on \(full, with type-aware rules\)$/);
     expect(optionsLine(false)).toMatch(/, lint off$/);
   });
@@ -166,7 +172,7 @@ describe('describeSetup', () => {
         },
       }),
     });
-    const lines = describeSetup(prepareServe({ root, logger: recordingLogger().logger, env: {} }));
+    const lines = setupDetails(prepareServe({ root, logger: recordingLogger().logger, env: {} }));
     expect(lines).toContain('bundle shared: HelloWebPart (WebPart, export a), BannerApplicationCustomizer (ApplicationCustomizer, export b)');
     expect(lines).toContain('page: none (set --page-url, "pageUrl" in fast-serve/config.json or "initialPage" in config/serve.json)');
   });

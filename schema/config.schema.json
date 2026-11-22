@@ -18,7 +18,7 @@
     "pageUrl": {
       "type": "string",
       "pattern": "^https?://",
-      "description": "SharePoint page printed with the debug query. {tenantDomain} is replaced with the SPFX_SERVE_TENANT_DOMAIN environment variable. Default: the selected serve configuration's pageUrl, then serveConfigurations.default.pageUrl, then \"initialPage\" from config/serve.json (a named serve configuration's pageUrl wins over this option). Flag: --page-url.",
+      "description": "Your SharePoint test page, passed to fast-serve/rspack.extend.mjs as context.pageUrl (not printed at start). {tenantDomain} is replaced with the SPFX_SERVE_TENANT_DOMAIN environment variable. Default: the selected serve configuration's pageUrl, then serveConfigurations.default.pageUrl, then \"initialPage\" from config/serve.json (a named serve configuration's pageUrl wins over this option). Flag: --page-url.",
       "examples": ["https://{tenantDomain}/sites/dev/SitePages/Test.aspx"]
     },
     "locale": {
@@ -31,7 +31,7 @@
     "serveConfiguration": {
       "type": "string",
       "default": "default",
-      "description": "Entry of \"serveConfigurations\" in config/serve.json: its page and the extension query parameters (customActions, fieldCustomizers, formCustomizer). Default: \"default\". Flags: --config, --serve-config.",
+      "description": "Entry of \"serveConfigurations\" in config/serve.json: when set, its extension query (customActions, fieldCustomizers, formCustomizer) is printed next to the web-part query. Default: \"default\". Flags: --config, --serve-config.",
       "examples": ["default"]
     },
     "overlay": {

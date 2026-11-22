@@ -29,6 +29,7 @@ export type LintSetting = boolean | 'full';
 
 export interface SelectedServeConfiguration extends ServeConfiguration {
   name: string;
+  explicit: boolean;
 }
 
 export interface ResolvedOptions {
@@ -145,7 +146,7 @@ function selectServeConfiguration(
   warnings: string[],
 ): SelectedServeConfiguration | undefined {
   const configuration = configurations?.[requestedName ?? DEFAULT_SERVE_CONFIGURATION];
-  if (configuration) return { name: requestedName ?? DEFAULT_SERVE_CONFIGURATION, ...configuration };
+  if (configuration) return { name: requestedName ?? DEFAULT_SERVE_CONFIGURATION, ...configuration, explicit: requestedName !== undefined };
   if (requestedName === undefined) return undefined;
   const available = Object.keys(configurations ?? {});
   const fallback = configurations?.[DEFAULT_SERVE_CONFIGURATION];
@@ -154,7 +155,7 @@ function selectServeConfiguration(
       (available.length > 0 ? ` (available: ${available.join(', ')})` : ' (the file has none)') +
       (fallback ? `, using "${DEFAULT_SERVE_CONFIGURATION}"` : ''),
   );
-  return fallback ? { name: DEFAULT_SERVE_CONFIGURATION, ...fallback } : undefined;
+  return fallback ? { name: DEFAULT_SERVE_CONFIGURATION, ...fallback, explicit: false } : undefined;
 }
 
 function substituteTenantDomain(template: string, tenantDomain: string | undefined): string | undefined {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { debugPageUrl, debugQuery } from './debugUrl.js';
+import { debugPageUrl, debugQuery, loadsExtensions, readableDebugQuery } from './debugUrl.js';
 
 const origin = 'https://localhost:4321';
 const manifests = 'debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js';
@@ -61,5 +61,23 @@ describe('debug URL', () => {
     expect(url.pathname).toBe('/sites/dev/Shared%20Documents/Forms/AllItems.aspx');
     expect(url.searchParams.get('fieldCustomizers')).toBe('{"Title":{"id":"r"}}');
     expect(url.searchParams.has('debug')).toBe(false);
+  });
+
+  it('builds a readable query that keeps only whitespace, %, &, # and + encoded and parses to the same parameters', () => {
+    expect(readableDebugQuery(origin)).toBe(`debugManifestsFile=${origin}/temp/build/manifests.js&debug=true&noredir=true`);
+    const formCustomizer = { componentId: 'c', PageType: 8, RootFolder: '/sites/dev/Lists/My%20List', properties: { text: 'a&b #1 + 50% {x}' } };
+    const readable = readableDebugQuery(origin, { formCustomizer });
+    expect(readable).toBe(
+      `debugManifestsFile=${origin}/temp/build/manifests.js&noredir=true&loadSPFX=true&componentId=c&PageType=8&RootFolder=/sites/dev/Lists/My%20List&properties={"text":"a%26b%20%231%20%2B%2050%25%20{x}"}`,
+    );
+    expect(Object.fromEntries(new URLSearchParams(readable))).toEqual(Object.fromEntries(new URLSearchParams(debugQuery(origin, { formCustomizer }))));
+  });
+
+  it('tells whether a serve configuration loads extensions', () => {
+    expect(loadsExtensions({})).toBe(false);
+    expect(loadsExtensions({ pageUrl: 'https://t/a.aspx' })).toBe(false);
+    expect(loadsExtensions({ customActions: {} })).toBe(true);
+    expect(loadsExtensions({ fieldCustomizers: { Title: { id: 'r' } } })).toBe(true);
+    expect(loadsExtensions({ formCustomizer: { componentId: 'c' } })).toBe(true);
   });
 });

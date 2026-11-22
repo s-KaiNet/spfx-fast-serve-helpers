@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-Extensions are served exactly like heft serves them: `--config <name>` (alias `--serve-config`, or `"serveConfiguration"` in `fast-serve/config.json`) picks a `config/serve.json` serve configuration, whose page and extension parameters become the printed `open:` URL. Startup warnings point out configurations that cannot work (unknown component ids, wrong extension kind, unknown locations, the generator's placeholders). ACEs need nothing special in the Rspack build: they are components like web parts, their quick-view templates, images and lazy property-pane chunks go through the normal compile, and the libraries of lazy chunks are declared on the bundle's `define`. The ready banner adds an ACE hint for testing on a SharePoint page and, when the opened URL carries the extension query, the plain web-part debug query.
+Extensions are served exactly like heft serves them: `--config <name>` (alias `--serve-config`, or `"serveConfiguration"` in `fast-serve/config.json`) picks a `config/serve.json` serve configuration, whose extension parameters become a second debug query in the startup box when the configuration is selected explicitly. Startup warnings point out configurations that cannot work (unknown component ids, wrong extension kind, unknown locations, the generator's placeholders). ACEs need nothing special in the Rspack build: they are components like web parts, their quick-view templates, images and lazy property-pane chunks go through the normal compile, and the libraries of lazy chunks are declared on the bundle's `define`. ACEs load with the web-part debug query the box always prints first.
 
 ## Behavior
 
@@ -39,7 +39,7 @@ Extensions are served exactly like heft serves them: `--config <name>` (alias `-
 | Lazy chunks | `import()` (the generator's property pane) becomes `chunk.<name>.js` loaded from the dev server's `/dist/`; its libraries (`@microsoft/sp-property-pane`) are hoisted onto the entry `define` and listed in the manifest's `scriptResources`, so no heft-style async-component loader is needed |
 | Edits | card views, quick views, templates, loc strings and the ACE class only reach the bundle entry → page reload |
 
-Banner: when the project has ACEs, one line explains how to use them on a SharePoint page (add from the toolbox in edit mode; card actions and quick views work in read mode, on a saved page). When the selected serve configuration loads extensions, the opened URL carries the extension query, so a second line prints the plain web-part debug query for adding ACEs.
+Banner: nothing ACE-specific; the web-part debug query in the box is the one ACEs need. How to add and use them on a page (toolbox in edit mode; card actions and quick views in read mode, on a saved page) is in the user docs.
 
 Testing flow (Microsoft's ACE tutorials since the online workbench's deprecation): serve, open a test SharePoint page with the web-part debug query, edit the page and add the ACE from the toolbox; card actions and quick views are disabled in edit mode, so the page is saved and the card used in read mode. An ACE already on a saved page or dashboard renders from the dev server with just the debug query.
 

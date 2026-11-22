@@ -78,15 +78,11 @@ describe('startDevServer on a fixture project', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
-  it('compiles and prints the ready banner with the debug query for its port', () => {
+  it('compiles quietly and prints the ready banner with the debug query for its port', () => {
     expect(messages.filter((message) => message.startsWith('error:'))).toEqual([]);
-    expect(messages).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/^info: compiled in \d+ ms$/),
-        expect.stringMatching(new RegExp(`^info: ready in \\d+ ms at https://localhost:${port}$`)),
-      ]),
-    );
-    expect(messages.join('\n')).toContain(`debugManifestsFile=https%3A%2F%2Flocalhost%3A${port}%2Ftemp%2Fbuild%2Fmanifests.js`);
+    expect(messages).toEqual(expect.arrayContaining([expect.stringMatching(new RegExp(`^info: ready in \\d+ ms at https://localhost:${port}$`))]));
+    expect(messages).toContain(`info:   ?debugManifestsFile=https://localhost:${port}/temp/build/manifests.js&debug=true&noredir=true`);
+    expect(messages.join('\n')).not.toContain('compiled in');
   });
 
   it('serves manifests.js as an uncached AMD module pointing the loader at the bundles on this port', async () => {

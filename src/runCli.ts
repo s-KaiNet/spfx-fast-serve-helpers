@@ -19,13 +19,13 @@ Usage: fast-serve [options]
 
 Options:
   -p, --port <port>      HTTPS port (default: config/serve.json "port", else ${DEFAULT_PORT})
-      --page-url <url>   SharePoint page to open with the debug query
+      --page-url <url>   Your SharePoint test page, passed to fast-serve/rspack.extend.mjs
                          (default: config/serve.json serve configuration page, then "initialPage";
                          {tenantDomain} = $${TENANT_DOMAIN_ENV})
       --locale <locale>  Locale of localized strings (default: ${DEFAULT_LOCALE})
-      --config <name>    config/serve.json "serveConfigurations" entry: its page and the
-                         extension query parameters (customActions, fieldCustomizers,
-                         formCustomizer) (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
+      --config <name>    config/serve.json "serveConfigurations" entry: prints its extension
+                         query (customActions, fieldCustomizers, formCustomizer) next to the
+                         web-part query (default: "${DEFAULT_SERVE_CONFIGURATION}"; alias: --serve-config)
       --no-overlay       Don't show compile and runtime errors in an overlay over the page
                          (they still go to the terminal and the browser console)
       --no-type-check    Don't type check the project in the background (on by default, with

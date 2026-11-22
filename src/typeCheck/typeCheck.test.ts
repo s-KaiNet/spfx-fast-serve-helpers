@@ -175,7 +175,6 @@ describe('background type check with the project TypeScript', { timeout: 60_000 
 
   it('reports a clean project once the first compile and the generated typings are done', async () => {
     await waitForSummary(/type check: no errors$/, 0);
-    expect(messages).toContain('info: port ' + new URL(session.origin).port + ` (${session.origin}), locale en-us, overlay on, type check on (with overlay), lint on`);
     expect(lastSummary()).toBe('info: type check: no errors');
     expect(existsSync(path.join(fixture.root, 'temp/static-asset-ts/webparts/hello/assets/logo.png.d.ts'))).toBe(true);
     expect(checkerWorkers()).toHaveLength(2);

@@ -115,7 +115,7 @@ async function listenDevServer({ compiler, devServer, page, setup, logger, start
   }
   const elapsedMs = Math.round(performance.now() - startedAt);
   if (banner === 'restart') logger.info(`restarted in ${elapsedMs} ms at ${options.origin}`);
-  else for (const line of readyBanner(options, project.components(), elapsedMs)) logger.info(line);
+  else for (const line of readyBanner(options, elapsedMs)) logger.info(line);
   return { origin: options.origin, localOrigin: options.localOrigin, close };
 }
 
@@ -183,6 +183,7 @@ function compileProblems(stats: Stats, root: string, codeRoots: readonly string[
 function logCompile({ errors, warnings, durationMs }: CompileProblems, { verb, changedFiles }: { verb: 'compiled' | 'rebuilt'; changedFiles: readonly string[] }, logger: Logger): void {
   for (const error of errors) logger.error(error);
   for (const warning of warnings) logger.warn(warning);
+  if (verb === 'compiled' && errors.length === 0 && warnings.length === 0) return;
   logger.info(compileSummary({ verb, durationMs, changedFiles, errors: errors.length, warnings: warnings.length }));
 }
 

@@ -10,6 +10,12 @@ Entry format:
 - Changed: `kb/path.md`, `kb/other-path.md`
 - Outcome: concise result
 ```
+
+## 2026-11-22 19:30 | update | minimal startup output (1.24.0-beta.15)
+
+- Changed: `kb/features/dev-server.md`, `kb/features/cli-and-options.md`, `kb/features/extensions-and-aces.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/project-restarts.md`, `kb/features/tunnel-mode.md`, `kb/index.md`
+- Outcome: startup prints the versions line, the ready line and a heft-style box with the unencoded web-part debug query (plus the extension query only for an explicitly selected serve configuration with extensions); setup summary, components, page URL, first `compiled in`, ACE and sticky-tab hints dropped from the terminal; tunnel mode prints its ready line and one instruction; verified live: the pasted unencoded query renders both web parts on the test page, and `--config banner`'s unencoded extension query renders the Application Customizer
+
 ## 2026-11-22 19:30 | update | JSON schema for `fast-serve/config.json` shipped in the package (`1.24.0-beta.14`)
 
 - Changed: `kb/features/cli-and-options.md`, `kb/index.md`

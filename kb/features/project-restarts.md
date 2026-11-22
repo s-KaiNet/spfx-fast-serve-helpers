@@ -35,7 +35,7 @@ A file counts as changed only when its content changed (saves without changes, `
 ### Messages
 
 - The reason, one line: `config/sass.json changed, restarting fast-serve`, `fast-serve/rspack.extend.mjs found, …`, `… was removed, …`, `config/helpers.cjs (imported by fast-serve/rspack.extend.mjs) changed, …`; several files: the first plus `(+n more)`.
-- After the swap: option and serve-configuration warnings again, `Rspack config: <file>` and extend guard warnings, the compile line, then `restarted in N ms at https://localhost:<port>`. The full ready banner (components, page and debug URL) is printed instead when the port, page, serve configuration or component list changed.
+- After the swap: option and serve-configuration warnings again, `Rspack config: <file>` and extend guard warnings, the compile line when it has problems, then `restarted in N ms at https://localhost:<port>`. The full ready banner (ready line and debug-query box) is printed instead when the origin or the selected serve configuration changed.
 - A failing restart (unreadable `config/config.json`, a broken extend file, an invalid Rspack config): `restart failed: <reason>` or `<extend file> could not be loaded: <reason>`, then `The server keeps running with the previous configuration; fast-serve restarts when the file is fixed.` The next content change of a watched file tries again; a broken extend file's own imports are watched from then on, too.
 - Only when the new server cannot listen after the old one closed (for example another process took the port meanwhile) `fast-serve` prints `restart failed: …` and exits with 1.
 

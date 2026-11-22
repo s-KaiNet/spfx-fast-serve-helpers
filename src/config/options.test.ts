@@ -106,19 +106,20 @@ describe('resolveOptions', () => {
       expect(resolveOptions({ defaults }, env)).toMatchObject({
         pageUrl: 'https://contoso.sharepoint.com/SitePages/home.aspx',
         pageUrlTemplate: serveConfigurations.default.pageUrl,
-        serveConfiguration: { name: 'default', ...serveConfigurations.default },
+        serveConfiguration: { name: 'default', ...serveConfigurations.default, explicit: false },
       });
     });
 
     it('selects a configuration from the CLI or the options file', () => {
       expect(resolveOptions({ defaults, cli: { serveConfiguration: 'rating' } }, env)).toMatchObject({
         pageUrl: 'https://t/Lists/L/AllItems.aspx',
-        serveConfiguration: { name: 'rating', fieldCustomizers: { Title: { id: 'r' } } },
+        serveConfiguration: { name: 'rating', fieldCustomizers: { Title: { id: 'r' } }, explicit: true },
       });
       expect(resolveOptions({ defaults, file: { serveConfiguration: 'rating' }, cli: { serveConfiguration: 'noPage' } }, env)).toMatchObject({
         serveConfiguration: { name: 'noPage' },
       });
-      expect(resolveOptions({ defaults, file: { serveConfiguration: 'rating' } }, env).serveConfiguration?.name).toBe('rating');
+      expect(resolveOptions({ defaults, file: { serveConfiguration: 'rating' } }, env).serveConfiguration).toMatchObject({ name: 'rating', explicit: true });
+      expect(resolveOptions({ defaults, cli: { serveConfiguration: 'default' } }, env).serveConfiguration).toMatchObject({ name: 'default', explicit: true });
     });
 
     it('falls back to the default page for a configuration without one', () => {
@@ -146,7 +147,7 @@ describe('resolveOptions', () => {
     it('warns about an unknown configuration name and falls back to "default" like heft', () => {
       expect(resolveOptions({ defaults, cli: { serveConfiguration: 'nope' } }, env)).toMatchObject({
         pageUrl: 'https://contoso.sharepoint.com/SitePages/home.aspx',
-        serveConfiguration: { name: 'default', ...serveConfigurations.default },
+        serveConfiguration: { name: 'default', ...serveConfigurations.default, explicit: false },
         warnings: ['serve configuration "nope" not found in config/serve.json "serveConfigurations" (available: default, rating, noPage), using "default"'],
       });
       expect(resolveOptions({ defaults: { initialPage: defaults.initialPage }, cli: { serveConfiguration: 'nope' } }, env)).toMatchObject({

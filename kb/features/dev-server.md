@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` runs `@rspack/dev-server` over HTTPS on `localhost:<port>` with the SPFx development certificate. It serves the [compiled AMD bundles](rspack-compile.md) from memory under `/dist/`, its own debug `manifests.js` at `/temp/build/manifests.js` (heft's path) and the relative icon files the manifests reference, nothing else from the project. Every response carries CORS and Private Network Access headers. After the first compile it prints a ready banner with the components and the SharePoint page URL plus the debug query for the chosen port. SIGINT/SIGTERM stop the server and the compiler cleanly. With `TunnelServePlugin` the public origin becomes the tunnel host while the server keeps listening on `localhost` ([tunnel mode](tunnel-mode.md)). On spfx-rea, both web parts and the Banner customizer render on a real SharePoint page with three requests to the dev server per page load.
+`fast-serve` runs `@rspack/dev-server` over HTTPS on `localhost:<port>` with the SPFx development certificate. It serves the [compiled AMD bundles](rspack-compile.md) from memory under `/dist/`, its own debug `manifests.js` at `/temp/build/manifests.js` (heft's path) and the relative icon files the manifests reference, nothing else from the project. Every response carries CORS and Private Network Access headers. After the first compile it prints a short ready banner: the ready line and a boxed, unencoded debug query for the chosen port. SIGINT/SIGTERM stop the server and the compiler cleanly. With `TunnelServePlugin` the public origin becomes the tunnel host while the server keeps listening on `localhost` ([tunnel mode](tunnel-mode.md)). On spfx-rea, both web parts and the Banner customizer render on a real SharePoint page with three requests to the dev server per page load.
 
 ## Behavior
 
@@ -35,7 +35,7 @@ tags:
 | Browser errors | `POST /fast-serve/browser-errors` receives error reports from the page runtime and answers with overlay content or a readable load-error message |
 | heft package files | `GET /dist/<Name>_<locale>.js` answers a strings script of a heft development package as an AMD module, `GET /dist/<name>_<md5>.<ext>` a content-hashed local-file external (used by [tunnel mode](tunnel-mode.md)) |
 | HMR | `hot` and `liveReload` on: edits hot-update inside the bundles with React Fast Refresh, an update that nobody accepts falls back to a page reload; details in [HMR and React Fast Refresh](hmr.md) |
-| Terminal | one line per compile (`compiled in … ms` / `rebuilt in … ms (<changed files>)`, error and warning counts only when non-zero; nothing for rebuilds that change no module output and no problem), errors and warnings with project-relative paths; the dev server's own banners and stats are silenced ([details](errors-and-diagnostics.md#terminal)) |
+| Terminal | one line per rebuild (`rebuilt in … ms (<changed files>)`; the first compile only when it has errors or warnings, as `compiled in … ms: …`), error and warning counts only when non-zero; nothing for rebuilds that change no module output and no problem), errors and warnings with project-relative paths; the dev server's own banners and stats are silenced ([details](errors-and-diagnostics.md#terminal)) |
 
 ### Debug `manifests.js`
 
@@ -50,7 +50,16 @@ Differences from heft's file: no localized-resource or React entries (both are b
 
 ### Debug URL and ready banner
 
-The banner prints `ready in <ms> ms at https://localhost:<port>`, the web parts, extensions (with their kind) and ACEs, the serve configuration, then either `open: <page>?<debug query>` or, without a resolved page, the hint to set `SPFX_SERVE_TENANT_DOMAIN` and the query to append. The query replaces the page's own query and keeps its `#hash`: `debugManifestsFile=https://localhost:<port>/temp/build/manifests.js&debug=true&noredir=true`; a serve configuration with extensions switches to heft's form (`loadSPFX=true`, `customActions` / `fieldCustomizers` / form customizer parameters, no `debug=true`, see [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)). With ACEs in the project, a line about adding and using them on the page follows, plus the plain web-part debug query when the opened URL carries the extension query ([Extensions and ACEs](extensions-and-aces.md#adaptive-card-extensions)). A last line reminds that the debug query sticks to the browser tab.
+Startup output is minimal by default: the package and SPFx versions before the compile, then `ready in <ms> ms at https://localhost:<port>` and a box modelled on heft's (a line of `═` above and below):
+
+```
+[fast-serve] ════════════════════════════════════════════════════════════════
+[fast-serve]   To load your scripts, append this to your SharePoint page URL:
+[fast-serve]   ?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true
+[fast-serve] ════════════════════════════════════════════════════════════════
+```
+
+The query is the shortest one that loads web parts and ACEs (the same parameters heft uses without extensions) and is printed unencoded; only whitespace, `%`, `&`, `#` and `+` stay percent-encoded, so pasting it into the address bar gives SharePoint the same parameters as the encoded form. When a serve configuration with `customActions`, `fieldCustomizers` or `formCustomizer` is selected explicitly (`--config`, `--serve-config` or `"serveConfiguration"`), a labelled second query inside the box adds heft's extension form (`loadSPFX=true`, the JSON or form customizer parameters, no `debug=true`, see [SharePoint debug flow](../concepts/sharepoint-debug-flow.md)); the implicit `default` configuration never adds it. Not printed: components, bundles, resolved options, the page URL, library and resource counts, the first compile time, the ACE hint and the sticky-tab hint (the last two live in the user docs). The detailed setup lines are still built and tested, ready for a later verbose mode. Warnings, errors, `rebuilt in …` lines and type-check and lint results are printed as before. Tunnel mode prints its own ready line and one instruction instead of the box ([tunnel mode](tunnel-mode.md)).
 
 ### Shutdown
 

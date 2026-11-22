@@ -2,7 +2,7 @@ import { withTunnelHost, type FastServeOptions } from '../config/index.js';
 import { ExtendLoadError, fastServeContext, findExtendFiles, loadExtendFile, projectRelative, webpackCustomizationHint, type LoadedExtend } from '../extend/index.js';
 import type { Logger } from '../logger.js';
 import { assertPortFree, prepareDevServer, type HttpsCredentials, type PreparedDevServer, type RunningDevServer } from '../server/index.js';
-import { describeSetup, prepareServe, type ServeSetup } from '../setup/index.js';
+import { prepareServe, versionLine, type ServeSetup } from '../setup/index.js';
 import { resolveTunnel } from '../tunnel/index.js';
 import { errorMessage } from '../utils/errors.js';
 import { watchFiles, type FileChange, type FileWatcher } from './fileWatcher.js';
@@ -53,7 +53,7 @@ export async function startDevSession(options: StartDevSessionOptions): Promise<
   const prepareGeneration = async (initial: boolean): Promise<Generation> => {
     const resolved = prepareServe({ root, cli, logger, ...(env === undefined ? {} : { env }) });
     if (initial) {
-      for (const line of describeSetup(resolved)) logger.info(line);
+      logger.info(versionLine(resolved));
       await portCheck(resolved.options.port);
     }
     const { setup, extend } = withTunnel(resolved, await loadExtend(resolved, initial));
@@ -186,8 +186,8 @@ export async function startDevSession(options: StartDevSessionOptions): Promise<
   };
 }
 
-function debugUrlInputs({ options, project }: ServeSetup): string {
-  return JSON.stringify([options.origin, options.pageUrl, options.serveConfiguration, project.components().map(({ manifest }) => manifest.id)]);
+function debugUrlInputs({ options }: ServeSetup): string {
+  return JSON.stringify([options.origin, options.serveConfiguration]);
 }
 
 function sameDebugUrl(previous: ServeSetup, next: ServeSetup): boolean {

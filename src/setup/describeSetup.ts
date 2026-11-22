@@ -5,9 +5,12 @@ import type { SpfxComponent, SpfxProject } from '../project/index.js';
 import { toPosix } from '../utils/paths.js';
 import type { ServeSetup } from './prepareServe.js';
 
-export function describeSetup({ spfxVersion, project, options }: ServeSetup): string[] {
+export function versionLine({ spfxVersion }: Pick<ServeSetup, 'spfxVersion'>): string {
+  return `${packageName} ${packageVersion}, SPFx ${spfxVersion.version}`;
+}
+
+export function setupDetails({ project, options }: ServeSetup): string[] {
   return [
-    `${packageName} ${packageVersion}, SPFx ${spfxVersion.version}`,
     `port ${options.port} (${options.origin}), locale ${options.locale}, overlay ${options.overlay ? 'on' : 'off'}, type check ${describeTypeCheck(options)}, lint ${describeLint(options.lint)}`,
     `serve configuration: ${options.serveConfiguration?.name ?? 'none'}`,
     `page: ${describePage(options.pageUrl, options.pageUrlTemplate)}`,

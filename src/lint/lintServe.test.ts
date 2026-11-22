@@ -131,7 +131,6 @@ describe('linting saved files while serving', { timeout: 90_000 }, () => {
   });
 
   it('lints by default in one background process started after the first compile', async () => {
-    expect(messages).toContain(`info: port ${new URL(session.origin).port} (${session.origin}), locale en-us, overlay on, type check off, lint on`);
     await poll(
       () => lintWorkers().length === 1,
       () => `expected 1 lint worker:\n${lintWorkers().join('\n')}`,

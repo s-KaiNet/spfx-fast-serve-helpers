@@ -46,13 +46,18 @@ npm run serve
 ```
 
 ```
-[fast-serve] compiled in 1951 ms
-[fast-serve] ready in 2177 ms at https://localhost:4321
-[fast-serve] web parts: BenchTreeWebPart, BenchPnpWebPart
-[fast-serve] open: https://contoso.sharepoint.com/sites/dev/SitePages/test.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true
+[fast-serve] spfx-fast-serve-helpers 1.24.0-beta.15, SPFx 1.24.1
+[fast-serve] ready in 1153 ms at https://localhost:4321
+[fast-serve] ════════════════════════════════════════════════════════════════
+[fast-serve]   To load your scripts, append this to your SharePoint page URL:
+[fast-serve]   ?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true
+[fast-serve] ════════════════════════════════════════════════════════════════
+[fast-serve] type check: no errors
 ```
 
-Open the printed URL and click **Load debug scripts**. Without a configured page, append the printed query to any SharePoint page URL (replacing its own query). A web part must already be on the page: add it from the toolbox while `fast-serve` runs and save the page. Stop the server with Ctrl+C.
+Append the query to your SharePoint page URL (replacing the page's own query), open it and click **Load debug scripts**. The query is printed unencoded so it is easy to read; browsers and SharePoint accept it as it is. A web part must already be on the page: add it from the toolbox while `fast-serve` runs and save the page. Stop the server with Ctrl+C.
+
+Startup output is short on purpose: warnings and errors, the `rebuilt in …` line after each edit and the type-check and lint results are printed as they happen; the compiled bundles and components, the resolved options and the first compile time are not.
 
 If the port is already taken (often a forgotten `fast-serve` or `heft start`), `fast-serve` names the process holding it and asks before doing anything:
 
@@ -67,23 +72,29 @@ All bundles are compiled before the server reports ready; later starts reuse a c
 
 ### Extensions and serve configurations
 
-Extensions load through the same query parameters `heft start` builds from `config/serve.json` `serveConfigurations`. `fast-serve` uses `default` or the one picked with `--config <name>` (`--serve-config` too) and prints its page:
+Extensions load through the same query parameters `heft start` builds from `config/serve.json` `serveConfigurations`. Pick a serve configuration with `--config <name>` (`--serve-config` or `"serveConfiguration"` in `fast-serve/config.json` too) and `fast-serve` prints its extension query under the web-part query, unencoded except for spaces, `%`, `&`, `#` and `+`:
 
 ```
 npm run serve -- --config commands
-[fast-serve] serve configuration: commands
-[fast-serve] open: https://contoso.sharepoint.com/sites/dev/Lists/Tasks/AllItems.aspx?debugManifestsFile=…&noredir=true&loadSPFX=true&customActions=%7B…
+[fast-serve] ════════════════════════════════════════════════════════════════
+[fast-serve]   To load your scripts, append this to your SharePoint page URL:
+[fast-serve]   ?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true
+[fast-serve]   To load the extensions of serve configuration "commands" too, use this instead:
+[fast-serve]   ?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&noredir=true&loadSPFX=true&customActions={"…":{"location":"ClientSideExtension.ListViewCommandSet.CommandBar",…}}
+[fast-serve] ════════════════════════════════════════════════════════════════
 ```
 
+Append it to the configuration's page (a list view for Command Sets and Field Customizers, `_layouts/15/SPListForm.aspx` for Form Customizers). Without `--config`, `fast-serve` prints only the web-part query, even when `serveConfigurations.default` has extensions.
+
 - `customActions` (Application Customizers, ListView Command Sets), `fieldCustomizers` and `formCustomizer` become `loadSPFX=true` plus the JSON parameters, or the form parameters (`componentId`, `PageType`, `RootFolder`, `ID`, `ContentTypeID`, `properties`). As in heft, `debug=true` is left out then.
-- Page order (heft's, with the `pageUrl` option in place of heft's fallbacks): the selected configuration's `pageUrl` unless it is `default` → the `pageUrl` option → `serveConfigurations.default.pageUrl` → `initialPage`. `{tenantDomain}` is replaced with `SPFX_SERVE_TENANT_DOMAIN`. The page's own query is replaced, a `#hash` kept.
+- Page order (heft's, with the `pageUrl` option in place of heft's fallbacks): the selected configuration's `pageUrl` unless it is `default` → the `pageUrl` option → `serveConfigurations.default.pageUrl` → `initialPage`. `{tenantDomain}` is replaced with `SPFX_SERVE_TENANT_DOMAIN`. `fast-serve` doesn't print the page; it is passed to the extend file (`context.pageUrl`).
 - Use a SharePoint page. Microsoft retires the SharePoint Online workbench (`/_layouts/workbench.aspx`, the `initialPage` the generator may write) on December 1, 2026: `fast-serve` warns about a page URL that points to it and ignores it.
 - An unknown `--config` name warns with the available names and falls back to `default`. At start `fast-serve` warns about configurations that can't work: ids that aren't your extensions, a component of the wrong kind for its slot, unknown locations, the generator's placeholders (`InternalFieldName`, `/sites/mySite/Lists/MyList`).
-- Editing `config/serve.json` restarts `fast-serve` and prints the new URL.
+- Editing `config/serve.json` restarts `fast-serve`; the box is printed again when the selected configuration changed.
 
 ### Adaptive Card Extensions
 
-ACEs load with the web-part debug query on a SharePoint page, as in [Microsoft's ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension): open your test page with it, edit the page and add the card from the toolbox. Card actions and quick views are disabled in edit mode: they work in read mode, on a saved page. When the selected serve configuration loads extensions, `fast-serve` also prints the web-part debug query for adding ACEs.
+ACEs load with the web-part debug query on a SharePoint page, as in [Microsoft's ACE tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/viva/get-started/build-first-sharepoint-adaptive-card-extension): open your test page with it, edit the page and add the card from the toolbox. Card actions and quick views are disabled in edit mode: they work in read mode, on a saved page. `fast-serve` always prints the web-part debug query first, also when a serve configuration with extensions is selected.
 
 Quick-view templates (JSON imports), images and the lazily loaded property pane (`import()` → `chunk.<name>.js`) come from the dev server; `@microsoft/sp-adaptive-card-extension-base` and the other SPFx libraries come from the page.
 
@@ -112,7 +123,7 @@ The `$schema` line gives completion, descriptions and validation in VS Code and 
 | Option | Flag | Meaning |
 |---|---|---|
 | `port` | `-p, --port` | HTTPS port on `localhost` |
-| `pageUrl` | `--page-url` | page printed with the debug query (see the page order above) |
+| `pageUrl` | `--page-url` | your SharePoint test page (see the page order above); not printed at start, passed to the extend file as `context.pageUrl` |
 | `locale` | `--locale` | locale of the `localizedResources` strings, with a per-resource fallback to `en-us` |
 | `serveConfiguration` | `--config`, `--serve-config` | `config/serve.json` serve configuration (default `default`) |
 | `overlay` | `--no-overlay` | `false` turns off the error overlay over the page; errors still go to the terminal and the browser console |
@@ -201,9 +212,9 @@ For places where the debug query can't be used (Viva Connections and Teams on mo
    export default defineConfig(() => ({ plugins: [new TunnelServePlugin({ host: 'my-tunnel.example.com' })] }));
    ```
    `host` is the host name only (no `https://`, port or path); anything else is ignored with a warning.
-5. **Run `fast-serve`** (same port as the tunnel target) and open the page **without** the debug query, in a tab that never used it (the debug query sticks to the tab).
+5. **Run `fast-serve`** (same port as the tunnel target) and open the page **without** the debug query, in a tab that never used it (the debug query sticks to the tab). Instead of the debug-query box, `fast-serve` prints `ready in … at https://<host> (tunnel mode; your tunnel forwards to https://localhost:<port>)` and one line reminding you to open the page without the query.
 
-In tunnel mode `fast-serve` still listens on `https://localhost:<port>`, but everything the page sees uses `https://<host>`: chunk and asset URLs, `manifests.js` base URLs, the HMR websocket (`wss://<host>:443`), browser-error forwarding and local-file externals. It also answers the file names heft's development package uses (strings scripts such as `dist/HelloWorldWebPartStrings_en-us.js`, content-hashed local externals); string edits still hot-update through the bundled copy. Bundles are sent with `Cache-Control: no-store`, and each bundle clears the tunnel's responses from SharePoint's `Site-*` caches (the mobile apps cache scripts). The overlay and terminal error forwarding run inside the bundles, so they work without `manifests.js`. The banner shows the tunnel origin and no debug query; the localhost debug-query flow doesn't work in tunnel mode (its scripts would come from the tunnel host). Remove the plugin to go back. The extend-file context (`origin`, `publicPath`) still describes `localhost`, because the plugin is read from that file.
+In tunnel mode `fast-serve` still listens on `https://localhost:<port>`, but everything the page sees uses `https://<host>`: chunk and asset URLs, `manifests.js` base URLs, the HMR websocket (`wss://<host>:443`), browser-error forwarding and local-file externals. It also answers the file names heft's development package uses (strings scripts such as `dist/HelloWorldWebPartStrings_en-us.js`, content-hashed local externals); string edits still hot-update through the bundled copy. Bundles are sent with `Cache-Control: no-store`, and each bundle clears the tunnel's responses from SharePoint's `Site-*` caches (the mobile apps cache scripts). The overlay and terminal error forwarding run inside the bundles, so they work without `manifests.js`. The ready line shows the tunnel origin and there is no debug query; the localhost debug-query flow doesn't work in tunnel mode (its scripts would come from the tunnel host). Remove the plugin to go back. The extend-file context (`origin`, `publicPath`) still describes `localhost`, because the plugin is read from that file.
 
 Risks and limits:
 - **Free ngrok doesn't work:** its warning page answers script requests with HTML. Use a paid ngrok plan, Dev Tunnels or a named Cloudflare tunnel.
@@ -324,6 +335,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | `No valid SPFx development certificate found` | `npx heft trust-dev-cert` |
 | "Error loading debug manifests" | `fast-serve` isn't running, or the browser doesn't trust the certificate (trust it and restart the browser); allow access to local network devices if Chrome/Edge asks |
 | "Error loading debug manifests" after stopping `fast-serve` | the debug query sticks to the tab (`sessionStorage`): open the page in a new tab without the query |
+| an Application Customizer, Command Set, Field or Form Customizer doesn't load with the printed query | the short query loads web parts and ACEs only: run `fast-serve --config <serve configuration>` and use the second query in the box on that configuration's page |
 | `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: run `fast-serve` in a terminal and press Enter to stop it, stop it yourself, or use `--port` |
 | `Could not stop … (pid …)` or `The process holding the port could not be identified` | the process belongs to another user or can't be seen without admin rights: stop it yourself (`kill <pid>`, Task Manager) or use `--port` |

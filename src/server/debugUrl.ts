@@ -4,14 +4,32 @@ import type { ServeConfiguration } from '../project/index.js';
 const FORM_CUSTOMIZER_JSON_PARAMETERS = new Set(['properties']);
 const FORM_CUSTOMIZER_DECODED_PARAMETERS = new Set(['RootFolder']);
 
+const CHARACTERS_TO_KEEP_ENCODED = /[\s%&#+]/gu;
+
 export function debugQuery(origin: string, serveConfiguration: ServeConfiguration = {}): string {
+  return debugQueryParameters(origin, serveConfiguration).toString();
+}
+
+export function readableDebugQuery(origin: string, serveConfiguration: ServeConfiguration = {}): string {
+  return [...debugQueryParameters(origin, serveConfiguration)].map(([name, value]) => `${readable(name)}=${readable(value)}`).join('&');
+}
+
+export function loadsExtensions({ customActions, fieldCustomizers, formCustomizer }: ServeConfiguration): boolean {
+  return Boolean(customActions ?? fieldCustomizers ?? formCustomizer);
+}
+
+function readable(text: string): string {
+  return text.replaceAll(CHARACTERS_TO_KEEP_ENCODED, (character) => encodeURIComponent(character));
+}
+
+function debugQueryParameters(origin: string, serveConfiguration: ServeConfiguration): URLSearchParams {
   const params = new URLSearchParams({
     debugManifestsFile: origin + MANIFESTS_PATH,
     debug: 'true',
     noredir: 'true',
   });
+  if (!loadsExtensions(serveConfiguration)) return params;
   const { customActions, fieldCustomizers, formCustomizer } = serveConfiguration;
-  if (!customActions && !fieldCustomizers && !formCustomizer) return params.toString();
 
   params.set('loadSPFX', 'true');
   if (customActions) params.set('customActions', JSON.stringify(customActions));
@@ -21,7 +39,7 @@ export function debugQuery(origin: string, serveConfiguration: ServeConfiguratio
     params.set(name, formCustomizerParameterValue(name, value));
   }
   params.delete('debug');
-  return params.toString();
+  return params;
 }
 
 function formCustomizerParameterValue(name: string, value: unknown): string {

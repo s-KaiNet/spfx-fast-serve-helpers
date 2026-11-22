@@ -1,47 +1,25 @@
-import { aceBannerLines } from '../aces/index.js';
-import { TENANT_DOMAIN_ENV, type ResolvedOptions } from '../config/index.js';
-import type { SpfxComponent } from '../project/index.js';
-import { debugPageUrl, debugQuery } from './debugUrl.js';
+import type { ResolvedOptions } from '../config/index.js';
+import { loadsExtensions, readableDebugQuery } from './debugUrl.js';
 
-export function readyBanner(options: ResolvedOptions, components: readonly SpfxComponent[], elapsedMs: number): string[] {
-  if (options.tunnelHost !== undefined) return tunnelBanner(options, options.tunnelHost, components, elapsedMs);
-  const lines = [`ready in ${elapsedMs} ms at ${options.origin}`, ...componentLines(components)];
-  const { serveConfiguration } = options;
-  if (serveConfiguration) lines.push(`serve configuration: ${serveConfiguration.name}`);
-  if (options.pageUrl) {
-    lines.push(`open: ${debugPageUrl(options.pageUrl, options.origin, serveConfiguration)}`);
-  } else {
-    if (options.pageUrlTemplate) lines.push(`set ${TENANT_DOMAIN_ENV} to resolve the page URL "${options.pageUrlTemplate}"`);
-    lines.push(`append to your SharePoint page URL: ?${debugQuery(options.origin, serveConfiguration)}`);
+const BOX_RULE = '═'.repeat(64);
+const BOX_INDENT = '  ';
+
+export function readyBanner(options: ResolvedOptions, elapsedMs: number): string[] {
+  if (options.tunnelHost !== undefined) return tunnelBanner(options, elapsedMs);
+  return [`ready in ${elapsedMs} ms at ${options.origin}`, ...debugQueryBox(options)];
+}
+
+function debugQueryBox({ origin, serveConfiguration }: Pick<ResolvedOptions, 'origin' | 'serveConfiguration'>): string[] {
+  const lines = ['To load your scripts, append this to your SharePoint page URL:', `?${readableDebugQuery(origin)}`];
+  if (serveConfiguration?.explicit === true && loadsExtensions(serveConfiguration)) {
+    lines.push(`To load the extensions of serve configuration "${serveConfiguration.name}" too, use this instead:`, `?${readableDebugQuery(origin, serveConfiguration)}`);
   }
-  const webPartQuery = debugQuery(options.origin);
-  lines.push(...aceBannerLines(components, debugQuery(options.origin, serveConfiguration) === webPartQuery ? undefined : webPartQuery));
-  lines.push('the debug query sticks to the browser tab: after stopping fast-serve, open the page in a new tab');
-  return lines;
+  return [BOX_RULE, ...lines.map((line) => BOX_INDENT + line), BOX_RULE];
 }
 
-function tunnelBanner(options: ResolvedOptions, tunnelHost: string, components: readonly SpfxComponent[], elapsedMs: number): string[] {
-  const lines = [
-    `ready in ${elapsedMs} ms at ${options.origin} (tunnel mode; your tunnel forwards to ${options.localOrigin})`,
-    ...componentLines(components),
-    `tunnel mode: SharePoint loads the bundles from ${options.origin}/dist/ through the development package deployed to the app catalog`,
-    `  (built with config/serve.json "hostname": "${tunnelHost}", "port": 443); open the page without the debug query`,
-  ];
-  if (options.pageUrl) lines.push(`open: ${options.pageUrl}`);
-  else if (options.pageUrlTemplate) lines.push(`set ${TENANT_DOMAIN_ENV} to resolve the page URL "${options.pageUrlTemplate}"`);
-  lines.push('a browser tab that used the debug query keeps loading from localhost: open the page in a new tab');
-  return lines;
-}
-
-function componentLines(components: readonly SpfxComponent[]): string[] {
-  const ofType = (componentType: string) => components.filter((component) => component.manifest.componentType === componentType);
+function tunnelBanner({ origin, localOrigin }: ResolvedOptions, elapsedMs: number): string[] {
   return [
-    ...componentLine('web parts', ofType('WebPart'), ({ manifest }) => manifest.alias),
-    ...componentLine('extensions', ofType('Extension'), ({ manifest }) => `${manifest.alias} (${manifest.extensionType ?? 'Extension'})`),
-    ...componentLine('Adaptive Card Extensions', ofType('AdaptiveCardExtension'), ({ manifest }) => manifest.alias),
+    `ready in ${elapsedMs} ms at ${origin} (tunnel mode; your tunnel forwards to ${localOrigin})`,
+    `tunnel mode: open your SharePoint page without the debug query; the development package in the app catalog loads the bundles from ${origin}/dist/`,
   ];
-}
-
-function componentLine(label: string, members: readonly SpfxComponent[], describe: (component: SpfxComponent) => string): string[] {
-  return members.length > 0 ? [`${label}: ${members.map(describe).join(', ')}`] : [];
 }

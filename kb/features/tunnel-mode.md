@@ -37,7 +37,7 @@ tags:
 | listen address, certificate, port check | `localhost:<port>`, SPFx dev certificate | unchanged (the tunnel terminates public TLS and talks to the dev certificate without verifying it) |
 | `Cache-Control` | `no-store` on `manifests.js`, hot-update files and served helper files | also `no-store` on every `/dist/` file |
 | extra bundle entry | – | a script that deletes the tunnel host's responses from SharePoint's `Site-*` Cache Storage (the Viva/Teams mobile apps cache script responses), like classic fast-serve's cache clearing |
-| banner | debug query or page URL with it | tunnel origin, the local origin the tunnel must forward to, the deployed-package reminder and the page URL without a query; the localhost debug-query lines are left out because their scripts would come from the tunnel host |
+| banner | ready line and debug-query box | ready line with the tunnel origin and the local origin the tunnel must forward to, then one line: open the page without the debug query, the deployed development package loads the bundles from the tunnel; no box, because localhost debug-query scripts would come from the tunnel host |
 
 CORS (`*`) and Private Network Access headers are unchanged; through a public tunnel the page origin is public, so no local-network prompt appears.
 

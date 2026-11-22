@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../logger.js';
-import { ACE_PAGE_HINT } from './aceBanner.js';
 import type { DebugManifest } from '../manifests/index.js';
 import { startDevServer, type RunningDevServer } from '../server/index.js';
 import { prepareServe } from '../setup/index.js';
@@ -109,22 +108,20 @@ describe('extensions and an Adaptive Card Extension served with a serve configur
     rmSync(root, { recursive: true, force: true });
   });
 
-  it('prints the list page of the selected configuration with the extension query and the web-part query for Adaptive Card Extensions', () => {
+  it('prints the web-part query and, for the explicitly selected configuration, its extension query in the box, unencoded', () => {
     expect(messages.filter((message) => message.startsWith('error:') || message.startsWith('warn:'))).toEqual([]);
-    const encodedOrigin = encodeURIComponent(origin);
-    const customActions = encodeURIComponent(
-      JSON.stringify({ '20000000-0000-0000-0000-000000000002': { location: 'ClientSideExtension.ListViewCommandSet.CommandBar', properties: { sampleText: 'One' } } }),
-    ).replaceAll('%20', '+');
-    expect(messages).toEqual(
-      expect.arrayContaining([
-        'info: extensions: BannerApplicationCustomizer (ApplicationCustomizer), CommandsCommandSet (ListViewCommandSet)',
-        'info: Adaptive Card Extensions: HelloAdaptiveCardExtension',
-        'info: serve configuration: commands',
-        `info: open: https://contoso.sharepoint.com/sites/dev/Lists/Tasks/AllItems.aspx?debugManifestsFile=${encodedOrigin}%2Ftemp%2Fbuild%2Fmanifests.js&noredir=true&loadSPFX=true&customActions=${customActions}#top`,
-        `info: ${ACE_PAGE_HINT}`,
-        `info: to add them, open a SharePoint page with the web-part debug query: ?debugManifestsFile=${encodedOrigin}%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true`,
-      ]),
-    );
+    const customActions = JSON.stringify({ '20000000-0000-0000-0000-000000000002': { location: 'ClientSideExtension.ListViewCommandSet.CommandBar', properties: { sampleText: 'One' } } });
+    const rule = `info: ${'═'.repeat(64)}`;
+    const box = messages.slice(messages.indexOf(rule));
+    expect(box).toEqual([
+      rule,
+      'info:   To load your scripts, append this to your SharePoint page URL:',
+      `info:   ?debugManifestsFile=${origin}/temp/build/manifests.js&debug=true&noredir=true`,
+      'info:   To load the extensions of serve configuration "commands" too, use this instead:',
+      `info:   ?debugManifestsFile=${origin}/temp/build/manifests.js&noredir=true&loadSPFX=true&customActions=${customActions}`,
+      rule,
+    ]);
+    expect(messages.join('\n')).not.toMatch(/open: |Adaptive Card Extensions|serve configuration: /);
   });
 
   it('warns about serve configuration entries that do not match a served extension', () => {

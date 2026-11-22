@@ -60,7 +60,8 @@ ab screenshot /tmp/spfx-debug.png
 2. Attach with `--cdp <port>` and a named `--session` (never the unnamed default). Define the `ab` function in every shell call (a function, not a `$AB` string: zsh doesn't word-split variables); add `env -u XDG_RUNTIME_DIR` inside it if the quirk applies.
 3. Build the URL (details: [references/debug-urls.md](references/debug-urls.md)):
    - web parts / ACEs: `scripts/debug-url.sh <page> <port>` → `?debugManifestsFile=<encoded https://localhost:<port>/temp/build/manifests.js>&debug=true&noredir=true`, replacing the page's own query;
-   - extensions: copy the `open:` URL that `fast-serve --config <name>` (or heft) prints (`loadSPFX=true&customActions=…`, no `debug=true`).
+   - extensions: start `fast-serve --config <name>` and append the second query of its startup box (`loadSPFX=true&customActions=…`, no `debug=true`) to the configuration's page, or use the URL heft prints;
+   - the web-part query is also printed in fast-serve's box: `grep -m1 -o '?debugManifestsFile=[^ ]*' <server log>`.
 4. First load shows **"Allow debug scripts?"**: `ab snapshot -i`, click the **Load debug scripts** button ref. Re-snapshot after every navigation.
 5. Verify: the component's DOM, the dev-server requests (resource timing), a screenshot. fast-serve's Rspack client logs nothing when it connects (browser logging is `warn`); prove the websocket with the hot-update test. More checks and the hot-update test: [references/checks.md](references/checks.md).
 6. Clean up (section 5).

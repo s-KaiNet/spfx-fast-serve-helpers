@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../logger.js';
+import { packageVersion } from '../packageInfo.js';
 import { assertPortFree } from '../server/index.js';
 import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
 import { startDevSession, type DevSession } from './devSession.js';
@@ -102,6 +103,21 @@ describe('dev session restarts', { timeout: 30_000 }, () => {
   afterAll(async () => {
     await session.close();
     rmSync(root, { recursive: true, force: true });
+  });
+
+  it('starts with minimal output: versions, the extend file, the lint notice, the ready line and the debug query box', () => {
+    const rule = `info: ${'═'.repeat(64)}`;
+    const startup = messages.slice(0, messages.lastIndexOf(rule) + 1).filter((message) => message.startsWith('info:'));
+    expect(startup).toEqual([
+      `info: spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
+      'info: Rspack config: fast-serve/rspack.extend.mjs',
+      'info: lint is off: no eslint.config.js / eslint.config.mjs / eslint.config.cjs',
+      expect.stringMatching(new RegExp(`^info: ready in \\d+ ms at https://localhost:${port}$`)),
+      rule,
+      'info:   To load your scripts, append this to your SharePoint page URL:',
+      `info:   ?debugManifestsFile=https://localhost:${port}/temp/build/manifests.js&debug=true&noredir=true`,
+      rule,
+    ]);
   });
 
   it('applies the extend file: DefinePlugin values, the alias, dev-server headers, guard warnings', async () => {
