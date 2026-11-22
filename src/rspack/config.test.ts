@@ -81,6 +81,7 @@ describe('feature order', () => {
       'tunnel',
       'hmr',
       'typeCheck',
+      'lint',
     ]);
   });
 

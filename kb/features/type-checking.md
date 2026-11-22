@@ -53,7 +53,7 @@ An opt-in type check (`"typeCheck": true` in `fast-serve/config.json` or `--type
 ### Scope and limits
 
 - Only the consumer project: [linked library projects](local-library-projects.md) are compiled from source, but the consumer's tsconfig sees their built declarations; checking library sources would need one checker per library root (two more workers each) and a way to attribute the shared issue hook to a root.
-- Not a build: no linting, no emitted files except the incremental info; `heft build` stays the full check before packaging.
+- Not a build: no linting (that is [Linting saved files](linting.md)), no emitted files except the incremental info; `heft build` stays the full check before packaging.
 - TypeScript is loaded once in the main process when the plugin is applied (the plugin reads its version): the first start of a process is ≈0.2 s slower; restarts are not.
 - A type-only save still sends the page a hot update without modules (only the runtime hash), which closes an open runtime-error overlay.
 
@@ -75,6 +75,7 @@ An opt-in type check (`"typeCheck": true` in `fast-serve/config.json` or `--type
 - [CLI, options and startup](cli-and-options.md)
 - [Architecture overview](../architecture/overview.md)
 - [Tunnel mode (TunnelServePlugin)](tunnel-mode.md)
+- [Linting saved files](linting.md)
 
 ## Evidence
 

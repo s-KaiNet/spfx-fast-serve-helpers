@@ -1,6 +1,6 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.24.0-beta.10",
+  "version": "1.24.0-beta.11",
   "description": "Rspack-based dev server for SharePoint Framework 1.24.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
   "type": "module",
   "bin": {
@@ -59,12 +59,14 @@
     "@rushstack/rig-package": "0.7.3",
     "@types/node": "^22.20.5",
     "@types/picomatch": "^4.0.3",
+    "eslint": "9.37.0",
     "lodash": "^4.18.1",
     "oxlint": "^1.94.0",
     "oxlint-tsgolint": "^7.0.2007",
     "sass-embedded": "1.85.1",
     "typescript": "^7.0.2",
     "typescript-5": "npm:typescript@5.8.3",
+    "typescript-eslint": "8.56.1",
     "vitest": "^5.1.1"
   },
   "dependencies": {

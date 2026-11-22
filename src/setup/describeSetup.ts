@@ -8,7 +8,7 @@ import type { ServeSetup } from './prepareServe.js';
 export function describeSetup({ spfxVersion, project, options }: ServeSetup): string[] {
   return [
     `${packageName} ${packageVersion}, SPFx ${spfxVersion.version}`,
-    `port ${options.port} (${options.origin}), locale ${options.locale}, overlay ${options.overlay ? 'on' : 'off'}, type check ${describeTypeCheck(options)}`,
+    `port ${options.port} (${options.origin}), locale ${options.locale}, overlay ${options.overlay ? 'on' : 'off'}, type check ${describeTypeCheck(options)}, lint ${describeLint(options.lint)}`,
     `serve configuration: ${options.serveConfiguration?.name ?? 'none'}`,
     `page: ${describePage(options.pageUrl, options.pageUrlTemplate)}`,
     ...project.bundles().map((bundle) => `bundle ${bundle.name}: ${bundle.components.map(describeComponent).join(', ')}`),
@@ -20,6 +20,11 @@ export function describeSetup({ spfxVersion, project, options }: ServeSetup): st
 function describeTypeCheck({ typeCheck, typeCheckOverlay }: ServeSetup['options']): string {
   if (!typeCheck) return 'off';
   return typeCheckOverlay ? 'on (with overlay)' : 'on';
+}
+
+function describeLint(lint: ServeSetup['options']['lint']): string {
+  if (lint === 'full') return 'on (full, with type-aware rules)';
+  return lint ? 'on' : 'off';
 }
 
 function describePage(pageUrl: string | undefined, template: string | undefined): string {

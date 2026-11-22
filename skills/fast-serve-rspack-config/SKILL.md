@@ -65,6 +65,7 @@ export default defineConfig(({ root }) => ({
 | `externals` added by the script | `config/config.json` → `externals` (fast-serve and heft both read it, and fast-serve lists it in the debug manifests) |
 | `devServer.proxy` / `devServer.headers` | `devServer.proxy` / `devServer.headers` |
 | `ForkTsCheckerWebpackPlugin` (type errors while serving) | **no plugin**: `"typeCheck": true` in `fast-serve/config.json` or `--type-check` (fast-serve's own background check with the project's TypeScript; `"typeCheckOverlay": true` adds a panel on the page). A `TsCheckerRspackPlugin` in the extend file replaces fast-serve's check |
+| `ESLintWebpackPlugin` / `eslint-webpack-plugin` (lint while serving) | **no plugin**: fast-serve lints the files you save with the project's own ESLint and `eslint.config.js` by default (`"lint": true`; `"lint": "full"` adds type-aware rules such as `no-floating-promises`; `"lint": false` or `--no-lint` turns it off). An `ESLintRspackPlugin`/`ESLintWebpackPlugin` in the extend file replaces fast-serve's lint, but it runs inside the compile and delays every hot update |
 | `output.*`, `optimization`, `devtool`, `performance`, `stats`, `cache`, `mode`, Terser/Analyzer/Copy plugins | **not needed in dev**: leave them out |
 
 ## Serving through a tunnel (TunnelServePlugin)

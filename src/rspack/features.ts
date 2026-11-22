@@ -6,6 +6,7 @@ import { externalsFeature } from '../externals/index.js';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
 import { hmrFeature } from '../hmr/index.js';
 import { localLibrariesFeature } from '../libraries/index.js';
+import { lintFeature } from '../lint/index.js';
 import { localizationFeature } from '../localization/index.js';
 import { manifestsFeature } from '../manifests/index.js';
 import { reactFeature } from '../react/index.js';
@@ -29,6 +30,7 @@ export const FEATURES: readonly Feature[] = [
   tunnelFeature,
   hmrFeature,
   typeCheckFeature,
+  lintFeature,
 ];
 
 export async function contributionsInFeatureOrder(features: readonly Feature[], context: FeatureContext): Promise<ConfigContribution[]> {

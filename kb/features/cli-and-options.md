@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has seven options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`, `typeCheck`, `typeCheckOverlay`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints a summary, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready banner with the debug URL. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has eight options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`, `typeCheck`, `typeCheckOverlay`, `lint`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints a summary, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready banner with the debug URL. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
 
 ## Behavior
 
@@ -29,13 +29,14 @@ tags:
 | `--no-overlay` | `overlay: false` | no error overlay over the page (compile and runtime errors); the terminal and browser console still get them, see [Errors, overlay and terminal output](errors-and-diagnostics.md) |
 | `--type-check`, `--no-type-check` | `typeCheck` | background type check with the project's TypeScript ([Background type check](type-checking.md)); both flags together are an error |
 | `--type-check-overlay` | `typeCheckOverlay: true` | also show type issues in a panel on the page; ignored with a warning without `typeCheck` |
+| `--lint`, `--lint full`, `--no-lint` | `lint: true \| "full" \| false` | lint saved files with the project's ESLint, without (`true`) or with (`"full"`) type-aware rules ([Linting saved files](linting.md)); `--lint` with `--no-lint` or another value is an error |
 | `-h, --help` / `-v, --version` | | print help / the package version, exit 0 |
 
 Flags are parsed strictly: an unknown flag or a positional argument prints the error plus the help text and exits with 1. The help text describes the options, `fast-serve/config.json`, the page order, the optional `fast-serve/rspack.extend.mjs` with its docs link, and which files restart the server.
 
 ### `fast-serve/config.json`
 
-Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": false, "typeCheckOverlay": false }`. It must be a JSON object; `$schema` is ignored; an unknown key or a wrong value type is fatal and names the key and the supported keys.
+Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "pageUrl": "https://{tenantDomain}/sites/dev/SitePages/test.aspx", "locale": "en-us", "serveConfiguration": "default", "overlay": true, "typeCheck": false, "typeCheckOverlay": false, "lint": true }`; `lint` accepts `true`, `false` or `"full"`. It must be a JSON object; `$schema` is ignored; an unknown key or a wrong value type is fatal and names the key and the supported keys.
 
 `deployedLibraries` (array of package names, file only) keeps linked SPFx library projects external, loaded from SharePoint, instead of compiling their `src` ([local library projects](local-library-projects.md)); a listed name that is no SPFx library dependency prints a warning.
 
@@ -48,7 +49,7 @@ Optional, JSON with comments and trailing commas, for example `{ "port": 4321, "
 1. command-line flags;
 2. `fast-serve/config.json`;
 3. `config/serve.json` (`port`, serve configuration pages, `initialPage`);
-4. built-in defaults: port `4321`, locale `en-us`, overlay on, type check and its overlay off.
+4. built-in defaults: port `4321`, locale `en-us`, overlay on, type check and its overlay off, lint on (type-aware rules off).
 
 The page follows heft's order with the `pageUrl` option in place of heft's fallbacks: the selected serve configuration's `pageUrl` unless it is `default` → the `pageUrl` option (flag, then file) → `serveConfigurations.default.pageUrl` → `initialPage`. An unknown serve configuration name warns (listing the available names) and falls back to `default` like heft; without `serveConfigurations` no configuration is selected unless one is asked for. If the chosen page points to the SharePoint Online workbench (`/_layouts/workbench.aspx` or `/_layouts/15/workbench.aspx`, still the generator's `initialPage` in many projects), it is ignored with a warning that names the setting and asks for a SharePoint page; the banner then prints the query to append instead of an `open:` URL. The order does not fall through to a later page.
 
@@ -58,7 +59,7 @@ The page follows heft's order with the `pageUrl` option in place of heft's fallb
 
 ### Startup order and summary
 
-SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay, type check (`off`, `on`, `on (with overlay)`); serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; `SPFx libraries from source: <package> (<relative path>)` when linked library projects were found; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the extend file (`Rspack config: <file>` and guard warnings) or, without one, the [webpack-customization hint](rspack-extend-file.md#startup-hint-for-webpack-customizations), the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
+SPFx version check → warning for the old options file → project model → options file (dropped keys warned) → option resolution → "no components" check → option warnings → warnings for the selected serve configuration ([Extensions and ACEs](extensions-and-aces.md#serve-configurations)) → summary lines with the `[fast-serve]` prefix: package and SPFx version; port, origin, locale, overlay, type check (`off`, `on`, `on (with overlay)`), lint (`on`, `on (full, with type-aware rules)`, `off`); serve configuration; page; one line per bundle with each component's alias, kind (extension type for extensions) and export name in multi-component bundles; `SPFx libraries from source: <package> (<relative path>)` when linked library projects were found; counts of SPFx libraries, `config.json` externals and localized resources (resolving them may print model warnings, such as a locale falling back to `en-us`, just before the summary). Then the port check, the extend file (`Rspack config: <file>` and guard warnings) or, without one, the [webpack-customization hint](rspack-extend-file.md#startup-hint-for-webpack-customizations), the dev certificate, the first compile and the [ready banner](dev-server.md#debug-url-and-ready-banner).
 
 ### Startup failures (exit code 1)
 

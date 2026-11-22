@@ -22,6 +22,8 @@ describe('runCli', () => {
     expect(result.out).toContain('Rspack dev server');
     expect(result.out).toContain('--no-overlay');
     expect(result.out).toContain('--type-check-overlay');
+    expect(result.out).toContain('--lint [full]');
+    expect(result.out).toContain('--no-lint');
     expect(result.out).not.toMatch(/vite/i);
     expect(result.startServer).not.toHaveBeenCalled();
   });
@@ -65,6 +67,20 @@ describe('runCli', () => {
     const both = await run(['--type-check', '--no-type-check']);
     expect(both.startServer).not.toHaveBeenCalled();
     expect(both.err).toContain('either --type-check or --no-type-check');
+  });
+
+  it('turns linting on, full or off with flags', async () => {
+    expect((await run(['--lint'])).startServer).toHaveBeenCalledWith({ lint: true });
+    expect((await run(['--lint', 'full'])).startServer).toHaveBeenCalledWith({ lint: 'full' });
+    expect((await run(['--lint=full', '--port', '4400'])).startServer).toHaveBeenCalledWith({ lint: 'full', port: 4400 });
+    expect((await run(['--lint', '--port', '4400'])).startServer).toHaveBeenCalledWith({ lint: true, port: 4400 });
+    expect((await run(['--no-lint'])).startServer).toHaveBeenCalledWith({ lint: false });
+    const both = await run(['--lint', '--no-lint']);
+    expect(both.startServer).not.toHaveBeenCalled();
+    expect(both.err).toContain('either --lint or --no-lint');
+    const wrong = await run(['--lint=fast']);
+    expect(wrong.startServer).not.toHaveBeenCalled();
+    expect(wrong.err).toContain('Invalid --lint value "fast"');
   });
 
   it('reports start errors', async () => {

@@ -37,7 +37,7 @@ tags:
 | Dev server | HTTPS, headers, debug URL and ready banner |
 | Dev session | watching project configuration and the extend file, [restarts](../features/project-restarts.md) that swap the server only after the new config is ready |
 | Extend file | loading `fast-serve/rspack.extend.*`, guard and merge into fast-serve's config, public `defineConfig` entry ([Rspack extend file](../features/rspack-extend-file.md)) |
-| Features | entries, local libraries, TypeScript, externals, React, localization, assets, styles, defines, manifests, browser errors, tunnel, HMR, type check; each one folder with tests, exposed as a named feature |
+| Features | entries, local libraries, TypeScript, externals, React, localization, assets, styles, defines, manifests, browser errors, tunnel, HMR, type check, lint; each one folder with tests, exposed as a named feature |
 
 ### Features and the page channel
 

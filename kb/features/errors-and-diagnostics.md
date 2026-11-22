@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. Type errors come only from the optional [background type check](type-checking.md), with their own terminal blocks and page panel. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js` and as the first module of every bundle; it guards itself per page, so it runs once, before any bundle code (from `manifests.js` in the debug-query flow, from the first bundle in [tunnel mode](tunnel-mode.md)).
+Compile errors and warnings go to the `fast-serve` terminal with project-relative paths and to one error overlay over the SharePoint page. Runtime errors from project code (uncaught errors, unhandled rejections, `console.error`) are forwarded from the page to the terminal, source-mapped to `src/…:line` with a code frame; uncaught ones also open the overlay, and so do errors thrown while a module is evaluated (during a hot update or while a bundle loads). A bundle that fails to load gets a readable message in the web part's error box instead of SharePoint's `[object Object]`, with the cause (compile error, missing `config.json` external, missing SPFx library) in the terminal. Files of [linked library projects](local-library-projects.md) count as project code for all of this and are named relative to the project (`../corp-lib/src/…`). SharePoint's own errors stay in the browser console. Type errors come only from the optional [background type check](type-checking.md), with their own terminal blocks and page panel; ESLint findings only from [linting saved files](linting.md), in the terminal. All of it comes from a small page runtime that `fast-serve` puts at the top of its debug `manifests.js` and as the first module of every bundle; it guards itself per page, so it runs once, before any bundle code (from `manifests.js` in the debug-query flow, from the first bundle in [tunnel mode](tunnel-mode.md)).
 
 ## Behavior
 
@@ -90,6 +90,7 @@ Compile errors and warnings go to the `fast-serve` terminal with project-relativ
 
 - [Dev server, debug manifests and debug URL](dev-server.md)
 - [Background type check](type-checking.md)
+- [Linting saved files](linting.md)
 - [HMR and React Fast Refresh](hmr.md)
 - [CLI, options and startup](cli-and-options.md)
 - [SPFx libraries and config.json externals](libraries-and-externals.md)

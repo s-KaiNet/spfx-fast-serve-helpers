@@ -18,8 +18,16 @@ describe('resolveOptions', () => {
       overlay: true,
       typeCheck: false,
       typeCheckOverlay: false,
+      lint: true,
       warnings: [],
     });
+  });
+
+  it('lints by default; the CLI wins over the options file', () => {
+    expect(resolveOptions({ file: { lint: false } }, {}).lint).toBe(false);
+    expect(resolveOptions({ file: { lint: 'full' } }, {}).lint).toBe('full');
+    expect(resolveOptions({ file: { lint: 'full' }, cli: { lint: false } }, {}).lint).toBe(false);
+    expect(resolveOptions({ file: { lint: false }, cli: { lint: true } }, {}).lint).toBe(true);
   });
 
   it('prefers CLI over the options file over project defaults', () => {
@@ -182,6 +190,13 @@ describe('loadOptionsFile', () => {
     expect(loadOptionsFile(projectWith('{ "typeCheck": true, "typeCheckOverlay": false }'))).toEqual({ typeCheck: true, typeCheckOverlay: false });
     expect(() => loadOptionsFile(projectWith('{ "typeCheck": "yes" }'))).toThrow(/"typeCheck"/);
     expect(() => loadOptionsFile(projectWith('{ "typeCheckOverlay": 1 }'))).toThrow(/"typeCheckOverlay"/);
+  });
+
+  it('reads the lint setting', () => {
+    expect(loadOptionsFile(projectWith('{ "lint": false }'))).toEqual({ lint: false });
+    expect(loadOptionsFile(projectWith('{ "lint": "full" }'))).toEqual({ lint: 'full' });
+    expect(() => loadOptionsFile(projectWith('{ "lint": "fast" }'))).toThrow(/"lint"/);
+    expect(() => loadOptionsFile(projectWith('{ "lint": 1 }'))).toThrow(/"lint"/);
   });
 
   it('rejects unknown options and wrong types', () => {

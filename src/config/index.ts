@@ -10,5 +10,6 @@ export {
   TENANT_DOMAIN_ENV,
   withTunnelHost,
   type FastServeOptions,
+  type LintSetting,
   type ResolvedOptions,
 } from './options.js';

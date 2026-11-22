@@ -21,7 +21,11 @@ export interface FastServeOptions {
   typeCheck?: boolean;
 
   typeCheckOverlay?: boolean;
+
+  lint?: LintSetting;
 }
+
+export type LintSetting = boolean | 'full';
 
 export interface SelectedServeConfiguration extends ServeConfiguration {
   name: string;
@@ -48,6 +52,8 @@ export interface ResolvedOptions {
   typeCheck: boolean;
 
   typeCheckOverlay: boolean;
+
+  lint: LintSetting;
 
   warnings: string[];
 }
@@ -97,6 +103,7 @@ export function resolveOptions(
     overlay: cli.overlay ?? file.overlay ?? true,
     typeCheck,
     typeCheckOverlay: typeCheck && typeCheckOverlayRequested,
+    lint: cli.lint ?? file.lint ?? true,
     warnings,
   };
 }
@@ -195,11 +202,16 @@ export function loadOptionsFile(root: string, warn: (message: string) => void = 
     else if (key === 'deployedLibraries' && isStringArray(value)) options.deployedLibraries = value;
     else if (key === 'typeCheck' && typeof value === 'boolean') options.typeCheck = value;
     else if (key === 'typeCheckOverlay' && typeof value === 'boolean') options.typeCheckOverlay = value;
-    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay)`);
+    else if (key === 'lint' && isLintSetting(value)) options.lint = value;
+    else throw new Error(`${OPTIONS_FILE}: unknown option or wrong type "${key}" (supported: port, pageUrl, locale, serveConfiguration, overlay, deployedLibraries, typeCheck, typeCheckOverlay, lint)`);
   }
   return options;
 }
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+}
+
+function isLintSetting(value: unknown): value is LintSetting {
+  return typeof value === 'boolean' || value === 'full';
 }

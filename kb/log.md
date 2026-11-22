@@ -10,6 +10,10 @@ Entry format:
 - Changed: `kb/path.md`, `kb/other-path.md`
 - Outcome: concise result
 ```
+## 2026-11-22 15:00 | ingest | linting saved files (`1.24.0-beta.11`)
+
+- Changed: `kb/features/linting.md` (new), `kb/features/cli-and-options.md`, `kb/features/type-checking.md`, `kb/features/errors-and-diagnostics.md`, `kb/architecture/overview.md`, `kb/index.md`
+- Outcome: lint feature documented (`lint` option and flags, default on with type-aware rules off, `"full"`, project ESLint 9 and flat config per code root in one child process warmed after the first compile, lint after rebuilds, terminal-only output on change, config reload, extend-file linter wins, lifecycle); parity with heft on 16 planted issues, local numbers and the live SharePoint result recorded
 
 ## 2026-11-22 14:30 | ingest | background type check with the project's TypeScript (`1.24.0-beta.10`)
 

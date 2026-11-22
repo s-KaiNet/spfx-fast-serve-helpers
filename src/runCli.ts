@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions } from './config/index.js';
+import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions, type LintSetting } from './config/index.js';
 import { DEFAULT_LOCALE } from './project/index.js';
 import { packageName, packageVersion } from './packageInfo.js';
 import { errorMessage } from './utils/errors.js';
@@ -33,12 +33,15 @@ Options:
       --no-type-check    Turn type checking off (wins over "typeCheck": true)
       --type-check-overlay
                          Also show type errors in a panel over the page (needs type checking)
+      --lint [full]      Lint the files you save with the project's ESLint (on by default;
+                         without type-aware rules unless "full"; results in the terminal)
+      --no-lint          Turn linting off
   -h, --help             Show this help
   -v, --version          Show the version
 
 The same options can be set in ${OPTIONS_FILE}:
 { "port": ${DEFAULT_PORT}, "pageUrl": "…", "locale": "${DEFAULT_LOCALE}", "serveConfiguration": "${DEFAULT_SERVE_CONFIGURATION}", "overlay": true,
-  "typeCheck": false, "typeCheckOverlay": false }.
+  "typeCheck": false, "typeCheckOverlay": false, "lint": true }.
 Command-line flags win over the file. Page: the selected serve configuration's "pageUrl"
 (unless it is "default") > --page-url / "pageUrl" > serveConfigurations.default.pageUrl > "initialPage".
 
@@ -50,11 +53,38 @@ ${EXTEND_FILE}, see ${RSPACK_CONFIG_DOCS_URL}
 fast-serve restarts when that file, config/*.json, ${OPTIONS_FILE}, package.json or tsconfig change.
 `;
 
+const LINT_FLAG = '--lint';
+const LINT_ON = 'on';
+const LINT_FULL = 'full';
+
+function withLintValue(args: readonly string[]): string[] {
+  const normalized: string[] = [];
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg !== LINT_FLAG) {
+      if (arg !== undefined) normalized.push(arg);
+      continue;
+    }
+    const next = args[index + 1];
+    if (next === LINT_FULL) {
+      normalized.push(`${LINT_FLAG}=${LINT_FULL}`);
+      index += 1;
+    } else normalized.push(`${LINT_FLAG}=${LINT_ON}`);
+  }
+  return normalized;
+}
+
+function lintFlag(value: string): LintSetting {
+  if (value === LINT_ON) return true;
+  if (value === LINT_FULL) return 'full';
+  throw new Error(`Invalid --lint value "${value}" (use --lint, --lint full or --no-lint)`);
+}
+
 export async function runCli(args: string[], io: CliIo): Promise<number> {
   let values;
   try {
     ({ values } = parseArgs({
-      args,
+      args: withLintValue(args),
       options: {
         help: { type: 'boolean', short: 'h' },
         version: { type: 'boolean', short: 'v' },
@@ -67,6 +97,8 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
         'type-check': { type: 'boolean' },
         'no-type-check': { type: 'boolean' },
         'type-check-overlay': { type: 'boolean' },
+        lint: { type: 'string' },
+        'no-lint': { type: 'boolean' },
       },
       strict: true,
       allowPositionals: false,
@@ -97,6 +129,9 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
     if (values['type-check']) options.typeCheck = true;
     if (values['no-type-check']) options.typeCheck = false;
     if (values['type-check-overlay']) options.typeCheckOverlay = true;
+    if (values.lint !== undefined && values['no-lint']) throw new Error('use either --lint or --no-lint');
+    if (values.lint !== undefined) options.lint = lintFlag(values.lint);
+    if (values['no-lint']) options.lint = false;
     await io.startServer(options);
     return 0;
   } catch (error) {
