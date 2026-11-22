@@ -4,7 +4,7 @@ import type { Logger } from '../shared/logger.js';
 import { assertPortFree, prepareDevServer, type HttpsCredentials, type PreparedDevServer, type RunningDevServer } from '../server/index.js';
 import { versionLine } from './describeSetup.js';
 import { prepareServe, type ServeSetup } from './prepareServe.js';
-import { resolveTunnel } from '../tunnel/index.js';
+import { resolveTunnel } from '../features/devtools/tunnel/index.js';
 import { errorMessage } from '../shared/errors.js';
 import { watchFiles, type FileChange, type FileWatcher } from './fileWatcher.js';
 import { restartReason, restartTriggers, type RestartTriggers } from './restartTriggers.js';

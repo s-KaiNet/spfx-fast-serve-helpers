@@ -1,19 +1,19 @@
-import { assetsFeature } from '../assets/index.js';
-import { browserErrorsFeature } from '../browserErrors/index.js';
-import { definesFeature } from '../defines/index.js';
-import { entriesFeature } from '../entries/index.js';
-import { externalsFeature } from '../externals/index.js';
+import { assetsFeature } from '../features/build/assets/index.js';
+import { browserErrorsFeature } from '../features/devtools/browserErrors/index.js';
+import { definesFeature } from '../features/build/defines.js';
+import { entriesFeature } from '../features/build/entries.js';
+import { externalsFeature } from '../features/build/externals/index.js';
 import type { ConfigContribution, Feature, FeatureContext } from './featureApi/index.js';
-import { hmrFeature } from '../hmr/index.js';
-import { localLibrariesFeature } from '../libraries/index.js';
-import { lintFeature } from '../lint/index.js';
-import { localizationFeature } from '../localization/index.js';
-import { manifestsFeature } from '../manifests/index.js';
-import { reactFeature } from '../react/index.js';
-import { stylesFeature } from '../styles/index.js';
-import { tunnelFeature } from '../tunnel/index.js';
-import { typeCheckFeature } from '../typeCheck/index.js';
-import { typescriptFeature } from '../typescript/index.js';
+import { hmrFeature } from '../features/devtools/hmr/index.js';
+import { localLibrariesFeature } from '../features/build/localLibraries.js';
+import { lintFeature } from '../features/devtools/lint/index.js';
+import { localizationFeature } from '../features/build/localization/index.js';
+import { manifestsFeature } from '../features/build/manifests/index.js';
+import { reactFeature } from '../features/build/react.js';
+import { stylesFeature } from '../features/build/styles/index.js';
+import { tunnelFeature } from '../features/devtools/tunnel/index.js';
+import { typeCheckFeature } from '../features/devtools/typeCheck/index.js';
+import { typescriptFeature } from '../features/build/typescript/index.js';
 
 export const FEATURES: readonly Feature[] = [
   entriesFeature,

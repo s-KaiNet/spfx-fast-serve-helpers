@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../shared/logger.js';
-import type { DebugManifest } from '../manifests/index.js';
+import type { DebugManifest } from '../features/build/manifests/index.js';
 import { startDevServer, type RunningDevServer } from '../server/index.js';
 import { prepareServe } from '../session/index.js';
 import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { OPTIONS_FILE } from '../config/index.js';
-import { localExternalFiles } from '../externals/index.js';
+import { localExternalFiles } from '../features/build/externals/index.js';
 import { extendFileCandidates, projectRelative } from '../bundler/extend/index.js';
 import type { SpfxProject } from '../project/index.js';
 import type { FileChange } from './fileWatcher.js';

@@ -22,6 +22,6 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src/*/runtime"],
+  "include": ["src/**/runtime"],
   "exclude": ["src/**/*.test.ts"]
 }

@@ -7,7 +7,7 @@ import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
 import type { Logger } from '../shared/logger.js';
-import type { DebugManifest } from '../manifests/index.js';
+import type { DebugManifest } from '../features/build/manifests/index.js';
 import { createProject } from '../project/index.js';
 import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
 import { startDevServer, type RunningDevServer } from './devServer.js';
