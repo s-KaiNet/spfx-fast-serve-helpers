@@ -142,7 +142,7 @@
   },
   "overrides": [
     {
-      "files": ["src/runtime/**/*.ts"],
+      "files": ["src/**/runtime/**/*.ts"],
       "env": { "node": false, "browser": true },
       "rules": {
         "import/no-absolute-path": "off",

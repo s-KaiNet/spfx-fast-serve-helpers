@@ -2,10 +2,10 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { repoPath } from '../test/kit/paths.js';
 
-const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+const repoRoot = repoPath();
 const tsc = path.join(repoRoot, 'node_modules/.bin/tsc');
 let projectRoot: string;
 

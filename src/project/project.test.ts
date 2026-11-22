@@ -1,11 +1,11 @@
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { createProject } from './project.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const root = fileURLToPath(new URL('../../test/fixtures/basic', import.meta.url));
+const root = fixturePath('basic');
 
 function fixtureProject() {
   const warnings: string[] = [];

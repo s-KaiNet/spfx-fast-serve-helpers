@@ -1,15 +1,15 @@
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
-import type { Logger } from '../shared/logger.js';
-import { createProject, type ProjectOptions } from '../project/index.js';
-import type { BuildContext } from '../bundler/featureApi/index.js';
-import { compileOnce, type CompileResult } from '../bundler/index.js';
+import type { Logger } from '../../src/shared/logger.js';
+import { createProject, type ProjectOptions } from '../../src/project/index.js';
+import type { BuildContext } from '../../src/bundler/featureApi/index.js';
+import { compileOnce, type CompileResult } from '../../src/bundler/index.js';
+import { fixturePath, repoPath } from './paths.js';
 
-export const COMPILE_FIXTURE = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
-export const LIBRARY_FIXTURE = fileURLToPath(new URL('../../test/fixtures/library', import.meta.url));
+export const COMPILE_FIXTURE = fixturePath('compile');
+export const LIBRARY_FIXTURE = fixturePath('library');
 export const LIBRARY_PACKAGE = '@contoso/corp-lib';
 export const TEST_ORIGIN = 'https://localhost:4433';
 
@@ -56,7 +56,7 @@ export function evaluateAmd(source: string, externals: Record<string, unknown> =
   return { dependencies, exports };
 }
 
-const OWN_NODE_MODULES = fileURLToPath(new URL('../../node_modules', import.meta.url));
+const OWN_NODE_MODULES = repoPath('node_modules');
 
 export function packageDirectory(name: string): string {
   return realpathSync(path.join(OWN_NODE_MODULES, name));

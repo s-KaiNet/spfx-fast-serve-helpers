@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { packageDirectory } from '../../../testing/compileKit.js';
+import { packageDirectory } from '../../../../test/kit/compileKit.js';
 import { isLintedFile, sourceRootOf } from './lintFiles.js';
 import { otherLinterName } from './plugin.js';
 import { findProjectEslint } from './projectEslint.js';

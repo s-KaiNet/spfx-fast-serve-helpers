@@ -3,7 +3,7 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../../../testing/compileKit.js';
+import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../../../../test/kit/compileKit.js';
 import { createHeftTerminal } from '../../../project/index.js';
 
 const HEFT_PACKAGES = ['@microsoft/sp-css-loader', 'sass-embedded', '@rushstack/heft-sass-plugin', '@rushstack/heft-config-file', '@rushstack/rig-package'];

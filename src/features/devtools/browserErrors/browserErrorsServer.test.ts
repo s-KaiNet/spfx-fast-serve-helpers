@@ -10,9 +10,9 @@ import { resolveOptions } from '../../../config/options.js';
 import type { Logger } from '../../../shared/logger.js';
 import { createProject } from '../../../project/index.js';
 import { startDevServer, type RunningDevServer } from '../../../server/index.js';
-import { COMPILE_FIXTURE, fakeExternals } from '../../../testing/compileKit.js';
-import { freePort, selfSignedCertificate } from '../../../testing/devServerKit.js';
-import { createFakePage, type FakeNode, type FakePage } from '../../../testing/fakePage.js';
+import { COMPILE_FIXTURE, fakeExternals } from '../../../../test/kit/compileKit.js';
+import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
+import { createFakePage, type FakeNode, type FakePage } from '../../../../test/kit/fakePage.js';
 import { BROWSER_ERRORS_PATH } from '../../../bundler/featureApi/index.js';
 
 const projectRequire = createRequire(import.meta.url);

@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'node:path';
 import tls from 'node:tls';
-import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../../../config/options.js';
@@ -11,10 +10,11 @@ import type { Logger } from '../../../shared/logger.js';
 import type { DebugManifest } from '../manifests/index.js';
 import { createProject } from '../../../project/index.js';
 import { startDevServer, type RunningDevServer } from '../../../server/index.js';
-import { freePort, selfSignedCertificate } from '../../../testing/devServerKit.js';
-import { createFakePage, type FakePage } from '../../../testing/fakePage.js';
+import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
+import { createFakePage, type FakePage } from '../../../../test/kit/fakePage.js';
+import { fixturePath } from '../../../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../../../test/fixtures/externals', import.meta.url));
+const fixture = fixturePath('externals');
 
 function render(template: string): string {
   return `rendered ${template}`;

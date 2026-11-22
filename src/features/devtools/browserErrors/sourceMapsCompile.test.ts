@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../../../testing/compileKit.js';
+import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../../../../test/kit/compileKit.js';
 import { BundleSourceMaps } from './sourceMaps.js';
 
 const CLASS_COMPONENT =

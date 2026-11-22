@@ -1,10 +1,10 @@
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readTextIfExists, removeFileIfExists, writeFileIfChanged } from './generatedFiles.js';
+import { testWorkspace } from '../../test/kit/paths.js';
 
-const workspace = fileURLToPath(new URL('../../node_modules/.cache/fast-serve-tests/', import.meta.url));
+const workspace = testWorkspace();
 const createdFolders: string[] = [];
 
 afterEach(() => {

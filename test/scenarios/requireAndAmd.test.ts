@@ -1,6 +1,6 @@
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { copyCompileFixture, fakeExternals, TEST_ORIGIN, type FixtureCopy } from '../testing/compileKit.js';
+import { copyCompileFixture, fakeExternals, TEST_ORIGIN, type FixtureCopy } from '../kit/compileKit.js';
 
 const ejsExternal = { render: (template: string) => `rendered ${template}` };
 const pageExternals: Record<string, unknown> = { ...fakeExternals, ejs: ejsExternal };

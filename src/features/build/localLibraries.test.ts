@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { copyCompileFixture, copyLibraryFixture, evaluateAmd, fakeExternals, LIBRARY_PACKAGE, type FixtureCopy, type LibraryCopy } from '../../testing/compileKit.js';
+import { copyCompileFixture, copyLibraryFixture, evaluateAmd, fakeExternals, LIBRARY_PACKAGE, type FixtureCopy, type LibraryCopy } from '../../../test/kit/compileKit.js';
 
 const HEFT_PACKAGES = ['@microsoft/sp-css-loader', 'sass-embedded'];
 const WEB_PART = 'src/webparts/hello/HelloWebPart.ts';

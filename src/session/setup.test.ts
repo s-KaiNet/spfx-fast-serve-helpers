@@ -1,14 +1,14 @@
 import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it, onTestFinished } from 'vitest';
 import type { Logger } from '../shared/logger.js';
 import { packageVersion } from '../shared/packageInfo.js';
-import { copyLibraryFixture, LIBRARY_PACKAGE, linkLocalPackage } from '../testing/compileKit.js';
+import { copyLibraryFixture, LIBRARY_PACKAGE, linkLocalPackage } from '../../test/kit/compileKit.js';
 import { prepareServe, setupDetails, versionLine } from './index.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/basic', import.meta.url));
+const fixture = fixturePath('basic');
 
 function recordingLogger() {
   const messages: string[] = [];

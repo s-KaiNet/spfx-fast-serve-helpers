@@ -1,15 +1,15 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { assetsFeature } from '../../assets/index.js';
 import type { Logger } from '../../../../shared/logger.js';
 import { createProject } from '../../../../project/index.js';
 import { createPageChannel, type PageServer } from '../../../../bundler/index.js';
 import { scssTypingsOnServerStart } from './index.js';
+import { fixturePath, testWorkspace } from '../../../../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../../../../test/fixtures/scss-typings/', import.meta.url));
-const workspace = fileURLToPath(new URL('../../../../../node_modules/.cache/fast-serve-tests/', import.meta.url));
+const fixture = fixturePath('scss-typings/');
+const workspace = testWorkspace();
 
 const cleanups: (() => void)[] = [];
 

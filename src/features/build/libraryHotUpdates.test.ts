@@ -9,9 +9,9 @@ import type { Logger } from '../../shared/logger.js';
 import type { DebugManifest } from './manifests/index.js';
 import { createProject } from '../../project/index.js';
 import { startDevServer, type RunningDevServer } from '../../server/index.js';
-import { copyCompileFixture, copyLibraryFixture, LIBRARY_PACKAGE, type FixtureCopy, type LibraryCopy } from '../../testing/compileKit.js';
-import { freePort, selfSignedCertificate } from '../../testing/devServerKit.js';
-import { createFakePage, type FakePage } from '../../testing/fakePage.js';
+import { copyCompileFixture, copyLibraryFixture, LIBRARY_PACKAGE, type FixtureCopy, type LibraryCopy } from '../../../test/kit/compileKit.js';
+import { freePort, selfSignedCertificate } from '../../../test/kit/devServerKit.js';
+import { createFakePage, type FakePage } from '../../../test/kit/fakePage.js';
 
 class FakeBaseClientSideWebPart {
   public readonly kind: string = 'web part';

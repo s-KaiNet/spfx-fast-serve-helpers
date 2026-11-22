@@ -24,13 +24,15 @@
     "newLine": "lf",
     "sourceMap": true,
     "declaration": false,
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "lib"
   },
   "include": [
-    "src"
+    "src",
+    "test"
   ],
   "exclude": [
-    "src/**/runtime"
+    "src/**/runtime",
+    "test/fixtures"
   ]
 }

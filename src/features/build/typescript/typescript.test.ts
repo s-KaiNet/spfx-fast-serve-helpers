@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../../../testing/compileKit.js';
+import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../../../../test/kit/compileKit.js';
 
 const RIG_TSCONFIG = 'node_modules/test-rig/profiles/default/tsconfig-base.json';
 

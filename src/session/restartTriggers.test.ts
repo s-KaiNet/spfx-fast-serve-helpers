@@ -1,12 +1,12 @@
 import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createProject } from '../project/index.js';
 import { restartReason, restartTriggers } from './restartTriggers.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/externals', import.meta.url));
+const fixture = fixturePath('externals');
 let root: string;
 
 beforeAll(() => {

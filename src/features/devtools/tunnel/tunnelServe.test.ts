@@ -9,9 +9,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../../../shared/logger.js';
 import type { DebugManifest } from '../../build/manifests/index.js';
 import { startDevSession, type DevSession } from '../../../session/index.js';
-import { COMPILE_FIXTURE, fakeExternals } from '../../../testing/compileKit.js';
-import { freePort, selfSignedCertificate } from '../../../testing/devServerKit.js';
-import { createFakePage, type FakePage } from '../../../testing/fakePage.js';
+import { COMPILE_FIXTURE, fakeExternals } from '../../../../test/kit/compileKit.js';
+import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
+import { createFakePage, type FakePage } from '../../../../test/kit/fakePage.js';
 
 const TUNNEL_HOST = 'dev.contoso.example';
 const TUNNEL_ORIGIN = `https://${TUNNEL_HOST}`;

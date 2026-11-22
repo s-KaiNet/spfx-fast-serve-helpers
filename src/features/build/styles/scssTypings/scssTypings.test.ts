@@ -1,14 +1,14 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { TypingsUpdate } from '../../../../bundler/featureApi/index.js';
 import type { Logger } from '../../../../shared/logger.js';
 import { loadSassConfiguration } from '../../../../project/readers/sassConfiguration.js';
 import { createScssTypings as createTypings } from './scssTypings.js';
+import { fixturePath, testWorkspace } from '../../../../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../../../../test/fixtures/scss-typings/', import.meta.url));
-const workspace = fileURLToPath(new URL('../../../../../node_modules/.cache/fast-serve-tests/', import.meta.url));
+const fixture = fixturePath('scss-typings/');
+const workspace = testWorkspace();
 
 const cardTypings = [
   'declare interface IStyles {',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateAmd } from '../../../testing/compileKit.js';
+import { evaluateAmd } from '../../../../test/kit/compileKit.js';
 import { evaluateStrings, heftStringsRequest, stringsModuleSource } from './heftStrings.js';
 
 describe('heftStringsRequest', () => {

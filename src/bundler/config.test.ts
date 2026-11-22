@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { multiComponentEntrySource } from '../features/build/entries.js';
 import type { Logger } from '../shared/logger.js';
@@ -7,8 +6,9 @@ import { createProject } from '../project/index.js';
 import type { BuildContext } from './featureApi/index.js';
 import { createRspackConfig, FEATURES, mergeContributions } from './index.js';
 import { watchIgnored } from './config.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
+const fixture = fixturePath('compile');
 
 function fixtureContext(): { context: BuildContext; warnings: string[] } {
   const warnings: string[] = [];

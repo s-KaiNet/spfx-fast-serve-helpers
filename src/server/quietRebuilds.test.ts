@@ -1,16 +1,16 @@
 import { appendFileSync, cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Compiler, RspackPluginInstance, Stats } from '@rspack/core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
 import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
-import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
+import { freePort, selfSignedCertificate } from '../../test/kit/devServerKit.js';
 import { startDevServer, type RunningDevServer } from './devServer.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
+const fixture = fixturePath('compile');
 const TYPE_ONLY_FILE = 'src/webparts/hello/components/IHelloProps.ts';
 const COMPONENT = 'src/webparts/hello/components/Hello.tsx';
 

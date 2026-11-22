@@ -1,6 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { describe, expect, it } from 'vitest';
-import { createFakePage, FakeNode, type FakePage } from '../../../testing/fakePage.js';
+import { createFakePage, FakeNode, type FakePage } from '../../../../test/kit/fakePage.js';
 import type { BrowserErrorReport, BrowserErrorResponse, PageRuntimeConfig } from './contracts.js';
 import { renderPageScript } from './pageScript.js';
 

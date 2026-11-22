@@ -2,18 +2,18 @@ import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { request } from 'node:https';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
 import type { Logger } from '../shared/logger.js';
 import type { DebugManifest } from '../features/build/manifests/index.js';
 import { createProject } from '../project/index.js';
-import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
+import { freePort, selfSignedCertificate } from '../../test/kit/devServerKit.js';
 import { startDevServer, type RunningDevServer } from './devServer.js';
 import { assertPortFree } from './port.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
+const fixture = fixturePath('compile');
 
 interface Response {
   status: number;

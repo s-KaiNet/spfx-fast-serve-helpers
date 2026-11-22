@@ -1,15 +1,15 @@
 import { cpSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import type { Logger } from '../../../shared/logger.js';
 import { createProject } from '../../../project/index.js';
 import { compileOnce } from '../../../bundler/index.js';
 import { locFileFormat, moduleLocWrapperSource } from './index.js';
+import { fixturePath } from '../../../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../../../test/fixtures/externals', import.meta.url));
+const fixture = fixturePath('externals');
 
 describe('locFileFormat', () => {
   it('recognises AMD loc files', () => {

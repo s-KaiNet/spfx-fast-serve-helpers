@@ -6,9 +6,9 @@ import { resolveOptions } from '../../../config/options.js';
 import type { Logger } from '../../../shared/logger.js';
 import { createProject } from '../../../project/index.js';
 import { startDevServer, type RunningDevServer } from '../../../server/index.js';
-import { copyCompileFixture, fakeExternals, type FixtureCopy } from '../../../testing/compileKit.js';
-import { freePort, selfSignedCertificate } from '../../../testing/devServerKit.js';
-import { createFakePage, type FakePage } from '../../../testing/fakePage.js';
+import { copyCompileFixture, fakeExternals, type FixtureCopy } from '../../../../test/kit/compileKit.js';
+import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
+import { createFakePage, type FakePage } from '../../../../test/kit/fakePage.js';
 
 const COMPONENT_PATH = 'src/webparts/hello/components/Greeting.tsx';
 

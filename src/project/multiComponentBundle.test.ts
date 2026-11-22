@@ -1,9 +1,9 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { createProject } from './project.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const root = fileURLToPath(new URL('../../test/fixtures/multi', import.meta.url));
+const root = fixturePath('multi');
 
 describe('bundles with several components', () => {
   it('gives web parts, extensions and Adaptive Card Extensions in one bundle export names, counting unsupported components like SPFx does', () => {

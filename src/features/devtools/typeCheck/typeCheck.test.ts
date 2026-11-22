@@ -9,8 +9,8 @@ import type { Logger } from '../../../shared/logger.js';
 import { createProject } from '../../../project/index.js';
 import { startDevServer } from '../../../server/index.js';
 import { startDevSession, type DevSession } from '../../../session/index.js';
-import { copyCompileFixture, packageDirectory, type FixtureCopy } from '../../../testing/compileKit.js';
-import { freePort, selfSignedCertificate } from '../../../testing/devServerKit.js';
+import { copyCompileFixture, packageDirectory, type FixtureCopy } from '../../../../test/kit/compileKit.js';
+import { freePort, selfSignedCertificate } from '../../../../test/kit/devServerKit.js';
 import { TS_BUILD_INFO_FILE } from './checkerOptions.js';
 
 const HELLO = 'src/webparts/hello/components/Hello.tsx';

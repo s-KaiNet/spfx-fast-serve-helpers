@@ -1,12 +1,12 @@
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { Ajv } from 'ajv';
 import { describe, expect, it, onTestFinished } from 'vitest';
 import { loadOptionsFile, OPTION_NAMES, OPTIONS_FILE, OPTIONS_SCHEMA_PATH } from './options.js';
+import { repoPath } from '../../test/kit/paths.js';
 
-const packageRoot = fileURLToPath(new URL('../../', import.meta.url));
+const packageRoot = repoPath();
 const schemaFile = path.join(packageRoot, 'schema', 'config.schema.json');
 const schema: unknown = JSON.parse(readFileSync(schemaFile, 'utf8'));
 

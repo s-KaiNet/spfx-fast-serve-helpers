@@ -2,15 +2,15 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { request } from 'node:https';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../shared/logger.js';
 import { packageVersion } from '../shared/packageInfo.js';
 import { assertPortFree } from '../server/index.js';
-import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
+import { freePort, selfSignedCertificate } from '../../test/kit/devServerKit.js';
 import { startDevSession, type DevSession } from './devSession.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
+const fixture = fixturePath('compile');
 
 interface Response {
   status: number;

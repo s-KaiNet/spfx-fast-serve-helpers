@@ -2,15 +2,15 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writ
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import type { BuildContext } from './featureApi/index.js';
 import { compileOnce, type CompileResult } from './index.js';
+import { fixturePath } from '../../test/kit/paths.js';
 
-const fixture = fileURLToPath(new URL('../../test/fixtures/compile', import.meta.url));
+const fixture = fixturePath('compile');
 const ORIGIN = 'https://localhost:4433';
 
 interface AmdModule {

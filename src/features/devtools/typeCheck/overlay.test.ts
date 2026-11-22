@@ -1,7 +1,7 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { describe, expect, it } from 'vitest';
 import { renderPageScript } from '../browserErrors/pageScript.js';
-import { createFakePage, type FakeNode, type FakePage } from '../../../testing/fakePage.js';
+import { createFakePage, type FakeNode, type FakePage } from '../../../../test/kit/fakePage.js';
 import type { TypeCheckResult } from './issues.js';
 import { overlayContent, renderTypeCheckOverlayScript } from './overlay.js';
 import { otherCheckerName } from './plugin.js';
