@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { assetsFeature } from '../../assets/index.js';
-import type { Logger } from '../../logger.js';
+import type { Logger } from '../../shared/logger.js';
 import { createProject } from '../../project/index.js';
 import { createPageChannel, type PageServer } from '../../rspack/index.js';
 import { scssTypingsOnServerStart } from './index.js';

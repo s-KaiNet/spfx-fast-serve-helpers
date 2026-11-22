@@ -1,4 +1,4 @@
-import { isObject, type JsonObject } from '../utils/guards.js';
+import { isObject, type JsonObject } from '../shared/guards.js';
 import type { CustomAction, FieldCustomizer, ServeConfiguration } from './types.js';
 
 const SOURCE = 'config/serve.json';

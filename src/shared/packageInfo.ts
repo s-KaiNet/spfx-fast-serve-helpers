@@ -1,12 +1,16 @@
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 interface PackageJson {
   name: string;
   version: string;
 }
 
+export const PACKAGE_ROOT = fileURLToPath(new URL('../..', import.meta.url));
+
 const packageJson = JSON.parse(
-  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+  readFileSync(path.join(PACKAGE_ROOT, 'package.json'), 'utf8'),
 ) as PackageJson;
 
 export const packageName = packageJson.name;

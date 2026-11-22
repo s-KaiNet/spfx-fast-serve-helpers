@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import type { BuildContext } from '../featureApi/index.js';
 import { compileOnce, type CompileResult } from './index.js';

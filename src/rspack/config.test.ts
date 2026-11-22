@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { multiComponentEntrySource } from '../entries/index.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import type { BuildContext } from '../featureApi/index.js';
 import { createRspackConfig, FEATURES, mergeContributions } from './index.js';

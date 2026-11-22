@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Compiler, RspackPluginInstance, Stats } from '@rspack/core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import { freePort, selfSignedCertificate } from '../testing/devServerKit.js';
 import { startDevServer, type RunningDevServer } from './devServer.js';

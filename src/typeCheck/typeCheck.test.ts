@@ -5,7 +5,7 @@ import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import { startDevServer } from '../server/index.js';
 import { startDevSession, type DevSession } from '../session/index.js';

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { ComponentManifest, SpfxComponent } from '../project/index.js';
-import { isObject } from '../utils/guards.js';
-import { toRootUrl } from '../utils/paths.js';
+import { isObject } from '../shared/guards.js';
+import { toRootUrl } from '../shared/paths.js';
 
 const RELATIVE_FILE_PATH = /^\.{1,2}\/.+/;
 

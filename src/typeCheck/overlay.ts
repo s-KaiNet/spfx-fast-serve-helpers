@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http';
 import { CORS_HEADERS, isReadRequest, requestPath, TYPE_CHECK_EVENTS_PATH, type PageChannel, type ServerMiddleware } from '../featureApi/index.js';
-import { loadRuntimeSource } from '../utils/runtimeSource.js';
+import { loadRuntimeSource } from '../shared/runtimeSource.js';
 import type { TypeCheckResult } from './issues.js';
 
 const INSTALL_FUNCTION = 'installTypeCheckOverlay';

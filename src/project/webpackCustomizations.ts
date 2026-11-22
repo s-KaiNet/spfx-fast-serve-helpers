@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { isObject } from '../utils/guards.js';
-import { readOptionalJsoncFile } from '../utils/jsonc.js';
-import { toPosix } from '../utils/paths.js';
+import { isObject } from '../shared/guards.js';
+import { readOptionalJsoncFile } from '../shared/jsonc.js';
+import { toPosix } from '../shared/paths.js';
 
 export const CUSTOMIZE_WEBPACK_FILE = 'config/spfx-customize-webpack.js';
 export const WEBPACK_PATCH_FILE = 'config/webpack-patch.json';

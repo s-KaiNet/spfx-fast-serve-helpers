@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { Compilation, Compiler, Module, RspackPluginInstance } from '@rspack/core';
-import { isInside } from '../utils/paths.js';
+import { isInside } from '../shared/paths.js';
 
 const PLUGIN_NAME = 'fast-serve:type-only-names';
 const MISSING_EXPORT = /export '([^']+)' \((?:reexported|imported) as '[^']+'\) was not found in '([^']+)'/;

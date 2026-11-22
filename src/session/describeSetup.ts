@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { TENANT_DOMAIN_ENV } from '../config/index.js';
-import { packageName, packageVersion } from '../packageInfo.js';
+import { packageName, packageVersion } from '../shared/packageInfo.js';
 import type { SpfxComponent, SpfxProject } from '../project/index.js';
-import { toPosix } from '../utils/paths.js';
+import { toPosix } from '../shared/paths.js';
 import type { ServeSetup } from './prepareServe.js';
 
 export function versionLine({ spfxVersion }: Pick<ServeSetup, 'spfxVersion'>): string {

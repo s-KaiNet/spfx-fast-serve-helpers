@@ -1,12 +1,13 @@
 import { randomBytes } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { rspack, type Compiler, type Configuration, type ExternalItemFunctionData, type Stats } from '@rspack/core';
 import { problemLocation, tidyMessage } from '../rspack/index.js';
-import { isObject } from '../utils/guards.js';
-import { packageFile } from '../utils/packageFile.js';
-import { isInside } from '../utils/paths.js';
+import { isObject } from '../shared/guards.js';
+import { PACKAGE_ROOT } from '../shared/packageInfo.js';
+import { packageFile } from '../shared/packageFile.js';
+import { isInside } from '../shared/paths.js';
 import { FAST_SERVE_ENV, type FastServeContext } from './context.js';
 
 export interface LoadedExtend {
@@ -125,14 +126,12 @@ function localDependencies(stats: Stats, root: string, entry: string): string[] 
     (dependency) =>
       path.isAbsolute(dependency) &&
       !dependency.split(/[\\/]/).includes('node_modules') &&
-      !isInside(FAST_SERVE_PACKAGE_ROOT, dependency) &&
+      !isInside(PACKAGE_ROOT, dependency) &&
       dependency !== entry &&
       dependency !== path.join(root, 'package.json'),
   );
   return [...new Set(files)].toSorted();
 }
-
-const FAST_SERVE_PACKAGE_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
 const BARE_REQUEST = /^(?![./]|[a-zA-Z]:[\\/]|data:|file:)/;
 

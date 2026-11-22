@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { isCodeFile, problemLocation, tidyMessage, type CompileProblem } from '../rspack/index.js';
-import { toPosix } from '../utils/paths.js';
+import { toPosix } from '../shared/paths.js';
 
 export interface CompileOutcome {
   verb: 'compiled' | 'rebuilt';

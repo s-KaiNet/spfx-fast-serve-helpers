@@ -1,10 +1,10 @@
 import { parseArgs } from 'node:util';
-import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, OPTIONS_SCHEMA_PATH, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions, type LintSetting } from './config/index.js';
-import { DEFAULT_LOCALE } from './project/index.js';
-import { packageName, packageVersion } from './packageInfo.js';
-import { errorMessage } from './utils/errors.js';
-import { EXTEND_FILE } from './extend/files.js';
-import { RSPACK_CONFIG_DOCS_URL } from './extend/webpackHint.js';
+import { DEFAULT_PORT, DEFAULT_SERVE_CONFIGURATION, OPTIONS_FILE, OPTIONS_SCHEMA_PATH, parsePort, TENANT_DOMAIN_ENV, type FastServeOptions, type LintSetting } from '../config/index.js';
+import { DEFAULT_LOCALE } from '../project/index.js';
+import { packageName, packageVersion } from '../shared/packageInfo.js';
+import { errorMessage } from '../shared/errors.js';
+import { EXTEND_FILE } from '../extend/files.js';
+import { RSPACK_CONFIG_DOCS_URL } from '../extend/webpackHint.js';
 
 export interface CliIo {
   out(text: string): void;

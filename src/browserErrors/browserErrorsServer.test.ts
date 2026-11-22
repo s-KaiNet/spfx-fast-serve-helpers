@@ -7,7 +7,7 @@ import tls from 'node:tls';
 import { stripVTControlCharacters } from 'node:util';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import { startDevServer, type RunningDevServer } from '../server/index.js';
 import { COMPILE_FIXTURE, fakeExternals } from '../testing/compileKit.js';

@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { copyCompileFixture, evaluateAmd, type FixtureCopy } from '../testing/compileKit.js';
-import { createHeftTerminal } from '../utils/heftProject.js';
+import { createHeftTerminal } from '../project/heft/heftProject.js';
 
 const HEFT_PACKAGES = ['@microsoft/sp-css-loader', 'sass-embedded', '@rushstack/heft-sass-plugin', '@rushstack/heft-config-file', '@rushstack/rig-package'];
 const COMPONENTS = 'src/webparts/hello/components';

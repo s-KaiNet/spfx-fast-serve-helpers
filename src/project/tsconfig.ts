@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { isObject, type JsonObject } from '../utils/guards.js';
-import { errorMessage } from '../utils/errors.js';
-import { readJsoncFile } from '../utils/jsonc.js';
+import { isObject, type JsonObject } from '../shared/guards.js';
+import { errorMessage } from '../shared/errors.js';
+import { readJsoncFile } from '../shared/jsonc.js';
 import type { ProjectLogger } from './types.js';
 
 export interface TsconfigLayer {

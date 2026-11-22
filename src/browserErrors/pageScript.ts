@@ -1,4 +1,4 @@
-import { loadRuntimeSource } from '../utils/runtimeSource.js';
+import { loadRuntimeSource } from '../shared/runtimeSource.js';
 import type { PageRuntimeConfig } from './contracts.js';
 
 const INSTALL_FUNCTION = 'installFastServePage';

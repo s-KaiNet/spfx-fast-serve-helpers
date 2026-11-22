@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject, type ProjectOptions } from '../project/index.js';
 import type { BuildContext } from '../featureApi/index.js';
 import { compileOnce, type CompileResult } from '../rspack/index.js';

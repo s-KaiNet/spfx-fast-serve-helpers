@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { toPosix } from '../utils/paths.js';
+import { toPosix } from '../shared/paths.js';
 import type { FileLintResult, LintMessage } from './protocol.js';
 
 export const MAX_LISTED_MESSAGES = 20;

@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { isObject } from '../utils/guards.js';
-import { readJsoncFile } from '../utils/jsonc.js';
+import { isObject } from '../shared/guards.js';
+import { readJsoncFile } from '../shared/jsonc.js';
 
 const SPFX_VERSION_PACKAGES = ['@microsoft/sp-core-library', '@microsoft/spfx-heft-plugins', '@microsoft/sp-webpart-base'];
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies'] as const;

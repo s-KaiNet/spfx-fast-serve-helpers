@@ -1,6 +1,6 @@
 import type { FeatureContext, ServerStartedHook } from '../../featureApi/index.js';
-import { errorMessage } from '../../utils/errors.js';
-import { watchSourceFolder } from '../../utils/sourceWatcher.js';
+import { errorMessage } from '../../shared/errors.js';
+import { watchSourceFolder } from '../../shared/sourceWatcher.js';
 import { createScssTypings } from './scssTypings.js';
 
 export { createScssTypings, type ScssTypings } from './scssTypings.js';

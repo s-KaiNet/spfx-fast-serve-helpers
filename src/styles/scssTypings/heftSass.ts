@@ -1,8 +1,8 @@
 import { availableParallelism } from 'node:os';
 import path from 'node:path';
-import type { Logger } from '../../logger.js';
+import type { Logger } from '../../shared/logger.js';
 import type { SassConfiguration } from '../../project/index.js';
-import { createHeftTerminal, createProjectLoader, heftErrorMessage } from '../../utils/heftProject.js';
+import { createHeftTerminal, createProjectLoader, heftErrorMessage } from '../../project/heft/heftProject.js';
 
 const SASS_PLUGIN_PACKAGE = '@rushstack/heft-sass-plugin';
 const TYPINGS_LABEL = 'SCSS typings';

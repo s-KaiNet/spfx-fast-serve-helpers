@@ -1,9 +1,9 @@
 import { execFile } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
-import type { Logger } from '../logger.js';
-import { errorMessage } from '../utils/errors.js';
-import { assertPortFree, isPortFree, PortInUseError } from './port.js';
-import { describePortOwner, findPortOwner, shortenCommand, type PortOwner } from './portOwner.js';
+import type { Logger } from '../shared/logger.js';
+import { errorMessage } from '../shared/errors.js';
+import { assertPortFree, isPortFree, PortInUseError } from '../server/port.js';
+import { describePortOwner, findPortOwner, shortenCommand, type PortOwner } from '../server/portOwner.js';
 
 export interface KeyInput {
   readonly isTTY?: boolean;

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isInside, toPosix } from '../utils/paths.js';
+import { isInside, toPosix } from '../shared/paths.js';
 
 const BUILD_FAILED_WRAPPER = /^\s*× Module build failed \(from [^)]*\):\s*$/;
 const WRAPPED_CAUSE_ARROW = /^(\s*)╰─▶/;

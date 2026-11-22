@@ -1,9 +1,9 @@
 import { fork, type ChildProcess } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import type { Logger } from '../logger.js';
-import { packageFile } from '../utils/packageFile.js';
-import { toPosix } from '../utils/paths.js';
+import type { Logger } from '../shared/logger.js';
+import { packageFile } from '../shared/packageFile.js';
+import { toPosix } from '../shared/paths.js';
 import { isLintedFile, sourceRootOf, type SourceRoot } from './lintFiles.js';
 import type { FileLintResult, LintMode, WorkerRequest, WorkerResponse, WorkerRoot } from './protocol.js';
 import { createLintReport } from './report.js';

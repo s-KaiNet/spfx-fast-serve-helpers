@@ -3,7 +3,7 @@ import path from 'node:path';
 import tls from 'node:tls';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { resolveOptions } from '../config/options.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createProject } from '../project/index.js';
 import { startDevServer, type RunningDevServer } from '../server/index.js';
 import { copyCompileFixture, fakeExternals, type FixtureCopy } from '../testing/compileKit.js';

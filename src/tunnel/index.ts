@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { rspack } from '@rspack/core';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
-import { packageFile } from '../utils/packageFile.js';
-import { toPosix } from '../utils/paths.js';
+import { packageFile } from '../shared/packageFile.js';
+import { toPosix } from '../shared/paths.js';
 
 export { isTunnelServePlugin, TUNNEL_SERVE_PLUGIN, TunnelServePlugin, type TunnelServeOptions } from './plugin.js';
 export { resolveTunnel, tunnelHostProblem, type ResolvedTunnel } from './resolve.js';

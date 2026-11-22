@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_LOCALE, type ServeConfiguration } from '../project/index.js';
-import { isObject } from '../utils/guards.js';
-import { readOptionalJsoncFile } from '../utils/jsonc.js';
+import { isObject } from '../shared/guards.js';
+import { readOptionalJsoncFile } from '../shared/jsonc.js';
 import { isRetiredWorkbenchUrl, retiredWorkbenchWarning } from './retiredWorkbench.js';
 
 export interface FastServeOptions {

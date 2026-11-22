@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isInside } from '../utils/paths.js';
+import { isInside } from '../shared/paths.js';
 
 const LINTED_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const DECLARATION_FILE = /\.d\.[cm]?ts$/;

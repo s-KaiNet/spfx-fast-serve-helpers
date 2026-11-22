@@ -1,4 +1,4 @@
-import type { JsonObject } from '../utils/guards.js';
+import type { JsonObject } from '../shared/guards.js';
 import { readBundles } from './bundles.js';
 import { readConfigExternals } from './configExternals.js';
 import { scanLibraries } from './libraries.js';

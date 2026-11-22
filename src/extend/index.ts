@@ -1,7 +1,7 @@
 import { rspackVersion } from '@rspack/core';
 import type { ResolvedOptions } from '../config/index.js';
 import { publicPath } from '../featureApi/index.js';
-import { packageVersion } from '../packageInfo.js';
+import { packageVersion } from '../shared/packageInfo.js';
 import type { SpfxVersionSource } from '../project/index.js';
 import type { FastServeContext } from './context.js';
 

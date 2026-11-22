@@ -4,10 +4,10 @@ import path from 'node:path';
 import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import type { TypingsListener, TypingsUpdate } from '../../featureApi/index.js';
-import type { Logger } from '../../logger.js';
+import type { Logger } from '../../shared/logger.js';
 import type { SassConfiguration } from '../../project/index.js';
-import { errorMessage } from '../../utils/errors.js';
-import { isInside, toPosix } from '../../utils/paths.js';
+import { errorMessage } from '../../shared/errors.js';
+import { isInside, toPosix } from '../../shared/paths.js';
 import { createHeftSassTypings, type HeftSassTypings } from './heftSass.js';
 import { createStagedTypings, type StagedTypings } from './stagedTypings.js';
 

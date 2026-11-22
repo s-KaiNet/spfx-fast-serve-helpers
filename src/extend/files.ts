@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { FAST_SERVE_FOLDER } from '../config/index.js';
-import { toPosix } from '../utils/paths.js';
+import { toPosix } from '../shared/paths.js';
 
 const EXTEND_BASE_NAME = 'rspack.extend';
 const EXTEND_EXTENSIONS = ['.mjs', '.mts', '.js', '.ts', '.cjs', '.cts'];

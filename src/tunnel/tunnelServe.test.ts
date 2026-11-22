@@ -6,7 +6,7 @@ import tls from 'node:tls';
 import { stripVTControlCharacters } from 'node:util';
 import vm from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import type { DebugManifest } from '../manifests/index.js';
 import { startDevSession, type DevSession } from '../session/index.js';
 import { COMPILE_FIXTURE, fakeExternals } from '../testing/compileKit.js';

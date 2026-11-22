@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { FastServeOptions } from './config/options.js';
-import { packageVersion } from './packageInfo.js';
+import type { FastServeOptions } from '../config/options.js';
+import { packageVersion } from '../shared/packageInfo.js';
 import { runCli } from './runCli.js';
 
 async function run(args: string[], startServer = vi.fn<(options: FastServeOptions) => Promise<void>>()) {

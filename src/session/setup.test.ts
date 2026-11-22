@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, onTestFinished } from 'vitest';
-import type { Logger } from '../logger.js';
-import { packageVersion } from '../packageInfo.js';
+import type { Logger } from '../shared/logger.js';
+import { packageVersion } from '../shared/packageInfo.js';
 import { copyLibraryFixture, LIBRARY_PACKAGE, linkLocalPackage } from '../testing/compileKit.js';
 import { prepareServe, setupDetails, versionLine } from './index.js';
 

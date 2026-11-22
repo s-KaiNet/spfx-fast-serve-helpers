@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { codeFrame } from '../browserErrors/index.js';
-import { toPosix } from '../utils/paths.js';
+import { toPosix } from '../shared/paths.js';
 
 export interface TypeIssue {
   readonly severity: 'error' | 'warning';

@@ -2,11 +2,11 @@ import { rspack, type Compiler, type Configuration, type DevServer, type Stats }
 import { RspackDevServer } from '@rspack/dev-server';
 import { withPersistentCache } from '../cache/index.js';
 import type { ResolvedOptions } from '../config/index.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { guardExtendConfig, mergeDevServer, mergeRspackConfig, projectRelative, type LoadedExtend } from '../extend/index.js';
 import { DIST_PATH, type BuildContext, type ServerMiddleware, type ServerStopper } from '../featureApi/index.js';
 import { createRspackBuild, type ServedPageChannel } from '../rspack/index.js';
-import type { ServeSetup } from '../setup/index.js';
+import type { ServeSetup } from '../session/index.js';
 import { loadDevCertificate, type HttpsCredentials } from './certificate.js';
 import { preflightMiddleware, responseHeaders } from './headers.js';
 import { assertPortFree } from './port.js';

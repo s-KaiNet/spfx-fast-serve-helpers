@@ -3,8 +3,8 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { rspack } from '@rspack/core';
 import { decodedRequestPath, DIST_PATH, isReadRequest, send, type FeatureContext, type ServerMiddleware } from '../featureApi/index.js';
-import { errorMessage } from '../utils/errors.js';
-import { toPosix } from '../utils/paths.js';
+import { errorMessage } from '../shared/errors.js';
+import { toPosix } from '../shared/paths.js';
 
 const HEFT_STRINGS_FILE = /^([^/]+)_([A-Za-z]{2,3}(?:-[A-Za-z0-9]+)*)\.js$/;
 

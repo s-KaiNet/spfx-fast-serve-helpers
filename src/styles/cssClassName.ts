@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import path from 'node:path';
 import type { SassConfiguration } from '../project/index.js';
-import { isInside } from '../utils/paths.js';
+import { isInside } from '../shared/paths.js';
 
 export type CssClassNameGenerator = (className: string, cssFile: string, css: string | Buffer) => string;
 

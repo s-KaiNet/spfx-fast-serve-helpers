@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
-import { isObject, type JsonObject } from '../utils/guards.js';
-import { readJsoncFile } from '../utils/jsonc.js';
+import { isObject, type JsonObject } from '../shared/guards.js';
+import { readJsoncFile } from '../shared/jsonc.js';
 import { isOutsideNodeModules, readLibraryComponent } from './localLibraries.js';
 import type { LocalLibraryPackage, SpfxLibrary } from './types.js';
 

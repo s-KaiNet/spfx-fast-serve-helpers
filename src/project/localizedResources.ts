@@ -1,4 +1,4 @@
-import { isObject, type JsonObject } from '../utils/guards.js';
+import { isObject, type JsonObject } from '../shared/guards.js';
 import { findSourceFile, LOC_EXTENSIONS } from './sourcePaths.js';
 import type { LocalizedResource, ProjectLogger } from './types.js';
 

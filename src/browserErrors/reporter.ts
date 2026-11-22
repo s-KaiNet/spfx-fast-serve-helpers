@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
-import type { Logger } from '../logger.js';
-import { isInside, toPosix } from '../utils/paths.js';
+import type { Logger } from '../shared/logger.js';
+import { isInside, toPosix } from '../shared/paths.js';
 import type { BrowserErrorReport, BrowserErrorResponse } from './contracts.js';
 import { type DisplayFrame, formatBrowserError, formatReport, overlayTitle } from './format.js';
 import { describeLoadError, loadErrorHeadline, loadErrorPageMessage, type LoadErrorFacts } from './loadErrors.js';

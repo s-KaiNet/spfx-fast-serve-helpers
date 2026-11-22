@@ -1,6 +1,6 @@
 import { CertificateManager } from '@rushstack/debug-certificate-manager';
 import { ConsoleTerminalProvider, Terminal } from '@rushstack/terminal';
-import { errorMessage } from '../utils/errors.js';
+import { errorMessage } from '../shared/errors.js';
 
 export interface HttpsCredentials {
   cert: string;

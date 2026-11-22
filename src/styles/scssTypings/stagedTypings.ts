@@ -2,7 +2,7 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { glob } from 'tinyglobby';
 import type { TypingsUpdate } from '../../featureApi/index.js';
-import { removeFileIfExists, writeFileIfChanged } from '../../utils/generatedFiles.js';
+import { removeFileIfExists, writeFileIfChanged } from '../../shared/generatedFiles.js';
 
 export interface StagedTypings {
   stagedFileOf(source: string): string;

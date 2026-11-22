@@ -1,4 +1,4 @@
-import type { JsonObject } from '../utils/guards.js';
+import type { JsonObject } from '../shared/guards.js';
 import { once } from './memo.js';
 import { mergedCompilerOptions, readProjectTsconfig } from './tsconfig.js';
 import { hasPathResolution, tsconfigPathsOf, type TsconfigPaths } from './tsconfigPaths.js';

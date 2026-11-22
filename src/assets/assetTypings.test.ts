@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { TypingsUpdate } from '../featureApi/index.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { createAssetTypings } from './assetTypings.js';
 
 const workspace = fileURLToPath(new URL('../../node_modules/.cache/fast-serve-tests/', import.meta.url));

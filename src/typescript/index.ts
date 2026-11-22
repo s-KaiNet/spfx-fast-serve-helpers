@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { RspackPluginInstance, RuleSetCondition, RuleSetRule, SwcLoaderOptions } from '@rspack/core';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
-import { isInside } from '../utils/paths.js';
+import { isInside } from '../shared/paths.js';
 import { classTransformDifference, classTransformOptions, type ClassTransformOptions } from './compilerOptions.js';
 import { AmbientConstEnums, constEnumCheckRule, ConstEnumsPlugin } from './constEnums/index.js';
 import { TypeOnlyNamesPlugin } from './typeOnlyNames.js';

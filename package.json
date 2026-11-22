@@ -4,7 +4,7 @@
   "description": "Rspack-based dev server for SharePoint Framework 1.24.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
   "type": "module",
   "bin": {
-    "fast-serve": "lib/cli.js"
+    "fast-serve": "lib/cli/main.js"
   },
   "exports": {
     ".": {

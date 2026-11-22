@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { legacyOptionsFileHint, loadOptionsFile, OPTIONS_FILE, resolveOptions, type FastServeOptions, type ResolvedOptions } from '../config/index.js';
-import type { Logger } from '../logger.js';
-import { packageName, packageVersion } from '../packageInfo.js';
+import type { Logger } from '../shared/logger.js';
+import { packageName, packageVersion } from '../shared/packageInfo.js';
 import { assertSupportedSpfxVersion, createProject, findSpfxVersion, type InstalledSpfxVersion, type SpfxProject } from '../project/index.js';
 import { serveConfigurationWarnings } from './serveConfigurationWarnings.js';
 

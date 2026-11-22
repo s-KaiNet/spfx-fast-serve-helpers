@@ -1,10 +1,11 @@
 import { withTunnelHost, type FastServeOptions } from '../config/index.js';
 import { ExtendLoadError, fastServeContext, findExtendFiles, loadExtendFile, projectRelative, webpackCustomizationHint, type LoadedExtend } from '../extend/index.js';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import { assertPortFree, prepareDevServer, type HttpsCredentials, type PreparedDevServer, type RunningDevServer } from '../server/index.js';
-import { prepareServe, versionLine, type ServeSetup } from '../setup/index.js';
+import { versionLine } from './describeSetup.js';
+import { prepareServe, type ServeSetup } from './prepareServe.js';
 import { resolveTunnel } from '../tunnel/index.js';
-import { errorMessage } from '../utils/errors.js';
+import { errorMessage } from '../shared/errors.js';
 import { watchFiles, type FileChange, type FileWatcher } from './fileWatcher.js';
 import { restartReason, restartTriggers, type RestartTriggers } from './restartTriggers.js';
 

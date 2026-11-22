@@ -1,8 +1,8 @@
 import path from 'node:path';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
-import { errorMessage } from '../utils/errors.js';
-import { toPosix } from '../utils/paths.js';
-import { watchSourceFolder, type SourceWatcher } from '../utils/sourceWatcher.js';
+import { errorMessage } from '../shared/errors.js';
+import { toPosix } from '../shared/paths.js';
+import { watchSourceFolder, type SourceWatcher } from '../shared/sourceWatcher.js';
 import { watchEslintConfigs, type ConfigWatcher } from './configWatcher.js';
 import { LintPlugin } from './plugin.js';
 import { findProjectEslint } from './projectEslint.js';

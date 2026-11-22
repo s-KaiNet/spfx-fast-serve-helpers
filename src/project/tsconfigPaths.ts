@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isObject } from '../utils/guards.js';
+import { isObject } from '../shared/guards.js';
 import type { LoadedTsconfig } from './tsconfig.js';
 
 export interface PathMapping {

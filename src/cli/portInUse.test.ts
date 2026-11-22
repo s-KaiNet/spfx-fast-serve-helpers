@@ -2,10 +2,10 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { EventEmitter, once } from 'node:events';
 import { createServer, type Server } from 'node:net';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { Logger } from '../logger.js';
-import { PortInUseError } from './port.js';
+import type { Logger } from '../shared/logger.js';
+import { PortInUseError } from '../server/port.js';
 import { freePortOrAsk, stopProcess, terminalPortCheck, waitForEnter, type FreePortDependencies, type KeyInput } from './portInUse.js';
-import { findPortOwner, runCommand, type PortOwner } from './portOwner.js';
+import { findPortOwner, runCommand, type PortOwner } from '../server/portOwner.js';
 
 class FakeInput extends EventEmitter implements KeyInput {
   readonly isTTY = true;

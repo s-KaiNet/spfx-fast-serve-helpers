@@ -1,7 +1,7 @@
 import { rspack } from '@rspack/core';
 import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
-import { packageFile } from '../utils/packageFile.js';
+import { packageFile } from '../shared/packageFile.js';
 import { SharedHotUpdateGlobalPlugin } from './sharedHotUpdateGlobal.js';
 
 export { SharedHotUpdateGlobalPlugin } from './sharedHotUpdateGlobal.js';

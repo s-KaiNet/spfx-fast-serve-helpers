@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { toPosix } from '../../utils/paths.js';
+import { toPosix } from '../../shared/paths.js';
 
 export interface AmbientEnumUse {
   readonly name: string;

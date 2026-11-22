@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { isObject } from '../utils/guards.js';
-import { toPosix } from '../utils/paths.js';
+import { isObject } from '../shared/guards.js';
+import { toPosix } from '../shared/paths.js';
 import { findSourceFile } from './sourcePaths.js';
 import type { ConfigExternal, ConfigExternalSource, SpfxLibrary } from './types.js';
 

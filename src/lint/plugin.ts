@@ -1,5 +1,5 @@
 import type { Compiler, RspackPluginInstance } from '@rspack/core';
-import type { Logger } from '../logger.js';
+import type { Logger } from '../shared/logger.js';
 import type { LintRunner } from './runner.js';
 
 const PLUGIN_NAME = 'fast-serve:lint';

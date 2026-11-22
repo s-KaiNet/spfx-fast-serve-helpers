@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { ConfigContribution, Feature, FeatureContext } from '../featureApi/index.js';
-import { errorMessage } from '../utils/errors.js';
-import { watchSourceFolder } from '../utils/sourceWatcher.js';
+import { errorMessage } from '../shared/errors.js';
+import { watchSourceFolder } from '../shared/sourceWatcher.js';
 import { createAssetTypings } from './assetTypings.js';
 
 export const ASSET_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'cur', 'dds', 'woff', 'woff2', 'eot', 'ttf', 'mp4', 'zip'];

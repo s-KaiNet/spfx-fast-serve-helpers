@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { TypingsUpdate } from '../../featureApi/index.js';
-import type { Logger } from '../../logger.js';
+import type { Logger } from '../../shared/logger.js';
 import { loadSassConfiguration } from '../../project/sassConfiguration.js';
 import { createScssTypings as createTypings } from './scssTypings.js';
 

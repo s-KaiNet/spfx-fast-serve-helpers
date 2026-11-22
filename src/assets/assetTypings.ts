@@ -2,10 +2,10 @@ import { EOL } from 'node:os';
 import path from 'node:path';
 import { glob } from 'tinyglobby';
 import type { TypingsListener, TypingsUpdate } from '../featureApi/index.js';
-import type { Logger } from '../logger.js';
-import { createHeftTerminal, createProjectLoader, heftErrorMessage, loadHeftConfiguration } from '../utils/heftProject.js';
-import { removeFileIfExists, writeFileIfChanged } from '../utils/generatedFiles.js';
-import { isInside } from '../utils/paths.js';
+import type { Logger } from '../shared/logger.js';
+import { createHeftTerminal, createProjectLoader, heftErrorMessage, loadHeftConfiguration } from '../project/heft/heftProject.js';
+import { removeFileIfExists, writeFileIfChanged } from '../shared/generatedFiles.js';
+import { isInside } from '../shared/paths.js';
 
 const TYPINGS_LABEL = 'Static asset typings';
 const CONFIG_FILE = 'config/static-asset-typings.json';

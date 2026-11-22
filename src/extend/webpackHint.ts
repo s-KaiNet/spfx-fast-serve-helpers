@@ -1,14 +1,12 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { packageName } from '../packageInfo.js';
+import { PACKAGE_ROOT, packageName } from '../shared/packageInfo.js';
 import { findWebpackCustomizations } from '../project/index.js';
-import { toPosix } from '../utils/paths.js';
+import { toPosix } from '../shared/paths.js';
 import { EXTEND_FILE } from './files.js';
 
 export const SKILL_PATH = 'skills/fast-serve-rspack-config/SKILL.md';
 export const RSPACK_CONFIG_DOCS_URL = 'https://github.com/s-KaiNet/spfx-fast-serve-helpers#customizing-the-rspack-config';
-const PACKAGE_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
 export function webpackCustomizationHint(root: string, packageRoot: string = PACKAGE_ROOT): string[] {
   const customizations = findWebpackCustomizations(root);
