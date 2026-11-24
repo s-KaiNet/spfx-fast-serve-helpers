@@ -20,10 +20,10 @@ The 2000-module browser runs were **dropped at the user's request**, because the
 |---|---|
 | Machine | Intel i7-7500U (2 cores / 4 threads, 2.7 GHz), 22 GB RAM, Ubuntu (Linux 7.0.0-43) |
 | Runtime | Node 24.21.0, npm 11.19.0 |
-| Browser | Chrome 153.0.8010.36 `--headless=new`, profile `mastaq-sharepoint`, 1400×1000 |
+| Browser | Chrome 153.0.8010.36 `--headless=new`, profile `contoso-sharepoint`, 1400×1000 |
 | Toolchain | SPFx 1.24.1, @rushstack/heft 1.3.2, webpack 5.105.4, TypeScript 5.8.3, Vite 8.3.8 (Rolldown), @vitejs/plugin-react 6.x |
 | Extra deps | `@pnp/spfx-controls-react` 3.25.0 (latest stable), `@pnp/sp` 4.23.0, `@microsoft/sp-http` 1.24.1 |
-| Page | https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx (new page, id 14, **draft**), with both bench web parts |
+| Page | https://contoso.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx (new page, id 14, **draft**), with both bench web parts |
 | Noise | Another agent thread used the same machine at the same time (load average 0.7–2.4). Numbers are medians of 3 runs (5 for Vite start). Individual runs are in `spfx-bench/results/*.json` |
 
 ### Bench project
@@ -215,7 +215,7 @@ cd /home/sergei/Projects/spfx-bench
 node tools/generate.mjs --modules 1000            # or 250 / 2000, --barrels off
 node tools/bench/start.mjs 3 heft,vite            # server start (no browser)
 node tools/bench/crawl.mjs 3                      # module graph crawl (no browser)
-# Chrome with the mastaq-sharepoint profile on CDP 9351, then:
+# Chrome with the contoso-sharepoint profile on CDP 9351, then:
 node tools/bench/run.mjs sp-baseline|vite|heft|vite-warmup|vite-loads|vite-nohold 3
 node tools/bench/summarize.mjs
 ```

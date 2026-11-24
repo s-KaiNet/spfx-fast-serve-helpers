@@ -1,6 +1,6 @@
 # Research: Adaptive Card Extensions (ACEs) in heft 1.24 and fast-serve
 
-Date: 2026-11-17. Sources: `@microsoft/spfx-heft-plugins` 1.24.1 (`lib-commonjs/spfxManifests/webpack/ManifestPlugin.js`, `plugins/webpackConfigurationPlugin/SPFxDebugPageUrl*.js`), `@microsoft/generator-sharepoint` 1.24.1 output (Generic Card Template, `/tmp/n4-ace2/gen`), `@microsoft/sp-adaptive-card-extension-base` 1.24.1, Microsoft Learn ("Build your first SharePoint Adaptive Card Extension", updated 2026-10-28; "SharePoint Framework Debug Toolbar"), live checks on `mastaq.sharepoint.com/sites/dev`.
+Date: 2026-11-17. Sources: `@microsoft/spfx-heft-plugins` 1.24.1 (`lib-commonjs/spfxManifests/webpack/ManifestPlugin.js`, `plugins/webpackConfigurationPlugin/SPFxDebugPageUrl*.js`), `@microsoft/generator-sharepoint` 1.24.1 output (Generic Card Template, `/tmp/n4-ace2/gen`), `@microsoft/sp-adaptive-card-extension-base` 1.24.1, Microsoft Learn ("Build your first SharePoint Adaptive Card Extension", updated 2026-10-28; "SharePoint Framework Debug Toolbar"), live checks on `contoso.sharepoint.com/sites/dev`.
 
 ## Manifest
 
@@ -31,7 +31,7 @@ Date: 2026-11-17. Sources: `@microsoft/spfx-heft-plugins` 1.24.1 (`lib-commonjs/
 
 ## Live results (spfx-rea, 2026-11-17)
 
-Setup: the generator's Generic Card ACE (`src/adaptiveCardExtensions/hello`, own bundle `hello-adaptive-card-extension`), with the card bar `icon` set to the imported `MicrosoftLogo.png`; `@microsoft/sp-adaptive-card-extension-base@1.24.1` installed. Page: hosted workbench `https://mastaq.sharepoint.com/sites/dev/_layouts/15/workbench.aspx?debugManifestsFile=…&debug=true&noredir=true`, nothing saved.
+Setup: the generator's Generic Card ACE (`src/adaptiveCardExtensions/hello`, own bundle `hello-adaptive-card-extension`), with the card bar `icon` set to the imported `MicrosoftLogo.png`; `@microsoft/sp-adaptive-card-extension-base@1.24.1` installed. Page: hosted workbench `https://contoso.sharepoint.com/sites/dev/_layouts/15/workbench.aspx?debugManifestsFile=…&debug=true&noredir=true`, nothing saved.
 
 | Check | Result |
 |---|---|

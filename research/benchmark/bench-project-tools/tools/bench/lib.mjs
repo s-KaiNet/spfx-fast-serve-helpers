@@ -9,7 +9,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const PORT = 4341;
 export const ORIGIN = `https://localhost:${PORT}`;
 export const CDP_PORT = 9351;
-export const PAGE = 'https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx';
+export const PAGE = 'https://contoso.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx';
 export const MANIFESTS = `${ORIGIN}/temp/build/manifests.js`;
 export const DEBUG_QUERY = `debugManifestsFile=${encodeURIComponent(MANIFESTS)}&debug=true&noredir=true`;
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -206,7 +206,7 @@ export function netRecorder(cdp, page) {
     },
     stop() { off && off(); off = null; return [...reqs.values()]; },
     summary(list) {
-      const docs = list.filter((r) => r.doc && r.url.startsWith('https://mastaq'));
+      const docs = list.filter((r) => r.doc && r.url.startsWith('https://contoso'));
       const t0 = docs.length ? docs[0].start : Math.min(...list.map((r) => r.start));
       const local = list.filter((r) => r.url.startsWith(ORIGIN));
       const rel = (t) => (t === undefined ? null : Math.round((t - t0) * 1000));
@@ -230,4 +230,4 @@ export function netRecorder(cdp, page) {
 }
 
 /** Script that sets the SPFx debug decision for this tab (skips the "Allow debug scripts?" prompt). */
-export const DEBUG_SESSION_SCRIPT = `try { if (location.hostname === 'mastaq.sharepoint.com' && location.search.indexOf('debugManifestsFile') >= 0) sessionStorage.setItem('spfx-debug', JSON.stringify({ liveReload: false, manifestsFileUrl: ${JSON.stringify(MANIFESTS)}, hasLogged3pDebug: false })); } catch (e) {}`;
+export const DEBUG_SESSION_SCRIPT = `try { if (location.hostname === 'contoso.sharepoint.com' && location.search.indexOf('debugManifestsFile') >= 0) sessionStorage.setItem('spfx-debug', JSON.stringify({ liveReload: false, manifestsFileUrl: ${JSON.stringify(MANIFESTS)}, hasLogged3pDebug: false })); } catch (e) {}`;

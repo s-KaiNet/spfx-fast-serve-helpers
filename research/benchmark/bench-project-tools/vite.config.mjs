@@ -13,7 +13,7 @@ const noHold = process.env.BENCH_NOHOLD === '1';
 export default defineConfig({
   plugins: [
     spfxServe({
-      pageUrl: process.env.SPFX_SERVE_PAGE || 'https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx'
+      pageUrl: process.env.SPFX_SERVE_PAGE || 'https://contoso.sharepoint.com/sites/dev/SitePages/spfx-bench.aspx'
     }),
     benchWorkarounds({ localizedResources: ['ControlStrings'] }),
     react()

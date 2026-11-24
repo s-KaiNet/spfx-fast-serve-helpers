@@ -21,7 +21,7 @@ const canvas = parts.map((m, i) => {
 
 const cdp = await cdpConnect();
 const page = await openPage(cdp);
-await page.send('Page.navigate', { url: 'https://mastaq.sharepoint.com/sites/dev/SitePages/Forms/AllPages.aspx' });
+await page.send('Page.navigate', { url: 'https://contoso.sharepoint.com/sites/dev/SitePages/Forms/AllPages.aspx' });
 await sleep(6000);
 const result = await page.eval(`(async () => {
   const site = '/sites/dev';

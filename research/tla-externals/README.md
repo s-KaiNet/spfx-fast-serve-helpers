@@ -2,7 +2,7 @@
 
 > Experiment files, logs and captures referenced here were removed from the repo in a cleanup; they are in git history at commit `dd4da8d`.
 
-Date: 2026-11-15. Tenant: mastaq.sharepoint.com (SPO build odsp-web-prod_2026-10-30.006, every `@microsoft/sp-*` at **1.25.0**).
+Date: 2026-11-15. Tenant: contoso.sharepoint.com (SPO build odsp-web-prod_2026-10-30.006, every `@microsoft/sp-*` at **1.25.0**).
 Project: SPFx **1.24.1**. Vite 8.3.8, Rolldown 1.2.19, headless Chrome 153.
 
 Tags: **L** = verified live on the SharePoint page, **O** = verified offline (Node/Rolldown), **I** = inferred.

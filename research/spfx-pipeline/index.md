@@ -1,7 +1,7 @@
 # SPFx build pipeline & browser loading — reverse-engineering report
 
 Project: `spfx-rea` (SPFx **1.24.1**, Heft-based toolchain, React 18 web part `HelloWorld`).
-Tenant under test: `https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx` (tenant runtime was serving SPFx **1.25.0**).
+Tenant under test: `https://contoso.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx` (tenant runtime was serving SPFx **1.25.0**).
 Date of investigation: 2026‑11‑12/13. Goal: understand the build + serve + runtime contract well enough to replace webpack with **Vite**.
 
 ## TL;DR

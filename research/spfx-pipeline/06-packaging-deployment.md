@@ -23,7 +23,7 @@ ClientSideAssets/                    hello-world-web-part_<hash>.js, HelloWorldW
 ## Production URL resolution (observed on other solutions in this tenant)
 
 `GET /_api/web/GetClientSideWebParts` for 3rd-party solutions returned e.g.
-`internalModuleBaseUrls: ["https://mastaq.sharepoint.com/sites/appcatalog/ClientSideAssets/8cc5c58c-fdc6-4e3f-af19-42048e553dfc"]`, `entry: {type:"path", path:"faq-webpart_356bd3b3fe8ae29cd07c.js"}`.
+`internalModuleBaseUrls: ["https://contoso.sharepoint.com/sites/appcatalog/ClientSideAssets/8cc5c58c-fdc6-4e3f-af19-42048e553dfc"]`, `entry: {type:"path", path:"faq-webpart_356bd3b3fe8ae29cd07c.js"}`.
 So SharePoint replaces `HTTPS://SPCLIENTSIDEASSETLIBRARY/` with the app catalog's `ClientSideAssets/<solutionId>` folder when the app is deployed (public CDN is evidently not enabled in this tenant; with Office 365 CDN the URL would differ — **not verified**).
 
 At runtime the deployed component goes through exactly the same RequireJS path as in 05; only `internalModuleBaseUrls[0]` differs, and the manifest comes from the server (`GetClientSideComponents` / preloaded) instead of `manifests.js`.

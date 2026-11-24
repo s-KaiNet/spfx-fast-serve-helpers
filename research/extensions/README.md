@@ -1,6 +1,6 @@
 # Research: SPFx extensions in heft 1.24 and fast-serve
 
-Date: 2026-11-17. Sources: `@microsoft/spfx-heft-plugins` 1.24.1 (`lib-commonjs/plugins/webpackConfigurationPlugin/SPFxDebugPageUrl.js`, `SPFxDebugPageUrlUtilities.js`, `spfxConfig/schemas/spfx-serve.schema.json`, `spfxManifests/webpack/ManifestPlugin.js`, `IconHandler.js`), `@microsoft/generator-sharepoint` 1.24.0-rc.0 output (a throwaway project with one extension of each type), `heft start --serve-config rating` and `heft build` on `spfx-rea`, live checks on `mastaq.sharepoint.com/sites/dev`.
+Date: 2026-11-17. Sources: `@microsoft/spfx-heft-plugins` 1.24.1 (`lib-commonjs/plugins/webpackConfigurationPlugin/SPFxDebugPageUrl.js`, `SPFxDebugPageUrlUtilities.js`, `spfxConfig/schemas/spfx-serve.schema.json`, `spfxManifests/webpack/ManifestPlugin.js`, `IconHandler.js`), `@microsoft/generator-sharepoint` 1.24.0-rc.0 output (a throwaway project with one extension of each type), `heft start --serve-config rating` and `heft build` on `spfx-rea`, live checks on `contoso.sharepoint.com/sites/dev`.
 
 ## Manifests
 

@@ -12,7 +12,7 @@ Sources: live page (agent-browser + raw CDP), sanitized network extracts in arti
 4. The page canvas JSON contains our web part instance:
    `{"controlType":3,"webPartId":"2997f152-…","webPartData":{"id":"2997f152-…","instanceId":"154ef451-…","title":"HelloWorld","properties":{"description":"HelloWorld"},"dataVersion":"1.0","serverProcessedContent":{…}}}` — only the **component id** is stored, no version and no URL.
 
-`sp-pages-assembly` contains sp-loader. sp-loader creates RequireJS **2.3.7** from an embedded source string (the `blob:https://mastaq.sharepoint.com/<uuid>` script requests in the network log) and configures it (`ModuleLoader` constructor):
+`sp-pages-assembly` contains sp-loader. sp-loader creates RequireJS **2.3.7** from an embedded source string (the `blob:https://contoso.sharepoint.com/<uuid>` script requests in the network log) and configures it (`ModuleLoader` constructor):
 
 ```js
 requirejs.config({ waitSeconds: 90, baseUrl: "https://relative-path.invalid", onNodeCreated(node, cfg, moduleName, url){

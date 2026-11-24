@@ -4,7 +4,7 @@
 
 ## Command
 
-`npm start` → `heft start --clean` → alias `build-watch --serve`. Used here: `SPFX_SERVE_TENANT_DOMAIN=mastaq.sharepoint.com npx heft start --nobrowser`.
+`npm start` → `heft start --clean` → alias `build-watch --serve`. Used here: `SPFX_SERVE_TENANT_DOMAIN=contoso.sharepoint.com npx heft start --nobrowser`.
 Watch mode runs the same `build` phase incrementally (TypeScript watch → webpack), and the webpack task uses **webpack-dev-server** instead of a plain compile (log).
 
 ## Dev server configuration (`updateServeConfigAsync.js`, dump: [webpack-config-serve.json](artifacts/webpack-config-serve.json))

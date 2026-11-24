@@ -52,7 +52,7 @@ Hands-on (local, `/tmp` projects):
 - `heft build --clean` 1.23 still succeeds with fast-serve installed (and on Node 24).
 - CSS rule probe (`Plain.scss`, `PlainCss.css` imported from HelloWorld.tsx): heft 1.23 hashes both (`plainProbe_2fb0e5c7`, `plainCssProbe_1bf1ced3`) and generates typings; heft 1.24 leaves them global and warns `export 'default' … was not found in './Plain.scss'`; fast-serve serves them as global CSS.
 
-Live (mastaq, hosted workbench with the debug query, web part added from the toolbox, **nothing saved**; Chrome on the saved profile started and stopped by me, `sessionStorage["spfx-debug"]` cleared):
+Live (contoso, hosted workbench with the debug query, web part added from the toolbox, **nothing saved**; Chrome on the saved profile started and stopped by me, `sessionStorage["spfx-debug"]` cleared):
 - web part renders ([screenshot](live-workbench-1.23.png)); `[vite] connected.`; loaded sp-* modules are all `_1.25.0`, the page's React is 18.3.1, the web part runs on the dev React 17 copy;
 - function component edit ([Counter.probe.tsx](Counter.probe.tsx)): text v1 → v2 with the counter state (3) and the `window.__mark` marker kept: Fast Refresh;
 - SCSS edit: outline applied, marker kept; theme token `[theme:bodyText]` resolved to the tenant's `#323130`;

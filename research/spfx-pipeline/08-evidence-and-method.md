@@ -4,9 +4,9 @@
 
 1. **Static reading of shipped tooling** in `node_modules` (non‑minified CommonJS with source maps): `@microsoft/spfx-web-build-rig` (heft.json, tsconfig, sass/ts/jest config), `@microsoft/spfx-heft-plugins` (webpack config generator, ManifestPlugin, CumulativeManifestProcessor, externals, serve config, package solution), `@rushstack/heft-webpack5-plugin` (hook semantics, dev-server/cert), `@microsoft/sp-css-loader`.
 2. **Builds executed**: `heft build --clean --verbose`, `heft build --clean --production`, `npm run build`, with a temporary `config/spfx-customize-webpack.js` that dumped the final webpack configuration (removed afterwards).
-3. **Serve executed**: `SPFX_SERVE_TENANT_DOMAIN=mastaq.sharepoint.com npx heft start --nobrowser`; probed with curl.
+3. **Serve executed**: `SPFX_SERVE_TENANT_DOMAIN=contoso.sharepoint.com npx heft start --nobrowser`; probed with curl.
 4. **Shipped runtime loader** (`@microsoft/sp-loader` dist, minified): analysed with **REA** (`rea analyze-javascript-application`, v6.7.0, CLI fallback — REA MCP was not connected in this session). Evidence `ev_b7697c443f388618faaa115e81c4801ad388561798623f613921764bb8963f8e` (input digest `de0713be…aaec05`): 3 JS files parsed, 89 webpack modules, 22 chunks, endpoints/storage keys including `debugManifestsFile`, `debug`, `livereload`, `loader`, `sessionStorage` keys, `new Worker(b,{name:"SP Worker"})`. REA limitations as reported: inert parsing only, graph incomplete, bootstrap never executed. Targeted code was then read from a prettier-formatted copy (`ManifestStore`, `configLoadComponent`, debug handlers, version compare).
-5. **Live runtime** on `https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx` using the saved `mastaq-sharepoint` Chrome profile: first via agent-browser, then a directly launched Chrome 153 headless (`--ignore-certificate-errors --disable-features=LocalNetworkAccessChecks,Translate --remote-debugging-port=9333`) driven by agent-browser over CDP plus small raw CDP scripts (Network/Audits events, `Browser.grantPermissions`). Captured HARs, console, RequireJS state, sessionStorage, CSP headers, screenshots.
+5. **Live runtime** on `https://contoso.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx` using the saved `contoso-sharepoint` Chrome profile: first via agent-browser, then a directly launched Chrome 153 headless (`--ignore-certificate-errors --disable-features=LocalNetworkAccessChecks,Translate --remote-debugging-port=9333`) driven by agent-browser over CDP plus small raw CDP scripts (Network/Audits events, `Browser.grantPermissions`). Captured HARs, console, RequireJS state, sessionStorage, CSP headers, screenshots.
 
 ## Evidence index (`artifacts/`)
 
@@ -50,9 +50,9 @@ Raw HARs (contain session cookies/tokens) are kept **outside the repo** in `~/.c
 ```bash
 npx heft build --clean --verbose                     # dev build → dist/, temp/build/manifests.js
 npm run build                                        # prod + sppkg
-SPFX_SERVE_TENANT_DOMAIN=mastaq.sharepoint.com npx heft start --nobrowser
+SPFX_SERVE_TENANT_DOMAIN=contoso.sharepoint.com npx heft start --nobrowser
 # open (trusted cert, LNA allowed):
-# https://mastaq.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true
+# https://contoso.sharepoint.com/sites/dev/SitePages/spfx-rea.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true
 # in devtools console:
 #   require.s.contexts._.config.map["2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1"]
 #   require.s.contexts._.config.paths["2997f152-d79f-45c7-a7d2-ea768b8f5575_0.0.1"]
