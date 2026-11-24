@@ -1,35 +1,35 @@
 # spfx-fast-serve-helpers
 
-> **Beta.** `fast-serve` for SharePoint Framework **1.24.x** (Heft) projects, versions `1.24.0-beta.<n>`, published under the npm `beta` tag. From `1.24.0-beta.5` it is built on Rspack; the earlier 1.24 betas (up to `1.24.0-beta.3`) were built on Vite and are no longer developed (see [Migrating](#migrating)).
+> `fast-serve` for SharePoint Framework **1.23.x** (Heft) projects, versions `1.23.<n>` (branch `v1.23`). Each SPFx version has its own line: SPFx 1.24 projects use `spfx-fast-serve-helpers` `1.24.x` (branch `v1.24`), SPFx up to 1.21 the classic [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve).
 
-A dev-server-only replacement for `heft start`: it compiles your web parts, extensions, Adaptive Card Extensions, Copilot components and library components with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds and packaging stay on Heft (`heft build`, `heft package-solution`).
+A dev-server-only replacement for `heft start`: it compiles your web parts, extensions, Adaptive Card Extensions and library components with [Rspack](https://rspack.rs), serves them over HTTPS to a real SharePoint page, and applies edits with HMR and React Fast Refresh. SharePoint loads a few AMD bundles per page, like with heft, instead of one request per module. Production builds and packaging stay on Heft (`heft build`, `heft package-solution`).
 
 Design and status: [research/HANDOFF.md](research/HANDOFF.md), plan [research/rspack/PLAN.md](research/rspack/PLAN.md), knowledge base [kb/index.md](kb/index.md).
 
 ## Requirements
 
-- An SPFx **1.24.x** project (`@microsoft/sp-core-library` `>=1.24.0 <1.25.0`). `fast-serve` checks the installed SPFx version at start and exits with a message otherwise. For SPFx up to 1.21 use the classic [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve); 1.22 and 1.23 are not supported.
-- Node.js 22 (from 22.14), 24 or 26, as SPFx 1.24.
+- An SPFx **1.23.x** project (`@microsoft/sp-core-library` `>=1.23.0 <1.24.0`). `fast-serve` checks the installed SPFx version at start and exits with a message otherwise. For SPFx 1.24 use `spfx-fast-serve-helpers@~1.24.0`, for SPFx up to 1.21 the classic [spfx-fast-serve](https://github.com/s-KaiNet/spfx-fast-serve); 1.22 is not supported.
+- Node.js 22 (from 22.14), as SPFx 1.23 (`fast-serve` itself also runs on Node 24 and 26).
 - The SPFx development certificate, trusted once per machine (`npx heft trust-dev-cert`, the same one `heft start` uses).
 
 ## Install
 
-Install the beta from npm:
+Install from npm:
 
 ```sh
-npm install --save-dev spfx-fast-serve-helpers@beta
+npm install --save-dev spfx-fast-serve-helpers@~1.23.0
 npx heft trust-dev-cert                     # once per machine
 ```
 
 **npm `ERESOLVE` with `css-loader`:** a project with `css-loader` 7.1.2 or 7.1.3 (a direct devDependency, or locked at that version) fails with `ERESOLVE ... peerOptional @rspack/core@"0.x || 1.x" from css-loader@7.1.2`, because those versions don't accept Rspack 2. `css-loader` 7.1.4 and newer accept it, and SPFx's `@microsoft/sp-css-loader` (`~7.1.2`) works with them, so update it in the same command:
 
 ```sh
-npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta
+npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@~1.23.0
 ```
 
 If you must keep the old `css-loader`, install with `--legacy-peer-deps` (or put `legacy-peer-deps=true` in the project's `.npmrc`, which also covers later `npm install` runs). The package can't avoid this itself: npm puts `@rspack/core` at the top of `node_modules`, where the project's `css-loader` checks its peer range, and `@rspack/dev-server` requires `@rspack/core` as a peer, so it can't be hidden under another name; `overrides` only work in the project's own `package.json`. pnpm and yarn only warn.
 
-`@rspack/core`, `@rspack/dev-server`, `@rspack/plugin-react-refresh` and `sass-loader` are dependencies of this package, so the project needs no Rspack or webpack packages. From the project it uses what heft uses too: React and react-dom (development build, for Fast Refresh), `@microsoft/sp-css-loader`, `sass-embedded` (or `sass`) and `@rushstack/heft-sass-plugin` (SCSS typings).
+`@rspack/core`, `@rspack/dev-server`, `@rspack/plugin-react-refresh` and `sass-loader` are dependencies of this package, so the project needs no Rspack or webpack packages. From the project it uses what heft uses too: React and react-dom (17 in SPFx 1.23, development build, for Fast Refresh), `@microsoft/sp-css-loader`, `sass-embedded` (or `sass`) and `@rushstack/heft-sass-plugin` (SCSS typings).
 
 Add a script to `package.json`:
 
@@ -46,7 +46,7 @@ npm run serve
 ```
 
 ```
-[fast-serve] spfx-fast-serve-helpers 1.24.0-beta.15, SPFx 1.24.1
+[fast-serve] spfx-fast-serve-helpers 1.23.0, SPFx 1.23.2
 [fast-serve] ready in 1153 ms at https://localhost:4321
 [fast-serve] ════════════════════════════════════════════════════════════════
 [fast-serve]   To load your scripts, append this to your SharePoint page URL:
@@ -139,24 +139,10 @@ An unknown key or a wrong type in `fast-serve/config.json` stops `fast-serve` wi
 - **`config/config.json` externals** (URLs and local files, with `globalName`/`globalDependencies`) are loaded by SharePoint's RequireJS like with heft; local files are served next to the bundles. Imports follow webpack's semantics (named imports read from the loaded module, `import *` is the module, default import is `default` when `__esModule`, `export *` works).
 - **React** is the project's development build, bundled, with nested copies (for example PnP's) collapsed onto it.
 - **Localized strings** of the selected locale are bundled (AMD, TypeScript or ES loc files; non-AMD ones print heft's compatibility warning). Heft keeps them as separate per-locale scripts; with `fast-serve` the page language doesn't switch strings, `--locale` does.
-- **Styles:** `sass-loader` with the project's Sass, then the project's `@microsoft/sp-css-loader`, as in heft: CSS module class names are identical to heft's, theme tokens (`"[theme:themePrimary, default: #0078d4]"`) resolve against the page theme, `pkg:` and `~` imports resolve like heft (also into packages whose `exports` hide the Sass files, such as `~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss`), `config/sass.json` `silenceDeprecations`, `ignoreDeprecationsInDependencies` and `loadPaths` apply.
+- **Styles:** `sass-loader` with the project's Sass, then the project's `@microsoft/sp-css-loader`, as in heft 1.23: every `.scss`, `.sass` and `.css` file without `.global` in its name is a CSS module (also plain `.scss` files and `.css` from `node_modules`), `*.global.scss`/`*.global.css` stay global; CSS module class names are identical to heft's, theme tokens (`"[theme:themePrimary, default: #0078d4]"`) resolve against the page theme, `pkg:` and `~` imports resolve like heft (also into packages whose `exports` hide the Sass files, such as `~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss`), `config/sass.json` `silenceDeprecations`, `ignoreDeprecationsInDependencies` and `loadPaths` apply.
 - **TypeScript:** SWC (`builtin:swc-loader`) per file, with the tsconfig options that change emitted code (`experimentalDecorators`, `emitDecoratorMetadata`, `useDefineForClassFields`, through `extends` and the rig), `paths`/`baseUrl` through Rspack's tsconfig resolver. Type-only re-exports are harmless (webpack semantics; their warnings are hidden). A `const enum` that exists only in a `.d.ts` can't be inlined per file: `fast-serve` reports a clear compile error.
 - **`require()` and AMD in dependencies** behave as in heft's webpack: `require('<literal>')` is resolved at build time, UMD dependencies use webpack's own `define` (full `lodash` works), SharePoint's RequireJS never sees them.
-- **Static assets** (images, fonts, …) get absolute dev-server URLs; `.sprite.svg` is inlined as source.
-
-### Copilot components
-
-Copilot components (`componentType: "CopilotComponent"`, SPFx 1.24) are built and listed in the debug manifests like heft does. Test them in the Copilot Workbench of your tenant, as in [Microsoft's tutorial](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/copilot/get-started/build-your-first-copilot-app), with the debug query `fast-serve` prints:
-
-```text
-https://<tenant>.sharepoint.com/_layouts/15/copilotworkbench.aspx?debugManifestsFile=https://localhost:4321/temp/build/manifests.js&debug=true&noredir=true
-```
-
-Choose **Load debug scripts**, pick the component, fill in its properties and select **Fire turn**. The query points the workbench at `fast-serve`'s port; keep it when you use `--port`.
-
-- **Tool properties:** a `propertiesSchema` written as heft's reference (`{ "id": "$../../../lib/…/<X>Properties.js:default;" }`) is evaluated like heft does, but from the module's source under `src/` (no `lib/` build needed); the debug manifest has the resulting JSON schema, so the workbench form matches the schema. Edits to that module (or modules it imports) apply when the workbench reloads; no restart. If the module fails, `fast-serve` warns and the manifest keeps the reference.
-- **Edits:** the React views hot-update with Fast Refresh (state kept) inside the turn's iframe; an edit of the component class reloads that iframe, which renders the turn again.
-- Localized strings (`localizedResources`) work like for web parts. The Teams/Copilot app package that `heft start` writes to `teams/` is not produced (it is only needed for deployment).
+- **Static assets** (images, fonts, …, `.sprite.svg` too) get absolute dev-server URLs, like heft 1.23.
 
 ## Library components
 
@@ -242,12 +228,12 @@ Risks and limits:
 | Edit | Result |
 |---|---|
 | `.tsx`/`.ts` module whose exports are all React components | hot update, state kept (Fast Refresh) |
-| `.module.scss` / `.scss` / `.css` | styles swapped without a reload |
+| `.scss` / `.css` (CSS modules and `.global` files) | styles swapped without a reload |
 | loc file used only by components | hot update |
 | web part / extension / ACE class, what only it imports (services, ACE card and quick views, templates), loc files the class imports | page reload |
 | a module that exports components **and** other values (hooks, constants) | page reload |
 | a new import of an SPFx library or `config.json` external, or an edit of a local-file external | page reload (a bundle's AMD dependency list is fixed when it loads) |
-| a syntax error and its fix in a component that is the only user of a library (`escape` from `@microsoft/sp-lodash-subset`) | error overlay, then hot updates again with state kept (before `1.24.0-beta.8`: `escape is not a function` on the next edit) |
+| a syntax error and its fix in a component that is the only user of a library (`escape` from `@microsoft/sp-lodash-subset`) | error overlay, then hot updates again with state kept |
 | `package.json`, `config/*.json`, `fast-serve/config.json`, tsconfig, manifests, the extend file (also a linked library's) | `fast-serve` restarts (≈0.1–0.5 s) and open pages reload by themselves |
 | a linked library's component, styles, loc strings | same as your own files (see [Library components](#library-components)) |
 
@@ -275,7 +261,7 @@ npx fast-serve --no-overlay      # type errors (and all other errors) in the ter
 
 or `"typeCheck": false` / `"overlay": false` in `fast-serve/config.json` (`--type-check` turns the check on again for one run). A project without `tsconfig.json` or TypeScript starts as usual with one `type check is off: …` line.
 
-- **Same TypeScript as `heft build`:** the check runs the project's own TypeScript (5.8 in SPFx 1.24, found in the project or the SPFx build rig) on the project's unchanged `tsconfig.json`, so it reports what heft's TypeScript step reports for the project's files. It runs in two worker processes ([ts-checker-rspack-plugin](https://github.com/rstackjs/ts-checker-rspack-plugin)) and never blocks a rebuild or a hot update: the page updates as usual while the check runs.
+- **Same TypeScript as `heft build`:** the check runs the project's own TypeScript (5.8 in SPFx 1.23, found in the project or the SPFx build rig) on the project's unchanged `tsconfig.json`, so it reports what heft's TypeScript step reports for the project's files. It runs in two worker processes ([ts-checker-rspack-plugin](https://github.com/rstackjs/ts-checker-rspack-plugin)) and never blocks a rebuild or a hot update: the page updates as usual while the check runs.
 - **Terminal:** the first result after the start, then a block only when the set of errors changes (`type error in src/…/Second.tsx:11:30`, `TS2552: Cannot find name 'escape1'…`, a code frame, then `type check: 1 error`), and `type check: no errors` once when it's clean again. At most 20 errors are listed. Type errors never show up as compile errors, in `rebuilt in …` lines or in the compile error overlay. A file with a syntax error is the compiler's: its compile error is shown and the check leaves that file out until it builds again (no `TS1005: '}' expected` next to SWC's `Expected '}'`). Syntax errors in type-only files (interfaces, which the compiler never sees) still come from the check.
 - **Overlay:** type errors open the page's error overlay (also in [tunnel mode](#serving-through-a-tunnel)); it closes when the check is clean; Esc or × hides it until the errors change. Compile and runtime errors win: while one is shown, the type errors are a line `Also: Type check: 1 error` in it, and they take over when it closes. Files with a syntax error are left out of the type check, so the overlay never shows the same error twice.
 - **Type-only files** (interfaces, `import type`): saving one re-checks without a `rebuilt` line. SCSS and asset typings written by `fast-serve` are passed to the next check, so a new stylesheet class or image doesn't leave a stale `Cannot find module` error.
@@ -286,7 +272,7 @@ or `"typeCheck": false` / `"overlay": false` in `fast-serve/config.json` (`--typ
 
 ## Linting
 
-`fast-serve` lints the files you save with the project's own ESLint and `eslint.config.js` (the config SPFx 1.24 generates), in the background, and prints what it finds in the terminal. It's on by default:
+`fast-serve` lints the files you save with the project's own ESLint and `eslint.config.js` (the config SPFx 1.23 generates), in the background, and prints what it finds in the terminal. It's on by default:
 
 ```sh
 npx fast-serve               # lint saved files, type-aware rules off (default)
@@ -342,7 +328,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 
 **From classic spfx-fast-serve (SPFx ≤ 1.21):** its `fast-serve/config.json` nests the options in a `"serve"` object with a `$schema` URL; `fast-serve` stops with "outdated classic spfx-fast-serve format". Replace the file with flat options and the shipped schema: `"$schema": "../node_modules/spfx-fast-serve-helpers/schema/config.schema.json"`, `port` → `port`, `openUrl` → `pageUrl`, `locale` → `locale`, `config` → `serveConfiguration`, `fullScreenErrors` → `overlay`, `eslint` → `lint`; `memory`, `isLibraryComponent`, `loggingLevel`, `hotRefresh`, `reactProfiling`, `containers` and `debug` have no counterpart (HMR, Fast Refresh and library projects work without options). The classic `fast-serve/webpack.extend.js` becomes `fast-serve/rspack.extend.mjs` ([Customizing the Rspack config](#customizing-the-rspack-config)).
 
-**From the Vite-based betas (up to `1.24.0-beta.3`):** same CLI, options and `fast-serve/config.json`. Replace `fast-serve/vite.extend.mts` with `fast-serve/rspack.extend.mjs` (Rspack/webpack config instead of Vite config; `define` → `rspack.DefinePlugin`, `resolve.alias` stays). `amdPackages` is ignored: Rspack bundles AMD/UMD dependencies itself. Differences you will notice: the server compiles everything before "ready" (Vite compiles on request), a page loads a few bundles instead of one request per module, `require()` and `const enum` across files follow webpack, and errors use `fast-serve`'s own overlay.
+**From SPFx 1.23 to 1.24:** after upgrading the project, install the matching line (`npm install --save-dev spfx-fast-serve-helpers@~1.24.0`); options, `fast-serve/config.json` and `fast-serve/rspack.extend.mjs` stay. In SPFx 1.24 only `*.module.scss`/`*.module.css` are CSS modules.
 
 ## Troubleshooting
 
@@ -352,16 +338,14 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 | "Error loading debug manifests" | `fast-serve` isn't running, or the browser doesn't trust the certificate (trust it and restart the browser); allow access to local network devices if Chrome/Edge asks |
 | "Error loading debug manifests" after stopping `fast-serve` | the debug query sticks to the tab (`sessionStorage`): open the page in a new tab without the query |
 | an Application Customizer, Command Set, Field or Form Customizer doesn't load with the printed query | the short query loads web parts and ACEs only: run `fast-serve --config <serve configuration>` and use the second query in the box on that configuration's page |
-| `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@beta`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
+| `npm install` fails with `ERESOLVE` and `peerOptional @rspack/core@"0.x \|\| 1.x" from css-loader@7.1.2` | `npm install --save-dev css-loader@^7.1.4 spfx-fast-serve-helpers@~1.23.0`, or `--legacy-peer-deps` / `legacy-peer-deps=true` in `.npmrc` (see [Install](#install)) |
 | `Port 4321 is already in use` | another `fast-serve` or `heft start` runs: run `fast-serve` in a terminal and press Enter to stop it, stop it yourself, or use `--port` |
 | `Could not stop … (pid …)` or `The process holding the port could not be identified` | the process belongs to another user or can't be seen without admin rights: stop it yourself (`kill <pid>`, Task Manager) or use `--port` |
 | `Unsupported SPFx version` | use the `spfx-fast-serve-helpers` line that matches your SPFx version |
 | `uses the outdated classic spfx-fast-serve format` | replace `fast-serve/config.json` with the flat options and the shipped schema (see [Migrating](#migrating)) |
 | `fast-serve/config.json: unknown option or wrong type "<key>"` | fix the key; add the printed `$schema` line so the editor flags such keys while you type |
-| `No web parts, extensions, Adaptive Card Extensions, Copilot components or library components found` | check `config/config.json` bundles |
-| `<alias>: componentType "<type>" is not supported by fast-serve, skipped` | `Application` and `Prefab` components aren't built; use `heft start` for them |
-| `<alias>: tool "<name>" propertiesSchema "…" is not resolved` | the referenced module has no source under `src/`, throws when evaluated in Node, or lacks the export; the message says which. Fix it and reload the workbench |
-| the Copilot Workbench doesn't list your component | open it with the debug query `fast-serve` prints (it carries the port) and choose **Load debug scripts** |
+| `No web parts, extensions, Adaptive Card Extensions or library components found` | check `config/config.json` bundles |
+| `<alias>: componentType "<type>" is not supported by fast-serve, skipped` | `Application` and `Prefab` components aren't built; use `heft start` for them. Copilot components need SPFx 1.24 and `spfx-fast-serve-helpers` 1.24.x |
 | a linked library still loads its deployed version | the link is a copy (pnpm/yarn `file:`), the package is listed in `deployedLibraries`, or its entry has no source under `src/` (warning at start) |
 | `ReferenceError` for a webpack `DefinePlugin` constant, `Module not found` for a webpack alias | mirror the customization in `fast-serve/rspack.extend.mjs` |
 | `<file> could not be loaded:` after editing the extend file | fix the file; the previous server keeps running and restarts when the file is fixed |
@@ -382,7 +366,7 @@ Source maps (`cheap-module-source-map`) name project files `webpack:///.././src/
 
 ## Limitations
 
-- Web parts, extensions, Adaptive Card Extensions, Copilot components and [library components](#library-components) are served; `Application` and `Prefab` components are skipped with a warning.
+- Web parts, extensions, Adaptive Card Extensions and [library components](#library-components) are served; `Application` and `Prefab` components are skipped with a warning.
 - Dev server only: no production build. The [type check](#type-checking) covers the project you serve, not linked library projects; [linting](#linting) covers only the files you save.
 - The debug query works on `localhost` only; Teams and mobile hosts need [tunnel mode](#serving-through-a-tunnel) with a deployed development package.
 - A webpack customization that replaces a heft built-in rule (for example SVGR for `.svg`) can't be mirrored one to one: the extend file adds rules, it doesn't edit `fast-serve`'s.

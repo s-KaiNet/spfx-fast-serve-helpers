@@ -5,7 +5,7 @@ import { EXTEND_FILE } from '../bundler/extend/files.js';
 import { RSPACK_CONFIG_DOCS_URL } from '../bundler/extend/webpackHint.js';
 
 export const helpText = `${packageName} ${packageVersion}
-Rspack dev server for SharePoint Framework 1.24.x projects. Run it in the project folder.
+Rspack dev server for SharePoint Framework 1.23.x projects. Run it in the project folder.
 
 Usage: fast-serve [options]
 

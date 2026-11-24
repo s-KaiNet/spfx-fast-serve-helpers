@@ -13,7 +13,7 @@ tags:
 
 ## Summary
 
-`fast-serve` (Rspack implementation) turns an SPFx 1.24 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. Every part described here exists (status in the [Roadmap overview](../roadmap/overview.md)).
+`fast-serve` (Rspack implementation) turns an SPFx 1.23 project into AMD bundles served from memory over HTTPS on `localhost`, plus a debug `manifests.js` that SharePoint's loader reads. Data flows config → project model → generated artifacts → Rspack compiler and dev server → browser runtime. Every part described here exists (status in the [Roadmap overview](../roadmap/overview.md)).
 
 ## Current Knowledge
 

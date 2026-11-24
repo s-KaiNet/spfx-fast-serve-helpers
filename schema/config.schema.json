@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "fast-serve options (fast-serve/config.json)",
-  "description": "Optional options of the fast-serve dev server for SharePoint Framework 1.24.x projects. Every option is optional. Precedence: command-line flags, then this file, then config/serve.json, then the defaults. An unknown key or a wrong type stops fast-serve.",
+  "description": "Optional options of the fast-serve dev server for SharePoint Framework 1.23.x projects. Every option is optional. Precedence: command-line flags, then this file, then config/serve.json, then the defaults. An unknown key or a wrong type stops fast-serve.",
   "type": "object",
   "properties": {
     "$schema": {

@@ -46,7 +46,7 @@ fast-serve builds its own Rspack configuration from the [project model](../archi
 ### Localization, assets, styles, defines
 
 - Each `localizedResources` name is aliased to the model's strings file for the selected locale (with the `en-us` fallback) and bundled; AMD loc files parse through Rspack's AMD support, module loc files go through a small wrapper. Details: [Localized strings](localization.md).
-- Images, fonts and other binary files from heft's list are `asset/resource` named `[name]_[contenthash][ext]` and referenced through the absolute `publicPath`; `.sprite.svg` is `asset/source`.
+- Images, fonts and other binary files from heft's list are `asset/resource` named `[name]_[contenthash][ext]` and referenced through the absolute `publicPath`; `.sprite.svg` is a file URL too, like heft 1.23.
 - Styles: Sass through `sass-loader`, then the project's `@microsoft/sp-css-loader`, CSS modules with heft's exact class names and theme tokens; details in [Styles, theme tokens and typings](styles-and-typings.md).
 - Defines: `DEBUG` = `true`, `process.env.NODE_ENV` = `"development"` (same values as the Vite implementation).
 

@@ -15,7 +15,7 @@ tags:
 
 ## Summary
 
-An SPFx project can contain web parts, extensions (four kinds that matter here), Adaptive Card Extensions (ACEs), Copilot components (SPFx 1.24) and library components. All share the same bundle and manifest machinery (heft's manifest step builds and lists every component the same way and only post-processes some fields per type), but they differ in how SharePoint hosts them and how they are put on a page during development. The Rspack `fast-serve` serves all of them; `Application` (old) and `Prefab` (internal) components are skipped with a warning.
+An SPFx project can contain web parts, extensions (four kinds that matter here), Adaptive Card Extensions (ACEs) and library components. All share the same bundle and manifest machinery (heft's manifest step builds and lists every component the same way and only post-processes some fields per type), but they differ in how SharePoint hosts them and how they are put on a page during development. The Rspack `fast-serve` serves all of them; `Application` (old) and `Prefab` (internal) components are skipped with a warning.
 
 ## Current Knowledge
 
@@ -27,10 +27,9 @@ An SPFx project can contain web parts, extensions (four kinds that matter here),
 | Field Customizer | `extensionType: "FieldCustomizer"` | `fieldCustomizers` keyed by field internal name on a list view; `onRenderCell` renders each cell | yes |
 | Form Customizer | `extensionType: "FormCustomizer"` | `formCustomizer` parameters on `_layouts/15/SPListForm.aspx` (`PageType` new/edit/view) | yes |
 | Adaptive Card Extension | `componentType: "AdaptiveCardExtension"`, `supportedHosts: ["Dashboard"]`, `cardSize` | added from the toolbox of a test page like a web part; interaction only in read mode on a saved page | yes |
-| Copilot component | `componentType: "CopilotComponent"`, `copilotType: "Ux"`, `capabilities.availableDisplayModes`, `tools[]` with `propertiesSchema` | rendered by the Copilot host in an iframe per turn; in dev by the Copilot Workbench (`/_layouts/15/copilotworkbench.aspx` with the debug query) | yes ([Copilot components](../features/copilot-components.md)) |
 | Library component | `componentType: "Library"` | consumed by other SPFx components as a `component` script resource; deployed tenant-wide | yes, served from its own project; and as linked source compiled into a consumer ([local library projects](../features/local-library-projects.md)) |
 
-Every extension type (also `SearchQueryModifier`) is built as an `Extension` bundle; `Application` and `Prefab` components are skipped with a warning. The 1.24 generator creates web parts, extensions, ACEs, Copilot components and libraries (`--component-type webpart|extension|adaptiveCardExtension|copilotComponent|library`), not `Application` or `Prefab`.
+Every extension type (also `SearchQueryModifier`) is built as an `Extension` bundle; `Application` and `Prefab` components are skipped with a warning. The 1.23 generator creates web parts, extensions, ACEs and libraries, not `Application` or `Prefab`. Copilot components (`CopilotComponent`) arrived in SPFx 1.24: heft 1.23 doesn't know them, and `fast-serve` 1.23 skips them with the same warning as other unsupported types.
 
 ### Serve configurations
 
@@ -51,7 +50,6 @@ Every extension type (also `SearchQueryModifier`) is built as an `Extension` bun
 - [SharePoint debug flow](sharepoint-debug-flow.md)
 - [Roadmap overview](../roadmap/overview.md)
 - [Extensions and Adaptive Card Extensions](../features/extensions-and-aces.md)
-- [Copilot components](../features/copilot-components.md)
 
 ## Evidence
 

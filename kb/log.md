@@ -11,6 +11,11 @@ Entry format:
 - Outcome: concise result
 ```
 
+## 2026-11-24 18:30 | update | Branch v1.23 for SPFx 1.23
+
+- Changed: `kb/AGENTS.md`, `kb/index.md`, `kb/roadmap/overview.md`, `kb/architecture/overview.md`, `kb/architecture/project-model.md`, `kb/concepts/spfx-component-types.md`, `kb/features/styles-and-typings.md`, `kb/features/rspack-compile.md`, `kb/features/hmr.md`, `kb/features/dev-server.md`, `kb/features/cli-and-options.md`, `kb/features/linting.md`, `kb/limitations/npm-css-loader-peer-conflict.md`, `kb/references/spfx-heft-pipeline.md`, `kb/features/copilot-components.md` (removed)
+- Outcome: this KB now describes the v1.23 line (`1.23.0`, SPFx 1.23 only, no version branching in code): heft 1.23's CSS module rule, `.sprite.svg` as a file URL, no `zip` assets, no Copilot components (skipped with a warning); the heft pipeline reference gained a 1.23 vs 1.24 table
+
 ## 2026-11-23 01:30 | update | Type errors merged into the error overlay
 
 - Changed: `kb/features/type-checking.md`, `kb/features/errors-and-diagnostics.md`, `kb/features/tunnel-mode.md`, `kb/features/cli-and-options.md`, `kb/index.md`

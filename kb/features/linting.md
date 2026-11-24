@@ -41,7 +41,7 @@ tags:
 
 - For TypeScript files fast-serve appends typescript-eslint's `disable-type-checked` config, taken from the code root's `@typescript-eslint/eslint-plugin` (also found through `@microsoft/eslint-config-spfx` or `typescript-eslint`) or from `typescript-eslint`, and a config that sets `parserOptions` `project: false`, `projectService: false`, `program: null`.
 - Generically, before linting a file it computes the file's config and turns off every enabled plugin rule whose metadata says `requiresTypeChecking`; a rule that still throws ESLint's "requires type information" error is turned off by the id in the message and the lint is retried. Both need no knowledge of the config.
-- In the SPFx 1.24 config only `@typescript-eslint/no-floating-promises` and `@typescript-eslint/no-for-in-array` need types (both errors). The default therefore reports heft's lint findings minus those two; a clean serve can still meet a failing `heft build`.
+- In the SPFx 1.24 config (the 1.23 config was not compared rule by rule; it uses the same ESLint 9.37) only `@typescript-eslint/no-floating-promises` and `@typescript-eslint/no-for-in-array` need types (both errors). The default therefore reports heft's lint findings minus those two; a clean serve can still meet a failing `heft build`.
 
 ### Terminal output
 

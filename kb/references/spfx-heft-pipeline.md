@@ -55,7 +55,7 @@ How SPFx 1.24.1's Heft toolchain builds, serves and loads components, as reverse
 
 ### CSS and class-name hashing
 
-- `*.module.css` / `*.module.scss.css` go through `@microsoft/sp-css-loader` as CSS modules; other `.css` files are global. The 1.24 module rule is `/\.module(?:\.scss)?\.css$/i` (SPFx 1.23 treated every non-`.global` style file as a module).
+- `*.module.css` / `*.module.scss.css` go through `@microsoft/sp-css-loader` as CSS modules; other `.css` files are global. The 1.24 module rule is `/\.module(?:\.scss)?\.css$/i`; SPFx 1.23 treats every non-`.global` style file as a module (see [SPFx 1.23 differences](#spfx-123-differences)).
 - sp-css-loader runs cssnano (calc off), autoprefixer and the PostCSS modules chain, then emits `loadStyles(css, true)` from `@microsoft/load-themed-styles` (bundled, not external) plus `export default { class: "class_<hash>", ...:export values }`.
 - **Class name = `<class>_<first 8 hex of HMAC-SHA1(key = absolute CSS file path, data = CSS)>`**, computed once per file per process. For project styles the file is the Sass plugin's `lib/**/X.module.scss.css` and the data is its full text, including the `/*# sourceMappingURL=X.module.scss.css.map */` line the plugin appends when `sourceMap` is on (the rig enables it; the comment is not stripped before hashing). Hashes therefore differ between machines; only agreement between CSS and the JS class map matters.
 - Theme tokens (`"[theme:x, default:y]"`) stay in the CSS string and are replaced at runtime by load-themed-styles from `window.__themeState__.theme`.
@@ -106,6 +106,20 @@ Computed by heft, they become both the AMD `define` dependency list and the mani
 
 The consumer's `manifests.js` lists linked libraries' manifests with a base URL under `node_modules/<lib>/dist/`, so heft needs a build or watcher in the library. A generated library project has no `main` in `package.json`, although Microsoft's tutorial requires `"main": "lib/index.js"`.
 
+### SPFx 1.23 differences
+
+Compared with `@microsoft/spfx-heft-plugins` 1.23.2 and `@microsoft/spfx-web-build-rig` 1.23.2; everything not listed here is the same in 1.23 and 1.24.
+
+| Area | 1.23 | 1.24 |
+|---|---|---|
+| CSS module rule (on the CSS Sass wrote to `lib/`, and on `.css` from `node_modules`) | module = `/(?<!\.global(?:\.(?:scss\|sass))?)\.css$/i`, global = `/\.global(?:\.(?:scss\|sass))?\.css$/i` | module = `/\.module(?:\.scss)?\.css$/i`, everything else global |
+| `*.sprite.svg` | file URL (part of the asset rule) | `asset/source` |
+| asset extensions | `jpg`, `png`, `woff`, `woff2`, `eot`, `ttf`, `svg`, `gif`, `dds`, `cur`, `webp`, `mp4` | the same plus `zip` |
+| React | 17.0.1, `react` + `react-dom` externals in production, `ReactDOM.render` in the templates | 18.3.1, `react-dom/client` external |
+| Copilot components, `copilot-agent` heft task | none | new |
+| heft-sass-plugin | 1.4.1, no `resolveBareSpecifiersAsPackages` | 1.5.0 with the option on in the rig |
+| generated project `engines` | Node `>=22.14 <23` | Node 22, 24 or 26 |
+
 ## Links
 
 - [Component manifests and the SharePoint loader](../concepts/component-manifests-and-loader.md)
@@ -117,4 +131,5 @@ The consumer's `manifests.js` lists linked libraries' manifests with a base URL 
 
 - Source: research (reverse engineering of `@microsoft/spfx-heft-plugins` 1.24.1 and sp-loader, `@rushstack/heft-webpack5-plugin` webpack customization plugins, `heft build`/`heft start` runs on the SPFx 1.24.1 test project, live observation on the tenant serving 1.25.0), project handoff notes; carried over from the Vite implementation's KB, bundle format re-checked against heft's dumped webpack config and production output
 - Confidence: high (observed or read in shipped code); medium for export-name generation details
-- Last checked: 2026-11-19
+- Source (1.23 differences): `@microsoft/spfx-heft-plugins` and `@microsoft/spfx-web-build-rig` 1.23.2 vs 1.24.2 unpacked side by side, a generator 1.23.2 project built with `heft build`
+- Last checked: 2026-11-19; 1.23 differences 2026-11-24

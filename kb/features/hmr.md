@@ -22,7 +22,7 @@ Edits are applied inside the AMD bundles SharePoint loaded, without a page reloa
 | Edit | Result |
 |---|---|
 | `.tsx`/`.ts` module whose exports are all React components | hot update; Fast Refresh re-renders, state kept |
-| `.module.scss` / `.scss` / `.css` imported by such a component | the style module and the component re-run; new styles applied without a reload |
+| `.scss` / `.css` (CSS modules and `.global` files) imported by such a component | the style module and the component re-run; new styles applied without a reload |
 | module that also exports non-components (hooks, constants), services, anything that only the component class imports | the update bubbles to the bundle entry → full page reload |
 | web part / extension / ACE class, multi-component bundle entry | full page reload |
 | loc file used only by components / loc file the class imports | hot update / full page reload (see [Localized strings](localization.md)) |

@@ -13,13 +13,13 @@ tags:
 
 ## Summary
 
-`npm install --save-dev spfx-fast-serve-helpers@beta` (or a packed tarball) fails with `ERESOLVE` in an SPFx 1.24 project whose `css-loader` resolves to 7.1.2 or 7.1.3: those versions declare the optional peer `@rspack/core@"0.x || 1.x"`, and `fast-serve` brings `@rspack/core` 2. There is no package-side fix; the user-side fix is to update `css-loader` to 7.1.4 or newer in the same install command, the fallback is `--legacy-peer-deps`.
+`npm install --save-dev spfx-fast-serve-helpers@~1.23.0` (or a packed tarball) fails with `ERESOLVE` in an SPFx 1.23 project whose `css-loader` resolves to 7.1.2 or 7.1.3: those versions declare the optional peer `@rspack/core@"0.x || 1.x"`, and `fast-serve` brings `@rspack/core` 2. There is no package-side fix; the user-side fix is to update `css-loader` to 7.1.4 or newer in the same install command, the fallback is `--legacy-peer-deps`.
 
 ## Current Knowledge
 
 ### When it happens
 
-- `css-loader` is a direct devDependency of SPFx 1.24 projects (`~7.1.2`) and a dependency of `@microsoft/sp-css-loader` (`~7.1.2`); npm dedupes both to one copy at the top of `node_modules`.
+- `css-loader` is a direct devDependency of SPFx 1.23 and 1.24 projects (`~7.1.2`) and a dependency of `@microsoft/sp-css-loader` (`~7.1.2`); npm dedupes both to one copy at the top of `node_modules`.
 - The conflict appears when that copy is 7.1.2 or 7.1.3: an exact `7.1.2` pin, or `~7.1.2` locked at 7.1.2 in `package-lock.json` (npm does not move a locked version to resolve the conflict).
 - `css-loader` 7.1.4 and newer declare `0.x || ^1.0.0 || ^2.0.0-0`; a project already on 7.1.4+ installs without any flag.
 - pnpm and yarn report unmet optional peers as warnings, not errors.

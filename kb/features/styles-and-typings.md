@@ -15,14 +15,14 @@ tags:
 
 ## Summary
 
-Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules whose class names are **identical to heft's** (`<class>_<8 hex>`), other style files are global, theme tokens resolve at runtime against the page theme, and CSS from `node_modules` (for example a library's global stylesheet or PnP's compiled `.module.scss.css`) goes through the same rules. `config/sass.json` (merged through `extends`, including the rig's) supplies `silenceDeprecations`, `ignoreDeprecationsInDependencies` and `loadPaths`. SCSS typings (`temp/sass-ts`) and static asset typings (`temp/static-asset-ts`) have heft's content, are checked at start and kept up to date while serving, and a typing file is written only when its content changes.
+Sass and CSS compile like heft 1.23: every style file without `.global` in its name (`.scss`, `.sass`, `.css`, also plain ones and CSS from `node_modules`) is a CSS module whose class names are **identical to heft's** (`<class>_<8 hex>`), `.global.*` files are global, theme tokens resolve at runtime against the page theme, and CSS from `node_modules` (for example a library's global stylesheet or PnP's compiled `.module.scss.css`) goes through the same rules. `config/sass.json` (merged through `extends`, including the rig's) supplies `silenceDeprecations`, `ignoreDeprecationsInDependencies` and `loadPaths`. SCSS typings (`temp/sass-ts`) and static asset typings (`temp/static-asset-ts`) have heft's content, are checked at start and kept up to date while serving, and a typing file is written only when its content changes.
 
 ## Behavior
 
 ### Compile chain
 
 - Sass: `sass-loader` with the project's `sass-embedded` (else `sass`), modern compiler API, `style: expanded` (sass-loader's development default, same as heft's Sass plugin). Missing Sass or `@microsoft/sp-css-loader` is a startup warning; style imports then fail to compile.
-- CSS: the project's `@microsoft/sp-css-loader` (heft's own loader) after Sass, with heft's split: `.module.css`/`.module.scss.css` and `.module.scss`/`.module.sass` as CSS modules, everything else (`.global.scss`, plain `.scss`, plain `.css`, library CSS) global. Styles are inserted by `@microsoft/load-themed-styles` (bundled, as with heft).
+- CSS: the project's `@microsoft/sp-css-loader` (heft's own loader) after Sass, with heft 1.23's split: every `.css`, `.scss` and `.sass` without `.global` (plain `.scss`, plain `.css`, library CSS from `node_modules` included) as CSS modules, `.global.css`/`.global.scss`/`.global.sass` global. heft 1.23 applies its module rule (`/(?<!\.global(?:\.(?:scss|sass))?)\.css$/i`) to the CSS that Sass writes to `lib/`, fast-serve the equivalent rule to the source files. SPFx 1.24 changed this to `*.module.*` only. Styles are inserted by `@microsoft/load-themed-styles` (bundled, as with heft).
 - Imports: Sass `pkg:` URLs resolve through the `NodePackageImporter` of the same Sass package (`@import 'pkg:@fluentui/react/dist/sass/References.scss'`); when it finds nothing, and for every `~` import (`@import '~@fluentui/react/dist/sass/References'`, also in `@use`, `@forward` and `meta.load-css`), fast-serve's package-folder importer resolves like heft: the package folder is looked up in `node_modules` from the importing file's folder upwards (real path, so pnpm and nested copies work), the package's `exports` field is ignored, and Sass then tries the partial (`_x.scss`), the extensions (`.scss`, `.sass`, `.css`) and index files. So the classic template line `@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss'` compiles although that package's `exports` hide `dist/sass`, and `~` imports inside the imported package resolve from that package's own folder. Only what this importer can't find falls through to sass-loader's resolver (bare package specifiers, aliases). Files loaded this way are reported to Rspack as dependencies, so edits to them rebuild. `loadPaths` from `sass.json` are passed to Sass. `@use` must come before `@import` (Sass rule).
 - `url()` in CSS (also in `node_modules` CSS) becomes an emitted asset served from the dev server.
 - Deprecations: `silenceDeprecations` silences them (the SPFx rig silences `mixed-decls`, `import`, `global-builtin`, `color-functions`, so a default project starts without Sass noise); `ignoreDeprecationsInDependencies` maps to Sass `quietDeps`. Anything not silenced appears as a compile warning.
@@ -53,7 +53,7 @@ Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules wh
 
 ### Assets
 
-- Images, fonts and other binaries from heft's list are `asset/resource` (`[name]_[contenthash][ext]`) with absolute dev-server URLs; `.sprite.svg` is `asset/source`.
+- Images, fonts and other binaries from heft's list are `asset/resource` (`[name]_[contenthash][ext]`) with absolute dev-server URLs; `.sprite.svg` is a file URL too (heft 1.23 has no sprite rule); `zip` is not in heft 1.23's list.
 
 ### HMR
 
@@ -61,7 +61,7 @@ Sass and CSS compile like heft: `.module.scss`/`.module.sass` are CSS modules wh
 
 ## Edge Cases
 
-- `.module.css` inside `src` is hashed by its own path (heft's handling of project `.module.css` was not checked).
+- A plain `.css` inside `src` is hashed by its own path; heft compiles it with Sass to `lib/<name>.css.css` first, so its class-name suffix differs from heft's (functional either way; 1.23 probe: heft `plainCssProbe_5411ccc6`, fast-serve `plainCssProbe_40c1d67a`).
 - `@pnp/spfx-property-controls` 3.13's already-hashed CSS is not special-cased (same as the Vite implementation, cut by the user).
 - Theme changes on an open page are not followed (tokens resolve once per insert), as with heft.
 

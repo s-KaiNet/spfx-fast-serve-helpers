@@ -14,7 +14,7 @@ tags:
 
 ## Summary
 
-`fast-serve` is a zero-config CLI run in the root of an SPFx 1.24.x project. It has seven options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`, `typeCheck`, `lint`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints the package and SPFx versions, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready line and the debug query. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
+`fast-serve` is a zero-config CLI run in the root of an SPFx 1.23.x project. It has seven options, settable as flags or in `fast-serve/config.json` (`port`, `pageUrl`, `locale`, `serveConfiguration`, `overlay`, `typeCheck`, `lint`), with `config/serve.json` supplying SPFx defaults. At start it checks the SPFx version, builds the [project model](../architecture/project-model.md), resolves the options, prints the package and SPFx versions, loads the optional [Rspack extend file](rspack-extend-file.md) and starts the [dev server](dev-server.md), which compiles the bundles ([Rspack compile](rspack-compile.md)) and prints the ready line and the debug query. A dev session [restarts](project-restarts.md) the server when project configuration changes. It runs until SIGINT or SIGTERM.
 
 ## Behavior
 
@@ -70,7 +70,7 @@ SPFx version check → warning for the old options file → project model → op
 |---|---|
 | no SPFx package in `package.json` | `This folder is not an SPFx project …` |
 | SPFx declared but not installed | `… is listed in package.json but not installed …` |
-| SPFx `major.minor` is not 1.24 | `Unsupported SPFx version: …` plus a hint: classic spfx-fast-serve for ≤ 1.21, upgrade for 1.22/1.23, a newer release for newer SPFx |
+| SPFx `major.minor` is not 1.23 | `Unsupported SPFx version: …` plus a hint: classic spfx-fast-serve for ≤ 1.21, upgrade for 1.22, the matching newer `spfx-fast-serve-helpers` line (`~1.24.0` for 1.24) for newer SPFx |
 | no `config/config.json` | `config/config.json not found …` |
 | no web part, extension or ACE | `No web parts, extensions or Adaptive Card Extensions found …` |
 | bad port, locale or options file | `Invalid port "<value>" (expected 1-65535)`, `Invalid locale …`, `fast-serve/config.json: unknown option or wrong type …` |
@@ -78,7 +78,7 @@ SPFx version check → warning for the old options file → project model → op
 | no SPFx dev certificate | `No valid SPFx development certificate found. Run "npx heft trust-dev-cert" …` |
 | broken extend file | `fast-serve/rspack.extend.mjs could not be loaded:` + error + `Fix or remove the file and run fast-serve again.` |
 
-Every failure is one `[fast-serve] <message>` line on stderr. The SPFx version comes from the installed `@microsoft/sp-core-library`, then `@microsoft/spfx-heft-plugins`, then `@microsoft/sp-webpart-base`; any 1.24.x (also prereleases) is accepted, because the package version follows SPFx `major.minor`.
+Every failure is one `[fast-serve] <message>` line on stderr. The SPFx version comes from the installed `@microsoft/sp-core-library`, then `@microsoft/spfx-heft-plugins`, then `@microsoft/sp-webpart-base`; any 1.23.x (also prereleases) is accepted, because the package version follows SPFx `major.minor`.
 
 ### Shutdown
 

@@ -1,6 +1,6 @@
 ---
 name: fast-serve-rspack-config
-description: Write or update fast-serve/rspack.extend.mjs, the Rspack counterpart of an SPFx project's heft webpack customization (config/spfx-customize-webpack.js or the patch files of config/webpack-patch.json), so `fast-serve` (spfx-fast-serve-helpers, the Rspack dev server for SPFx 1.24) behaves like `heft start`. Use when fast-serve prints "this project customizes heft's webpack config", when a webpack customization changes, or when the app fails under fast-serve with a ReferenceError for a DefinePlugin constant, "Module not found" for an alias, or an unsupported file type.
+description: Write or update fast-serve/rspack.extend.mjs, the Rspack counterpart of an SPFx project's heft webpack customization (config/spfx-customize-webpack.js or the patch files of config/webpack-patch.json), so `fast-serve` (spfx-fast-serve-helpers, the Rspack dev server for SPFx 1.23) behaves like `heft start`. Use when fast-serve prints "this project customizes heft's webpack config", when a webpack customization changes, or when the app fails under fast-serve with a ReferenceError for a DefinePlugin constant, "Module not found" for an alias, or an unsupported file type.
 ---
 
 # Rspack config for fast-serve (counterpart of a heft webpack customization)
@@ -60,7 +60,7 @@ export default defineConfig(({ root }) => ({
 | `babel-loader` / `ts-loader` / `source-map-loader` added for syntax (lit decorators, `??`, `?.`, `??=`, class fields) | **nothing**: fast-serve compiles TypeScript with SWC using the tsconfig decorator and class-field settings, and the browsers run ES2020 |
 | Babel plugins that change semantics (styled-components, emotion, i18n macros) | a `babel-loader` rule with `enforce: 'post'` (runs on SWC's JavaScript output; the project must have `babel-loader`), or the SWC plugin equivalent; check it with the user |
 | a loader rule for a new file type (`.txt`/`.md` as text, `.yaml`, `.graphql`, `.less`) | the same `module.rules` entry; `asset/source` instead of `raw-loader` |
-| CSS rule edits (library CSS as global, e.g. rsuite) | usually **nothing**: like heft, `*.module.css`/`*.module.scss` are CSS modules and every other `.css`/`.scss` (incl. `node_modules`) is global, through `@microsoft/sp-css-loader` |
+| CSS rule edits (library CSS as global, e.g. rsuite) | can't be mirrored 1:1: like heft 1.23, every `.css`/`.scss`/`.sass` without `.global` in its name is a CSS module, `node_modules` CSS included, through `@microsoft/sp-css-loader`; an extend rule runs on top of fast-serve's, it doesn't replace it. Tell the user (the library's class names are hashed under fast-serve as under the uncustomized heft config) |
 | SVG as React component (`@svgr/webpack`) | see Pitfalls: fast-serve's asset rule already handles `.svg` |
 | `externals` added by the script | `config/config.json` → `externals` (fast-serve and heft both read it, and fast-serve lists it in the debug manifests) |
 | `devServer.proxy` / `devServer.headers` | `devServer.proxy` / `devServer.headers` |
@@ -96,7 +96,7 @@ Don't add React Refresh, HMR or SWC/TypeScript rules: fast-serve already runs th
 - `DefinePlugin` values are code: always `JSON.stringify` strings and objects.
 - Values are computed when the server starts (and on each restart), like `heft start` builds its webpack config once. A build time is the server start time.
 - Aliases point at `src`, not `lib` (or `lib-commonjs`): fast-serve compiles `src` and ignores build output folders.
-- Rules are appended to fast-serve's, and in Rspack every matching rule applies. fast-serve already has rules for TypeScript, CSS/SCSS and assets (images, fonts and `.svg` as URLs, `*.sprite.svg` as text). A second rule for one of those extensions runs on top of fast-serve's and usually fails (for example `@svgr/webpack` on `.svg`). Mirror such a rule only for files fast-serve doesn't handle (a different extension, or `resourceQuery`), and tell the user when a webpack rule replaces one of heft's built-in rules and can't be mirrored 1:1.
+- Rules are appended to fast-serve's, and in Rspack every matching rule applies. fast-serve already has rules for TypeScript, CSS/SCSS and assets (images, fonts, `.svg` and `*.sprite.svg` as URLs). A second rule for one of those extensions runs on top of fast-serve's and usually fails (for example `@svgr/webpack` on `.svg`). Mirror such a rule only for files fast-serve doesn't handle (a different extension, or `resourceQuery`), and tell the user when a webpack rule replaces one of heft's built-in rules and can't be mirrored 1:1.
 - `externals` in the extend file are applied, but fast-serve warns: the debug manifests don't list them, so SharePoint can't load them. Use `config/config.json`.
 - Keep files that both builds compile (in `src`) valid for heft's webpack.
 - Plugins that only matter for production (compression, analyzers, copy) don't belong here.
