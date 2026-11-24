@@ -57,7 +57,6 @@ describe('createRspackConfig', () => {
     expect(config.resolve?.alias).toMatchObject({
       react$: path.join(fixture, 'node_modules', 'react', 'index.js'),
       'react-dom$': path.join(fixture, 'node_modules', 'react-dom', 'index.js'),
-      'react-dom/client$': path.join(fixture, 'node_modules', 'react-dom', 'client.js'),
       HelloWebPartStrings$: path.join(fixture, 'src', 'webparts', 'hello', 'loc', 'en-us.js'),
     });
     expect(config.resolve?.extensions?.slice(0, 2)).toEqual(['.ts', '.tsx']);

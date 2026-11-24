@@ -154,8 +154,8 @@ describe('SPFx libraries, config.json externals and localized strings on the dev
     expect(manifest?.loaderConfig.scriptResources).toEqual({
       'probe-web-part': { type: 'path', path: 'probe-web-part.js' },
       '@contoso/spfx-lib': { type: 'component', id: 'c0000000-0000-0000-0000-00000000c0de', version: '2.1.0' },
-      '@microsoft/sp-core-library': { type: 'component', id: '7263c7d0-1d6a-45ec-8d85-d4d1d234171b', version: '1.24.1' },
-      '@microsoft/sp-loader': { type: 'component', id: '1c6c9123-7aac-41f3-a376-3caea41ed83f', version: '1.24.1' },
+      '@microsoft/sp-core-library': { type: 'component', id: '7263c7d0-1d6a-45ec-8d85-d4d1d234171b', version: '1.23.2' },
+      '@microsoft/sp-loader': { type: 'component', id: '1c6c9123-7aac-41f3-a376-3caea41ed83f', version: '1.23.2' },
       apexcharts: { type: 'path', path: 'apexcharts.js', globalName: 'ApexCharts' },
       ejs: { type: 'path', path: 'https://cdn.example.com/ejs.min.js' },
       'legacy-chart': { type: 'path', path: 'legacy-chart.js', globalName: 'LegacyChart', globalDependencies: ['legacy-dep'] },

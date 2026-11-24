@@ -156,8 +156,8 @@ describe('extensions and an Adaptive Card Extension served with a serve configur
     expect(loaderConfig).toMatchObject({ entryModuleId: 'hello-adaptive-card-extension', internalModuleBaseUrls: [`${origin}/dist/`] });
     expect(loaderConfig.scriptResources).toMatchObject({
       'hello-adaptive-card-extension': { type: 'path', path: 'hello-adaptive-card-extension.js' },
-      '@microsoft/sp-adaptive-card-extension-base': { type: 'component', id: ACE_BASE_ID, version: '1.24.1' },
-      '@microsoft/sp-property-pane': { type: 'component', id: PROPERTY_PANE_ID, version: '1.24.1' },
+      '@microsoft/sp-adaptive-card-extension-base': { type: 'component', id: ACE_BASE_ID, version: '1.23.2' },
+      '@microsoft/sp-property-pane': { type: 'component', id: PROPERTY_PANE_ID, version: '1.23.2' },
       '@microsoft/sp-loader': { type: 'component', id: SP_LOADER_ID },
     });
   });

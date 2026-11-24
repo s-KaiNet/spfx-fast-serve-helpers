@@ -200,8 +200,8 @@ importers:
         version: 1.8.0(@rspack/core@2.3.3)(typescript@7.0.2)
     devDependencies:
       '@microsoft/sp-css-loader':
-        specifier: 1.24.1
-        version: 1.24.1(@rspack/core@2.3.3)(@types/node@22.20.5)(webpack@5.112.2(cssnano@5.1.15(postcss@8.5.33))(csso@4.2.0)(lightningcss@1.33.0)(postcss@8.5.33)(svgo@2.8.4))
+        specifier: 1.23.2
+        version: 1.23.2(@rspack/core@2.3.3)(@types/node@22.20.5)(webpack@5.112.2(cssnano@5.1.15(postcss@8.5.33))(csso@4.2.0)(lightningcss@1.33.0)(postcss@8.5.33)(svgo@2.8.4))
       '@rushstack/heft-config-file':
         specifier: 0.20.16
         version: 0.20.16(@types/node@22.20.5)
@@ -487,8 +487,8 @@ packages:
   '@microsoft/load-themed-styles@1.10.292':
     resolution: {integrity: sha512-LQWGImtpv2zHKIPySLalR1aFXumXfOq8UuJvR15mIZRKXIoM+KuN9wZq+ved2FyeuePjQSJGOxYynxtCLLwDBA==}
 
-  '@microsoft/sp-css-loader@1.24.1':
-    resolution: {integrity: sha512-z/4aMHTk/DlC9Mtjz9VMfGFDwAt5Gfb/hNbOm5riz6tFB3dDOXV4ouOgPi+vR4hyb5popXgJ+1LA9xuku+XH5g==}
+  '@microsoft/sp-css-loader@1.23.2':
+    resolution: {integrity: sha512-oy+A5AGlvR7DhNRYrrSzPHKx7uEFTz8t/mlmI0ecoxPpxaGyhLClazM0SJRkNiLpVF3GhQPlguz76EcIiriEHA==}
     peerDependencies:
       webpack: ^5.88.1
 
@@ -929,6 +929,14 @@ packages:
     engines: {node: '>=20.9.0'}
     hasBin: true
 
+  '@rushstack/node-core-library@5.20.3':
+    resolution: {integrity: sha512-95JgEPq2k7tHxhF9/OJnnyHDXfC9cLhhta0An/6MlkDsX2A6dTzDrTUG18vx4vjc280V0fi0xDH9iQczpSuWsw==}
+    peerDependencies:
+      '@types/node': '*'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   '@rushstack/node-core-library@5.25.0':
     resolution: {integrity: sha512-JWd5MVInIQqTlujjqV2gO4aJi/QZvBdGCD5jQ4tF0Swcz1Ba80fP0dvxIYTaHawUujyQaCixtzzz9LM8bM26hQ==}
     engines: {node: '>=20.9.0'}
@@ -1283,6 +1291,11 @@ packages:
 
   ajv-formats@3.0.1:
     resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
 
   ajv-keywords@5.1.0:
     resolution: {integrity: sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==}
@@ -1291,6 +1304,9 @@ packages:
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
+
+  ajv@8.18.0:
+    resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
@@ -1885,6 +1901,10 @@ packages:
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
+  lru-cache@6.0.0:
+    resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
+    engines: {node: '>=10'}
+
   magic-string@1.4.5:
     resolution: {integrity: sha512-oLLC2+YvQUfAa+vxoufE/yc1icb87M9iXIRqAoR/2EhE/8cb3SF/+Gi0c2By1B+5Vz2e2vQtUvHiu1+63Znh+w==}
 
@@ -2473,6 +2493,11 @@ packages:
       webpack:
         optional: true
 
+  semver@7.5.4:
+    resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   semver@7.7.4:
     resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
     engines: {node: '>=10'}
@@ -2771,6 +2796,9 @@ packages:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
 
+  yallist@4.0.0:
+    resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+
   yaml@1.10.3:
     resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
     engines: {node: '>= 6'}
@@ -3035,10 +3063,10 @@ snapshots:
 
   '@microsoft/load-themed-styles@1.10.292': {}
 
-  '@microsoft/sp-css-loader@1.24.1(@rspack/core@2.3.3)(@types/node@22.20.5)(webpack@5.112.2(cssnano@5.1.15(postcss@8.5.33))(csso@4.2.0)(lightningcss@1.33.0)(postcss@8.5.33)(svgo@2.8.4))':
+  '@microsoft/sp-css-loader@1.23.2(@rspack/core@2.3.3)(@types/node@22.20.5)(webpack@5.112.2(cssnano@5.1.15(postcss@8.5.33))(csso@4.2.0)(lightningcss@1.33.0)(postcss@8.5.33)(svgo@2.8.4))':
     dependencies:
       '@microsoft/load-themed-styles': 1.10.292
-      '@rushstack/node-core-library': 5.25.0(@types/node@22.20.5)
+      '@rushstack/node-core-library': 5.20.3(@types/node@22.20.5)
       autoprefixer: 10.6.2(postcss@8.5.33)
       css-loader: 7.1.5(@rspack/core@2.3.3)(webpack@5.112.2(cssnano@5.1.15(postcss@8.5.33))(csso@4.2.0)(lightningcss@1.33.0)(postcss@8.5.33)(svgo@2.8.4))
       cssnano: 5.1.15(postcss@8.5.33)
@@ -3359,11 +3387,24 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@rushstack/node-core-library@5.20.3(@types/node@22.20.5)':
+    dependencies:
+      ajv: 8.18.0
+      ajv-draft-04: 1.0.0(ajv@8.18.0)
+      ajv-formats: 3.0.1(ajv@8.18.0)
+      fs-extra: 11.3.6
+      import-lazy: 4.0.0
+      jju: 1.4.0
+      resolve: 1.22.14
+      semver: 7.5.4
+    optionalDependencies:
+      '@types/node': 22.20.5
+
   '@rushstack/node-core-library@5.25.0(@types/node@22.20.5)':
     dependencies:
       ajv: 8.20.0
       ajv-draft-04: 1.0.0(ajv@8.20.0)
-      ajv-formats: 3.0.1
+      ajv-formats: 3.0.1(ajv@8.20.0)
       fs-extra: 11.3.6
       import-lazy: 4.0.0
       jju: 1.4.0
@@ -3376,7 +3417,7 @@ snapshots:
     dependencies:
       ajv: 8.20.0
       ajv-draft-04: 1.0.0(ajv@8.20.0)
-      ajv-formats: 3.0.1
+      ajv-formats: 3.0.1(ajv@8.20.0)
       fs-extra: 11.3.6
       import-lazy: 4.0.0
       jju: 1.4.0
@@ -3715,12 +3756,20 @@ snapshots:
 
   acorn@8.19.0: {}
 
+  ajv-draft-04@1.0.0(ajv@8.18.0):
+    optionalDependencies:
+      ajv: 8.18.0
+
   ajv-draft-04@1.0.0(ajv@8.20.0):
     optionalDependencies:
       ajv: 8.20.0
 
-  ajv-formats@3.0.1:
-    dependencies:
+  ajv-formats@3.0.1(ajv@8.18.0):
+    optionalDependencies:
+      ajv: 8.18.0
+
+  ajv-formats@3.0.1(ajv@8.20.0):
+    optionalDependencies:
       ajv: 8.20.0
 
   ajv-keywords@5.1.0(ajv@8.20.0):
@@ -3734,6 +3783,13 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
+
+  ajv@8.18.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      fast-uri: 3.1.9
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
 
   ajv@8.20.0:
     dependencies:
@@ -4302,6 +4358,10 @@ snapshots:
 
   lodash@4.18.1: {}
 
+  lru-cache@6.0.0:
+    dependencies:
+      yallist: 4.0.0
+
   magic-string@1.4.5:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
@@ -4800,10 +4860,14 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
       ajv: 8.20.0
-      ajv-formats: 3.0.1
+      ajv-formats: 3.0.1(ajv@8.20.0)
       ajv-keywords: 5.1.0(ajv@8.20.0)
     optionalDependencies:
       webpack: 5.112.2(cssnano@5.1.15(postcss@8.5.33))(csso@4.2.0)(lightningcss@1.33.0)(postcss@8.5.33)(svgo@2.8.4)
+
+  semver@7.5.4:
+    dependencies:
+      lru-cache: 6.0.0
 
   semver@7.7.4: {}
 
@@ -5061,6 +5125,8 @@ snapshots:
   why-is-node-running@3.2.1: {}
 
   word-wrap@1.2.5: {}
+
+  yallist@4.0.0: {}
 
   yaml@1.10.3: {}
 

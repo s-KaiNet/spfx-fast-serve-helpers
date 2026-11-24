@@ -1,7 +1,7 @@
 {
   "name": "spfx-fast-serve-helpers",
-  "version": "1.24.0",
-  "description": "Rspack-based dev server for SharePoint Framework 1.24.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
+  "version": "1.23.0",
+  "description": "Rspack-based dev server for SharePoint Framework 1.23.x (Heft) projects: fast start, HMR and React Fast Refresh inside a real SharePoint page",
   "type": "module",
   "bin": {
     "fast-serve": "lib/cli/main.js"
@@ -53,7 +53,7 @@
   },
   "homepage": "https://github.com/s-KaiNet/spfx-fast-serve-helpers#readme",
   "devDependencies": {
-    "@microsoft/sp-css-loader": "1.24.1",
+    "@microsoft/sp-css-loader": "1.23.2",
     "@rushstack/heft-config-file": "0.20.16",
     "@rushstack/heft-sass-plugin": "1.5.0",
     "@rushstack/heft-static-asset-typings-plugin": "0.1.26",

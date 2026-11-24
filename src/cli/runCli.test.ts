@@ -30,8 +30,8 @@ describe('runCli', () => {
     expect(result.startServer).not.toHaveBeenCalled();
   });
 
-  it('uses a 1.24 release or beta version', () => {
-    expect(packageVersion).toMatch(/^1\.24\.\d+(-beta\.\d+)?$/);
+  it('uses a 1.23 release or beta version', () => {
+    expect(packageVersion).toMatch(/^1\.23\.\d+(-beta\.\d+)?$/);
   });
 
   it('fails on unknown options', async () => {

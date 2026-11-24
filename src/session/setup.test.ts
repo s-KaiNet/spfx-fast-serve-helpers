@@ -38,7 +38,7 @@ describe('prepareServe', () => {
     const { logger } = recordingLogger();
     const setup = prepareServe({ root: fixture, logger, env: { SPFX_SERVE_TENANT_DOMAIN: 'contoso.sharepoint.com' } });
     expect(setup.root).toBe(fixture);
-    expect(setup.spfxVersion).toEqual({ kind: 'installed', version: '1.24.1', packageName: '@microsoft/sp-core-library' });
+    expect(setup.spfxVersion).toEqual({ kind: 'installed', version: '1.23.2', packageName: '@microsoft/sp-core-library' });
     expect(setup.options).toMatchObject({ port: 4400, locale: 'en-us', pageUrl: 'https://contoso.sharepoint.com/sites/dev/SitePages/Test.aspx' });
     expect(setup.project.bundles().map((bundle) => bundle.name)).toEqual(['hello-web-part', 'card-adaptive-card-extension', 'tools-library', 'banner-application-customizer']);
   });
@@ -86,10 +86,10 @@ describe('prepareServe', () => {
 
   it('refuses unsupported SPFx versions and projects without components', () => {
     const { logger } = recordingLogger();
-    const newer = fixtureCopy({ 'node_modules/@microsoft/sp-core-library/package.json': '{ "name": "@microsoft/sp-core-library", "version": "1.25.0" }' });
-    expect(() => prepareServe({ root: newer, logger })).toThrow(/Unsupported SPFx version: this project uses SPFx 1\.25\.0/);
+    const newer = fixtureCopy({ 'node_modules/@microsoft/sp-core-library/package.json': '{ "name": "@microsoft/sp-core-library", "version": "1.24.0" }' });
+    expect(() => prepareServe({ root: newer, logger })).toThrow(/Unsupported SPFx version: this project uses SPFx 1\.24\.0/);
     const empty = fixtureCopy({ 'config/config.json': '{ "bundles": {} }' });
-    expect(() => prepareServe({ root: empty, logger })).toThrow(/No web parts, extensions, Adaptive Card Extensions, Copilot components or library components/);
+    expect(() => prepareServe({ root: empty, logger })).toThrow(/No web parts, extensions, Adaptive Card Extensions or library components/);
   });
 
   it('serves a library-only project: its Library component is a bundle of its own', () => {
@@ -128,7 +128,7 @@ describe('prepareServe', () => {
 describe('versionLine', () => {
   it('names the package and SPFx versions', () => {
     const setup = prepareServe({ root: fixture, logger: recordingLogger().logger, env: {} });
-    expect(versionLine(setup)).toBe(`spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`);
+    expect(versionLine(setup)).toBe(`spfx-fast-serve-helpers ${packageVersion}, SPFx 1.23.2`);
   });
 });
 

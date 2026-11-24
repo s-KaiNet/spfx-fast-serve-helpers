@@ -10,10 +10,10 @@ import { scssTypingsOnServerStart } from './scssTypings/index.js';
 
 const SP_CSS_LOADER = '@microsoft/sp-css-loader';
 const SASS_PACKAGES = ['sass-embedded', 'sass'];
-const MODULE_CSS = /\.module(?:\.scss)?\.css$/i;
-const GLOBAL_CSS = /(?<!\.module(?:\.scss)?)\.css$/i;
-const MODULE_SASS = /\.module\.s[ac]ss$/i;
-const GLOBAL_SASS = /(?<!\.module)\.s[ac]ss$/i;
+const MODULE_CSS = /(?<!\.global)\.css$/i;
+const GLOBAL_CSS = /\.global\.css$/i;
+const MODULE_SASS = /(?<!\.global)\.s[ac]ss$/i;
+const GLOBAL_SASS = /\.global\.s[ac]ss$/i;
 
 export interface SassPackage {
   NodePackageImporter?: new (entryPointDirectory: string) => object;

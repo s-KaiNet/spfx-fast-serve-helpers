@@ -116,7 +116,7 @@ describe('compileOnce on a fixture project', () => {
       settings: { color: 'blue' },
     });
     expect(webPart.logo).toMatch(new RegExp(`^${ORIGIN}/dist/logo_[0-9a-f]+\\.png$`));
-    expect(webPart.render()).toMatchObject({ type: 'div', props: { title: 'Hello from en-us', children: ['18.3.1'] } });
+    expect(webPart.render()).toMatchObject({ type: 'div', props: { title: 'Hello from en-us', children: ['17.0.1'] } });
     expect(result.assets.some((asset) => /^logo_[0-9a-f]+\.png$/.test(asset))).toBe(true);
   });
 

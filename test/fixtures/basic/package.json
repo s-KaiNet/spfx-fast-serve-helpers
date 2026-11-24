@@ -3,8 +3,8 @@
   "version": "1.2.3",
   "private": true,
   "dependencies": {
-    "@microsoft/sp-core-library": "1.24.1",
+    "@microsoft/sp-core-library": "1.23.2",
     "plain-lib": "1.0.0",
-    "react": "18.3.1"
+    "react": "17.0.1"
   }
 }

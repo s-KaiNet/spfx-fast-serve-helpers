@@ -98,7 +98,7 @@ function renderedClassName(source: string): string {
 }
 
 describe('Sass and CSS like heft', () => {
-  it('names CSS module classes exactly like heft and compiles pkg:, ~, .sass, global and node_modules CSS', async () => {
+  it('names CSS module classes exactly like heft and compiles pkg:, ~, .sass, global and node_modules CSS as heft 1.23 does', async () => {
     const copy = styledFixture({ 'config/sass.json': { ...heftSassJson, silenceDeprecations: ['import'] } });
 
     const { result, messages, bundle } = await copy.compile();
@@ -118,7 +118,7 @@ describe('Sass and CSS like heft', () => {
     expect(source).toContain('[theme:themePrimary, default:#0078d4]');
     expect(source).toContain('padding:4px');
     expect(source).toContain('.globalThing{color:red}');
-    expect(source).toMatch(/\.rs-btn\{background:url\(/);
+    expect(source).toMatch(/\.rs-btn_[0-9a-f]{8}\{background:url\(/);
     expect(result.assets.some((asset) => /^icon_[0-9a-f]+\.png$/.test(asset))).toBe(true);
   }, 60_000);
 
@@ -165,6 +165,36 @@ describe('Sass and CSS like heft', () => {
     expect(result.fileDependencies).toEqual(
       expect.arrayContaining([path.join(root, hiddenPackage, 'dist/sass/_tokens.scss'), path.join(root, hiddenPackage, 'node_modules/inner-sass/_vars.scss')]),
     );
+  }, 60_000);
+
+  it('treats every style file without .global as a CSS module, like heft 1.23', async () => {
+    const copy = styledFixture({
+      'config/sass.json': { ...heftSassJson, silenceDeprecations: ['import'] },
+      [`${COMPONENTS}/Plain.scss`]: '.plain {\n  color: blue;\n}\n',
+      [`${COMPONENTS}/Plain.css`]: '.plainCss {\n  color: green;\n}\n',
+      [`${COMPONENTS}/Hello.tsx`]: [
+        "import * as React from 'react';",
+        "import './app.global.scss';",
+        "import plain from './Plain.scss';",
+        "import plainCss from './Plain.css';",
+        "import type { IHelloProps } from './IHelloProps';",
+        '',
+        'export function renderHello({ title }: IHelloProps): unknown {',
+        '  return <div className={`${plain.plain} ${plainCss.plainCss}`} title={title} />;',
+        '}',
+        '',
+      ].join('\n'),
+    });
+
+    const { result, bundle } = await copy.compile();
+
+    expect(result.errors).toEqual([]);
+    expect(result.warnings).toEqual([]);
+    expect(await heftCompile(copy.root, [`${COMPONENTS}/Plain.scss`])).toEqual([]);
+    const [plain, plainCss] = renderedClassName(bundle('single-web-part')).split(' ');
+    expect(plain).toBe(heftClassName(copy.root, `${COMPONENTS}/Plain.scss`, 'plain'));
+    expect(plainCss).toMatch(/^plainCss_[0-9a-f]{8}$/);
+    expect(bundle('single-web-part')).toContain('.globalThing{color:red}');
   }, 60_000);
 
   it('reports Sass deprecations that config/sass.json does not silence', async () => {

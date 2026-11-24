@@ -109,7 +109,7 @@ describe('dev session restarts', { timeout: 30_000 }, () => {
     const rule = `info: ${'═'.repeat(64)}`;
     const startup = messages.slice(0, messages.lastIndexOf(rule) + 1).filter((message) => message.startsWith('info:'));
     expect(startup).toEqual([
-      `info: spfx-fast-serve-helpers ${packageVersion}, SPFx 1.24.1`,
+      `info: spfx-fast-serve-helpers ${packageVersion}, SPFx 1.23.2`,
       'info: Rspack config: fast-serve/rspack.extend.mjs',
       'info: lint is off: no eslint.config.js / eslint.config.mjs / eslint.config.cjs',
       expect.stringMatching(new RegExp(`^info: ready in \\d+ ms at https://localhost:${port}$`)),

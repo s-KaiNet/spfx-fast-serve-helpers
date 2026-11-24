@@ -49,7 +49,7 @@ describe('defineConfig', () => {
     const config = { resolve: { alias: { '@src': '/project/src' } } };
     expect(defineConfig(config)).toBe(config);
     const factory = defineConfig(({ port }, env) => ({ name: `${port} ${env.mode}` }));
-    expect(factory(fastServeContext('/project', resolveOptions({ cli: { port: 4400 } }, {}), { kind: 'installed', version: '1.24.1', packageName: '@microsoft/sp-core-library' }), { command: 'serve', mode: 'development' })).toEqual({
+    expect(factory(fastServeContext('/project', resolveOptions({ cli: { port: 4400 } }, {}), { kind: 'installed', version: '1.23.2', packageName: '@microsoft/sp-core-library' }), { command: 'serve', mode: 'development' })).toEqual({
       name: '4400 development',
     });
   });
@@ -62,7 +62,7 @@ describe('defineConfig', () => {
 describe('fastServeContext', () => {
   it('describes the server for the config function and is frozen', () => {
     const options = resolveOptions({ cli: { port: 4400, locale: 'de-de', pageUrl: 'https://contoso.sharepoint.com/sites/dev' } }, {});
-    const context = fastServeContext('/project', options, { kind: 'installed', version: '1.24.1', packageName: '@microsoft/sp-core-library' });
+    const context = fastServeContext('/project', options, { kind: 'installed', version: '1.23.2', packageName: '@microsoft/sp-core-library' });
     expect(context).toMatchObject({
       root: '/project',
       port: 4400,
@@ -71,10 +71,10 @@ describe('fastServeContext', () => {
       locale: 'de-de',
       serveConfiguration: undefined,
       pageUrl: 'https://contoso.sharepoint.com/sites/dev',
-      spfxVersion: '1.24.1',
+      spfxVersion: '1.23.2',
     });
     expect(context.rspackVersion).toMatch(/^2\./);
-    expect(context.fastServeVersion).toMatch(/^1\.24\./);
+    expect(context.fastServeVersion).toMatch(/^1\.23\./);
     expect(Object.isFrozen(context)).toBe(true);
   });
 });

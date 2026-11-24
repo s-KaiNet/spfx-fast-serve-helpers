@@ -103,9 +103,9 @@ describe('startDevServer on a fixture project', () => {
     expect(hello?.preconfiguredEntries).toEqual([{ title: { default: 'Hello' }, iconImageUrl: `https://localhost:${port}/src/webparts/hello/assets/logo.png` }]);
     expect(hello?.loaderConfig.scriptResources).toEqual({
       'single-web-part': { type: 'path', path: 'single-web-part.js' },
-      '@microsoft/sp-core-library': { type: 'component', id: '7263c7d0-1d6a-45ec-8d85-d4d1d234171b', version: '1.24.1' },
-      '@microsoft/sp-webpart-base': { type: 'component', id: '974a7777-0990-4136-8fa6-95d80114c2e0', version: '1.24.1' },
-      '@microsoft/sp-loader': { type: 'component', id: '1c6c9123-7aac-41f3-a376-3caea41ed83f', version: '1.24.1' },
+      '@microsoft/sp-core-library': { type: 'component', id: '7263c7d0-1d6a-45ec-8d85-d4d1d234171b', version: '1.23.2' },
+      '@microsoft/sp-webpart-base': { type: 'component', id: '974a7777-0990-4136-8fa6-95d80114c2e0', version: '1.23.2' },
+      '@microsoft/sp-loader': { type: 'component', id: '1c6c9123-7aac-41f3-a376-3caea41ed83f', version: '1.23.2' },
     });
     expect(Object.keys(first?.loaderConfig.scriptResources ?? {})).toEqual([
       'shared-bundle',

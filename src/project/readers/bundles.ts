@@ -7,9 +7,7 @@ import { LIBRARY_COMPONENT_TYPE } from './localLibraries.js';
 import { findSourceFile, SOURCE_EXTENSIONS } from './sourcePaths.js';
 import type { ComponentManifest, ProjectLogger, SpfxBundle, SpfxComponent } from '../types.js';
 
-export const COPILOT_COMPONENT_TYPE = 'CopilotComponent';
-
-const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension', COPILOT_COMPONENT_TYPE, LIBRARY_COMPONENT_TYPE]);
+const SUPPORTED_COMPONENT_TYPES = new Set(['WebPart', 'Extension', 'AdaptiveCardExtension', LIBRARY_COMPONENT_TYPE]);
 
 interface ComponentEntry {
   manifest: ComponentManifest;

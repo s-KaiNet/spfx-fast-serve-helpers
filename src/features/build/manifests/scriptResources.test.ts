@@ -3,7 +3,7 @@ import type { ConfigExternal, SpfxLibrary } from '../../../project/index.js';
 import { bundleScriptResources } from './scriptResources.js';
 
 function library(packageName: string, id: string): [string, SpfxLibrary] {
-  return [packageName, { packageName, id, version: '1.24.1', packageDir: `/p/node_modules/${packageName}` }];
+  return [packageName, { packageName, id, version: '1.23.2', packageDir: `/p/node_modules/${packageName}` }];
 }
 
 const libraries = new Map([
@@ -22,9 +22,9 @@ const configExternals = new Map<string, ConfigExternal>([
 describe('bundleScriptResources', () => {
   it('lists the SPFx libraries a bundle uses, plus the component loader', () => {
     expect(bundleScriptResources(['@microsoft/sp-core-library', '@microsoft/sp-webpart-base'], libraries)).toEqual({
-      '@microsoft/sp-core-library': { type: 'component', id: 'core', version: '1.24.1' },
-      '@microsoft/sp-webpart-base': { type: 'component', id: 'webpart', version: '1.24.1' },
-      '@microsoft/sp-loader': { type: 'component', id: 'loader', version: '1.24.1' },
+      '@microsoft/sp-core-library': { type: 'component', id: 'core', version: '1.23.2' },
+      '@microsoft/sp-webpart-base': { type: 'component', id: 'webpart', version: '1.23.2' },
+      '@microsoft/sp-loader': { type: 'component', id: 'loader', version: '1.23.2' },
     });
   });
 
@@ -35,7 +35,7 @@ describe('bundleScriptResources', () => {
 
   it('lists the used config.json externals with their global dependencies as path resources', () => {
     expect(bundleScriptResources(['chart-plugin'], libraries, configExternals)).toEqual({
-      '@microsoft/sp-loader': { type: 'component', id: 'loader', version: '1.24.1' },
+      '@microsoft/sp-loader': { type: 'component', id: 'loader', version: '1.23.2' },
       'chart-plugin': { type: 'path', path: 'chart-plugin.js', globalName: 'ChartPlugin', globalDependencies: ['jquery'] },
       jquery: { type: 'path', path: 'https://cdn.example.com/jquery.js', globalName: 'jQuery' },
     });

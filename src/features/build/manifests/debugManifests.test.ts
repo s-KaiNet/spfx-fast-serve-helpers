@@ -24,7 +24,7 @@ describe('buildDebugManifests', () => {
       origin: 'https://localhost:4321',
       bundleBaseUrl: 'https://localhost:4321/dist/',
       bundleScriptPath: (name) => `${name}.js`,
-      scriptResources: (name): Record<string, ScriptResource> => (name === 'hello-web-part' ? { '@microsoft/sp-core-library': { type: 'component', id: 'core', version: '1.24.1' } } : {}),
+      scriptResources: (name): Record<string, ScriptResource> => (name === 'hello-web-part' ? { '@microsoft/sp-core-library': { type: 'component', id: 'core', version: '1.23.2' } } : {}),
     });
     expect(manifests).toEqual([
       {
@@ -38,7 +38,7 @@ describe('buildDebugManifests', () => {
           entryModuleId: 'hello-web-part',
           scriptResources: {
             'hello-web-part': { type: 'path', path: 'hello-web-part.js' },
-            '@microsoft/sp-core-library': { type: 'component', id: 'core', version: '1.24.1' },
+            '@microsoft/sp-core-library': { type: 'component', id: 'core', version: '1.23.2' },
           },
         },
       },

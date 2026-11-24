@@ -40,4 +40,4 @@ export function prepareServe({ root, cli = {}, logger, env = process.env }: Prep
   return { root: projectRoot, spfxVersion, project, options };
 }
 
-const NO_COMPONENTS_MESSAGE = 'No web parts, extensions, Adaptive Card Extensions, Copilot components or library components found in config/config.json bundles.';
+const NO_COMPONENTS_MESSAGE = 'No web parts, extensions, Adaptive Card Extensions or library components found in config/config.json bundles.';
